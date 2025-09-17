@@ -82,7 +82,7 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <IconUserCircle />
-                <Link href="/mahasiswa/profile">Account</Link>
+                <Link href="/mahasiswa/profile-view">Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <IconNotification />

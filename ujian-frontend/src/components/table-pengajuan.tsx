@@ -153,10 +153,10 @@ export function TablePengajuan() {
   };
 
   return (
-    <Card>
+    <Card className="">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Daftar Pengajuan Skripsi</span>
+          <span>Data Pengajuan Judul</span>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
@@ -216,11 +216,11 @@ export function TablePengajuan() {
           <Table>
             <TableHeader>
               <TableRow className="bg-foreground/5">
-                <TableHead>Nama Mahasiswa</TableHead>
+                <TableHead>Mahasiswa</TableHead>
                 <TableHead>Judul</TableHead>
-                <TableHead>Keterangan Sekjur</TableHead>
-                <TableHead>Tgl Pengajuan</TableHead>
-                <TableHead>Tgl Verifikasi</TableHead>
+                <TableHead>Keterangan Kaprodi</TableHead>
+                <TableHead>Tanggal Pengajuan</TableHead>
+                <TableHead>Tanggal Verifikasi</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
