@@ -26,9 +26,15 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Search, Plus, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Plus, Filter, ChevronLeft, ChevronRight, X, Eye } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import Link from "next/link";
 
 // Mock data untuk demonstrasi
 const mockData = [
@@ -110,18 +116,21 @@ type SkripsiData = (typeof mockData)[0];
 
 const statusColors = {
   Disetujui:
-    "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+    "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-200 dark:border-green-800",
   Menunggu:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-  Ditolak: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-  Revisi: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800",
+  Ditolak:
+    "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300 border-red-200 dark:border-red-800",
+  Revisi:
+    "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border-blue-200 dark:border-blue-800",
 };
 
 export function TablePengajuan() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<SkripsiData | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const itemsPerPage = 5;
 
   // Filter dan search logic
@@ -149,174 +158,381 @@ export function TablePengajuan() {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("id-ID");
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
-  return (
-    <Card className="">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Data Pengajuan Judul</span>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
-                Tambah Ajuan
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Tambah Pengajuan Skripsi</DialogTitle>
-                <DialogDescription>
-                  Form untuk menambah pengajuan skripsi baru akan ditampilkan di
-                  sini.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-4">
-                <p className="text-sm text-muted-foreground">
-                  Form pengajuan skripsi akan diimplementasikan sesuai kebutuhan
-                  sistem.
-                </p>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Search dan Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Cari berdasarkan nama, judul, atau keterangan..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <div className="flex gap-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Filter Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Status</SelectItem>
-                <SelectItem value="Disetujui">Disetujui</SelectItem>
-                <SelectItem value="Menunggu">Menunggu</SelectItem>
-                <SelectItem value="Ditolak">Ditolak</SelectItem>
-                <SelectItem value="Revisi">Revisi</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+  const clearSearch = () => {
+    setSearchTerm("");
+    setCurrentPage(1);
+  };
 
-        {/* Table */}
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-foreground/5">
-                <TableHead>Mahasiswa</TableHead>
-                <TableHead>Judul</TableHead>
-                <TableHead>Keterangan Kaprodi</TableHead>
-                <TableHead>Tanggal Pengajuan</TableHead>
-                <TableHead>Tanggal Verifikasi</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center py-8 text-muted-foreground"
-                  >
-                    Tidak ada data yang ditemukan
-                  </TableCell>
-                </TableRow>
-              ) : (
-                paginatedData.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">
-                      {item.namaMahasiswa}
-                    </TableCell>
-                    <TableCell className="max-w-xs">
-                      <div className="truncate" title={item.judul}>
-                        {item.judul}
-                      </div>
-                    </TableCell>
-                    <TableCell className="max-w-xs">
-                      <div className="truncate" title={item.keteranganSekjur}>
-                        {item.keteranganSekjur}
-                      </div>
-                    </TableCell>
-                    <TableCell>{formatDate(item.tglPengajuan)}</TableCell>
-                    <TableCell>{formatDate(item.tglVerifikasi)}</TableCell>
-                    <TableCell>
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setCurrentPage(1);
+  };
+
+  const openDetailDialog = (item: SkripsiData) => {
+    setSelectedItem(item);
+    setIsDetailDialogOpen(true);
+  };
+
+  const hasActiveFilters = searchTerm !== "" || statusFilter !== "all";
+
+  return (
+    <TooltipProvider>
+      <Card className="w-full">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">Data Pengajuan Judul</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Kelola pengajuan judul skripsi mahasiswa
+              </p>
+            </div>
+
+            {/* Tombol Tambah Pengajuan */}
+            <Link href="/mahasiswa/pengajuan">
+              <Button className="gap-2 min-w-fit">
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Tambah Pengajuan</span>
+                <span className="sm:hidden">Tambah</span>
+              </Button>
+            </Link>
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {/* Search dan Filter */}
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Cari berdasarkan nama, judul, atau keterangan..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pl-10 pr-10"
+              />
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-muted"
+                  onClick={clearSearch}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+
+            <div className="flex gap-2 flex-shrink-0">
+              <Select
+                value={statusFilter}
+                onValueChange={(value) => {
+                  setStatusFilter(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[160px]">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Status</SelectItem>
+                  <SelectItem value="Disetujui">Disetujui</SelectItem>
+                  <SelectItem value="Menunggu">Menunggu</SelectItem>
+                  <SelectItem value="Ditolak">Ditolak</SelectItem>
+                  <SelectItem value="Revisi">Revisi</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {hasActiveFilters && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearFilters}
+                      className="px-3"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Hapus semua filter</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          </div>
+
+          {/* Status summary */}
+          {hasActiveFilters && (
+            <div className="text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
+              Menampilkan {filteredData.length} dari {mockData.length} data
+              {searchTerm && ` untuk "${searchTerm}"`}
+              {statusFilter !== "all" && ` dengan status "${statusFilter}"`}
+            </div>
+          )}
+
+          {/* Table */}
+          <div className="rounded-md border overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="font-semibold">Mahasiswa</TableHead>
+                    <TableHead className="font-semibold">Judul</TableHead>
+                    <TableHead className="font-semibold">Keterangan</TableHead>
+                    <TableHead className="font-semibold">
+                      Tanggal Pengajuan
+                    </TableHead>
+                    <TableHead className="font-semibold">
+                      Tanggal Verifikasi
+                    </TableHead>
+                    <TableHead className="font-semibold">Status</TableHead>
+                    <TableHead className="font-semibold w-[80px]">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedData.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={7}
+                        className="text-center py-12 text-muted-foreground"
+                      >
+                        <div className="flex flex-col items-center gap-2">
+                          <Search className="h-8 w-8 opacity-50" />
+                          <p className="font-medium">
+                            Tidak ada data yang ditemukan
+                          </p>
+                          <p className="text-sm">
+                            {hasActiveFilters
+                              ? "Coba ubah kriteria pencarian atau filter"
+                              : "Belum ada pengajuan yang tersedia"}
+                          </p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedData.map((item) => (
+                      <TableRow
+                        key={item.id}
+                        className="hover:bg-muted/50 transition-colors"
+                      >
+                        <TableCell className="font-medium">
+                          {item.namaMahasiswa}
+                        </TableCell>
+                        <TableCell className="max-w-[250px]">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="truncate cursor-help">
+                                {item.judul}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[300px]">
+                              <p>{item.judul}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell className="max-w-[200px]">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="truncate cursor-help">
+                                {item.keteranganSekjur}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[300px]">
+                              <p>{item.keteranganSekjur}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {formatDate(item.tglPengajuan)}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {formatDate(item.tglVerifikasi)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={
+                              statusColors[
+                                item.status as keyof typeof statusColors
+                              ]
+                            }
+                          >
+                            {item.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => openDetailDialog(item)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Lihat detail</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+              <div className="text-sm text-muted-foreground order-2 sm:order-1">
+                Menampilkan {startIndex + 1}-
+                {Math.min(startIndex + itemsPerPage, filteredData.length)} dari{" "}
+                {filteredData.length} data
+              </div>
+
+              <div className="flex items-center gap-2 order-1 sm:order-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="gap-1"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">Sebelumnya</span>
+                </Button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let page;
+                    if (totalPages <= 5) {
+                      page = i + 1;
+                    } else if (currentPage <= 3) {
+                      page = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      page = totalPages - 4 + i;
+                    } else {
+                      page = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {page}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="gap-1"
+                >
+                  <span className="hidden sm:inline">Selanjutnya</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+
+        {/* Detail Dialog */}
+        <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Detail Pengajuan Skripsi</DialogTitle>
+              <DialogDescription>
+                Informasi lengkap pengajuan skripsi
+              </DialogDescription>
+            </DialogHeader>
+            {selectedItem && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Nama Mahasiswa
+                    </label>
+                    <p className="mt-1">{selectedItem.namaMahasiswa}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Status
+                    </label>
+                    <div className="mt-1">
                       <Badge
-                        variant="secondary"
+                        variant="outline"
                         className={
-                          statusColors[item.status as keyof typeof statusColors]
+                          statusColors[
+                            selectedItem.status as keyof typeof statusColors
+                          ]
                         }
                       >
-                        {item.status}
+                        {selectedItem.status}
                       </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6">
-            <div className="text-sm text-muted-foreground">
-              Menampilkan {startIndex + 1}-
-              {Math.min(startIndex + itemsPerPage, filteredData.length)} dari{" "}
-              {filteredData.length} data
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Sebelumnya
-              </Button>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                      className="w-8 h-8 p-0"
-                    >
-                      {page}
-                    </Button>
-                  )
-                )}
+                    </div>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Judul Skripsi
+                    </label>
+                    <p className="mt-1">{selectedItem.judul}</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Keterangan Kaprodi
+                    </label>
+                    <p className="mt-1">{selectedItem.keteranganSekjur}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Tanggal Pengajuan
+                    </label>
+                    <p className="mt-1">
+                      {formatDate(selectedItem.tglPengajuan)}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Tanggal Verifikasi
+                    </label>
+                    <p className="mt-1">
+                      {formatDate(selectedItem.tglVerifikasi)}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-              >
-                Selanjutnya
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            )}
+          </DialogContent>
+        </Dialog>
+      </Card>
+    </TooltipProvider>
   );
 }
