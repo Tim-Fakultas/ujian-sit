@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  IconBook,
   IconDashboard,
   IconDots,
   IconFolder,
@@ -31,6 +32,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import {
   Collapsible,
@@ -50,6 +52,7 @@ import {
   Settings2,
   SquareTerminal,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const data = {
   user: {
@@ -80,42 +83,36 @@ const data = {
       ],
     },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
 };
 
 export function NavDocuments() {
   const { isMobile } = useSidebar();
+  const pathname = usePathname();
 
   return (
     <>
       <SidebarGroup>
-        <SidebarMenu>
+        <SidebarMenu className="mb-2">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="#">
+            <SidebarMenuButton
+              asChild
+              className={cn(
+                pathname === "/"
+                  ? "text-[#476EAE] bg-blue-50"
+                  : "hover:bg-blue-50 hover:text-[#476EAE] transition-colors"
+              )}
+            >
+              <Link href="/">
                 <IconHome />
                 <span>Home</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <SidebarMenu>
+      </SidebarGroup>
+      <SidebarGroup>
+        <SidebarGroupLabel className="">Dashboard</SidebarGroupLabel>
+        <SidebarMenu className="mb-2">
           {data.navMain.map((item) => (
             <Collapsible
               key={item.title}
@@ -125,7 +122,10 @@ export function NavDocuments() {
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title}>
+                  <SidebarMenuButton
+                    tooltip={item.title}
+                    className="hover:bg-blue-50 hover:text-[#476EAE] transition-colors"
+                  >
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -135,9 +135,15 @@ export function NavDocuments() {
                   <SidebarMenuSub>
                     {item.items?.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
+                        <SidebarMenuSubButton
+                          className={cn(
+                            pathname === subItem.url
+                              ? "text-[#476EAE] bg-blue-50"
+                              : "hover:bg-blue-50 hover:text-[#476EAE]  transition-colors"
+                          )}
+                        >
                           <div className="flex items-center gap-2">
-                            <ChevronRight />
+                            <ChevronRight size={16} />
                             <Link href={subItem.url}>
                               <span>{subItem.title}</span>
                             </Link>
@@ -150,6 +156,23 @@ export function NavDocuments() {
               </SidebarMenuItem>
             </Collapsible>
           ))}
+        </SidebarMenu>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              className={cn(
+                pathname === "/dosen/daftar-pengajuan"
+                  ? "text-[#476EAE] bg-blue-50"
+                  : "hover:bg-blue-50 hover:text-[#476EAE] transition-colors"
+              )}
+            >
+              <Link href="/dosen/daftar-pengajuan">
+                <IconBook />
+                <span>Pengajuan Judul</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
     </>

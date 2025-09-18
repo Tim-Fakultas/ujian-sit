@@ -27,7 +27,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Search, Plus, Filter, ChevronLeft, ChevronRight, X, Eye } from "lucide-react";
+import {
+  Search,
+  Plus,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Eye,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -133,6 +141,14 @@ export function TablePengajuan() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const itemsPerPage = 5;
 
+  const mahasiswa = {
+    nama: "Ahmad Rizki Pratama",
+    semester: 5, // Ganti dengan semester aktual mahasiswa
+  };
+
+  // Logika untuk cek apakah mahasiswa bisa mengajukan
+  const canSubmitProposal = mahasiswa.semester >= 5;
+
   // Filter dan search logic
   const filteredData = useMemo(() => {
     return mockData.filter((item) => {
@@ -185,7 +201,7 @@ export function TablePengajuan() {
 
   return (
     <TooltipProvider>
-      <Card className="w-full">
+      <Card className="w-full border-0">
         <CardHeader className="pb-4">
           <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -195,14 +211,30 @@ export function TablePengajuan() {
               </p>
             </div>
 
-            {/* Tombol Tambah Pengajuan */}
-            <Link href="/mahasiswa/pengajuan">
-              <Button className="gap-2 min-w-fit">
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Tambah Pengajuan</span>
-                <span className="sm:hidden">Tambah</span>
-              </Button>
-            </Link>
+            {/* Tombol Tambah Pengajuan dengan kondisi disable */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Link href={canSubmitProposal ? "/mahasiswa/pengajuan" : "#"}>
+                    <Button
+                      className="gap-2 min-w-fit bg-[#476EAE] hover:bg-[#476EAE]/80 text-white"
+                      disabled={!canSubmitProposal}
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span className="hidden sm:inline">Tambah Pengajuan</span>
+                      <span className="sm:hidden">Tambah</span>
+                    </Button>
+                  </Link>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {canSubmitProposal
+                    ? "Tambah pengajuan judul baru"
+                    : `Pengajuan judul hanya tersedia mulai semester 5. Semester saat ini: ${mahasiswa.semester}`}
+                </p>
+              </TooltipContent>
+            </Tooltip>
           </CardTitle>
         </CardHeader>
 
@@ -288,7 +320,9 @@ export function TablePengajuan() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50">
-                    <TableHead className="font-semibold">Mahasiswa</TableHead>
+                    <TableHead className="font-semibold w-[60px] text-center">
+                      No
+                    </TableHead>
                     <TableHead className="font-semibold">Judul</TableHead>
                     <TableHead className="font-semibold">Keterangan</TableHead>
                     <TableHead className="font-semibold">
@@ -298,7 +332,9 @@ export function TablePengajuan() {
                       Tanggal Verifikasi
                     </TableHead>
                     <TableHead className="font-semibold">Status</TableHead>
-                    <TableHead className="font-semibold w-[80px]">Aksi</TableHead>
+                    <TableHead className="font-semibold w-[80px]">
+                      Aksi
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -322,13 +358,13 @@ export function TablePengajuan() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    paginatedData.map((item) => (
+                    paginatedData.map((item, index) => (
                       <TableRow
                         key={item.id}
                         className="hover:bg-muted/50 transition-colors"
                       >
-                        <TableCell className="font-medium">
-                          {item.namaMahasiswa}
+                        <TableCell className="text-center font-medium">
+                          {startIndex + index + 1}
                         </TableCell>
                         <TableCell className="max-w-[250px]">
                           <Tooltip>
@@ -337,7 +373,10 @@ export function TablePengajuan() {
                                 {item.judul}
                               </div>
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[300px]">
+                            <TooltipContent
+                              side="top"
+                              className="max-w-[300px]"
+                            >
                               <p>{item.judul}</p>
                             </TooltipContent>
                           </Tooltip>
@@ -349,7 +388,10 @@ export function TablePengajuan() {
                                 {item.keteranganSekjur}
                               </div>
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[300px]">
+                            <TooltipContent
+                              side="top"
+                              className="max-w-[300px]"
+                            >
                               <p>{item.keteranganSekjur}</p>
                             </TooltipContent>
                           </Tooltip>
@@ -466,67 +508,100 @@ export function TablePengajuan() {
 
         {/* Detail Dialog */}
         <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Detail Pengajuan Skripsi</DialogTitle>
-              <DialogDescription>
-                Informasi lengkap pengajuan skripsi
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="space-y-3">
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-xl font-semibold">
+                  Detail Pengajuan
+                </DialogTitle>
+                {selectedItem && (
+                  <Badge
+                    variant="outline"
+                    className={
+                      statusColors[
+                        selectedItem.status as keyof typeof statusColors
+                      ]
+                    }
+                  >
+                    {selectedItem.status}
+                  </Badge>
+                )}
+              </div>
+              <DialogDescription className="text-sm text-muted-foreground">
+                ID: #{selectedItem?.id.toString().padStart(4, "0")}
               </DialogDescription>
             </DialogHeader>
+
             {selectedItem && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Nama Mahasiswa
-                    </label>
-                    <p className="mt-1">{selectedItem.namaMahasiswa}</p>
+              <div className="space-y-6 pt-4">
+                {/* Mahasiswa */}
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    Mahasiswa
+                  </h4>
+                  <p className="text-base font-medium">
+                    {selectedItem.namaMahasiswa}
+                  </p>
+                </div>
+
+                {/* Judul */}
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    Judul Skripsi
+                  </h4>
+                  <div className="p-3 bg-muted/30 rounded-md border">
+                    <p className="text-sm leading-relaxed">
+                      {selectedItem.judul}
+                    </p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Status
-                    </label>
-                    <div className="mt-1">
-                      <Badge
-                        variant="outline"
-                        className={
-                          statusColors[
-                            selectedItem.status as keyof typeof statusColors
-                          ]
-                        }
-                      >
-                        {selectedItem.status}
-                      </Badge>
-                    </div>
+                </div>
+
+                {/* Keterangan */}
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    Keterangan
+                  </h4>
+                  <div className="p-3 bg-muted/30 rounded-md border">
+                    <p className="text-sm leading-relaxed">
+                      {selectedItem.keteranganSekjur}
+                    </p>
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Judul Skripsi
-                    </label>
-                    <p className="mt-1">{selectedItem.judul}</p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Keterangan Kaprodi
-                    </label>
-                    <p className="mt-1">{selectedItem.keteranganSekjur}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
+                </div>
+
+                {/* Timeline */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                       Tanggal Pengajuan
-                    </label>
-                    <p className="mt-1">
+                    </h4>
+                    <p className="text-sm">
                       {formatDate(selectedItem.tglPengajuan)}
                     </p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                       Tanggal Verifikasi
-                    </label>
-                    <p className="mt-1">
-                      {formatDate(selectedItem.tglVerifikasi)}
+                    </h4>
+                    <p className="text-sm">
+                      {selectedItem.tglVerifikasi
+                        ? formatDate(selectedItem.tglVerifikasi)
+                        : "Belum diverifikasi"}
                     </p>
                   </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsDetailDialogOpen(false)}
+                  >
+                    Tutup
+                  </Button>
+                  <Button size="sm" onClick={() => window.print()}>
+                    Cetak
+                  </Button>
                 </div>
               </div>
             )}
