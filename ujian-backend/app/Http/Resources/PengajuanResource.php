@@ -14,6 +14,20 @@ class PengajuanResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            "id"=> $this->id,
+            "mahasiswa"=> $this->mahasiswa ? [
+                "id" => $this->mahasiswa->id,
+                "nim" => $this->mahasiswa->nim,
+                "nama" => $this->mahasiswa->nama,
+            ] : null,
+            'judulSkripsi' => $this->judul_skripsi,
+            'tanggalPengajuan' => $this->tanggal_pengajuan,
+            'tanggalDisetujui' => $this->tanggal_disetujui,
+            'status' => $this->status,
+            'keterangan' => $this->keterangan,
+            "createdAt"=> $this->created_at,
+            "updatedAt"=> $this->updated_at,
+        ];
     }
 }

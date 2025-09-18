@@ -14,6 +14,25 @@ class BimbinganResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            "id"=> $this->id,
+            "skripsiId"=> $this->skripsi_id,
+            "mahasiswa"=> $this->mahasiswa ? [
+                'id' => $this->mahasiswa->id,
+                'nama' => $this->mahasiswa->nama,
+                'nim' => $this->mahasiswa->nim,
+            ] : null,
+            "pembimbing1"=> $this->pembimbing1 ? [
+                'id' => $this->pembimbing1->id,
+                'nama' => $this->pembimbing1->nama,
+            ] : null,
+            "pembimbing2"=> $this->pembimbing2 ? [
+                'id' => $this->pembimbing2->id,
+                'nama' => $this->pembimbing2->nama,
+            ] : null,
+            "keterangan"=> $this->keterangan,
+            "createdAt"=> $this->created_at,
+            "updatedAt"=> $this->updated_at,
+            ];
     }
 }

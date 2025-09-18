@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Prodi;
+use App\Models\Pengajuan;
 
 class Mahasiswa extends Model
 {
@@ -21,7 +23,7 @@ class Mahasiswa extends Model
     ];
 
     public function pengajuan(){
-        return $this->hasMany(Pengajuan::class, );
+        return $this->hasMany(Pengajuan::class, 'mahasiswa_id', 'id');
     }
 
     public function prodi()

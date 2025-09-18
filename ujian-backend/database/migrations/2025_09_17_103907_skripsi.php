@@ -18,9 +18,6 @@ return new class extends Migration
             $table->text("judul_skripsi");
             $table->text("identifikasi_masalah");
             $table->text("rumusan_masalah");
-            $table->text("tujuan_penelitian");
-            $table->text("manfaat_penelitian");
-            $table->text("metode_penelitian");
             $table->text("penelitian_sebelumnya");
             $table->text("pokok_masalah");
             $table->text("deskripsi_lengkap");

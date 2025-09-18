@@ -28,11 +28,11 @@ class Bimbingan extends Model
         return $this->belongsTo(Skripsi::class);
     }
 
-    public function pembimbing_1(){
+    public function pembimbing1(){
         return $this->belongsTo(Dosen::class, 'pembimbing_1');
     }
     
-    public function pembimbing_2(){
+    public function pembimbing2(){
         return $this->belongsTo(Dosen::class, 'pembimbing_2');
     }
 }

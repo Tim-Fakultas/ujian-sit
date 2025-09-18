@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSkripsiRequest;
 use App\Http\Requests\UpdateSkripsiRequest;
+use App\Http\Resources\SkripsiResource;
 use App\Models\Skripsi;
 
 class SkripsiController extends Controller
@@ -13,7 +14,8 @@ class SkripsiController extends Controller
      */
     public function index()
     {
-        //
+        $skripsi = Skripsi::all();
+        return SkripsiResource::collection($skripsi);
     }
 
     /**

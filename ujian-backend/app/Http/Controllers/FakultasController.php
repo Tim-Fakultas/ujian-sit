@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFakultasRequest;
 use App\Http\Requests\UpdateFakultasRequest;
+use App\Http\Resources\FakultasResource;
 use App\Models\Fakultas;
 
 class FakultasController extends Controller
@@ -13,7 +14,8 @@ class FakultasController extends Controller
      */
     public function index()
     {
-        //
+        $fakultas = Fakultas::all();
+        return FakultasResource::collection($fakultas);
     }
 
     /**

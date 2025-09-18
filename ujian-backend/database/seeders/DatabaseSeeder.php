@@ -46,5 +46,7 @@ class DatabaseSeeder extends Seeder
     )
     ->create();
 
+    Pejabat::factory(3)->create();
+
     }
 }

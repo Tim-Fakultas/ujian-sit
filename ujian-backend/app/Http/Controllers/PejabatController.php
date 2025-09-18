@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePejabatRequest;
 use App\Http\Requests\UpdatePejabatRequest;
+use App\Http\Resources\PejabatResource;
 use App\Models\Pejabat;
 
 class PejabatController extends Controller
@@ -13,7 +14,8 @@ class PejabatController extends Controller
      */
     public function index()
     {
-        //
+        $pejabat = Pejabat::all();
+        return PejabatResource::collection($pejabat);
     }
 
     /**

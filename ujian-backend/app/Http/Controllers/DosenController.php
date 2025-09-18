@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDosenRequest;
 use App\Http\Requests\UpdateDosenRequest;
+use App\Http\Resources\DosenResource;
 use App\Models\Dosen;
 
 class DosenController extends Controller
@@ -13,7 +14,8 @@ class DosenController extends Controller
      */
     public function index()
     {
-        //
+        $dosen = Dosen::with('prodi')->get();
+        return DosenResource::collection($dosen);
     }
 
     /**

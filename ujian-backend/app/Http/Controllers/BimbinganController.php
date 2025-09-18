@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBimbinganRequest;
 use App\Http\Requests\UpdateBimbinganRequest;
+use App\Http\Resources\BimbinganResource;
 use App\Models\Bimbingan;
 
 class BimbinganController extends Controller
@@ -13,7 +14,8 @@ class BimbinganController extends Controller
      */
     public function index()
     {
-        //
+        $bimbingan = Bimbingan::with(['mahasiswa', 'skripsi', 'pembimbing1', 'pembimbing2'])->get();
+        return BimbinganResource::collection($bimbingan);
     }
 
     /**
@@ -21,7 +23,7 @@ class BimbinganController extends Controller
      */
     public function store(StoreBimbinganRequest $request)
     {
-        //
+        
     }
 
     /**

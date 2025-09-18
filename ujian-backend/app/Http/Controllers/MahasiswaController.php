@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMahasiswaRequest;
 use App\Http\Requests\UpdateMahasiswaRequest;
+use App\Http\Resources\MahasiswaResource;
 use App\Models\Mahasiswa;
 
 class MahasiswaController extends Controller
@@ -13,7 +14,8 @@ class MahasiswaController extends Controller
      */
     public function index()
     {
-        //
+        $mahasiswa = Mahasiswa::with('prodi')->get();
+        return MahasiswaResource::collection($mahasiswa);
     }
 
     /**
@@ -45,6 +47,6 @@ class MahasiswaController extends Controller
      */
     public function destroy(Mahasiswa $mahasiswa)
     {
-        //
+        
     }
 }

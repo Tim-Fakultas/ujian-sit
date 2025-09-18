@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePengajuanRequest;
 use App\Http\Requests\UpdatePengajuanRequest;
+use App\Http\Resources\PengajuanResource;
 use App\Models\Pengajuan;
 
 class PengajuanController extends Controller
@@ -13,7 +14,8 @@ class PengajuanController extends Controller
      */
     public function index()
     {
-        //
+        $pengajuan = Pengajuan::with(['mahasiswa', 'skripsi', 'dosen'])->get();
+        return PengajuanResource::collection($pengajuan);
     }
 
     /**

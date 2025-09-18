@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProdiRequest;
 use App\Http\Requests\UpdateProdiRequest;
+use App\Http\Resources\ProdiResource;
 use App\Models\Prodi;
 
 class ProdiController extends Controller
@@ -13,7 +14,8 @@ class ProdiController extends Controller
      */
     public function index()
     {
-        //
+        $prodi = Prodi::with('fakultas')->get();
+        return ProdiResource::collection($prodi);
     }
 
     /**
