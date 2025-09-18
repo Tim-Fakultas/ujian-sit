@@ -232,6 +232,8 @@ export default function JudulDiterimaPage() {
   const [loading, setLoading] = useState(false);
   const itemsPerPage = 5; // Reduced for better pagination demo
 
+  
+
   // Filter dan search logic
   const filteredData = useMemo(() => {
     return mockData.filter((item) => {

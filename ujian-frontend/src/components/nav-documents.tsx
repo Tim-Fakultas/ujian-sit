@@ -63,7 +63,7 @@ const data = {
 
   navMain: [
     {
-      title: "Berkas Mahasiswa",
+      title: "Data Berkas Mahasiswa",
       url: "#",
       icon: FolderArchive,
       isActive: true,
@@ -92,7 +92,7 @@ export function NavDocuments() {
   return (
     <>
       <SidebarGroup>
-        <SidebarMenu className="mb-2">
+        <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
@@ -110,9 +110,11 @@ export function NavDocuments() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
+
       <SidebarGroup>
-        <SidebarGroupLabel className="">Dashboard</SidebarGroupLabel>
-        <SidebarMenu className="mb-2">
+        <SidebarGroupLabel className="">Menu</SidebarGroupLabel>
+
+        <SidebarMenu className="">
           {data.navMain.map((item) => (
             <Collapsible
               key={item.title}
@@ -157,6 +159,8 @@ export function NavDocuments() {
             </Collapsible>
           ))}
         </SidebarMenu>
+      </SidebarGroup>
+      <SidebarGroup>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
