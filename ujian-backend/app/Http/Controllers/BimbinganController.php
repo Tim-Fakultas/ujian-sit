@@ -23,15 +23,16 @@ class BimbinganController extends Controller
      */
     public function store(StoreBimbinganRequest $request)
     {
-        
+        //
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Bimbingan $bimbingan)
+    public function show($id)
     {
-        //
+        $bimbingan = Bimbingan::findOrFail($id);
+        return new BimbinganResource($bimbingan);
     }
 
     /**

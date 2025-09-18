@@ -29,9 +29,10 @@ class PengajuanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Pengajuan $pengajuan)
+    public function show($id)
     {
-        //
+        $pengajuan = Pengajuan::findOrFail($id);
+        return new PengajuanResource($pengajuan);
     }
 
     /**

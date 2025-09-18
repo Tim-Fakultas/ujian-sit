@@ -22,7 +22,10 @@ class StoreMahasiswaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "nama" => "required|string|max:255",
+            "nim" => "required|string|max:20|unique:mahasiswa,nim",
+            "alamat" => "nullable|string",
+            "no_hp" => "nullable|string|max:30",
         ];
     }
 }

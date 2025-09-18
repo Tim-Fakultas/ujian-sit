@@ -29,9 +29,10 @@ class DosenController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Dosen $dosen)
+    public function show($id)
     {
-        //
+        $dosen = Dosen::findOrFail($id);
+        return new DosenResource($dosen);
     }
 
     /**

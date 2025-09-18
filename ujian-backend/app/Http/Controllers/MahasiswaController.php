@@ -23,15 +23,18 @@ class MahasiswaController extends Controller
      */
     public function store(StoreMahasiswaRequest $request)
     {
-        //
+        $request->validated();
+        $mahasiswa = Mahasiswa::create($request->all());
+        return new MahasiswaResource($mahasiswa);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Mahasiswa $mahasiswa)
+    public function show($id)
     {
-        //
+        $mahasiswa = Mahasiswa::findOrFail($id);
+        return new MahasiswaResource($mahasiswa);
     }
 
     /**

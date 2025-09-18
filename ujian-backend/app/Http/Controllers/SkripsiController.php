@@ -29,9 +29,10 @@ class SkripsiController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Skripsi $skripsi)
+    public function show($id)
     {
-        //
+        $skripsi = Skripsi::findOrFail($id);
+        return new SkripsiResource($skripsi);
     }
 
     /**

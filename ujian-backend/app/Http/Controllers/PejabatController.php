@@ -23,15 +23,16 @@ class PejabatController extends Controller
      */
     public function store(StorePejabatRequest $request)
     {
-        //
+        
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Pejabat $pejabat)
+    public function show($id)
     {
-        //
+        $pejabat = Pejabat::findOrFail($id);
+        return new PejabatResource($pejabat);
     }
 
     /**

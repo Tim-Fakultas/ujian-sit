@@ -41,8 +41,6 @@ class SkripsiResource extends JsonResource
             "tanggalSelesai"=> $this->tanggal_selesai,
             "createdAt"=> $this->created_at,
             "updatedAt"=> $this->updated_at,
-            
-
             ];
     }
 }

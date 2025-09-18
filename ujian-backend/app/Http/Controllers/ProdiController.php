@@ -29,9 +29,9 @@ class ProdiController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Prodi $prodi)
-    {
-        //
+    public function show($id){
+        $prodi = Prodi::findOrFail($id);
+        return new ProdiResource($prodi);
     }
 
     /**
