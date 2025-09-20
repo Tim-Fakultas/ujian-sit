@@ -107,6 +107,7 @@ export default function FormPengajuan() {
       description: "Semua data form telah dikosongkan.",
     });
   };
+  z;
 
   const handleCancel = () => {
     // Navigate back or close modal
@@ -114,17 +115,14 @@ export default function FormPengajuan() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="w-full max-w-none mx-auto">
+    <div className="min-h-screen w-full">
+      <div className="w-full ">
         <Card className="border-0">
           <CardHeader className="space-y-6 pb-4">
             <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
-                <FileText className="h-7 w-7 text-muted-foreground" />
-              </div>
               <div className="space-y-3">
                 <CardTitle className="text-2xl font-bold tracking-tight">
-                  Form Pengajuan Judul Skripsi
+                  Form Pengajuan Judul Penelitian
                 </CardTitle>
                 <CardDescription className="text-sm leading-relaxed">
                   Lengkapi semua informasi yang diperlukan untuk pengajuan judul
@@ -147,7 +145,7 @@ export default function FormPengajuan() {
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel className="text-base font-semibold">
-                        Judul Skripsi <span className="text-destructive">*</span>
+                        Judul <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -157,7 +155,8 @@ export default function FormPengajuan() {
                         />
                       </FormControl>
                       <p className="text-sm text-muted-foreground italic mt-1">
-                        Judul harus jelas, spesifik, dan mencerminkan isi penelitian (10-200 karakter)
+                        Judul harus jelas, spesifik, dan mencerminkan isi
+                        penelitian (10-200 karakter)
                       </p>
                       <FormMessage />
                     </FormItem>
@@ -170,7 +169,8 @@ export default function FormPengajuan() {
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel className="text-base font-semibold">
-                        Identifikasi Masalah <span className="text-destructive">*</span>
+                        Identifikasi Masalah{" "}
+                        <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
@@ -180,7 +180,8 @@ export default function FormPengajuan() {
                         />
                       </FormControl>
                       <p className="text-sm text-muted-foreground italic mt-1">
-                        Uraikan latar belakang dan konteks masalah yang akan diteliti (minimal 50 karakter)
+                        Uraikan latar belakang dan konteks masalah yang akan
+                        diteliti (minimal 50 karakter)
                       </p>
                       <FormMessage />
                     </FormItem>
@@ -193,7 +194,8 @@ export default function FormPengajuan() {
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel className="text-base font-semibold">
-                        Rumusan Masalah <span className="text-destructive">*</span>
+                        Rumusan Masalah{" "}
+                        <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
@@ -216,7 +218,8 @@ export default function FormPengajuan() {
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel className="text-base font-semibold">
-                        Pokok Masalah <span className="text-destructive">*</span>
+                        Pokok Masalah{" "}
+                        <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
@@ -226,7 +229,8 @@ export default function FormPengajuan() {
                         />
                       </FormControl>
                       <p className="text-sm text-muted-foreground italic mt-1">
-                        Fokuskan pada aspek utama yang akan diteliti secara mendalam (minimal 30 karakter)
+                        Fokuskan pada aspek utama yang akan diteliti secara
+                        mendalam (minimal 30 karakter)
                       </p>
                       <FormMessage />
                     </FormItem>
@@ -239,7 +243,8 @@ export default function FormPengajuan() {
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel className="text-base font-semibold">
-                        Penelitian Sebelumnya <span className="text-destructive">*</span>
+                        Penelitian Sebelumnya{" "}
+                        <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
@@ -249,7 +254,8 @@ export default function FormPengajuan() {
                         />
                       </FormControl>
                       <p className="text-sm text-muted-foreground italic mt-1">
-                        Sertakan referensi penelitian yang relevan dan jelaskan gap yang akan diisi (minimal 50 karakter)
+                        Sertakan referensi penelitian yang relevan dan jelaskan
+                        gap yang akan diisi (minimal 50 karakter)
                       </p>
                       <FormMessage />
                     </FormItem>
@@ -262,7 +268,8 @@ export default function FormPengajuan() {
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel className="text-base font-semibold">
-                        Deskripsi Lengkap <span className="text-destructive">*</span>
+                        Deskripsi Lengkap{" "}
+                        <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
@@ -272,7 +279,8 @@ export default function FormPengajuan() {
                         />
                       </FormControl>
                       <p className="text-sm text-muted-foreground italic mt-1">
-                        Jelaskan metodologi, target hasil, dan kontribusi yang diharapkan (minimal 100 karakter)
+                        Jelaskan metodologi, target hasil, dan kontribusi yang
+                        diharapkan (minimal 100 karakter)
                       </p>
                       <FormMessage />
                     </FormItem>

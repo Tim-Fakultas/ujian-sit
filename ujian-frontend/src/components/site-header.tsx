@@ -11,13 +11,12 @@ import {
 } from "./ui/breadcrumb";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 function generateBreadcrumbs(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
 
-  const breadcrumbs = [{ label: "Home", href: "/" }];
-
-  // Map of path segments to readable labels
+  // Map segment ke label yang lebih rapi
   const pathLabels: Record<string, string> = {
     "berkas-mahasiswa": "Berkas Mahasiswa",
     "pengajuan-judul": "Pengajuan Judul",
@@ -25,24 +24,32 @@ function generateBreadcrumbs(pathname: string) {
     "judul-ditolak": "Judul Ditolak",
     profile: "Profile Mahasiswa",
     dashboard: "Dashboard",
+    home: "Home",
   };
 
+  // Buang segment yang tidak perlu ditampilkan
   const filteredSegments = segments.filter(
-    (segment) => segment !== "mahasiswa"
+    (segment) => segment !== "mahasiswa" && segment !== "home"
   );
 
   let currentPath = "";
+  const breadcrumbs = [
+    {
+      label: "Home",
+      href: "/mahasiswa/home", // default home untuk mahasiswa
+      isLast: filteredSegments.length === 0, // kalau di /mahasiswa/home, maka ini terakhir
+    },
+  ];
+
   filteredSegments.forEach((segment, index) => {
-    // Build the actual path including skipped segments for correct navigation
-    const originalIndex = segments.indexOf(segment);
-    currentPath = "/" + segments.slice(0, originalIndex + 1).join("/");
+    currentPath += "/" + segment;
 
     const label =
       pathLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
 
     breadcrumbs.push({
       label,
-      href: currentPath,
+      href: "/mahasiswa/home" + currentPath,
       isLast: index === filteredSegments.length - 1,
     });
   });
@@ -72,12 +79,12 @@ export function SiteHeader() {
                       {breadcrumb.label}
                     </BreadcrumbPage>
                   ) : (
-                    <BreadcrumbLink
+                    <Link
                       href={breadcrumb.href}
                       className="text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {breadcrumb.label}
-                    </BreadcrumbLink>
+                    </Link>
                   )}
                 </BreadcrumbItem>
                 {index < breadcrumbs.length - 1 && (

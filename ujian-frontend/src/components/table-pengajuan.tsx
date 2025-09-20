@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import {
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import {
   Select,
   SelectContent,
@@ -44,155 +46,53 @@ import {
 } from "@/components/ui/tooltip";
 import Link from "next/link";
 
-// Mock data untuk demonstrasi
-const mockData = [
-  {
-    id: 1,
-    namaMahasiswa: "Ahmad Rizki Pratama",
-    judul: "Implementasi Machine Learning untuk Prediksi Cuaca",
-    keteranganSekjur: "Disetujui dengan revisi minor",
-    tglPengajuan: "2024-01-15",
-    tglVerifikasi: "2024-01-20",
-    status: "Disetujui",
-  },
-  {
-    id: 2,
-    namaMahasiswa: "Siti Nurhaliza",
-    judul: "Sistem Informasi Manajemen Perpustakaan Berbasis Web",
-    keteranganSekjur: "Perlu perbaikan metodologi",
-    tglPengajuan: "2024-01-18",
-    tglVerifikasi: null,
-    status: "Menunggu",
-  },
-  {
-    id: 3,
-    namaMahasiswa: "Budi Santoso",
-    judul: "Analisis Keamanan Jaringan dengan Penetration Testing",
-    keteranganSekjur: "Ditolak - topik terlalu luas",
-    tglPengajuan: "2024-01-12",
-    tglVerifikasi: "2024-01-17",
-    status: "Ditolak",
-  },
-  {
-    id: 4,
-    namaMahasiswa: "Maya Sari Dewi",
-    judul: "Pengembangan Aplikasi Mobile untuk E-Commerce",
-    keteranganSekjur: "Disetujui tanpa revisi",
-    tglPengajuan: "2024-01-22",
-    tglVerifikasi: "2024-01-25",
-    status: "Disetujui",
-  },
-  {
-    id: 5,
-    namaMahasiswa: "Andi Wijaya",
-    judul: "Implementasi Blockchain untuk Supply Chain Management",
-    keteranganSekjur: "Menunggu review dari pembimbing",
-    tglPengajuan: "2024-01-25",
-    tglVerifikasi: null,
-    status: "Menunggu",
-  },
-  {
-    id: 6,
-    namaMahasiswa: "Rina Kartika",
-    judul: "Sistem Pakar Diagnosa Penyakit Tanaman",
-    keteranganSekjur: "Perlu tambahan referensi",
-    tglPengajuan: "2024-01-20",
-    tglVerifikasi: null,
-    status: "Revisi",
-  },
-  {
-    id: 7,
-    namaMahasiswa: "Dedi Kurniawan",
-    judul: "Optimasi Database dengan Teknik Indexing",
-    keteranganSekjur: "Disetujui dengan catatan",
-    tglPengajuan: "2024-01-10",
-    tglVerifikasi: "2024-01-15",
-    status: "Disetujui",
-  },
-  {
-    id: 8,
-    namaMahasiswa: "Lina Marlina",
-    judul: "Pengembangan Chatbot Customer Service dengan NLP",
-    keteranganSekjur: "Menunggu persetujuan kaprodi",
-    tglPengajuan: "2024-01-28",
-    tglVerifikasi: null,
-    status: "Menunggu",
-  },
-];
+import { statusColors } from "@/lib/constants";
 
-type SkripsiData = (typeof mockData)[0];
+import { Pengajuan } from "@/types/Pengajuan";
 
-const statusColors = {
-  Disetujui:
-    "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-200 dark:border-green-800",
-  Menunggu:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800",
-  Ditolak:
-    "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300 border-red-200 dark:border-red-800",
-  Revisi:
-    "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border-blue-200 dark:border-blue-800",
-};
+import { formatDate } from "@/lib/utils";
 
-export function TablePengajuan() {
+export function TablePengajuan({ initialData }: { initialData?: Pengajuan[] }) {
+  // state
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedItem, setSelectedItem] = useState<SkripsiData | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Pengajuan | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const itemsPerPage = 5;
 
-  const mahasiswa = {
-    nama: "Ahmad Rizki Pratama",
-    semester: 5, // Ganti dengan semester aktual mahasiswa
-  };
-
-  // Logika untuk cek apakah mahasiswa bisa mengajukan
-  const canSubmitProposal = mahasiswa.semester >= 5;
+  // Define canSubmitProposal - assuming it should always be true for now
+  const canSubmitProposal = true;
 
   // Filter dan search logic
   const filteredData = useMemo(() => {
-    return mockData.filter((item) => {
+    return initialData?.filter((item) => {
       const matchesSearch =
-        item.namaMahasiswa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.judul.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.keteranganSekjur.toLowerCase().includes(searchTerm.toLowerCase());
+        item.mahasiswa.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.judul_skripsi.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.keterangan.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus =
         statusFilter === "all" || item.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
-  }, [searchTerm, statusFilter]);
+  }, [initialData, searchTerm, statusFilter]);
 
   // Pagination logic
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil((filteredData?.length || 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(
+  const paginatedData = (filteredData || []).slice(
     startIndex,
     startIndex + itemsPerPage
   );
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
 
   const clearSearch = () => {
     setSearchTerm("");
     setCurrentPage(1);
   };
 
-  const clearFilters = () => {
-    setSearchTerm("");
-    setStatusFilter("all");
-    setCurrentPage(1);
-  };
-
-  const openDetailDialog = (item: SkripsiData) => {
+  const openDetailDialog = (item: Pengajuan) => {
     setSelectedItem(item);
     setIsDetailDialogOpen(true);
   };
@@ -202,113 +102,59 @@ export function TablePengajuan() {
   return (
     <TooltipProvider>
       <Card className="w-full border-0">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold">Data Pengajuan Judul</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Kelola pengajuan judul skripsi mahasiswa
-              </p>
-            </div>
-
-            {/* Tombol Tambah Pengajuan dengan kondisi disable */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Link href={canSubmitProposal ? "/mahasiswa/pengajuan" : "#"}>
-                    <Button
-                      className="gap-2 min-w-fit bg-[#476EAE] hover:bg-[#476EAE]/80 text-white"
-                      disabled={!canSubmitProposal}
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span className="hidden sm:inline">Tambah Pengajuan</span>
-                      <span className="sm:hidden">Tambah</span>
-                    </Button>
-                  </Link>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>
-                  {canSubmitProposal
-                    ? "Tambah pengajuan judul baru"
-                    : `Pengajuan judul hanya tersedia mulai semester 5. Semester saat ini: ${mahasiswa.semester}`}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </CardTitle>
-        </CardHeader>
-
+        {/* Card Content */}
         <CardContent className="space-y-4">
           {/* Search dan Filter */}
-          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex gap-4">
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Cari berdasarkan nama, judul, atau keterangan..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="pl-10 pr-10"
+              placeholder="Cari berdasarkan nama, judul, atau keterangan..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-10 pr-10"
               />
               {searchTerm && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-muted"
-                  onClick={clearSearch}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-muted"
+                onClick={clearSearch}
+              >
+                <X className="h-3 w-3" />
+              </Button>
               )}
             </div>
 
             <div className="flex gap-2 flex-shrink-0">
               <Select
-                value={statusFilter}
-                onValueChange={(value) => {
-                  setStatusFilter(value);
-                  setCurrentPage(1);
-                }}
+              value={statusFilter}
+              onValueChange={(value) => {
+                setStatusFilter(value);
+                setCurrentPage(1);
+              }}
               >
-                <SelectTrigger className="w-[160px]">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Status</SelectItem>
-                  <SelectItem value="Disetujui">Disetujui</SelectItem>
-                  <SelectItem value="Menunggu">Menunggu</SelectItem>
-                  <SelectItem value="Ditolak">Ditolak</SelectItem>
-                  <SelectItem value="Revisi">Revisi</SelectItem>
-                </SelectContent>
+              <SelectTrigger className="w-[160px] sm:w-[160px] w-[120px]">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Status</SelectItem>
+                <SelectItem value="disetujui">Disetujui</SelectItem>
+                <SelectItem value="pending">Menunggu</SelectItem>
+                <SelectItem value="ditolak">Ditolak</SelectItem>
+              </SelectContent>
               </Select>
-
-              {hasActiveFilters && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={clearFilters}
-                      className="px-3"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Hapus semua filter</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
             </div>
-          </div>
+            </div>
 
-          {/* Status summary */}
           {hasActiveFilters && (
             <div className="text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
-              Menampilkan {filteredData.length} dari {mockData.length} data
+              Menampilkan {filteredData?.length || 0} dari{" "}
+              {initialData?.length || 0} data
               {searchTerm && ` untuk "${searchTerm}"`}
               {statusFilter !== "all" && ` dengan status "${statusFilter}"`}
             </div>
@@ -360,7 +206,7 @@ export function TablePengajuan() {
                   ) : (
                     paginatedData.map((item, index) => (
                       <TableRow
-                        key={item.id}
+                        key={index}
                         className="hover:bg-muted/50 transition-colors"
                       >
                         <TableCell className="text-center font-medium">
@@ -370,14 +216,14 @@ export function TablePengajuan() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div className="truncate cursor-help">
-                                {item.judul}
+                                {item.mahasiswa.nama}
                               </div>
                             </TooltipTrigger>
                             <TooltipContent
                               side="top"
                               className="max-w-[300px]"
                             >
-                              <p>{item.judul}</p>
+                              <p>{item.mahasiswa.nama}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
@@ -385,22 +231,22 @@ export function TablePengajuan() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div className="truncate cursor-help">
-                                {item.keteranganSekjur}
+                                {item.judul_skripsi}
                               </div>
                             </TooltipTrigger>
                             <TooltipContent
                               side="top"
                               className="max-w-[300px]"
                             >
-                              <p>{item.keteranganSekjur}</p>
+                              <p>{item.judul_skripsi}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
                         <TableCell className="text-sm">
-                          {formatDate(item.tglPengajuan)}
+                          {formatDate(item.tanggal_pengajuan)}
                         </TableCell>
                         <TableCell className="text-sm">
-                          {formatDate(item.tglVerifikasi)}
+                          {formatDate(item.tanggal_disetujui)}
                         </TableCell>
                         <TableCell>
                           <Badge
@@ -444,8 +290,8 @@ export function TablePengajuan() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
               <div className="text-sm text-muted-foreground order-2 sm:order-1">
                 Menampilkan {startIndex + 1}-
-                {Math.min(startIndex + itemsPerPage, filteredData.length)} dari{" "}
-                {filteredData.length} data
+                {Math.min(startIndex + itemsPerPage, filteredData?.length || 0)}{" "}
+                dari {filteredData?.length || 0} data
               </div>
 
               <div className="flex items-center gap-2 order-1 sm:order-2">
@@ -540,7 +386,7 @@ export function TablePengajuan() {
                     Mahasiswa
                   </h4>
                   <p className="text-base font-medium">
-                    {selectedItem.namaMahasiswa}
+                    {selectedItem.mahasiswa.nama}
                   </p>
                 </div>
 
@@ -551,7 +397,7 @@ export function TablePengajuan() {
                   </h4>
                   <div className="p-3 bg-muted/30 rounded-md border">
                     <p className="text-sm leading-relaxed">
-                      {selectedItem.judul}
+                      {selectedItem.judul_skripsi}
                     </p>
                   </div>
                 </div>
@@ -563,7 +409,7 @@ export function TablePengajuan() {
                   </h4>
                   <div className="p-3 bg-muted/30 rounded-md border">
                     <p className="text-sm leading-relaxed">
-                      {selectedItem.keteranganSekjur}
+                      {selectedItem.keterangan}
                     </p>
                   </div>
                 </div>
@@ -575,7 +421,7 @@ export function TablePengajuan() {
                       Tanggal Pengajuan
                     </h4>
                     <p className="text-sm">
-                      {formatDate(selectedItem.tglPengajuan)}
+                      {formatDate(selectedItem.tanggal_pengajuan)}
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -583,8 +429,8 @@ export function TablePengajuan() {
                       Tanggal Verifikasi
                     </h4>
                     <p className="text-sm">
-                      {selectedItem.tglVerifikasi
-                        ? formatDate(selectedItem.tglVerifikasi)
+                      {selectedItem.tanggal_disetujui
+                        ? formatDate(selectedItem.tanggal_disetujui)
                         : "Belum diverifikasi"}
                     </p>
                   </div>

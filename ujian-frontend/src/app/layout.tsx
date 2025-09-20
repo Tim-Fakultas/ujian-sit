@@ -27,26 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" >
-      <body className={`${fontSans.variable} ${fontMono.variable} antialiased`} suppressHydrationWarning={true}>
-        <SidebarProvider
-          style={
-            {
-              "--sidebar-width": "calc(var(--spacing) * 60)",
-              "--header-height": "calc(var(--spacing) * 12)",
-            } as React.CSSProperties
-          }
-        >
-          <AppSidebar variant="sidebar" />
-          <SidebarInset>
-            <SiteHeader />
-            <div className="flex flex-1 flex-col ">
-              <div className="@container/main flex flex-1 flex-col gap-2">
-                {children}
-              </div>
-            </div>
-          </SidebarInset>
-        </SidebarProvider>
+    <html lang="en">
+      <body
+        className={`${fontSans.variable} ${fontMono.variable} antialiased`}
+        suppressHydrationWarning={true}
+      >
+        {children}
       </body>
     </html>
   );

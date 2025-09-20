@@ -321,8 +321,8 @@ export default function JudulDiterimaPage() {
 
   return (
     <TooltipProvider>
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <Card className="w-full">
+      <div className="container mx-auto px-4 sm:px-1 py-6 sm:py-4">
+        <Card className="w-full border-0">
           <CardHeader className="pb-4">
             <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
