@@ -23,7 +23,9 @@ class ProdiController extends Controller
      */
     public function store(StoreProdiRequest $request)
     {
-        //
+        $request->validated();
+        $prodi = Prodi::create($request->all());
+        return new ProdiResource($prodi);
     }
 
     /**
@@ -39,7 +41,9 @@ class ProdiController extends Controller
      */
     public function update(UpdateProdiRequest $request, Prodi $prodi)
     {
-        //
+        $request->validated();
+        $prodi->update($request->all());
+        return new ProdiResource($prodi);
     }
 
     /**
@@ -47,6 +51,7 @@ class ProdiController extends Controller
      */
     public function destroy(Prodi $prodi)
     {
-        //
+        $prodi->delete();
+        return response()->json(['message' => 'Prodi berhasil dihapus.'], 200);
     }
 }

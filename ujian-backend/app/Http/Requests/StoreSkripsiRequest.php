@@ -11,7 +11,7 @@ class StoreSkripsiRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,16 @@ class StoreSkripsiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
+            'pengajuan_id' => 'required|exists:pengajuan,id',
+            'judul_skripsi' => 'required|string|max:255',
+            'identifikasi_masalah' => 'required|string|max:255',
+            'rumusan_masalah' => 'nullable|string',
+            'penelitian_sebelumnya' => 'nullable|string',
+            'pokok_masalah' => 'nullable|string',
+            'deskripsi_lengkap' => 'nullable|string',
+            'status' => 'nullable|string|max:50',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
         ];
     }
 }

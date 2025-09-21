@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create("skripsi", function (Blueprint $table) {
             $table->id();
             $table->foreignId("pengajuan_id")->constrained("pengajuan")->onDelete("cascade");
-            $table->foreignId("mahasiswa_id")->constrained("mahasiswa")->onDelete("cascade");
             $table->text("judul_skripsi");
             $table->text("identifikasi_masalah");
             $table->text("rumusan_masalah");
@@ -22,7 +21,7 @@ return new class extends Migration
             $table->text("pokok_masalah");
             $table->text("deskripsi_lengkap");
             $table->string("status")->default("proses");
-            $table->date("tanggal_mulai");
+            $table->date("tanggal_mulai")->useCurrent();
             $table->date("tanggal_selesai")->nullable();
             $table->timestamps();
         });

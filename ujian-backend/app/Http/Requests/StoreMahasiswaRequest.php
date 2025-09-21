@@ -11,7 +11,7 @@ class StoreMahasiswaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,6 +26,7 @@ class StoreMahasiswaRequest extends FormRequest
             "nim" => "required|string|max:20|unique:mahasiswa,nim",
             "alamat" => "nullable|string",
             "no_hp" => "nullable|string|max:30",
+            "prodi_id" => "required|exists:prodi,id",
         ];
     }
 }

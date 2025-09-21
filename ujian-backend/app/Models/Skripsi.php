@@ -14,13 +14,9 @@ class Skripsi extends Model
 
     protected $fillable = [
         'pengajuan_id',
-        'mahasiswa_id',
         'judul_skripsi',
         'identifikasi_masalah',
         'rumusan_masalah',
-        'tujuan_penelitian',
-        'manfaat_penelitian',
-        'metode_penelitian',
         'penelitian_sebelumnya',
         'pokok_masalah',
         'deskripsi_lengkap',
@@ -32,11 +28,11 @@ class Skripsi extends Model
 
     public function mahasiswa()
     {
-        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
+        return $this->hasOneThrough(Mahasiswa::class, Pengajuan::class, 'id', 'id', 'pengajuan_id', 'mahasiswa_id');
     }
     public function pengajuan()
     {
-        return $this->belongsTo(Pengajuan::class, 'id_pengajuan');
+        return $this->belongsTo(Pengajuan::class, 'pengajuan_id');
     }
     public function bimbingan(){
         return $this->hasMany(Bimbingan::class, 'skripsi_id');

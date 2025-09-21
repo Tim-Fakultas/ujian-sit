@@ -14,7 +14,7 @@ class BimbinganController extends Controller
      */
     public function index()
     {
-        $bimbingan = Bimbingan::with(['mahasiswa', 'skripsi', 'pembimbing1', 'pembimbing2'])->get();
+        $bimbingan = Bimbingan::with(['skripsi', 'pembimbing1', 'pembimbing2'])->get();
         return BimbinganResource::collection($bimbingan);
     }
 
@@ -23,7 +23,9 @@ class BimbinganController extends Controller
      */
     public function store(StoreBimbinganRequest $request)
     {
-        //
+        $request->validated();
+        $bimbingan = Bimbingan::create($request->all());
+        return new BimbinganResource($bimbingan);
     }
 
     /**
@@ -40,7 +42,10 @@ class BimbinganController extends Controller
      */
     public function update(UpdateBimbinganRequest $request, Bimbingan $bimbingan)
     {
-        //
+        $request->validated();
+        $bimbingan->update($request->all());
+
+        return new BimbinganResource($bimbingan);
     }
 
     /**
@@ -48,6 +53,7 @@ class BimbinganController extends Controller
      */
     public function destroy(Bimbingan $bimbingan)
     {
-        //
+        $bimbingan->delete();
+        return response()->json(['message' => 'Bimbingan berhasil dihapus.'], 200);
     }
 }

@@ -11,12 +11,12 @@ class Pengajuan extends Model
     use HasFactory;
 
     protected $table = "pengajuan";
-    protected $primaryKey = "id_pengajuan";
+    protected $primaryKey = "id";
 
     protected $fillable = [
-        'id_mahasiswa',
-        'id_dosen',
-        'id_pejabat',
+        'mahasiswa_id',
+        'dosen_id',
+        'pejabat_id',
         'judul_skripsi',
         'tanggal_pengajuan',
         'tanggal_disetujui',
@@ -26,20 +26,20 @@ class Pengajuan extends Model
 
     public function mahasiswa()
     {
-        return $this->belongsTo(Mahasiswa::class);
+        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
     }
 
     public function skripsi()
     {
-    return $this->hasOne(Skripsi::class, 'pengajuan_id', 'id_pengajuan');
+    return $this->hasOne(Skripsi::class, 'pengajuan_id', 'id');
     }
     public function dosen()
     {
-        return $this->belongsTo(Dosen::class, 'id_dosen');
+        return $this->belongsTo(Dosen::class, 'dosen_id');
     }
 
     public function pejabat()
     {
-        return $this->belongsTo(Pejabat::class, 'id_pejabat');
+        return $this->belongsTo(Pejabat::class, 'pejabat_id');
     }
 }

@@ -23,7 +23,9 @@ class PengajuanController extends Controller
      */
     public function store(StorePengajuanRequest $request)
     {
-        //
+        $request->validated();
+        $pengajuan = Pengajuan::create($request->all());
+        return new PengajuanResource($pengajuan);
     }
 
     /**
@@ -40,7 +42,10 @@ class PengajuanController extends Controller
      */
     public function update(UpdatePengajuanRequest $request, Pengajuan $pengajuan)
     {
-        //
+        $request->validated();
+        $pengajuan->update($request->all());
+
+        return new PengajuanResource($pengajuan);
     }
 
     /**
@@ -48,6 +53,7 @@ class PengajuanController extends Controller
      */
     public function destroy(Pengajuan $pengajuan)
     {
-        //
+        $pengajuan->delete();
+        return response()->json(['message' => 'Pengajuan berhasil dihapus.'], 200);
     }
 }

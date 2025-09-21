@@ -11,7 +11,7 @@ class StoreBimbinganRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,12 @@ class StoreBimbinganRequest extends FormRequest
      */
     public function rules(): array
     {
+        
         return [
-            //
+            'skripsi_id' => 'required|exists:skripsi,id',
+            'pembimbing_1' => 'required|exists:dosen,id',
+            'pembimbing_2' => 'required|exists:dosen,id',
+            'keterangan' => 'nullable|string',
         ];
     }
 }

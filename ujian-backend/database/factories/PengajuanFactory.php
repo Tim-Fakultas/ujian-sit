@@ -18,10 +18,10 @@ class PengajuanFactory extends Factory
     public function definition(): array
     {
         return [
-            'mahasiswa_id' => Mahasiswa::inRandomOrder()->first()?->id ?? Mahasiswa::factory(),
+            'mahasiswa_id' => null,
             'judul_skripsi' => $this->faker->sentence(),
-            'tanggal_pengajuan' => $this->faker->date(),
-            'tanggal_disetujui' => $this->faker->optional()->date(),
+            'tanggal_pengajuan' => $this->faker->dateTimeThisDecade(),
+            'tanggal_disetujui' => $this->faker->optional()->dateTimeThisDecade(),
             'status' => $this->faker->randomElement(['pending', 'disetujui', 'ditolak']),
             'keterangan' => $this->faker->optional()->paragraph(),
         ];

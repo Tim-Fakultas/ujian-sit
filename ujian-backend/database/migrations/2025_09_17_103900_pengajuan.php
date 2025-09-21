@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId("mahasiswa_id")->constrained("mahasiswa")->onDelete("cascade");
             $table->string("judul_skripsi");
-            $table->date("tanggal_pengajuan");
+            $table->date("tanggal_pengajuan")->useCurrent();
             $table->date("tanggal_disetujui")->nullable();
             $table->string("status")->default("pending");
             $table->text("keterangan")->nullable();

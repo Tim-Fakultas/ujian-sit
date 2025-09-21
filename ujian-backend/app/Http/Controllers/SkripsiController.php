@@ -23,7 +23,9 @@ class SkripsiController extends Controller
      */
     public function store(StoreSkripsiRequest $request)
     {
-        //
+        $request->validated();
+        $skripsi = Skripsi::create($request->all());
+        return new SkripsiResource($skripsi);
     }
 
     /**
@@ -40,7 +42,10 @@ class SkripsiController extends Controller
      */
     public function update(UpdateSkripsiRequest $request, Skripsi $skripsi)
     {
-        //
+        $request->validated();
+        $skripsi->update($request->all());
+
+        return new SkripsiResource($skripsi);
     }
 
     /**
@@ -48,6 +53,7 @@ class SkripsiController extends Controller
      */
     public function destroy(Skripsi $skripsi)
     {
-        //
+        $skripsi->delete();
+        return response()->json(['message' => 'Skripsi berhasil dihapus.'], 200);
     }
 }

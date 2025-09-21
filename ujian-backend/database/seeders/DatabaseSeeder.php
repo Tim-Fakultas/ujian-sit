@@ -28,23 +28,23 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        
-        Fakultas::factory(1)
-    ->has(
-        Prodi::factory(3)
-            ->has(
-                Mahasiswa::factory(30)
-                    ->has(
-                        Pengajuan::factory(2)
-                            ->has(
-                                Skripsi::factory()
-                                    ->has(Bimbingan::factory(2))
-                            )
-                    )
-            )
-            ->has(Dosen::factory(10))
-    )
-    ->create();
+ Fakultas::factory(1)
+->has(
+    Prodi::factory(3)
+        ->has(Dosen::factory(10))   // <-- buat dosen dulu, per prodi
+        ->has(
+            Mahasiswa::factory(30)
+                ->has(
+                    Pengajuan::factory(2)
+                        ->has(
+                            Skripsi::factory()
+                                ->has(Bimbingan::factory(2))
+                        )
+                )
+        )
+)
+->create();
+
 
     Pejabat::factory(3)->create();
 

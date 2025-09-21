@@ -42,7 +42,10 @@ class MahasiswaController extends Controller
      */
     public function update(UpdateMahasiswaRequest $request, Mahasiswa $mahasiswa)
     {
-        //
+        $request->validated();
+        $mahasiswa->update($request->all());
+
+        return new MahasiswaResource($mahasiswa);
     }
 
     /**
@@ -50,6 +53,7 @@ class MahasiswaController extends Controller
      */
     public function destroy(Mahasiswa $mahasiswa)
     {
-        
+        $mahasiswa->delete();
+        return response()->json(['message' => 'Mahasiswa berhasil dihapus.'], 200);
     }
 }

@@ -23,7 +23,9 @@ class PejabatController extends Controller
      */
     public function store(StorePejabatRequest $request)
     {
-        
+        $request->validated();
+        $pejabat = Pejabat::create($request->all());
+        return new PejabatResource($pejabat);
     }
 
     /**
@@ -40,7 +42,9 @@ class PejabatController extends Controller
      */
     public function update(UpdatePejabatRequest $request, Pejabat $pejabat)
     {
-        //
+        $request->validated();
+        $pejabat->update($request->all());
+        return new PejabatResource($pejabat);
     }
 
     /**
@@ -48,6 +52,7 @@ class PejabatController extends Controller
      */
     public function destroy(Pejabat $pejabat)
     {
-        //
+        $pejabat->delete();
+        return response()->json(['message' => 'Pejabat berhasil dihapus.'], 200);
     }
 }

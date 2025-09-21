@@ -17,8 +17,6 @@ class SkripsiFactory extends Factory
     public function definition(): array
     {
         return [
-            'pengajuan_id' => \App\Models\Pengajuan::factory(),
-            'mahasiswa_id' => \App\Models\Mahasiswa::factory(),
             'judul_skripsi' => $this->faker->sentence(),
             'identifikasi_masalah' => $this->faker->paragraph(),
             'rumusan_masalah' => $this->faker->paragraph(),

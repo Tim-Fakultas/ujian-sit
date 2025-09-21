@@ -13,15 +13,15 @@ class Bimbingan extends Model
     protected $table = "bimbingan";
 
     protected $fillable = [
-        'id_pengajuan',
-        'tanggal_bimbingan',
-        'catatan',
-        'status',
+        'skripsi_id',
+        'pembimbing_1',
+        'pembimbing_2',
+        'keterangan',
     ];
 
 
     public function mahasiswa(){
-        return $this->belongsTo(Mahasiswa::class);
+        return $this->skripsi ? $this->skripsi->pengajuan->mahasiswa : null;
     }
 
     public function skripsi(){

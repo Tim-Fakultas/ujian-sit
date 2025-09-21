@@ -23,12 +23,7 @@ class SkripsiResource extends JsonResource
                     'nama' => $this->pengajuan->mahasiswa->nama,
                     'nim' => $this->pengajuan->mahasiswa->nim,
                 ] : null,
-                'dosen' => $this->pengajuan->dosen ? [
-                    'id' => $this->pengajuan->dosen->id,
-                    'nama' => $this->pengajuan->dosen->nama,
-                    'nidn' => $this->pengajuan->dosen->nidn,
-                ] : null,
-                'statusPengajuan' => $this->pengajuan->status_pengajuan,
+                'statusPengajuan' => $this->pengajuan->status,
             ] : null,
             "judulSkripsi"=> $this->judul_skripsi,
             "identifikasiMasalah"=> $this->identifikasi_masalah,

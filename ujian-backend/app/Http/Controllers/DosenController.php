@@ -23,7 +23,9 @@ class DosenController extends Controller
      */
     public function store(StoreDosenRequest $request)
     {
-        //
+        $request->validated();
+        $dosen = Dosen::create($request->all());
+        return new DosenResource($dosen);
     }
 
     /**
@@ -40,7 +42,10 @@ class DosenController extends Controller
      */
     public function update(UpdateDosenRequest $request, Dosen $dosen)
     {
-        //
+        $request->validated();
+        $dosen->update($request->all());
+
+        return new DosenResource($dosen);
     }
 
     /**
@@ -48,6 +53,7 @@ class DosenController extends Controller
      */
     public function destroy(Dosen $dosen)
     {
-        //
+        $dosen->delete();
+        return response()->json(['message' => 'Dosen berhasil dihapus.'], 200);
     }
 }

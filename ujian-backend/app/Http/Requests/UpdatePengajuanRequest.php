@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePengajuanRequest extends FormRequest
+class UpdatePengajuanRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,12 +22,12 @@ class StorePengajuanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "mahasiswa_id" => "required|exists:mahasiswa,id",
-            "judul_skripsi" => "required|string|max:255",
-            "tanggal_pengajuan" => "nullable|date",
-            "tanggal_disetujui" => "nullable|date|after_or_equal:tanggal_pengajuan",
-            "status" => "nullable|string|max:50",
-            "keterangan" => "nullable|string",
+            "mahasiswa_id" => "prohibited",
+            "judul_skripsi" => "sometimes|required|string|max:255",
+            "tanggal_pengajuan" => "prohibited",
+            "tanggal_disetujui" => "sometimes|nullable|date|after_or_equal:tanggal_pengajuan",
+            "status" => "sometimes|nullable|string|max:50",
+            "keterangan" => "sometimes|nullable|string",
         ];
     }
 }
