@@ -107,7 +107,7 @@ export default function FormPengajuan() {
       description: "Semua data form telah dikosongkan.",
     });
   };
-  z;
+  
 
   const handleCancel = () => {
     // Navigate back or close modal
@@ -115,9 +115,9 @@ export default function FormPengajuan() {
   };
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen ">
       <div className="w-full ">
-        <Card className="border-0">
+        <Card className="border-0 py-6">
           <CardHeader className="space-y-6 pb-4">
             <div className="flex items-start gap-4">
               <div className="space-y-3">
@@ -287,11 +287,11 @@ export default function FormPengajuan() {
                   )}
                 />
 
-                <div className="flex flex-col gap-4 pt-8 border-t sm:flex-row sm:justify-between">
+                <div className="flex flex-col gap-4 pt-8 border-t sm:flex-row sm:justify-between ">
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="h-12 px-8 text-base font-semibold"
+                    className="h-12 px-8 text-base font-semibold bg-[#1B82EC] hover:bg-[#1669C1] "
                   >
                     {isSubmitting ? (
                       <>

@@ -68,7 +68,6 @@ export function TablePengajuan({ initialData }: { initialData?: Pengajuan[] }) {
   const filteredData = useMemo(() => {
     return initialData?.filter((item) => {
       const matchesSearch =
-        item.mahasiswa.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.judul_skripsi.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.keterangan.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -105,51 +104,51 @@ export function TablePengajuan({ initialData }: { initialData?: Pengajuan[] }) {
         {/* Card Content */}
         <CardContent className="space-y-4">
           {/* Search dan Filter */}
-            <div className="flex gap-4">
+          <div className="flex gap-4">
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-              placeholder="Cari berdasarkan nama, judul, atau keterangan..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="pl-10 pr-10"
+                placeholder="Cari berdasarkan nama, judul, atau keterangan..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pl-10 pr-10"
               />
               {searchTerm && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-muted"
-                onClick={clearSearch}
-              >
-                <X className="h-3 w-3" />
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-muted"
+                  onClick={clearSearch}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
               )}
             </div>
 
             <div className="flex gap-2 flex-shrink-0">
               <Select
-              value={statusFilter}
-              onValueChange={(value) => {
-                setStatusFilter(value);
-                setCurrentPage(1);
-              }}
+                value={statusFilter}
+                onValueChange={(value) => {
+                  setStatusFilter(value);
+                  setCurrentPage(1);
+                }}
               >
-              <SelectTrigger className="w-[160px] sm:w-[160px] w-[120px]">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Status</SelectItem>
-                <SelectItem value="disetujui">Disetujui</SelectItem>
-                <SelectItem value="pending">Menunggu</SelectItem>
-                <SelectItem value="ditolak">Ditolak</SelectItem>
-              </SelectContent>
+                <SelectTrigger className="w-[160px] sm:w-[160px] w-[120px]">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Status</SelectItem>
+                  <SelectItem value="disetujui">Disetujui</SelectItem>
+                  <SelectItem value="pending">Menunggu</SelectItem>
+                  <SelectItem value="ditolak">Ditolak</SelectItem>
+                </SelectContent>
               </Select>
             </div>
-            </div>
+          </div>
 
           {hasActiveFilters && (
             <div className="text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
@@ -169,6 +168,7 @@ export function TablePengajuan({ initialData }: { initialData?: Pengajuan[] }) {
                     <TableHead className="font-semibold w-[60px] text-center">
                       No
                     </TableHead>
+                    
                     <TableHead className="font-semibold">Judul</TableHead>
                     <TableHead className="font-semibold">Keterangan</TableHead>
                     <TableHead className="font-semibold">
@@ -216,14 +216,14 @@ export function TablePengajuan({ initialData }: { initialData?: Pengajuan[] }) {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div className="truncate cursor-help">
-                                {item.mahasiswa.nama}
+                                {item.judul_skripsi}
                               </div>
                             </TooltipTrigger>
                             <TooltipContent
                               side="top"
                               className="max-w-[300px]"
                             >
-                              <p>{item.mahasiswa.nama}</p>
+                              <p>{item.judul_skripsi}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
@@ -308,7 +308,7 @@ export function TablePengajuan({ initialData }: { initialData?: Pengajuan[] }) {
                   <span className="hidden sm:inline">Sebelumnya</span>
                 </Button>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 ">
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                     let page;
                     if (totalPages <= 5) {
@@ -327,7 +327,11 @@ export function TablePengajuan({ initialData }: { initialData?: Pengajuan[] }) {
                         variant={currentPage === page ? "default" : "outline"}
                         size="sm"
                         onClick={() => setCurrentPage(page)}
-                        className="w-8 h-8 p-0"
+                        className={`w-8 h-8 p-0 ${
+                          currentPage === page
+                            ? "bg-[#1B82EC] hover:bg-[#1669C1] text-white"
+                            : ""
+                        }`}
                       >
                         {page}
                       </Button>
@@ -385,9 +389,7 @@ export function TablePengajuan({ initialData }: { initialData?: Pengajuan[] }) {
                   <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                     Mahasiswa
                   </h4>
-                  <p className="text-base font-medium">
-                    {selectedItem.mahasiswa.nama}
-                  </p>
+                 
                 </div>
 
                 {/* Judul */}

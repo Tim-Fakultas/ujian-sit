@@ -19,8 +19,7 @@ import {
   CollapsibleContent,
 } from "@/components/ui/collapsible";
 
-// ✅ export type NavItem supaya bisa dipakai global
-export interface NavItem {
+interface NavItem {
   title: string;
   icon?: React.ElementType;
   isActive?: boolean;
@@ -28,20 +27,21 @@ export interface NavItem {
   items?: { title: string; url: string }[];
 }
 
-export interface NavProps {
+interface NavProps {
   data: {
-    navItems: NavItem[];
+    navDosen: NavItem[];
   };
 }
 
-export function NavSecondary({ data }: NavProps) {
+export function NavDosen({ data }: NavProps) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Menu</SidebarGroupLabel>
 
       <SidebarMenu>
-        {data.navItems.map((item) =>
+        {data.navDosen.map((item) =>
           item.items && item.items.length > 0 ? (
+            // 🔹 Jika item punya submenu -> pakai Collapsible
             <Collapsible
               key={item.title}
               asChild
@@ -82,6 +82,7 @@ export function NavSecondary({ data }: NavProps) {
               </SidebarMenuItem>
             </Collapsible>
           ) : (
+            // 🔹 Jika item tidak punya submenu -> langsung Link
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
                 <Link href={item.url || "#"}>

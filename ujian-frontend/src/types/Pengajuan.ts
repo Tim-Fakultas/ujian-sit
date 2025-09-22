@@ -1,6 +1,6 @@
 export interface Pengajuan {
   id: number;
-  mahasiswa: {
+  mahasiswa?: {
     id: number;
     nama: string;
     nim: string;

@@ -2,8 +2,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import MahasiswaPage from "./(dashboard)/mahasiswa/pengajuan/page";
-import LoginPage from "./auth/login/page";
+import MahasiswaPage from "./dashboard/mahasiswa/pengajuan/page";
+import LoginPage from "./login/page";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

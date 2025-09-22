@@ -62,7 +62,7 @@ export function SiteHeader() {
   const breadcrumbs = generateBreadcrumbs(pathname);
 
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+    <header className="flex h-(--header-height) bg-[#1B82EC] text-white shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
         <Separator
@@ -72,16 +72,19 @@ export function SiteHeader() {
         <Breadcrumb>
           <BreadcrumbList>
             {breadcrumbs.map((breadcrumb, index) => (
-              <div key={breadcrumb.href} className="flex items-center">
-                <BreadcrumbItem className="hidden md:block">
+              <div
+                key={breadcrumb.href}
+                className="flex items-center text-white"
+              >
+                <BreadcrumbItem className="hidden md:block ">
                   {breadcrumb.isLast ? (
-                    <BreadcrumbPage className="font-medium">
+                    <BreadcrumbPage className="font-medium text-white">
                       {breadcrumb.label}
                     </BreadcrumbPage>
                   ) : (
                     <Link
                       href={breadcrumb.href}
-                      className="text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-muted hover:text-foreground transition-colors"
                     >
                       {breadcrumb.label}
                     </Link>

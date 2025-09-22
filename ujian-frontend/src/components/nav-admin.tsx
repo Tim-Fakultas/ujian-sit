@@ -27,19 +27,19 @@ interface NavItem {
   items?: { title: string; url: string }[];
 }
 
-interface NavBerkasMahasiswaProps {
+interface NavProps {
   data: {
-    navMain: NavItem[];
+    navAdmin: NavItem[];
   };
 }
 
-export function NavBerkasMahasiswa({ data }: NavBerkasMahasiswaProps) {
+export function NavAdmin({ data }: NavProps) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Menu</SidebarGroupLabel>
 
       <SidebarMenu>
-        {data.navMain.map((item) =>
+        {data.navAdmin.map((item) =>
           item.items && item.items.length > 0 ? (
             // 🔹 Jika item punya submenu -> pakai Collapsible
             <Collapsible

@@ -326,7 +326,7 @@ export default function JudulDiterimaPage() {
           <CardHeader className="pb-4">
             <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-xl font-semibold">
+                <h1 className="text-xl font-semibold">                                                                          
                   Judul Skripsi Diterima
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
