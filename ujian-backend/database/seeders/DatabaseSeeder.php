@@ -13,6 +13,7 @@ use App\Models\Skripsi;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,8 +25,12 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+                'nip_nim' => '2120803026',
+                'nama' => 'Muhammad Aldo Saputra',
+                'email' => 'aldo@example.com',
+                'password' => bcrypt('2120803026'),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
         ]);
 
  Fakultas::factory(1)

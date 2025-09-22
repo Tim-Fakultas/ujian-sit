@@ -7,17 +7,21 @@ use Illuminate\Support\Facades\Auth;
 use Hash;
 use Illuminate\Http\Request;
 
+
 class AuthController extends Controller
 {
     
     public function login(Request $request)
     {
         $request->validate([
-            'username'=> 'required|string',
-            'password' => 'required|string|min:6',
+            'nip_nim'=> 'required|string',
+            'password' => 'required|string',
         ]);
 
-        $credentials = $request->only('username', 'password');
+        $credentials = [
+            'nip_nim' => $request->nip_nim,
+            'password' => $request->password,
+        ];
 
 
         if(Auth::attempt($credentials)){
