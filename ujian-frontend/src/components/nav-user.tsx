@@ -24,17 +24,17 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { Button } from "./ui/button";
+import { logoutAction } from "@/actions/logoutAction";
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
+export function NavUser() {
   const { isMobile } = useSidebar();
+
+  const user = {
+    name: "Muhammad Abdi",
+    email: "muhammad.abdi@example.com",
+    avatar: "/images/avatars/muhammad-abdi.png",
+  } ;
 
   return (
     <SidebarMenu>
@@ -54,7 +54,6 @@ export function NavUser({
                 <span className="text-muted-foreground truncate text-xs">
                   {user.email}
                 </span>
-              
               </div>
               <IconDotsVertical className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -83,7 +82,7 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <IconUserCircle />
-                <Link href="/mahasiswa/profile-view">Profile</Link>
+                <Link href="/mahasiswa/profile">Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <IconNotification />
@@ -91,10 +90,12 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <IconLogout />
-              Log out
-            </DropdownMenuItem>
+            <form action={logoutAction}>
+              <DropdownMenuItem>
+                <IconLogout />
+                <Button variant="ghost">Log out</Button>
+              </DropdownMenuItem>
+            </form>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

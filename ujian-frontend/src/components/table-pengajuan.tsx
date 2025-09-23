@@ -168,7 +168,7 @@ export function TablePengajuan({ initialData }: { initialData?: Pengajuan[] }) {
                     <TableHead className="font-semibold w-[60px] text-center">
                       No
                     </TableHead>
-                    
+
                     <TableHead className="font-semibold">Judul</TableHead>
                     <TableHead className="font-semibold">Keterangan</TableHead>
                     <TableHead className="font-semibold">
@@ -389,7 +389,6 @@ export function TablePengajuan({ initialData }: { initialData?: Pengajuan[] }) {
                   <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                     Mahasiswa
                   </h4>
-                 
                 </div>
 
                 {/* Judul */}

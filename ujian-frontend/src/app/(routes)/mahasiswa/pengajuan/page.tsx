@@ -10,7 +10,6 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 
 export default async function MahasiswaPage() {
-  // fetch data real
   const pengajuan = await getPengajuanById(1);
   const initialData = pengajuan ? [pengajuan] : [];
 
@@ -35,13 +34,13 @@ export default async function MahasiswaPage() {
                 <Link
                   href={
                     canSubmitProposal
-                      ? "/mahasiswa/pengajuan/create-pengajuan"
+                      ? "/mahasiswa/pengajuan/tambah-pengajuan"
                       : "#"
                   }
                 >
                   <Button
                     disabled={!canSubmitProposal}
-                    className="text-white bg-blue-500 hover:bg-blue-600"
+                    className="text-white bg-site-header"
                   >
                     <Plus className="h-4 w-4" />
                     <span className="hidden sm:inline ">Tambah Pengajuan</span>

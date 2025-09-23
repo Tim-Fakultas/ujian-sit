@@ -1,6 +1,9 @@
 import { cookies } from "next/headers";
 import { dummyUsers } from "./dummyUsers";
 
+const COOKIE_USER = "auth_user";
+const COOKIE_ROLE = "auth_role";
+
 export function authenticate(username: string, password: string) {
   return (
     dummyUsers.find(
@@ -9,22 +12,22 @@ export function authenticate(username: string, password: string) {
   );
 }
 
-export async function createSession(username: string, role: string) {
+export function createSession(username: string, role: string) {
   const store = cookies();
-  (await store).set("auth_user", username, { path: "/" });
-  (await store).set("auth_role", role, { path: "/" });
+  store.set(COOKIE_USER, username, { path: "/" });
+  store.set(COOKIE_ROLE, role, { path: "/" });
 }
 
-export async function getSession() {
+export function getSession() {
   const store = cookies();
-  const username = (await store).get("auth_user")?.value;
-  const role = (await store).get("auth_role")?.value;
+  const username = store.get(COOKIE_USER)?.value;
+  const role = store.get(COOKIE_ROLE)?.value;
   if (!username || !role) return null;
   return { username, role };
 }
 
-export async function destroySession() {
+export function destroySession() {
   const store = cookies();
-  (await store).set("auth_user", "", { expires: new Date(0) });
-  (await store).set("auth_role", "", { expires: new Date(0) });
+  store.set(COOKIE_USER, "", { expires: new Date(0) });
+  store.set(COOKIE_ROLE, "", { expires: new Date(0) });
 }
