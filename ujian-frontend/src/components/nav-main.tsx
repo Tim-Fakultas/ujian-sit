@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -40,6 +41,7 @@ export interface NavProps {
 
 export function NavMain({ data }: NavProps) {
   const pathname = usePathname();
+  const { open } = useSidebar();
 
   return (
     <SidebarGroup>
@@ -70,14 +72,12 @@ export function NavMain({ data }: NavProps) {
           }
 
           // ✅ Case: Collapsible (punya children)
-          const isGroupActive = item.items.some(
-            (sub) => pathname === sub.url
-          );
+          const isGroupActive = item.items.some((sub) => pathname === sub.url);
 
           return (
             <Collapsible
               key={item.title}
-              defaultOpen={isGroupActive}
+              defaultOpen={isGroupActive && open}
               className="group/collapsible"
             >
               <SidebarMenuItem>
@@ -90,39 +90,36 @@ export function NavMain({ data }: NavProps) {
                 </CollapsibleTrigger>
               </SidebarMenuItem>
 
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {item.items.map((sub) => {
-                      // ✅ aktif hanya kalau exact match
-                      const isActive = pathname === sub.url;
+              {open && (
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {item.items.map((sub, index) => {
+                        // ✅ aktif hanya kalau exact match
+                        const isActive = pathname === sub.url;
 
-                      return (
-                        <SidebarMenuItem key={sub.title}>
-                          <SidebarMenuButton asChild>
-                            <Link
-                              href={sub.url}
-                              className={cn(
-                                "flex items-center gap-2 transition-colors hover:bg-blue-50 hover:text-site-header dark:hover:text-blue-400",
-                                isActive
-                                  ? "font-medium bg-blue-50 text-site-header dark:text-blue-400"
-                                  : "text-gray-600 dark:text-gray-300"
-                              )}
-                            >
-                              {sub.icon ? (
-                                <sub.icon size={16} />
-                              ) : (
-                                <ChevronRight size={16} />
-                              )}
-                              <span>{sub.title}</span>
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      );
-                    })}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </CollapsibleContent>
+                        return (
+                          <SidebarMenuItem key={index}>
+                            <SidebarMenuButton asChild>
+                              <Link
+                                href={sub.url}
+                                className={cn(
+                                  "flex items-center gap-2 transition-colors hover:bg-blue-50 hover:text-site-header dark:hover:text-blue-400",
+                                  isActive
+                                    ? "font-medium bg-blue-50 text-site-header dark:text-blue-400"
+                                    : "text-gray-600 dark:text-gray-300"
+                                )}
+                              >
+                                <span>{sub.title}</span>
+                              </Link>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        );
+                      })}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              )}
             </Collapsible>
           );
         })}

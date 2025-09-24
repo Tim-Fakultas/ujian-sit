@@ -25,18 +25,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from "@/components/ui/pagination";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { Search, Eye } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 
-// Type untuk data pengajuan mahasiswa
+// Type data pengajuan
 interface PengajuanJudul {
   id: number;
   mahasiswa: {
@@ -58,39 +52,40 @@ interface PengajuanJudul {
 const dummyData: PengajuanJudul[] = [
   {
     id: 1,
-    mahasiswa: { nim: "23012345", nama: "Budi Santoso" },
-    judul: "Implementasi Blockchain untuk Sistem Akademik",
-    identifikasi: "Banyak data akademik belum terjamin keamanannya.",
-    rumusan: "Bagaimana blockchain bisa menjamin integritas data akademik?",
-    pokok: "Keamanan data, efisiensi pencatatan, transparansi.",
-    penelitian: "Studi A (2023) membahas blockchain di keuangan.",
-    deskripsi:
-      "Penelitian ini bertujuan membangun sistem akademik berbasis blockchain.",
-    keterangan: "Menunggu review",
-    tanggalPengajuan: "2025-01-15",
-    status: "pending",
+    mahasiswa: { nim: "230112233", nama: "Andi Wijaya" },
+    judul: "Sistem Rekomendasi Skripsi dengan Machine Learning",
+    identifikasi: "Mahasiswa kesulitan menentukan judul skripsi.",
+    rumusan: "Bagaimana machine learning dapat membantu rekomendasi judul skripsi?",
+    pokok: "Rekomendasi, machine learning, text mining.",
+    penelitian: "Penelitian A (2023) menggunakan algoritma content-based filtering.",
+    deskripsi: "Penelitian ini membuat sistem rekomendasi judul skripsi berbasis ML.",
+    keterangan: "Sudah ACC Dosen PA",
+    tanggalPengajuan: "2025-01-18",
+    tanggalDisetujui: "2025-02-01",
+    status: "disetujui",
   },
   {
     id: 2,
-    mahasiswa: { nim: "23067890", nama: "Siti Aminah" },
-    judul: "Aplikasi Mobile untuk Monitoring Kesehatan",
-    identifikasi: "Kurangnya aplikasi monitoring kesehatan real-time.",
-    rumusan: "Bagaimana membuat aplikasi monitoring kesehatan berbasis IoT?",
-    pokok: "Sensor IoT, notifikasi kesehatan, integrasi mobile.",
-    penelitian: "Penelitian sebelumnya di bidang wearable devices.",
-    deskripsi:
-      "Aplikasi ini membantu pasien memonitor kesehatan secara langsung.",
-    keterangan: "Judul dalam pertimbangan",
-    tanggalPengajuan: "2025-02-02",
-    tanggalDisetujui: "2025-02-10",
+    mahasiswa: { nim: "230445566", nama: "Dewi Lestari" },
+    judul: "Aplikasi Web Absensi Mahasiswa Berbasis QR Code",
+    identifikasi: "Absensi manual sering terjadi kecurangan.",
+    rumusan: "Bagaimana QR Code bisa meningkatkan transparansi absensi?",
+    pokok: "Absensi, QR Code, kehadiran mahasiswa.",
+    penelitian: "Penelitian sebelumnya membahas absensi biometrik.",
+    deskripsi: "Aplikasi web absensi dengan QR Code real-time.",
+    keterangan: "Sudah ACC Dosen PA",
+    tanggalPengajuan: "2025-01-20",
+    tanggalDisetujui: "2025-02-05",
     status: "disetujui",
   },
 ];
 
-export default function PengajuanJudulDosenPage() {
+export default function PengajuanJudulKaprodiPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [selected, setSelected] = useState<PengajuanJudul | null>(null);
+  const [pembimbing1, setPembimbing1] = useState<string>("");
+  const [pembimbing2, setPembimbing2] = useState<string>("");
 
   const filteredData = dummyData.filter((item) => {
     const matchSearch =
@@ -106,10 +101,10 @@ export default function PengajuanJudulDosenPage() {
       {/* Judul Halaman */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#636AE8]">
-          Pengajuan Judul Mahasiswa
+          Pengajuan Judul Mahasiswa (Kaprodi)
         </h1>
         <p className="text-gray-600 mt-1">
-          Halaman ini menampilkan seluruh judul skripsi yang diajukan mahasiswa.
+          Halaman ini menampilkan judul skripsi yang sudah di-ACC Dosen PA untuk diproses Kaprodi.
         </p>
       </div>
 
@@ -132,8 +127,8 @@ export default function PengajuanJudulDosenPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Semua</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="disetujui">Disetujui</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="ditolak">Ditolak</SelectItem>
             </SelectContent>
           </Select>
@@ -143,14 +138,12 @@ export default function PengajuanJudulDosenPage() {
       {/* Table */}
       <div className="rounded-lg shadow-sm border bg-white">
         <Table>
-          <TableHeader className="bg-site-header text-white">
+          <TableHeader className="bg-[#636AE8] text-white">
             <TableRow>
               <TableHead className="w-12 text-white">No</TableHead>
               <TableHead className="text-white">Mahasiswa</TableHead>
               <TableHead className="text-white">Judul</TableHead>
-              <TableHead className="text-white">Keterangan</TableHead>
               <TableHead className="text-white">Tanggal Pengajuan</TableHead>
-              <TableHead className="text-white">Tanggal Disetujui</TableHead>
               <TableHead className="text-white">Status</TableHead>
               <TableHead className="text-white">Action</TableHead>
             </TableRow>
@@ -163,26 +156,13 @@ export default function PengajuanJudulDosenPage() {
                   <TableCell>
                     <div>
                       <p className="font-medium">{item.mahasiswa.nama}</p>
-                      <p className="text-xs text-gray-500">
-                        {item.mahasiswa.nim}
-                      </p>
+                      <p className="text-xs text-gray-500">{item.mahasiswa.nim}</p>
                     </div>
                   </TableCell>
                   <TableCell>{item.judul}</TableCell>
-                  <TableCell>{item.keterangan}</TableCell>
                   <TableCell>{item.tanggalPengajuan}</TableCell>
-                  <TableCell>{item.tanggalDisetujui || "-"}</TableCell>
                   <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium
-                      ${
-                        item.status === "disetujui"
-                          ? "bg-green-100 text-green-700"
-                          : item.status === "pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                       {item.status}
                     </span>
                   </TableCell>
@@ -201,7 +181,7 @@ export default function PengajuanJudulDosenPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-gray-500">
+                <TableCell colSpan={6} className="text-center text-gray-500">
                   Tidak ada data
                 </TableCell>
               </TableRow>
@@ -232,7 +212,7 @@ export default function PengajuanJudulDosenPage() {
               <DialogHeader>
                 <DialogTitle>Detail Pengajuan Judul</DialogTitle>
                 <DialogDescription>
-                  Informasi lengkap pengajuan judul mahasiswa.
+                  Informasi lengkap pengajuan judul mahasiswa & penetapan pembimbing.
                 </DialogDescription>
               </DialogHeader>
 
@@ -253,9 +233,7 @@ export default function PengajuanJudulDosenPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium">
-                    Identifikasi Masalah
-                  </label>
+                  <label className="text-sm font-medium">Identifikasi Masalah</label>
                   <Textarea value={selected.identifikasi} readOnly disabled />
                 </div>
 
@@ -270,26 +248,48 @@ export default function PengajuanJudulDosenPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium">
-                    Penelitian Sebelumnya
-                  </label>
+                  <label className="text-sm font-medium">Penelitian Sebelumnya</label>
                   <Textarea value={selected.penelitian} readOnly disabled />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium">
-                    Deskripsi Lengkap
-                  </label>
+                  <label className="text-sm font-medium">Deskripsi Lengkap</label>
                   <Textarea value={selected.deskripsi} readOnly disabled />
+                </div>
+
+                {/* Select Dosen Pembimbing */}
+                <div>
+                  <label className="text-sm font-medium">Dosen Pembimbing 1</label>
+                  <Select value={pembimbing1} onValueChange={setPembimbing1}>
+                    <SelectTrigger className="w-full bg-white">
+                      <SelectValue placeholder="Pilih Dosen Pembimbing 1" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dosen1">Dr. Budi Santoso</SelectItem>
+                      <SelectItem value="dosen2">Dr. Siti Aminah</SelectItem>
+                      <SelectItem value="dosen3">Dr. Andi Wijaya</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Dosen Pembimbing 2</label>
+                  <Select value={pembimbing2} onValueChange={setPembimbing2}>
+                    <SelectTrigger className="w-full bg-white">
+                      <SelectValue placeholder="Pilih Dosen Pembimbing 2" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dosen1">Dr. Budi Santoso</SelectItem>
+                      <SelectItem value="dosen2">Dr. Siti Aminah</SelectItem>
+                      <SelectItem value="dosen3">Dr. Andi Wijaya</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
               <DialogFooter className="flex gap-2">
-                <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                  Terima
-                </Button>
-                <Button className="bg-rose-500 hover:bg-rose-600 text-white">
-                  Tolak
+                <Button className="bg-[#636AE8] hover:bg-[#4e55c4] text-white">
+                  Simpan Pembimbing
                 </Button>
               </DialogFooter>
             </>

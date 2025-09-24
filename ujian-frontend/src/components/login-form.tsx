@@ -152,20 +152,7 @@ export function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // async function handleSubmit(formData: FormData) {
-  //   setError(null);
-
-  //   const result = await loginAction(formData);
-
-  //   if (!result.success) {
-  //     setError(result.message);
-  //     return;
-  //   }
-
-  //   redirect("/mahasiswa/dashboard");
-  // }
-  
-  // ...
+ 
 const setUser = useAuthStore((state) => state.setUser);
 
 async function handleSubmit(formData: FormData) {

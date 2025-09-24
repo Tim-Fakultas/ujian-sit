@@ -32,14 +32,16 @@ const navMahasiswa: NavItem[] = [
     icon: IconListDetails,
     items: [
       {
-        icon: IconFolderFilled,
         title: "Pengajuan Judul",
-        url: "/mahasiswa/pengajuan", // pakai absolute path
+        url: "/mahasiswa/pengajuan",
       },
       {
-        icon: IconFilePlus,
-        title: "Ajukan judul",
-        url: "/mahasiswa/pengajuan/tambah-pengajuan", // kalau mau langsung ke tambah
+        title: "Bimbingan",
+        url: "/mahasiswa/bimbingan",
+      },
+      {
+        title: "Daftar ujian",
+        url: "/mahasiswa/ujian",
       },
     ],
   },
@@ -82,7 +84,7 @@ export function AppSidebar() {
   if (role === "dosen") navItems = navDosen;
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" >
       {/* Header */}
       <SidebarHeader>
         <SidebarMenu>
