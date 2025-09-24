@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create("skripsi", function (Blueprint $table) {
             $table->id();
-            $table->foreignId("pengajuan_id")->constrained("pengajuan")->onDelete("cascade");
+            $table->foreignId("pengajuan_judul_id")->constrained("pengajuan_judul")->onDelete("cascade");
             $table->text("judul_skripsi");
             $table->text("identifikasi_masalah");
             $table->text("rumusan_masalah");

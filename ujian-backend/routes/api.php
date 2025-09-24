@@ -6,6 +6,7 @@ use App\Http\Controllers\FakultasController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\PejabatController;
 use App\Http\Controllers\PengajuanController;
+use App\Http\Controllers\PengajuanJudulController;
 use App\Http\Controllers\ProdiController;
 use App\Http\Controllers\SkripsiController;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ Route::apiResource('fakultas', FakultasController::class);
 
 Route::apiResource('pejabat', PejabatController::class);
 
-Route::apiResource('pengajuan', PengajuanController::class);
+Route::apiResource('pengajuan-judul', PengajuanJudulController::class);
 
 Route::apiResource('prodi', ProdiController::class);
 

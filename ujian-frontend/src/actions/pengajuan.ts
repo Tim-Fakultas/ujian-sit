@@ -1,13 +1,13 @@
 "use server";
 
-export async function getPengajuan() {
+export async function getPengajuanJudul() {
   try {
     const res = await fetch("http://127.0.0.1:8000/api/pengajuan", {
       cache: "no-store",
     });
 
     if (!res.ok) {
-      throw new Error(`Gagal fetch pengajuan: ${res.statusText}`);
+      throw new Error(`Gagal fetch pengajuan judul: ${res.statusText}`);
     }
 
     const data = await res.json();
@@ -15,19 +15,19 @@ export async function getPengajuan() {
     // Kalau API Laravel return { data: [...] }
     return data.data ?? data;
   } catch (err) {
-    console.error("Error getPengajuan:", err);
+    console.error("Error getPengajuanJudul:", err);
     return [];
   }
 }
 
-export async function getPengajuanById(id: number) {
+export async function getPengajuanJudulById(id: number) {
   try {
     const res = await fetch(`http://127.0.0.1:8000/api/pengajuan/${id}`, {
       cache: "no-store",
     });
 
     if (!res.ok) {
-      throw new Error(`Gagal fetch pengajuan: ${res.statusText}`);
+      throw new Error(`Gagal fetch pengajuan judul: ${res.statusText}`);
     }
 
     const json = await res.json();
@@ -47,5 +47,3 @@ export async function getPengajuanById(id: number) {
     console.error("Error getPengajuan:", err);
   }
 }
-
-

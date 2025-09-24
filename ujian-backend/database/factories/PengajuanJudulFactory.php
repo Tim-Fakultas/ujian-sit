@@ -6,9 +6,9 @@ use App\Models\Mahasiswa;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Pengajuan>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PengajuanJudul>
  */
-class PengajuanFactory extends Factory
+class PengajuanJudulFactory extends Factory
 {
     /**
      * Define the model's default state.

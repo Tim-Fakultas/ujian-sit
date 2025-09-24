@@ -7,7 +7,7 @@ use App\Models\Dosen;
 use App\Models\Fakultas;
 use App\Models\Mahasiswa;
 use App\Models\Pejabat;
-use App\Models\Pengajuan;
+use App\Models\PengajuanJudul;
 use App\Models\Prodi;
 use App\Models\Skripsi;
 use App\Models\User;
@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
         ->has(
             Mahasiswa::factory(30)
                 ->has(
-                    Pengajuan::factory(2)
+                    PengajuanJudul::factory(2)
                         ->has(
                             Skripsi::factory()
                                 ->has(Bimbingan::factory(2))
