@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); // loading state
 
   const setUser = useAuthStore((state) => state.setUser);
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    setLoading(true); // set loading true
 
     const formData = new FormData();
     formData.set("nip_nim", username);
@@ -30,20 +32,21 @@ export default function LoginPage() {
 
     const result = await loginAction(formData);
 
+    setLoading(false); // set loading false after action
+
     if (!result.success) {
       setError(result.message);
       return;
     }
 
-    // simpan user ke global state
     setUser(result.user);
 
     router.push("/mahasiswa/dashboard");
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f9f9fb]">
-      <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="w-full max-w-4xl bg-white rounded-lg shadow-md overflow-hidden flex flex-col md:flex-row">
         {/* Kiri */}
         <div className="w-full md:w-1/2 flex flex-col justify-center px-10 md:px-16 py-12">
           <div className="flex items-center mb-10">
@@ -128,15 +131,40 @@ export default function LoginPage() {
               </a>
             </div>
 
-            {error && (
-              <p className="text-sm text-red-500">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-500">{error}</p>}
 
             <Button
               type="submit"
               className="w-full bg-site-header hover:bg-[#4e55c4] text-white"
+              disabled={loading}
             >
-              Login
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin h-5 w-5 mr-2 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
+                  </svg>
+                  Loading...
+                </span>
+              ) : (
+                "Login"
+              )}
             </Button>
           </form>
         </div>

@@ -34,7 +34,7 @@ export function NavUser() {
     name: "Muhammad Abdi",
     email: "muhammad.abdi@example.com",
     avatar: "/images/avatars/muhammad-abdi.png",
-  } ;
+  };
 
   return (
     <SidebarMenu>

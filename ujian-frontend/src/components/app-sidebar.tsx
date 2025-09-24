@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { NavMain, NavItem } from "./nav-main";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const navMahasiswa: NavItem[] = [
   {
@@ -65,7 +66,11 @@ const navDosen: NavItem[] = [
     title: "Skripsi",
     icon: IconFilePlus,
     items: [
-      { title: "Pengajuan Judul", url: "dashboard/dosen/pengajuan-judul" },
+      { title: "Pengajuan Judul", url: "pengajuan-judul" },
+      { title: "Bimbingan", url: "bimbingan" },
+      { title: "Penilaian", url: "penilaian" },
+      { title: "Ujian", url: "ujian" },
+
     ],
   },
 ];
@@ -76,15 +81,17 @@ const navDosen: NavItem[] = [
 export function AppSidebar() {
   // const {user} = useAuthStore((state) => ({ user: state.user }));
 
-  const role = "mahasiswa" as "mahasiswa" | "admin" | "dosen"; // user?.role || "mahasiswa"
+  const pathname = usePathname();
 
   let navItems: NavItem[] = [];
-  if (role === "mahasiswa") navItems = navMahasiswa;
-  if (role === "admin") navItems = navAdmin;
-  if (role === "dosen") navItems = navDosen;
+  if (pathname.startsWith("/mahasiswa")) navItems = navMahasiswa;
+  else if (pathname.startsWith("/admin")) navItems = navAdmin;
+  else if (pathname.startsWith("/dosen")) navItems = navDosen;
+  // fallback: navMahasiswa jika tidak ada yang cocok
+  else navItems = navMahasiswa;
 
   return (
-    <Sidebar collapsible="icon" >
+    <Sidebar collapsible="icon">
       {/* Header */}
       <SidebarHeader>
         <SidebarMenu>
