@@ -143,16 +143,16 @@ export default function PengajuanJudulDosenPage() {
       {/* Table */}
       <div className="rounded-lg shadow-sm border bg-white">
         <Table>
-          <TableHeader className="bg-site-header text-white">
-            <TableRow>
-              <TableHead className="w-12 text-white">No</TableHead>
-              <TableHead className="text-white">Mahasiswa</TableHead>
-              <TableHead className="text-white">Judul</TableHead>
-              <TableHead className="text-white">Keterangan</TableHead>
-              <TableHead className="text-white">Tanggal Pengajuan</TableHead>
-              <TableHead className="text-white">Tanggal Disetujui</TableHead>
-              <TableHead className="text-white">Status</TableHead>
-              <TableHead className="text-white">Action</TableHead>
+          <TableHeader className=" ">
+            <TableRow className="text-white">
+              <TableHead className="w-12 ">No</TableHead>
+              <TableHead className="">Mahasiswa</TableHead>
+              <TableHead className="">Judul</TableHead>
+              <TableHead className="">Keterangan</TableHead>
+              <TableHead className="">Tanggal Pengajuan</TableHead>
+              <TableHead className="">Tanggal Disetujui</TableHead>
+              <TableHead className="">Status</TableHead>
+              <TableHead className="">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
