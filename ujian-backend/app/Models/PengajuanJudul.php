@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Pengajuan extends Model
+class PengajuanJudul extends Model
 {
-    /** @use HasFactory<\Database\Factories\PengajuanFactory> */
+    /** @use HasFactory<\Database\Factories\PengajuanJudulFactory> */
     use HasFactory;
 
-    protected $table = "pengajuan";
+    protected $table = "pengajuan_judul";
     protected $primaryKey = "id";
 
     protected $fillable = [
@@ -31,7 +31,7 @@ class Pengajuan extends Model
 
     public function skripsi()
     {
-    return $this->hasOne(Skripsi::class, 'pengajuan_id', 'id');
+    return $this->hasOne(Skripsi::class, 'pengajuan_judul_id', 'id');
     }
     public function dosen()
     {

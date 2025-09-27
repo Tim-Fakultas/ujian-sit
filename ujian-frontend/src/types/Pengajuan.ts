@@ -1,4 +1,4 @@
-export interface Pengajuan {
+export interface PengajuanJudul {
   id: number;
   mahasiswa?: {
     id: number;
@@ -9,5 +9,5 @@ export interface Pengajuan {
   keterangan: string;
   tanggal_pengajuan: string;
   tanggal_disetujui: string | null;
-  status: "pending" | "ditolak" | "disetujui" ;
+  status: "pending" | "ditolak" | "disetujui";
 }

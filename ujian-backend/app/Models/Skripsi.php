@@ -13,7 +13,7 @@ class Skripsi extends Model
     protected $table = "skripsi";
 
     protected $fillable = [
-        'pengajuan_id',
+        'pengajuan_judul_id',
         'judul_skripsi',
         'identifikasi_masalah',
         'rumusan_masalah',
@@ -28,11 +28,11 @@ class Skripsi extends Model
 
     public function mahasiswa()
     {
-        return $this->hasOneThrough(Mahasiswa::class, Pengajuan::class, 'id', 'id', 'pengajuan_id', 'mahasiswa_id');
+        return $this->hasOneThrough(Mahasiswa::class, PengajuanJudul::class, 'id', 'id', 'pengajuan_judul_id', 'mahasiswa_id');
     }
-    public function pengajuan()
+    public function pengajuan_judul()
     {
-        return $this->belongsTo(Pengajuan::class, 'pengajuan_id');
+        return $this->belongsTo(PengajuanJudul::class, 'pengajuan_judul_id');
     }
     public function bimbingan(){
         return $this->hasMany(Bimbingan::class, 'skripsi_id');
