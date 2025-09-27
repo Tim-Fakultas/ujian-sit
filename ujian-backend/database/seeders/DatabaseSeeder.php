@@ -33,6 +33,8 @@ class DatabaseSeeder extends Seeder
                 'remember_token' => Str::random(10),
         ]);
 
+        
+
  Fakultas::factory(1)
 ->has(
     Prodi::factory(3)

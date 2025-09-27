@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DaftarProposal extends Model
+class Template extends Model
 {
-    /** @use HasFactory<\Database\Factories\DaftarProposalFactory> */
+    /** @use HasFactory<\Database\Factories\TemplateFactory> */
     use HasFactory;
 }

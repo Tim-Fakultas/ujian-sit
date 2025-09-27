@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreDaftarProposalRequest;
-use App\Http\Requests\UpdateDaftarProposalRequest;
-use App\Models\DaftarProposal;
+use App\Http\Requests\StoreUjianRequest;
+use App\Http\Requests\UpdateUjianRequest;
+use App\Models\Ujian;
 
-class DaftarProposalController extends Controller
+class UjianController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class DaftarProposalController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreDaftarProposalRequest $request)
+    public function store(StoreUjianRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class DaftarProposalController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(DaftarProposal $daftarProposal)
+    public function show(Ujian $ujian)
     {
         //
     }
@@ -43,7 +43,7 @@ class DaftarProposalController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(DaftarProposal $daftarProposal)
+    public function edit(Ujian $ujian)
     {
         //
     }
@@ -51,7 +51,7 @@ class DaftarProposalController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDaftarProposalRequest $request, DaftarProposal $daftarProposal)
+    public function update(UpdateUjianRequest $request, Ujian $ujian)
     {
         //
     }
@@ -59,7 +59,7 @@ class DaftarProposalController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DaftarProposal $daftarProposal)
+    public function destroy(Ujian $ujian)
     {
         //
     }

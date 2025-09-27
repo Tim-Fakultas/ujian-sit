@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('syarats', function (Blueprint $table) {
+        Schema::create('jenis_ujian', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_syarat');
-            $table->enum('kategori', ['akademik', 'administratif', 'bimbingan']);
+            $table->string('nama_jenis');
             $table->text('deskripsi')->nullable();
-            $table->boolean('wajib')->default(true);
+            $table->boolean('aktif')->default(true);
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('syarats');
+        Schema::dropIfExists('jenis_ujians');
     }
 };

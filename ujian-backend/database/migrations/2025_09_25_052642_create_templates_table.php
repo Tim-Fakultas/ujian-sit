@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pemenuhan_syarats', function (Blueprint $table) {
+        Schema::create('templates', function (Blueprint $table) {
             $table->id();
-            
+            $table->foreignId('jenis_ujian_id')->constrained('jenis_ujian')->onDelete('cascade');
+            $table->string('nama_template');
+            $table->text('deskripsi')->nullable();
+            $table->string('file_path');
             $table->timestamps();
         });
     }
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pemenuhan_syarats');
+        Schema::dropIfExists('templates');
     }
 };

@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId("mahasiswa_id")->constrained("mahasiswa")->onDelete("cascade");
             $table->string("judul_skripsi");
+            $table->text('deskripsi')->nullable();
             $table->date("tanggal_pengajuan")->useCurrent();
             $table->date("tanggal_disetujui")->nullable();
-            $table->string("status")->default("pending");
+            $table->enum("status", ['menunggu', 'disetujui', 'ditolak'])->default("menunggu"); // menunggu, disetujui, ditolak
+            $table->foreignId("dosen_id")->constrained("dosen")->onDelete("cascade");
             $table->text("keterangan")->nullable();
             $table->timestamps();
         });

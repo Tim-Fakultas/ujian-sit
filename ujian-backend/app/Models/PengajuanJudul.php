@@ -16,8 +16,8 @@ class PengajuanJudul extends Model
     protected $fillable = [
         'mahasiswa_id',
         'dosen_id',
-        'pejabat_id',
         'judul_skripsi',
+        'deskripsi',
         'tanggal_pengajuan',
         'tanggal_disetujui',
         'status',
@@ -36,10 +36,5 @@ class PengajuanJudul extends Model
     public function dosen()
     {
         return $this->belongsTo(Dosen::class, 'dosen_id');
-    }
-
-    public function pejabat()
-    {
-        return $this->belongsTo(Pejabat::class, 'pejabat_id');
     }
 }
