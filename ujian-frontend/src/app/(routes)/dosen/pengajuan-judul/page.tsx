@@ -33,7 +33,7 @@ import {
   PaginationItem,
   PaginationLink,
 } from "@/components/ui/pagination";
-import { Search, Eye } from "lucide-react";
+import { Search, Eye, Filter } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 
 // Type untuk data pengajuan mahasiswa
@@ -102,12 +102,10 @@ export default function PengajuanJudulDosenPage() {
   });
 
   return (
-    <div className="min-h-screen p-8" >
+    <div className="min-h-screen p-8">
       {/* Judul Halaman */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#636AE8]">
-          Pengajuan Judul Mahasiswa
-        </h1>
+        <h1 className="text-2xl font-bold ">Pengajuan Judul Mahasiswa</h1>
         <p className="text-gray-600 mt-1">
           Halaman ini menampilkan seluruh judul skripsi yang diajukan mahasiswa.
         </p>
@@ -115,17 +113,18 @@ export default function PengajuanJudulDosenPage() {
 
       {/* Search + Filter */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div className="flex gap-2">
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Cari mahasiswa / judul..."
-              className="pl-8 bg-white"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+        <div className="relative w-full md:w-72">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Cari mahasiswa / judul..."
+            className="pl-8 bg-white"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-gray-500" />
           <Select onValueChange={setFilterStatus} defaultValue="all">
             <SelectTrigger className="w-[150px] bg-white">
               <SelectValue placeholder="Filter status" />

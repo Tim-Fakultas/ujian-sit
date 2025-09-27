@@ -27,7 +27,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, Eye, FileText } from "lucide-react";
+import { Search, Eye, FileText, Filter } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Tooltip,
   TooltipContent,
@@ -130,12 +137,34 @@ const initialKriteria: Kriteria[] = [
     bobot: 35,
     skor: 0,
   },
+   {
+    id: 6,
+    kriteria: "Sikap/Presentasi",
+    indikator: "Sistematika, logis, percaya diri, kemampuan menjawab",
+    bobot: 35,
+    skor: 0,
+  },
+   {
+    id: 7,
+    kriteria: "Sikap/Presentasi",
+    indikator: "Sistematika, logis, percaya diri, kemampuan menjawab",
+    bobot: 35,
+    skor: 0,
+  },
+   {
+    id: 8,
+    kriteria: "Sikap/Presentasi",
+    indikator: "Sistematika, logis, percaya diri, kemampuan menjawab",
+    bobot: 35,
+    skor: 0,
+  },
 ];
 
 // -------------------- Komponen Utama --------------------
 export default function UjianDosenPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterJenis, setFilterJenis] = useState<string>("all");
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -154,7 +183,9 @@ export default function UjianDosenPage() {
       item.nim.toLowerCase().includes(search.toLowerCase());
     const matchStatus =
       filterStatus === "all" ? true : item.status === filterStatus;
-    return matchSearch && matchStatus;
+    const matchJenis =
+      filterJenis === "all" ? true : item.jenis === filterJenis;
+    return matchSearch && matchStatus && matchJenis;
   });
 
   // Pagination
@@ -176,17 +207,19 @@ export default function UjianDosenPage() {
   );
 
   return (
-    <div className="min-h-screen p-8" >
+    <div className="min-h-screen p-8">
       {/* Judul Page */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-side-header">Daftar Ujian Saya</h1>
+        <h1 className="text-2xl font-bold text-side-header">
+          Daftar Ujian Saya
+        </h1>
         <p className="text-gray-600 mt-1">
           Halaman ini menampilkan daftar ujian di mana Anda bertugas sebagai
           penguji.
         </p>
       </div>
 
-      {/* Search */}
+      {/* Search and Filters */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div className="flex gap-2 w-full md:w-auto">
           <div className="relative flex-1 md:w-72">
@@ -198,6 +231,36 @@ export default function UjianDosenPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 text-sm text-gray-600">
+            <Filter className="h-4 w-4" />
+            <span className="font-medium">Filter:</span>
+          </div>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-40 bg-white">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="dijadwalkan">Dijadwalkan</SelectItem>
+              <SelectItem value="selesai">Selesai</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterJenis} onValueChange={setFilterJenis}>
+            <SelectTrigger className="w-48 bg-white">
+              <SelectValue placeholder="Jenis Ujian" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Jenis</SelectItem>
+              <SelectItem value="Seminar Proposal">Seminar Proposal</SelectItem>
+              <SelectItem value="Seminar Skripsi">Seminar Skripsi</SelectItem>
+              <SelectItem value="Ujian Komprehensif">
+                Ujian Komprehensif
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

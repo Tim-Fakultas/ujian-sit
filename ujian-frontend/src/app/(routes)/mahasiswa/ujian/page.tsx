@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -19,7 +18,23 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Plus, Search, FileText, Filter } from "lucide-react";
+import { Search, FileText, Filter, Send } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -28,460 +43,383 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Link from "next/link";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { ujianData, statusColors, statusLabels } from "@/lib/constants";
+import { Ujian } from "@/types/Ujian";
+import { IconFilter2 } from "@tabler/icons-react";
+import TrackingStep from "@/components/tracking";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-// Type data ujian
-interface Ujian {
-  id: number;
-  nim: string;
-  nama: string;
-  waktu: string;
-  ruang: string;
-  judul: string;
-  ketuaPenguji: string;
-  sekretarisPenguji: string;
-  penguji1: string;
-  penguji2: string;
-  jenis: "Seminar Proposal" | "Seminar Hasil" | "Seminar Skripsi";
-  nilai?: string;
-  status: "pending" | "dijadwalkan" | "selesai";
-}
-
-const dummyData: Ujian[] = [
-  {
-    id: 1,
-    nim: "230112233",
-    nama: "Andi Wijaya",
-    waktu: "2025-03-10 09:00",
-    ruang: "Ruang A101",
-    judul: "Implementasi Blockchain untuk Sistem Akademik",
-    ketuaPenguji: "Dr. Budi Santoso",
-    sekretarisPenguji: "Dr. Siti Aminah",
-    penguji1: "Dr. Andi Wijaya",
-    penguji2: "Dr. Rina Kurnia",
-    jenis: "Seminar Proposal",
-    nilai: "-",
-    status: "dijadwalkan",
-  },
-  {
-    id: 2,
-    nim: "230445566",
-    nama: "Dewi Lestari",
-    waktu: "2025-03-15 13:00",
-    ruang: "Ruang B202",
-    judul:
-      "Aplikasi Absensi Mahasiswa Berbasis QR Code dengan Integrasi Sistem Presensi Akademik",
-    ketuaPenguji: "Dr. Andi Wijaya",
-    sekretarisPenguji: "Dr. Siti Aminah",
-    penguji1: "Dr. Budi Santoso",
-    penguji2: "Dr. Rina Kurnia",
-    jenis: "Seminar Skripsi",
-    nilai: "A-",
-    status: "selesai",
-  },
-];
-
-export default function DaftarUjianPage() {
+export default function HalamanSemuaUjian() {
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterJenis, setFilterJenis] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState("all");
+  const [examTypeFilter, setExamTypeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selected, setSelected] = useState<Ujian | null>(null);
 
-  const filteredData = dummyData.filter((item) => {
+  const filteredData = ujianData.filter((item) => {
     const matchSearch =
-      item.judul.toLowerCase().includes(search.toLowerCase()) ||
       item.nama.toLowerCase().includes(search.toLowerCase()) ||
-      item.nim.toLowerCase().includes(search.toLowerCase());
+      item.nim.toLowerCase().includes(search.toLowerCase()) ||
+      item.judul.toLowerCase().includes(search.toLowerCase());
 
-    const matchStatus =
-      filterStatus === "all" ? true : item.status === filterStatus;
+    const matchStatus = activeTab === "all" ? true : item.status === activeTab;
+    const matchExamType =
+      examTypeFilter === "all" ? true : item.jenis === examTypeFilter;
 
-    const matchJenis =
-      filterJenis === "all" ? true : item.jenis === filterJenis;
-
-    return matchSearch && matchStatus && matchJenis;
+    return matchSearch && matchStatus && matchExamType;
   });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = filteredData.slice(startIndex, endIndex);
-
-  // Simulasi status untuk pengajuan
-  const [ujianProposalSelesai] = useState(false); // ubah true untuk test
-  const [ujianHasilSelesai] = useState(false);
+  const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="min-h-screen p-8">
-      {/* Judul Page */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-site-header">Daftar Ujian</h1>
-        <p className="text-gray-600 mt-1">
-          Halaman ini menampilkan daftar ujian seminar proposal, seminar hasil,
-          dan skripsi milikmu.
-        </p>
-      </div>
-
-      {/* Search + Filter + Tombol */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-6">
-        <div className="flex w-full gap-2">
-          {/* Search */}
-          <div className="relative flex-1">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search..."
-              className="pl-8 bg-white"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+    <div className="min-h-screen  p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Daftar Ujian
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Lihat semua jadwal dan hasil ujian Anda
+            </p>
           </div>
 
-          {/* Filter Status */}
+          {/* Tombol Pengajuan Seminar */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
+              <Button className=" rounded">
+                <Send className="mr-2 h-4 w-4" />
+                Pengajuan Seminar
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setFilterStatus("all")}>
-                Semua Status
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilterStatus("pending")}>
-                Pending
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilterStatus("dijadwalkan")}>
-                Dijadwalkan
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilterStatus("selesai")}>
-                Selesai
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Filter Jenis */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setFilterJenis("all")}>
-                Semua Jenis
-              </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem
-                onClick={() => setFilterJenis("Seminar Proposal")}
+                onClick={() => alert("Form Seminar Proposal dibuka")}
               >
                 Seminar Proposal
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setFilterJenis("Seminar Hasil")}
+                onClick={() => alert("Form Seminar Hasil dibuka")}
               >
                 Seminar Hasil
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setFilterJenis("Seminar Skripsi")}
+                onClick={() => alert("Form Ujian Skripsi dibuka")}
               >
-                Seminar Skripsi
+                Seminar/Ujian Skripsi
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Tombol Pengajuan */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="bg-site-header hover:bg-[#4e55c4] text-white">
-                <Plus className="h-4 w-4" />
-                <span className="hidden md:inline ml-2">Pengajuan</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem asChild>
-                <Link href="/mahasiswa/ujian/proposal">Seminar Proposal</Link>
-              </DropdownMenuItem>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <DropdownMenuItem asChild disabled={!ujianProposalSelesai}>
-                      <Link
-                        href={
-                          ujianProposalSelesai ? "/mahasiswa/ujian/hasil" : "#"
-                        }
-                      >
-                        Seminar Hasil
-                      </Link>
-                    </DropdownMenuItem>
-                  </TooltipTrigger>
-                  {!ujianProposalSelesai && (
-                    <TooltipContent>
-                      <p>Harus menyelesaikan Seminar Proposal dulu</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <DropdownMenuItem asChild disabled={!ujianHasilSelesai}>
-                      <Link
-                        href={
-                          ujianHasilSelesai ? "/mahasiswa/ujian/skripsi" : "#"
-                        }
-                      >
-                        Seminar Skripsi
-                      </Link>
-                    </DropdownMenuItem>
-                  </TooltipTrigger>
-                  {!ujianHasilSelesai && (
-                    <TooltipContent>
-                      <p>Harus menyelesaikan Seminar Hasil dulu</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div>
 
-      {/* Table */}
-      <div className="rounded-lg shadow-sm border bg-white overflow-x-auto">
-        <Table>
-          <TableHeader className=" bg-white">
-            <TableRow>
-              <TableHead className="text-neutral-500">No</TableHead>
-              <TableHead className="text-neutral-500">NIM</TableHead>
-              <TableHead className="text-neutral-500">Nama</TableHead>
-              <TableHead className="text-neutral-500">Waktu</TableHead>
-              <TableHead className="text-neutral-500">Ruang</TableHead>
-              <TableHead className="text-neutral-500">Judul</TableHead>
-              <TableHead className="text-neutral-500">Ketua Penguji</TableHead>
-              <TableHead className="text-neutral-500">Sekretaris</TableHead>
-              <TableHead className="text-neutral-500">Penguji 1</TableHead>
-              <TableHead className="text-neutral-500">Penguji 2</TableHead>
-              <TableHead className="text-neutral-500">Jenis</TableHead>
-              <TableHead className="text-neutral-500">Nilai</TableHead>
-              <TableHead className="text-neutral-500">Status</TableHead>
-              <TableHead className="text-neutral-500">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentData.length > 0 ? (
-              currentData.map((item, idx) => (
-                <TableRow key={item.id}>
-                  <TableCell>{startIndex + idx + 1}</TableCell>
-                  <TableCell>{item.nim}</TableCell>
-                  <TableCell>{item.nama}</TableCell>
-                  <TableCell>{item.waktu}</TableCell>
-                  <TableCell>{item.ruang}</TableCell>
-                  {/* Tooltip judul */}
-                  <TableCell>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="truncate max-w-[200px] inline-block cursor-help">
+        {/* Pencarian */}
+        <div className="mb-4 flex items-center justify-between flex-wrap gap-4">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 " />
+            <Input
+              placeholder="Search"
+              className="pl-10 border-gray-200 bg-white rounded"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <Select value={examTypeFilter} onValueChange={setExamTypeFilter}>
+            <SelectTrigger className="w-42 bg-white rounded">
+              <IconFilter2 className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Filter jenis ujian" />
+            </SelectTrigger>
+            <SelectContent className="rounded">
+              <SelectItem value="all">Semua Jenis</SelectItem>
+              <SelectItem value="Seminar Proposal">Seminar Proposal</SelectItem>
+              <SelectItem value="Seminar Hasil">Seminar Hasil</SelectItem>
+              <SelectItem value="Seminar Skripsi">Seminar Skripsi</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Status Filter */}
+        <div className="mb-6">
+          <div className="flex gap-2 text-xs">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`px-3 py-1.5 rounded border ${
+                activeTab === "all"
+                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Semua ({ujianData.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("pending")}
+              className={`px-3 py-1.5 rounded border ${
+                activeTab === "pending"
+                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Menunggu ({ujianData.filter((i) => i.status === "pending").length}
+              )
+            </button>
+            <button
+              onClick={() => setActiveTab("dijadwalkan")}
+              className={`px-3 py-1.5 rounded border ${
+                activeTab === "dijadwalkan"
+                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Dijadwalkan (
+              {ujianData.filter((i) => i.status === "dijadwalkan").length})
+            </button>
+            <button
+              onClick={() => setActiveTab("selesai")}
+              className={`px-3 py-1.5 rounded border ${
+                activeTab === "selesai"
+                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Selesai ({ujianData.filter((i) => i.status === "selesai").length})
+            </button>
+          </div>
+        </div>
+
+        {/* Tabel */}
+        <div className="bg-white rounded border overflow-x-auto">
+          <Table className="min-w-[900px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center">No</TableHead>
+                <TableHead>NIM</TableHead>
+                <TableHead>Nama Mahasiswa</TableHead>
+                <TableHead>Judul Skripsi</TableHead>
+                <TableHead>Waktu Ujian</TableHead>
+                <TableHead>Ruang</TableHead>
+                <TableHead>Jenis Ujian</TableHead>
+                <TableHead>Nilai</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentData.length > 0 ? (
+                currentData.map((item, index) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="text-center">
+                      {startIndex + index + 1}
+                    </TableCell>
+                    <TableCell>{item.nim}</TableCell>
+                    <TableCell>{item.nama}</TableCell>
+                    <TableCell className="max-w-md truncate text-gray-600">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="truncate cursor-help">
+                              {item.judul}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="max-w-sm">
                             {item.judul}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs">{item.judul}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell>{item.ketuaPenguji}</TableCell>
-                  <TableCell>{item.sekretarisPenguji}</TableCell>
-                  <TableCell>{item.penguji1}</TableCell>
-                  <TableCell>{item.penguji2}</TableCell>
-                  <TableCell>{item.jenis}</TableCell>
-                  <TableCell>{item.nilai || "-"}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium
-                      ${
-                        item.status === "selesai"
-                          ? "bg-green-100 text-green-700"
-                          : item.status === "dijadwalkan"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {item.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelected(item)}
-                      className="flex items-center gap-1"
-                    >
-                      <FileText className="h-4 w-4" />
-                      Detail
-                    </Button>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell>{item.waktu}</TableCell>
+                    <TableCell>{item.ruang}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{item.jenis}</Badge>
+                    </TableCell>
+                    <TableCell>{item.nilai || "-"}</TableCell>
+                    <TableCell>
+                      <Badge
+                        className={`${statusColors[item.status]} border-0`}
+                      >
+                        {statusLabels[item.status]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelected(item)}
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        Detail
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={10} className="text-center py-8">
+                    Tidak ada data ujian
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={14} className="text-center text-gray-500">
-                  Tidak ada data ujian
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              )}
+            </TableBody>
+          </Table>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-6 flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage > 1) setCurrentPage(currentPage - 1);
-                  }}
-                  className={
-                    currentPage === 1
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink
+          {/* Footer Pagination */}
+          <div className="flex items-center justify-between px-6 py-4 border-t">
+            <div className="flex items-center gap-2">
+              <span className="text-sm ">Tampil per halaman:</span>
+              <Select
+                value={itemsPerPage.toString()}
+                onValueChange={(v) => {
+                  setItemsPerPage(parseInt(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-20 rounded">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded">
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {totalPages > 1 && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        setCurrentPage(page);
+                        if (currentPage > 1) setCurrentPage(currentPage - 1);
                       }}
-                      isActive={currentPage === page}
-                      className="cursor-pointer"
-                    >
-                      {page}
-                    </PaginationLink>
+                    />
                   </PaginationItem>
-                )
-              )}
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage < totalPages)
-                      setCurrentPage(currentPage + 1);
-                  }}
-                  className={
-                    currentPage === totalPages
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
 
-      {/* Dialog Detail */}
-      <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          {selected && (
-            <>
-              <DialogHeader>
-                <DialogTitle>Detail Ujian</DialogTitle>
-                <DialogDescription>
-                  Informasi lengkap mengenai ujian mahasiswa.
-                </DialogDescription>
-              </DialogHeader>
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">NIM</label>
-                  <Input value={selected.nim} readOnly />
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          className="rounded"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(page);
+                          }}
+                          isActive={currentPage === page}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage < totalPages)
+                          setCurrentPage(currentPage + 1);
+                      }}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </div>
+        </div>
+
+        {/* Dialog Detail */}
+        <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
+          <DialogContent className="sm:max-w-lg rounded">
+            {selected && (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Detail Ujian</DialogTitle>
+                  <DialogDescription>
+                    Informasi lengkap mengenai ujian Anda
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm">NIM</label>
+                      <Input
+                        value={selected.nim}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm">Nama Mahasiswa</label>
+                      <Input
+                        value={selected.nama}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm">Judul Skripsi</label>
+                    <Textarea
+                      value={selected.judul}
+                      readOnly
+                      rows={3}
+                      className="mt-1 rounded"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm">Waktu Ujian</label>
+                      <Input
+                        value={selected.waktu}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm">Ruang</label>
+                      <Input
+                        value={selected.ruang}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm">Jenis Ujian</label>
+                      <Input
+                        value={selected.jenis}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm">Nilai</label>
+                      <Input
+                        value={selected.nilai || "-"}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm font-medium">Nama</label>
-                  <Input value={selected.nama} readOnly />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="text-sm font-medium">Judul</label>
-                  <Textarea value={selected.judul} readOnly />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Waktu</label>
-                  <Input value={selected.waktu} readOnly />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Ruang</label>
-                  <Input value={selected.ruang} readOnly />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Ketua Penguji</label>
-                  <Input value={selected.ketuaPenguji} readOnly />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Sekretaris</label>
-                  <Input value={selected.sekretarisPenguji} readOnly />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Penguji 1</label>
-                  <Input value={selected.penguji1} readOnly />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Penguji 2</label>
-                  <Input value={selected.penguji2} readOnly />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Jenis Ujian</label>
-                  <Input value={selected.jenis} readOnly />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Nilai</label>
-                  <Input value={selected.nilai || "-"} readOnly />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Status</label>
-                  <Input value={selected.status} readOnly />
-                </div>
-              </form>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setSelected(null)}
-                >
-                  Tutup
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setSelected(null)}>
+                    Tutup
+                  </Button>
+                </DialogFooter>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

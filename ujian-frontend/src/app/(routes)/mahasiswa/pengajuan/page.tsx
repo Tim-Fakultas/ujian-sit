@@ -12,13 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -37,6 +30,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 // Type untuk data pengajuan
 interface PengajuanJudul {
@@ -48,7 +55,7 @@ interface PengajuanJudul {
   status: "pending" | "disetujui" | "ditolak";
 }
 
-// Dummy data (id dibuat unik)
+// Dummy data (jangan diubah)
 const dummyData: PengajuanJudul[] = [
   {
     id: 1,
@@ -103,249 +110,333 @@ const dummyData: PengajuanJudul[] = [
   },
 ];
 
+const statusColors = {
+  pending: "bg-orange-100 text-orange-700",
+  disetujui: "bg-green-100 text-green-700",
+  ditolak: "bg-red-100 text-red-700",
+};
+
+const statusLabels = {
+  pending: "Pending",
+  disetujui: "Disetujui",
+  ditolak: "Ditolak",
+};
+
 export default function PengajuanJudulPage() {
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const filteredData = dummyData.filter((item) => {
     const matchSearch =
       item.judul.toLowerCase().includes(search.toLowerCase()) ||
       item.keterangan.toLowerCase().includes(search.toLowerCase());
-    const matchStatus =
-      filterStatus === "all" ? true : item.status === filterStatus;
+    const matchStatus = activeTab === "all" ? true : item.status === activeTab;
     return matchSearch && matchStatus;
   });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = filteredData.slice(startIndex, endIndex);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  // Reset pagination when search or filter changes
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    setCurrentPage(1);
-  };
-
-  const handleFilterChange = (value: string) => {
-    setFilterStatus(value);
-    setCurrentPage(1);
-  };
+  const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="min-h-screen p-8">
-      {/* Judul Halaman */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-site-header">
-          Pengajuan Judul Mahasiswa
-        </h1>
-        <p className="text-gray-600 mt-1">
-          Halaman ini menampilkan daftar judul skripsi yang kamu ajukan.
-        </p>
-      </div>
-
-      {/* Search + Filter + Tambah */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div className="flex gap-2">
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Cari judul..."
-              className="pl-8 bg-white"
-              value={search}
-              onChange={(e) => handleSearchChange(e.target.value)}
-            />
+    <div className="min-h-screen p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Pengajuan Judul Mahasiswa
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Kelola dan pantau pengajuan judul skripsi Anda
+            </p>
           </div>
-
-          <Select onValueChange={handleFilterChange} defaultValue="all">
-            <SelectTrigger className="w-[150px] bg-white">
-              <SelectValue placeholder="Filter status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="disetujui">Disetujui</SelectItem>
-              <SelectItem value="ditolak">Ditolak</SelectItem>
-            </SelectContent>
-          </Select>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="rounded">
+                <Plus className="h-4 w-4 mr-2" />
+                Tambah Pengajuan
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl h-[90vh] overflow-y-auto rounded">
+              <DialogHeader>
+                <DialogTitle>Form Pengajuan Judul</DialogTitle>
+                <DialogDescription>
+                  Isi form berikut untuk mengajukan judul skripsi.
+                </DialogDescription>
+              </DialogHeader>
+              <form className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Judul</label>
+                  <Input
+                    placeholder="Masukkan judul skripsi"
+                    className="rounded"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">
+                    Identifikasi Masalah
+                  </label>
+                  <Textarea
+                    placeholder="Tuliskan identifikasi masalah..."
+                    className="rounded"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Rumusan Masalah</label>
+                  <Textarea
+                    placeholder="Tuliskan rumusan masalah..."
+                    className="rounded"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Pokok Masalah</label>
+                  <Textarea
+                    placeholder="Tuliskan pokok masalah..."
+                    className="rounded"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">
+                    Penelitian Sebelumnya
+                  </label>
+                  <Textarea
+                    placeholder="Tuliskan penelitian sebelumnya..."
+                    className="rounded"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">
+                    Deskripsi Lengkap
+                  </label>
+                  <Textarea
+                    placeholder="Tuliskan deskripsi lengkap..."
+                    className="rounded"
+                  />
+                </div>
+                <DialogFooter>
+                  <Button type="submit" className="rounded">
+                    Simpan
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="bg-site-header hover:bg-[#4e55c4] text-white">
-              <Plus className="mr-2 h-4 w-4" />
-              Tambah Pengajuan
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-xl h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Form Pengajuan Judul</DialogTitle>
-              <DialogDescription>
-                Isi form berikut untuk mengajukan judul skripsi.
-              </DialogDescription>
-            </DialogHeader>
+        {/* Search */}
+        <div className="mb-4 flex items-center justify-between flex-wrap gap-4">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search"
+              className="pl-10 border-gray-200 bg-white rounded"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+        </div>
 
-            <form className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Judul</label>
-                <Input placeholder="Masukkan judul skripsi" />
-              </div>
+        {/* Status Filter */}
+        <div className="mb-6">
+          <div className="flex gap-2 text-xs">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`px-3 py-1.5 rounded border ${
+                activeTab === "all"
+                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Semua ({dummyData.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("pending")}
+              className={`px-3 py-1.5 rounded border ${
+                activeTab === "pending"
+                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Pending ({dummyData.filter((i) => i.status === "pending").length})
+            </button>
+            <button
+              onClick={() => setActiveTab("disetujui")}
+              className={`px-3 py-1.5 rounded border ${
+                activeTab === "disetujui"
+                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Disetujui (
+              {dummyData.filter((i) => i.status === "disetujui").length})
+            </button>
+            <button
+              onClick={() => setActiveTab("ditolak")}
+              className={`px-3 py-1.5 rounded border ${
+                activeTab === "ditolak"
+                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Ditolak ({dummyData.filter((i) => i.status === "ditolak").length})
+            </button>
+          </div>
+        </div>
 
-              <div>
-                <label className="text-sm font-medium">
-                  Identifikasi Masalah
-                </label>
-                <Textarea placeholder="Tuliskan identifikasi masalah..." />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Rumusan Masalah</label>
-                <Textarea placeholder="Tuliskan rumusan masalah..." />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Pokok Masalah</label>
-                <Textarea placeholder="Tuliskan pokok masalah..." />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">
-                  Penelitian Sebelumnya
-                </label>
-                <Textarea placeholder="Tuliskan penelitian sebelumnya..." />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Deskripsi Lengkap</label>
-                <Textarea placeholder="Tuliskan deskripsi lengkap..." />
-              </div>
-
-              <DialogFooter>
-                <Button
-                  type="submit"
-                  className="bg-site-header hover:bg-[#4e55c4] text-white"
-                >
-                  Simpan
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Table */}
-      <div className="rounded-lg shadow-sm border bg-white  overflow-hidden">
-        <Table>
-          <TableHeader className="bg-site-header text-white rounded-lg">
-            <TableRow>
-              <TableHead className="w-12 text-white">No</TableHead>
-              <TableHead className="text-white">Judul</TableHead>
-              <TableHead className="text-white">Keterangan</TableHead>
-              <TableHead className="text-white">Tanggal Pengajuan</TableHead>
-              <TableHead className="text-white">Tanggal Disetujui</TableHead>
-              <TableHead className="text-white">Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentData.length > 0 ? (
-              currentData.map((item, idx) => (
-                <TableRow key={`${item.id}-${idx}`}>
-                  {/* Penomoran konsisten */}
-                  <TableCell>{startIndex + idx + 1}</TableCell>
-                  <TableCell>{item.judul}</TableCell>
-                  <TableCell>{item.keterangan}</TableCell>
-                  <TableCell>{item.tanggalPengajuan}</TableCell>
-                  <TableCell>{item.tanggalDisetujui || "-"}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium
-                      ${
-                        item.status === "disetujui"
-                          ? "bg-green-100 text-green-700"
-                          : item.status === "pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {item.status}
-                    </span>
+        {/* Table */}
+        <div className="bg-white rounded border overflow-x-auto">
+          <Table className="min-w-[800px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center">No</TableHead>
+                <TableHead>Judul</TableHead>
+                <TableHead>Keterangan</TableHead>
+                <TableHead>Tanggal Pengajuan</TableHead>
+                <TableHead>Tanggal Disetujui</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentData.length > 0 ? (
+                currentData.map((item, index) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="text-center">
+                      {startIndex + index + 1}
+                    </TableCell>
+                    <TableCell className="max-w-md truncate text-gray-600">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="truncate cursor-help">
+                              {item.judul}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="max-w-sm">
+                            {item.judul}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell className="max-w-md truncate text-gray-600">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="truncate cursor-help">
+                              {item.keterangan}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="max-w-sm">
+                            {item.keterangan}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell>{item.tanggalPengajuan}</TableCell>
+                    <TableCell>{item.tanggalDisetujui || "-"}</TableCell>
+                    <TableCell>
+                      <Badge
+                        className={`${statusColors[item.status]} border-0`}
+                      >
+                        {statusLabels[item.status]}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8">
+                    Tidak ada data pengajuan
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center text-gray-500">
-                  Tidak ada data
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              )}
+            </TableBody>
+          </Table>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-6 flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage > 1) handlePageChange(currentPage - 1);
-                  }}
-                  className={
-                    currentPage === 1
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
+          {/* Footer Pagination */}
+          <div className="flex items-center justify-between px-6 py-4 border-t">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Tampil per halaman:</span>
+              <Select
+                value={itemsPerPage.toString()}
+                onValueChange={(v) => {
+                  setItemsPerPage(parseInt(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-20 rounded">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded">
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink
+            {totalPages > 1 && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        handlePageChange(page);
+                        if (currentPage > 1) setCurrentPage(currentPage - 1);
                       }}
-                      isActive={currentPage === page}
-                      className="cursor-pointer"
-                    >
-                      {page}
-                    </PaginationLink>
+                      className={
+                        currentPage === 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
                   </PaginationItem>
-                )
-              )}
 
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage < totalPages)
-                      handlePageChange(currentPage + 1);
-                  }}
-                  className={
-                    currentPage === totalPages
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          className="rounded"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(page);
+                          }}
+                          isActive={currentPage === page}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage < totalPages)
+                          setCurrentPage(currentPage + 1);
+                      }}
+                      className={
+                        currentPage === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

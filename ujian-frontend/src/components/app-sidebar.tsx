@@ -1,11 +1,10 @@
 "use client";
 
 import {
-  IconFilePlus, // pengajuan judul
-  IconBuilding, // fakultas
+  IconBuilding,
   IconListDetails,
   IconHome,
-  IconFolderFilled,
+  IconBook,
 } from "@tabler/icons-react";
 
 import { NavUser } from "@/components/nav-user";
@@ -33,6 +32,10 @@ const navMahasiswa: NavItem[] = [
     icon: IconListDetails,
     items: [
       {
+        title: "Rancangan Penelitian",
+        url: "/mahasiswa/pengajuan-ranpel",
+      },
+      {
         title: "Pengajuan Judul",
         url: "/mahasiswa/pengajuan",
       },
@@ -41,8 +44,12 @@ const navMahasiswa: NavItem[] = [
         url: "/mahasiswa/bimbingan",
       },
       {
-        title: "Daftar ujian",
+        title: "Daftar Ujian",
         url: "/mahasiswa/ujian",
+      },
+      {
+        title: "Penilaian",
+        url: "/mahasiswa/penilaian",
       },
     ],
   },
@@ -53,31 +60,34 @@ const navAdmin: NavItem[] = [
     title: "Data Master",
     icon: IconBuilding,
     items: [
-      { title: "Users", url: "dashboard/admin/users" },
-      { title: "Fakultas", url: "dashboard/admin/fakultas" },
-      { title: "Prodi", url: "dashboard/admin/prodi" },
-      { title: "Dosen", url: "dashboard/admin/dosen" },
+      { title: "Users", url: "admin/users" },
+      { title: "Fakultas", url: "admin/fakultas" },
+      { title: "Prodi", url: "admin/prodi" },
+      { title: "Dosen", url: "admin/dosen" },
     ],
   },
 ];
 
 const navDosen: NavItem[] = [
   {
+    title: "Home",
+    url: "/dosen/dashboard",
+    icon: IconHome,
+  },
+  {
     title: "Skripsi",
-    icon: IconFilePlus,
+    icon: IconBook,
     items: [
-      { title: "Pengajuan Judul", url: "pengajuan-judul" },
-      { title: "Bimbingan", url: "bimbingan" },
-      { title: "Penilaian", url: "penilaian" },
-      { title: "Ujian", url: "ujian" },
-
+      { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
+      { title: "Pengajuan Judul", url: "/dosen/pengajuan-judul" },
+      { title: "Mahasiswa", url: "/dosen/mahasiswa" },
+      { title: "Bimbingan", url: "/dosen/bimbingan" },
+      { title: "Ujian", url: "/dosen/ujian" },
+      { title: "Penilaian", url: "/dosen/penilaian" },
     ],
   },
 ];
 
-// ----------------------
-// AppSidebar Component
-// ----------------------
 export function AppSidebar() {
   // const {user} = useAuthStore((state) => ({ user: state.user }));
 
