@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Dosen;
 use App\Models\Mahasiswa;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,12 +19,14 @@ class PengajuanJudulFactory extends Factory
     public function definition(): array
     {
         return [
-            'mahasiswa_id' => null,
-            'judul_skripsi' => $this->faker->sentence(),
-            'tanggal_pengajuan' => $this->faker->dateTimeThisDecade(),
-            'tanggal_disetujui' => $this->faker->optional()->dateTimeThisDecade(),
-            'status' => $this->faker->randomElement(['pending', 'disetujui', 'ditolak']),
-            'keterangan' => $this->faker->optional()->paragraph(),
+            'mahasiswa_id' => Mahasiswa::inRandomOrder()->first()->id,
+            'judul' => $this->faker->sentence(6),
+            'deskripsi' => $this->faker->paragraph,
+            'tanggal_pengajuan' => $this->faker->date(),
+            'tanggal_disetujui' => null,
+            'status' => $this->faker->randomElement(['menunggu', 'disetujui', 'ditolak']),
+            'dosen_id' => Dosen::inRandomOrder()->first()->id,
+            'keterangan' => $this->faker->optional()->text,
         ];
     }
 }

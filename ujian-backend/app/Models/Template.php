@@ -9,4 +9,16 @@ class Template extends Model
 {
     /** @use HasFactory<\Database\Factories\TemplateFactory> */
     use HasFactory;
+
+    protected $table = "template";
+    protected $fillable = [
+        'nama_template',
+        'deskripsi',
+        'file_path',
+    ];
+
+        public function jenisUjian()
+    {
+        return $this->belongsTo(JenisUjian::class);
+    }
 }

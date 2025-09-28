@@ -14,9 +14,11 @@ class Bimbingan extends Model
 
     protected $fillable = [
         'skripsi_id',
-        'pembimbing_1',
-        'pembimbing_2',
+        'dosen_id',
+        'mahasiswa_id',
         'keterangan',
+        'file_path',
+        'status',
     ];
 
 
@@ -28,11 +30,7 @@ class Bimbingan extends Model
         return $this->belongsTo(Skripsi::class);
     }
 
-    public function pembimbing1(){
-        return $this->belongsTo(Dosen::class, 'pembimbing_1');
-    }
-    
-    public function pembimbing2(){
-        return $this->belongsTo(Dosen::class, 'pembimbing_2');
+    public function dosen(){
+        return $this->belongsTo(Dosen::class);
     }
 }

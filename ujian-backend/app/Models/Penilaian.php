@@ -17,4 +17,19 @@ class Penilaian extends Model
         'nilai',
         'komentar',
     ];
+
+    public function ujian()
+    {
+        return $this->belongsTo(Ujian::class, 'ujian_id');
+    }
+
+    public function dosen()
+    {
+        return $this->belongsTo(Dosen::class, 'dosen_id');
+    }
+
+    public function komponenPenilaian()
+    {
+        return $this->belongsTo(KomponenPenilaian::class, 'komponen_penilaian_id');
+    }
 }

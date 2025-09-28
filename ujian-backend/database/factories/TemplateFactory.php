@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\JenisUjian;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,10 @@ class TemplateFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'jenis_ujian_id' => JenisUjian::inRandomOrder()->first()->id,
+            'nama_template' => $this->faker->word,
+            'deskripsi' => $this->faker->optional()->text,
+            'file_path' => $this->faker->filePath(),
         ];
     }
 }

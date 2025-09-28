@@ -13,16 +13,12 @@ return new class extends Migration
     {
         Schema::create("skripsi", function (Blueprint $table) {
             $table->id();
-            $table->foreignId("pengajuan_judul_id")->constrained("pengajuan_judul")->onDelete("cascade");
-            $table->text("judul_skripsi");
-            $table->text("identifikasi_masalah");
-            $table->text("rumusan_masalah");
-            $table->text("penelitian_sebelumnya");
-            $table->text("pokok_masalah");
-            $table->text("deskripsi_lengkap");
-            $table->string("status")->default("proses");
-            $table->date("tanggal_mulai")->useCurrent();
-            $table->date("tanggal_selesai")->nullable();
+            $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
+            $table->foreignId('ranpel_id')->constrained('ranpel')->onDelete('cascade'); // asal dari ranpel
+            $table->string('judul');
+            $table->foreignId('pembimbing_1')->constrained('dosen')->onDelete('cascade');
+            $table->foreignId('pembimbing_2')->nullable()->constrained('dosen')->onDelete('cascade');
+            $table->enum('status', ['berjalan','selesai','dibatalkan'])->default('berjalan');
             $table->timestamps();
         });
     }

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('templates', function (Blueprint $table) {
+        Schema::create('template', function (Blueprint $table) {
             $table->id();
             $table->foreignId('jenis_ujian_id')->constrained('jenis_ujian')->onDelete('cascade');
             $table->string('nama_template');
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('templates');
+        Schema::dropIfExists('template');
     }
 };

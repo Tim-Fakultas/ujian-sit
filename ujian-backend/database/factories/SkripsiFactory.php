@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Dosen;
+use App\Models\Mahasiswa;
+use App\Models\Ranpel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,15 +20,12 @@ class SkripsiFactory extends Factory
     public function definition(): array
     {
         return [
-            'judul_skripsi' => $this->faker->sentence(),
-            'identifikasi_masalah' => $this->faker->paragraph(),
-            'rumusan_masalah' => $this->faker->paragraph(),
-            'penelitian_sebelumnya' => $this->faker->paragraph(),
-            'pokok_masalah' => $this->faker->paragraph(),
-            'deskripsi_lengkap' => $this->faker->paragraph(),
-            'status' => $this->faker->randomElement(['proses', 'selesai']),
-            'tanggal_mulai' => $this->faker->date(),
-            'tanggal_selesai' => $this->faker->optional()->date(),
+            'mahasiswa_id' => Mahasiswa::inRandomOrder()->first()->id,
+            'ranpel_id' => Ranpel::inRandomOrder()->first()->id,
+            'judul' => $this->faker->sentence,
+            'pembimbing_1' => Dosen::inRandomOrder()->first()->id,
+            'pembimbing_2' => Dosen::inRandomOrder()->skip(1)->first()->id,
+            'status' => $this->faker->randomElement(['berjalan','selesai','dibatalkan']),
         ];
     }
 }

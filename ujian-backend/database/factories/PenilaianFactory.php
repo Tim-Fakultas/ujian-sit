@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Dosen;
+use App\Models\KomponenPenilaian;
+use App\Models\Ujian;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +20,11 @@ class PenilaianFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'ujian_id' => Ujian::inRandomOrder()->first()->id,
+            'dosen_id' => Dosen::inRandomOrder()->first()->id,
+            'komponen_penilaian_id' => KomponenPenilaian::inRandomOrder()->first()->id,
+            'nilai' => $this->faker->numberBetween(50, 100),
+            'komentar' => $this->faker->optional()->sentence,
         ];
     }
 }

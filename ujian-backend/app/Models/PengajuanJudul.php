@@ -37,4 +37,8 @@ class PengajuanJudul extends Model
     {
         return $this->belongsTo(Dosen::class, 'dosen_id');
     }
+
+    public function ranpel(){
+        return $this->hasOne(Ranpel::class, 'pengajuan_judul_id', 'id');
+    }
 }

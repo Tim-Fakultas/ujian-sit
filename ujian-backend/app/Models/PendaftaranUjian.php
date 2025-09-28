@@ -22,5 +22,22 @@ class PendaftaranUjian extends Model
         'keterangan'
     ];
 
-    
+    public function mahasiswa(){
+        return $this->belongsTo(Mahasiswa::class,'mahasiswa_id');
+    }
+
+    public function ujian(){
+        return $this->hasOne(Ujian::class, 'pendaftaran_ujian_id');
+    }
+
+    public function skripsi(){
+        return $this->belongsTo(Skripsi::class, 'skripsi_id');
+    }
+
+    public function pemenuhanSyarat()
+    {
+        return $this->hasMany(PemenuhanSyarat::class, 'pendaftaran_ujian_id');
+    }
+
+
 }

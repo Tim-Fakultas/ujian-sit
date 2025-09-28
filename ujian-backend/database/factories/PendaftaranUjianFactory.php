@@ -17,7 +17,14 @@ class PendaftaranUjianFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'mahasiswa_id' => \App\Models\Mahasiswa::inRandomOrder()->first()->id,
+            'jenis_ujian_id' => \App\Models\JenisUjian::inRandomOrder()->first()->id,
+            'skripsi_id' => \App\Models\Skripsi::inRandomOrder()->first()->id,
+            'status' => $this->faker->randomElement(['menunggu', 'terverifikasi', 'dijadwalkan', 'selesai']),
+            'created_by' => \App\Models\User::inRandomOrder()->first()->id,
+            'verified_by' => null,
+            'verified_at' => null,
+            'keterangan' => $this->faker->optional()->text,
         ];
     }
 }

@@ -17,7 +17,9 @@ class JenisUjianFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'nama_jenis' => $this->faker->word,
+            'deskripsi' => $this->faker->optional()->text,
+            'aktif' => true,
         ];
     }
 }

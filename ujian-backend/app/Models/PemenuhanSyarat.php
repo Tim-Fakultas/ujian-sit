@@ -24,5 +24,18 @@ class PemenuhanSyarat extends Model
         'verified_at',
     ];
 
+    public function pendaftaranUjian()
+    {
+        return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
+    }
 
+    public function syarat()
+    {
+        return $this->belongsTo(Syarat::class, 'syarat_id');
+    }
+
+    public function verifier()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
 }

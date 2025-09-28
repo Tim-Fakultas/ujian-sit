@@ -18,7 +18,7 @@ class ProdiFactory extends Factory
     {
         return [
             'nama_prodi' => $this->faker->unique()->word(),
-            
+            'fakultas_id' => \App\Models\Fakultas::inRandomOrder()->first()->id,
         ];
     }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create("pengajuan_judul", function (Blueprint $table) {
             $table->id();
             $table->foreignId("mahasiswa_id")->constrained("mahasiswa")->onDelete("cascade");
-            $table->string("judul_skripsi");
+            $table->string("judul");
             $table->text('deskripsi')->nullable();
             $table->date("tanggal_pengajuan")->useCurrent();
             $table->date("tanggal_disetujui")->nullable();

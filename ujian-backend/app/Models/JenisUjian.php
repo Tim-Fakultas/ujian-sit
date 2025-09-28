@@ -38,5 +38,10 @@ class JenisUjian extends Model
         return $this->hasMany(Template::class, 'jenis_ujian_id');
     }
 
+    public function ujian()
+    {
+        return $this->hasMany(Ujian::class, 'jenis_ujian_id');
+    }
+
 
 }

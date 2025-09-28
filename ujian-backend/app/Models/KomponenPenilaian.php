@@ -17,5 +17,11 @@ class KomponenPenilaian extends Model
         'bobot',
     ];
 
+    public function jenisUjian()
+    {
+        return $this->belongsTo(JenisUjian::class, 'jenis_ujian_id');
+    }
+
+
     
 }

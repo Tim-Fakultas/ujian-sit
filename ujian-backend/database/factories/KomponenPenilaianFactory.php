@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\JenisUjian;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,9 @@ class KomponenPenilaianFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'jenis_ujian_id' => JenisUjian::inRandomOrder()->first()->id,
+            'nama_komponen' => $this->faker->word,
+            'bobot' => $this->faker->numberBetween(10, 50),
         ];
     }
 }
