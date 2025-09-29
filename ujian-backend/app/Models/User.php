@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return 'nip_nim';
     }
+
+    public function verifications()
+    {
+        return $this->hasMany(PemenuhanSyarat::class, 'verified_by');
+    }
 }

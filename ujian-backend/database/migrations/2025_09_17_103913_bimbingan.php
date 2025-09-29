@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create("bimbingan", function (Blueprint $table) {
             $table->id();
             $table->foreignId("skripsi_id")->constrained("skripsi")->onDelete("cascade");
-            $table->foreignId("pembimbing_1")->constrained("dosen")->onDelete("cascade");
-            $table->foreignId("pembimbing_2")->constrained("dosen")->onDelete("cascade");
-            $table->text("keterangan");
-            $table->timestamps();
+            $table->foreignId("dosen_id")->constrained("dosen")->onDelete("cascade"); // pembimbing yg dituju
+            $table->foreignId("mahasiswa_id")->constrained("mahasiswa")->onDelete("cascade"); // pengaju
+            $table->text("keterangan"); // isi pengajuan bimbingan (pertanyaan, draft, dll)
+            $table->string("file_path")->nullable(); // kalau ada upload file
+            $table->enum("status", ["diajukan","diterima","direvisi","selesai"])->default("diajukan"); 
+            $table->timestamps(); // tambah kolom created_at dan updated_at
             //harusnya ada tanggal bimbingan tapi lupa nambahinnya
         });
     }

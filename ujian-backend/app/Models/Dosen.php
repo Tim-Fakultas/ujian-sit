@@ -26,18 +26,29 @@ class Dosen extends Model
     }
     public function bimbinganSebagaiPembimbing1()
     {
-    return $this->hasMany(Bimbingan::class, 'pembimbing_1');
+    return $this->hasMany(Skripsi::class, 'pembimbing_1');
     }
 
     public function bimbinganSebagaiPembimbing2()
     {
-    return $this->hasMany(Bimbingan::class, 'pembimbing_2');
+    return $this->hasMany(Skripsi::class, 'pembimbing_2');
     }
 
-    public function pengajuan()
+    public function pengajuan_judul()
     {
-        return $this->hasMany(Pengajuan::class, 'pengajuan_id');
+        return $this->hasMany(PengajuanJudul::class, 'pengajuan_id');
+    }
+    public function jadwal_penguji()
+    {
+        return $this->hasMany(JadwalPenguji::class, 'dosen_id');
     }
 
+    public function penilaian()
+    {
+        return $this->hasMany(Penilaian::class, 'dosen_id');
+    }
 
+    public function bimbingan(){
+        return $this->hasMany(Bimbingan::class, 'dosen_id');
+    }
 }

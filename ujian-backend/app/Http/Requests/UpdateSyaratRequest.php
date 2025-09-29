@@ -22,7 +22,11 @@ class UpdateSyaratRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'jenis_ujian_id' => 'prohibited',
+            'nama_syarat' => 'required|string|max:255',
+            'kategori' => 'required|in:akademik,administratif,bimbingan',
+            'deskripsi' => 'nullable|string',
+            'wajib' => 'required|boolean',
         ];
     }
 }

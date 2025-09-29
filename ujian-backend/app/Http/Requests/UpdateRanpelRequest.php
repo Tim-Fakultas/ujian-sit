@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateDaftarProposalRequest extends FormRequest
+class UpdateRanpelRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,14 @@ class UpdateDaftarProposalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'pengajuan_judul_id' => 'prohibited',
+            'judul' => 'required|string|max:500',
+            'identifikasi_masalah' => 'required|string',
+            'rumusan_masalah' => 'required|string',
+            'penelitian_sebelumnya' => 'required|string',
+            'pokok_masalah' => 'required|string',
+            'deskripsi_lengkap' => 'required|string',
+            'status' => 'required|in:draft,proses,disetujui,ditolak',
         ];
     }
 }

@@ -23,9 +23,11 @@ class UpdateBimbinganRequest extends FormRequest
     {
         return [
             "skripsi_id"=>"prohibited",
-            "pembimbing_1" => "sometimes|required|exists:dosen,id",
-            "pembimbing_2"=> "sometimes|required|exists:dosen,id",
-            "keterangan" => "sometimes|nullable|string",
+            'mahasiswa_id' => 'required|exists:mahasiswa,id',
+            'dosen_id' => 'required|exists:dosen,id',
+            'file_path' => 'nullable|string',
+            'status' => 'nullable|string',
+            'keterangan' => 'nullable|string',
         ];
     }
 }

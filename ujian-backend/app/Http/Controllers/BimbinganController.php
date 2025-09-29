@@ -14,7 +14,7 @@ class BimbinganController extends Controller
      */
     public function index()
     {
-        $bimbingan = Bimbingan::with(['skripsi', 'pembimbing1', 'pembimbing2'])->get();
+        $bimbingan = Bimbingan::with(['skripsi', 'dosen', 'mahasiswa'])->get();
         return BimbinganResource::collection($bimbingan);
     }
 

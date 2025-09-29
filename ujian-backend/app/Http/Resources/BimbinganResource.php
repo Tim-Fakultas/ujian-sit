@@ -17,20 +17,19 @@ class BimbinganResource extends JsonResource
         return [
             "id"=> $this->id,
             "skripsiId"=> $this->skripsi_id,
-            "mahasiswa" => $this->skripsi && $this->skripsi->pengajuan && $this->skripsi->pengajuan->mahasiswa ? [
-                'id' => $this->skripsi->pengajuan->mahasiswa->id,
-                'nama' => $this->skripsi->pengajuan->mahasiswa->nama,
-                'nim' => $this->skripsi->pengajuan->mahasiswa->nim,
+            "mahasiswa" => $this->mahasiswa ? [
+                'id' => $this->mahasiswa->id,
+                'nama' => $this->mahasiswa->nama,
+                'nim' => $this->mahasiswa->nim,
             ] : null,
-            "pembimbing1"=> $this->pembimbing1 ? [
-                'id' => $this->pembimbing1->id,
-                'nama' => $this->pembimbing1->nama,
-            ] : null,
-            "pembimbing2"=> $this->pembimbing2 ? [
-                'id' => $this->pembimbing2->id,
-                'nama' => $this->pembimbing2->nama,
+            "dosen" => $this->dosen ? [
+                'id' => $this->dosen->id,
+                'nama' => $this->dosen->nama,
+                'nip' => $this->dosen->nip,
             ] : null,
             "keterangan"=> $this->keterangan,
+            "filePath"=> $this->file_path,
+            "status"=> $this->status,
             "createdAt"=> $this->created_at,
             "updatedAt"=> $this->updated_at,
             ];

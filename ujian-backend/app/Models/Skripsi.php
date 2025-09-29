@@ -13,28 +13,39 @@ class Skripsi extends Model
     protected $table = "skripsi";
 
     protected $fillable = [
-        'pengajuan_judul_id',
-        'judul_skripsi',
-        'identifikasi_masalah',
-        'rumusan_masalah',
-        'penelitian_sebelumnya',
-        'pokok_masalah',
-        'deskripsi_lengkap',
+        'mahasiswa_id',
+        'ranpel_id',
+        'judul',
+        'pembimbing_1',
+        'pembimbing_2',
         'status',
-        'tanggal_mulai',
-        'tanggal_selesai',
     ];
 
 
     public function mahasiswa()
     {
-        return $this->hasOneThrough(Mahasiswa::class, PengajuanJudul::class, 'id', 'id', 'pengajuan_judul_id', 'mahasiswa_id');
+      return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
     }
-    public function pengajuan_judul()
+
+    public function ranpel()
     {
-        return $this->belongsTo(PengajuanJudul::class, 'pengajuan_judul_id');
+      return $this->belongsTo(Ranpel::class, 'ranpel_id');
     }
     public function bimbingan(){
         return $this->hasMany(Bimbingan::class, 'skripsi_id');
+    }
+
+    public function pendaftaran_ujian(){
+        return $this->hasMany(PendaftaranUjian::class, 'skripsi_id');
+    }
+
+        public function pembimbing_1()
+    {
+        return $this->belongsTo(Dosen::class, 'pembimbing_1');
+    }
+
+        public function pembimbing_2()
+    {
+        return $this->belongsTo(Dosen::class, 'pembimbing_1');
     }
 }

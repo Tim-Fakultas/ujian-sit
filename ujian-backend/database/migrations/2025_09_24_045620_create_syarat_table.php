@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('syarats', function (Blueprint $table) {
+        Schema::create('syarat', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('jenis_ujian_id')->constrained('jenis_ujian')->onDelete('cascade');
             $table->string('nama_syarat');
             $table->enum('kategori', ['akademik', 'administratif', 'bimbingan']);
             $table->text('deskripsi')->nullable();
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('syarats');
+        Schema::dropIfExists('syarat');
     }
 };
