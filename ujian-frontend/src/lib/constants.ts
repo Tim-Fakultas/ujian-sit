@@ -1,14 +1,18 @@
-// export const statusColors = {
-//   disetujui:
-//     "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-200 dark:border-green-800",
-//   pending:
-//     "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800",
-//   ditolak:
-//     "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300 border-red-200 dark:border-red-800",
-// };
-
 import { Bimbingan } from "@/types/Bimbingan";
+import { Rancangan } from "@/types/Rancangan";
 import { Ujian } from "@/types/Ujian";
+
+export const statusColors = {
+  pending: "bg-orange-100 text-orange-700",
+  dijadwalkan: "bg-blue-100 text-blue-700",
+  selesai: "bg-green-100 text-green-700",
+};
+
+export const statusLabels = {
+  pending: "Menunggu",
+  dijadwalkan: "Dijadwalkan",
+  selesai: "Selesai",
+};
 
 export const ujianData: Ujian[] = [
   {
@@ -119,20 +123,43 @@ export const ujianData: Ujian[] = [
   },
 ];
 
-export const statusColors = {
-  pending: "bg-orange-100 text-orange-700",
-  dijadwalkan: "bg-blue-100 text-blue-700",
-  selesai: "bg-green-100 text-green-700",
-};
-
-export const statusLabels = {
-  pending: "Menunggu",
-  dijadwalkan: "Dijadwalkan",
-  selesai: "Selesai",
-};
-
-
-
+export const rancanganData: Rancangan[] = [
+  {
+    id: 1,
+    judul: "Implementasi Blockchain untuk Sistem Akademik",
+    tanggalDiajukan: "2025-03-01",
+    tanggalDiverifikasi: "2025-03-05",
+    status: "disetujui",
+    masalah: "Keamanan data akademik masih lemah.",
+    solusi: "Menggunakan blockchain untuk integritas data.",
+    hasil: "Sistem lebih transparan dan aman.",
+    kebutuhan: "Data mahasiswa, data nilai, data kehadiran.",
+    metode: "Studi literatur, prototype, pengujian sistem.",
+  },
+  {
+    id: 2,
+    judul: "Aplikasi Absensi Mahasiswa Berbasis QR Code",
+    tanggalDiajukan: "2025-03-02",
+    status: "pending",
+    masalah: "Absensi manual rawan kecurangan.",
+    solusi: "Menggunakan QR Code untuk validasi kehadiran.",
+    hasil: "Absensi lebih cepat dan transparan.",
+    kebutuhan: "Data mahasiswa, data jadwal kuliah.",
+    metode: "Studi kasus, pengembangan aplikasi, uji coba.",
+  },
+  {
+    id: 3,
+    judul: "Sistem Informasi Manajemen Perpustakaan Berbasis Web",
+    tanggalDiajukan: "2025-03-03",
+    tanggalDiverifikasi: "2025-03-07",
+    status: "ditolak",
+    masalah: "Pengelolaan buku masih manual dan tidak efisien.",
+    solusi: "Membuat sistem informasi berbasis web.",
+    hasil: "Pengelolaan perpustakaan lebih efisien.",
+    kebutuhan: "Data buku, data anggota perpustakaan.",
+    metode: "Analisis sistem, perancangan database, implementasi.",
+  },
+];
 
 export const bimbinganData: Bimbingan[] = [
   {

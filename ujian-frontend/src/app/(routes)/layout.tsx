@@ -16,7 +16,7 @@ export default function DashboardLayout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="sidebar" />
+      <AppSidebar  />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col ">

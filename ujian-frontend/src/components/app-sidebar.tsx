@@ -57,14 +57,19 @@ const navMahasiswa: NavItem[] = [
 
 const navAdmin: NavItem[] = [
   {
+    title: "Home",
+    url: "/admin/dashboard",
+    icon: IconHome,
+  },
+  {
+    title: "Jadwal Ujian",
+    url: "/admin/jadwal-ujian",
+    icon: IconBook,
+  },
+  {
     title: "Data Master",
     icon: IconBuilding,
-    items: [
-      { title: "Users", url: "admin/users" },
-      { title: "Fakultas", url: "admin/fakultas" },
-      { title: "Prodi", url: "admin/prodi" },
-      { title: "Dosen", url: "admin/dosen" },
-    ],
+    items: [{ title: "Dosen", url: "/admin/dosen" }],
   },
 ];
 
@@ -97,6 +102,7 @@ export function AppSidebar() {
   if (pathname.startsWith("/mahasiswa")) navItems = navMahasiswa;
   else if (pathname.startsWith("/admin")) navItems = navAdmin;
   else if (pathname.startsWith("/dosen")) navItems = navDosen;
+  // else if (pathname.startsWith("/prodi")) navItems = navProdi;
   // fallback: navMahasiswa jika tidak ada yang cocok
   else navItems = navMahasiswa;
 
