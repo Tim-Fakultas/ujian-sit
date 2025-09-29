@@ -23,7 +23,7 @@ class Bimbingan extends Model
 
 
     public function mahasiswa(){
-        return $this->skripsi ? $this->skripsi->pengajuan->mahasiswa : null;
+        return $this->belongsTo(Mahasiswa::class);
     }
 
     public function skripsi(){

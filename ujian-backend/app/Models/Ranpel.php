@@ -22,10 +22,10 @@ class Ranpel extends Model
         'status',
     ];
 
-    public function pengajuanJudul(){
+    public function pengajuan_judul(){
         return $this->belongsTo(PengajuanJudul::class, 'pengajuan_judul_id');
     }
-    
+
     public function skripsi(){
         return $this->hasOne(Skripsi::class, 'ranpel_id');
     }

@@ -14,7 +14,7 @@ class PengajuanJudulController extends Controller
      */
     public function index()
     {
-        $pengajuanJudul = PengajuanJudul::with(['mahasiswa', 'skripsi', 'dosen'])->get();
+        $pengajuanJudul = PengajuanJudul::with(['mahasiswa', 'ranpel.skripsi', 'dosen'])->get();
         return PengajuanJudulResource::collection($pengajuanJudul);
     }
 
@@ -33,7 +33,7 @@ class PengajuanJudulController extends Controller
      */
     public function show($id)
     {
-        $pengajuanJudul = PengajuanJudul::findOrFail($id);
+        $pengajuanJudul = PengajuanJudul::with(['mahasiswa', 'ranpel', 'dosen'])->findOrFail($id);
         return new PengajuanJudulResource($pengajuanJudul);
     }
 

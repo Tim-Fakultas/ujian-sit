@@ -22,7 +22,11 @@ class UpdatePenilaianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'ujian_id' => 'prohibited',
+            'dosen_id' => 'prohibited',
+            'komponen_penilaian_id' => 'prohibited',
+            'nilai' => 'required|numeric|min:0|max:100',
+            'komentar' => 'nullable|string',
         ];
     }
 }

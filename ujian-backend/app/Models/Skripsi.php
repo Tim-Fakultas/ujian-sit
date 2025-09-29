@@ -35,7 +35,7 @@ class Skripsi extends Model
         return $this->hasMany(Bimbingan::class, 'skripsi_id');
     }
 
-    public function pendaftaranUjian(){
+    public function pendaftaran_ujian(){
         return $this->hasMany(PendaftaranUjian::class, 'skripsi_id');
     }
 

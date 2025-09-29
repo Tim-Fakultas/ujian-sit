@@ -34,11 +34,11 @@ class Dosen extends Model
     return $this->hasMany(Skripsi::class, 'pembimbing_2');
     }
 
-    public function pengajuan()
+    public function pengajuan_judul()
     {
         return $this->hasMany(PengajuanJudul::class, 'pengajuan_id');
     }
-    public function jadwalPenguji()
+    public function jadwal_penguji()
     {
         return $this->hasMany(JadwalPenguji::class, 'dosen_id');
     }

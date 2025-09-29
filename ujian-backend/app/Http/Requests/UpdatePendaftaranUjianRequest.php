@@ -22,7 +22,14 @@ class UpdatePendaftaranUjianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'mahasiswa_id' => 'prohibited',
+            'jenis_ujian_id' => 'prohibited',
+            'skripsi_id' => 'prohibited',
+            'status' => 'required|in:menunggu,terverifikasi,dijadwalkan,selesai',
+            'created_by' => 'prohibited',
+            'verified_by' => 'nullable|exists:users,id',
+            'verified_at' => 'nullable|date',
+            'keterangan' => 'nullable|string',
         ];
     }
 }

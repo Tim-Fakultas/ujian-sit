@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePemenuhanSyaratRequest;
 use App\Http\Requests\UpdatePemenuhanSyaratRequest;
+use App\Http\Resources\PemenuhanSyaratResource;
 use App\Models\PemenuhanSyarat;
 
 class PemenuhanSyaratController extends Controller
@@ -13,15 +14,8 @@ class PemenuhanSyaratController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaran_ujian', 'syarat'])->get();
+        return PemenuhanSyaratResource::collection($pemenuhanSyarat);
     }
 
     /**
@@ -29,23 +23,18 @@ class PemenuhanSyaratController extends Controller
      */
     public function store(StorePemenuhanSyaratRequest $request)
     {
-        //
+        $request->validated();
+        $pemenuhanSyarat = PemenuhanSyarat::create($request->all());
+        return new PemenuhanSyaratResource($pemenuhanSyarat);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(PemenuhanSyarat $pemenuhanSyarat)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(PemenuhanSyarat $pemenuhanSyarat)
-    {
-        //
+        $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaranUjian', 'syarat'])->findOrFail($id);
+        return new PemenuhanSyaratResource($pemenuhanSyarat);
     }
 
     /**
@@ -53,7 +42,10 @@ class PemenuhanSyaratController extends Controller
      */
     public function update(UpdatePemenuhanSyaratRequest $request, PemenuhanSyarat $pemenuhanSyarat)
     {
-        //
+        $request->validated();
+        $pemenuhanSyarat->update($request->all());
+
+        return new PemenuhanSyaratResource($pemenuhanSyarat);
     }
 
     /**
@@ -61,6 +53,7 @@ class PemenuhanSyaratController extends Controller
      */
     public function destroy(PemenuhanSyarat $pemenuhanSyarat)
     {
-        //
+        $pemenuhanSyarat->delete();
+        return response()->json(['message' => 'Pemenuhan syarat berhasil dihapus.'], 200);
     }
 }

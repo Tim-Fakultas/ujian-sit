@@ -22,7 +22,19 @@ class UpdateUjianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'pendaftaran_ujian_id' => 'prohibited',
+            'jenis_ujian_id' => 'prohibited',
+            'mahasiswa_id' => 'prohibited',
+            'jadwal_ujian' => 'required|date',
+            'waktu_mulai' => 'required|date_format:H:i',
+            'waktu_selesai' => 'required|date_format:H:i|after:waktu_mulai',
+            'ruangan' => 'required|string|max:255',
+            'status' => 'required|in:dijadwalkan,berlangsung,selesai,dibatalkan',
+            'hasil' => 'nullable|in:lulus,tidak_lulus,mengulang',
+            'nilai' => 'nullable|numeric|min:0|max:100',
+            'catatan' => 'nullable|string',
+            'created_by' => 'prohibited',
+            'updated_by' => 'nullable|exists:users,id',
         ];
     }
 }

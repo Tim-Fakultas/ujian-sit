@@ -31,14 +31,16 @@ class PengajuanJudul extends Model
 
     public function skripsi()
     {
-    return $this->hasOne(Skripsi::class, 'pengajuan_judul_id', 'id');
+        return $this->hasOneThrough(Skripsi::class, Ranpel::class, 'pengajuan_judul_id', 'ranpel_id');
     }
+
+    public function ranpel()
+    {
+        return $this->hasOne(Ranpel::class, 'pengajuan_judul_id');
+    }
+
     public function dosen()
     {
         return $this->belongsTo(Dosen::class, 'dosen_id');
-    }
-
-    public function ranpel(){
-        return $this->hasOne(Ranpel::class, 'pengajuan_judul_id', 'id');
     }
 }

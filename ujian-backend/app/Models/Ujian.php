@@ -28,9 +28,9 @@ class Ujian extends Model
         'catatan',
     ];
 
-    
 
-       public function pendaftaran()
+
+       public function pendaftaran_ujian()
     {
         return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
     }
@@ -39,7 +39,7 @@ class Ujian extends Model
         return $this->hasOneThrough(Skripsi::class, PendaftaranUjian::class, 'id', 'id', 'pendaftaran_ujian_id', 'skripsi_id');
     }
 
-    public function jenisUjian()
+    public function jenis_ujian()
     {
         return $this->belongsTo(JenisUjian::class, 'jenis_ujian_id');
     }

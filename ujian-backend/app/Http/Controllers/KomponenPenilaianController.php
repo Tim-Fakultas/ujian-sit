@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreKomponenPenilaianRequest;
 use App\Http\Requests\UpdateKomponenPenilaianRequest;
+use App\Http\Resources\KomponenPenilaianResource;
 use App\Models\KomponenPenilaian;
 
 class KomponenPenilaianController extends Controller
@@ -13,15 +14,8 @@ class KomponenPenilaianController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $komponenPenilaian = KomponenPenilaian::with(['jenis_ujian'])->get();
+        return KomponenPenilaianResource::collection($komponenPenilaian);
     }
 
     /**
@@ -29,23 +23,18 @@ class KomponenPenilaianController extends Controller
      */
     public function store(StoreKomponenPenilaianRequest $request)
     {
-        //
+        $request->validated();
+        $komponenPenilaian = KomponenPenilaian::create($request->all());
+        return new KomponenPenilaianResource($komponenPenilaian);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(KomponenPenilaian $komponenPenilaian)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(KomponenPenilaian $komponenPenilaian)
-    {
-        //
+        $komponenPenilaian = KomponenPenilaian::with(['jenis_ujian'])->findOrFail($id);
+        return new KomponenPenilaianResource($komponenPenilaian);
     }
 
     /**
@@ -53,7 +42,10 @@ class KomponenPenilaianController extends Controller
      */
     public function update(UpdateKomponenPenilaianRequest $request, KomponenPenilaian $komponenPenilaian)
     {
-        //
+        $request->validated();
+        $komponenPenilaian->update($request->all());
+
+        return new KomponenPenilaianResource($komponenPenilaian);
     }
 
     /**
@@ -61,6 +53,7 @@ class KomponenPenilaianController extends Controller
      */
     public function destroy(KomponenPenilaian $komponenPenilaian)
     {
-        //
+        $komponenPenilaian->delete();
+        return response()->json(['message' => 'Komponen penilaian berhasil dihapus.'], 200);
     }
 }

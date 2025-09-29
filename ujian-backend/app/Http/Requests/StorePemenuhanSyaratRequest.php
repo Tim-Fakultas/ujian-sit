@@ -22,7 +22,16 @@ class StorePemenuhanSyaratRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'pendaftaran_ujian_id' => 'required|exists:pendaftaran_ujian,id',
+            'syarat_id' => 'required|exists:syarat,id',
+            'file_path' => 'nullable|string',
+            'file_name' => 'nullable|string|max:255',
+            'file_size' => 'nullable|integer|min:0',
+            'mime_type' => 'nullable|string|max:100',
+            'keterangan' => 'nullable|string',
+            'status' => 'required|in:menunggu,valid,invalid',
+            'verified_by' => 'nullable|exists:users,id',
+            'verified_at' => 'nullable|date',
         ];
     }
 }

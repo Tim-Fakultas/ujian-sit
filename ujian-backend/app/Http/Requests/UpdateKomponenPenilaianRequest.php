@@ -22,7 +22,9 @@ class UpdateKomponenPenilaianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'jenis_ujian_id' => 'prohibited',
+            'nama_komponen' => 'required|string|max:255',
+            'bobot' => 'required|numeric|min:0|max:100',
         ];
     }
 }

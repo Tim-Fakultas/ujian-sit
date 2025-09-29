@@ -22,7 +22,8 @@ class StoreJenisUjianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'nama_jenis' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
         ];
     }
 }

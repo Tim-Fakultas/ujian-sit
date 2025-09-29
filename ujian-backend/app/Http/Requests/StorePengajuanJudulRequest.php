@@ -23,10 +23,12 @@ class StorePengajuanJudulRequest extends FormRequest
     {
         return [
             "mahasiswa_id" => "required|exists:mahasiswa,id",
-            "judul_skripsi" => "required|string|max:255",
+            "judul" => "required|string|max:255",
+            "deskripsi"=> "required|string",
             "tanggal_pengajuan" => "nullable|date",
             "tanggal_disetujui" => "nullable|date|after_or_equal:tanggal_pengajuan",
             "status" => "nullable|string|max:50",
+            "dosen_id" => "nullable|exists:dosen,id",
             "keterangan" => "nullable|string",
         ];
     }

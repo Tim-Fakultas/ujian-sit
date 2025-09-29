@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreJadwalPengujiRequest;
 use App\Http\Requests\UpdateJadwalPengujiRequest;
+use App\Http\Resources\JadwalPengujiResource;
 use App\Models\JadwalPenguji;
 
 class JadwalPengujiController extends Controller
@@ -13,15 +14,8 @@ class JadwalPengujiController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $jadwalPenguji = JadwalPenguji::with(['ujian', 'dosen'])->get();
+        return JadwalPengujiResource::collection($jadwalPenguji);
     }
 
     /**
@@ -29,23 +23,18 @@ class JadwalPengujiController extends Controller
      */
     public function store(StoreJadwalPengujiRequest $request)
     {
-        //
+        $request->validated();
+        $jadwalPenguji = JadwalPenguji::create($request->all());
+        return new JadwalPengujiResource($jadwalPenguji);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(JadwalPenguji $jadwalPenguji)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(JadwalPenguji $jadwalPenguji)
-    {
-        //
+        $jadwalPenguji = JadwalPenguji::with(['ujian', 'dosen'])->findOrFail($id);
+        return new JadwalPengujiResource($jadwalPenguji);
     }
 
     /**
@@ -53,7 +42,10 @@ class JadwalPengujiController extends Controller
      */
     public function update(UpdateJadwalPengujiRequest $request, JadwalPenguji $jadwalPenguji)
     {
-        //
+        $request->validated();
+        $jadwalPenguji->update($request->all());
+
+        return new JadwalPengujiResource($jadwalPenguji);
     }
 
     /**
@@ -61,6 +53,7 @@ class JadwalPengujiController extends Controller
      */
     public function destroy(JadwalPenguji $jadwalPenguji)
     {
-        //
+        $jadwalPenguji->delete();
+        return response()->json(['message' => 'Jadwal penguji berhasil dihapus.'], 200);
     }
 }

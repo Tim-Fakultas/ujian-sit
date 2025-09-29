@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTemplateRequest;
 use App\Http\Requests\UpdateTemplateRequest;
+use App\Http\Resources\TemplateResource;
 use App\Models\Template;
 
 class TemplateController extends Controller
@@ -13,15 +14,8 @@ class TemplateController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $template = Template::with(['jenis_ujian'])->get();
+        return TemplateResource::collection($template);
     }
 
     /**
@@ -29,23 +23,18 @@ class TemplateController extends Controller
      */
     public function store(StoreTemplateRequest $request)
     {
-        //
+        $request->validated();
+        $template = Template::create($request->all());
+        return new TemplateResource($template);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Template $template)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Template $template)
-    {
-        //
+        $template = Template::with(['jenisUjian'])->findOrFail($id);
+        return new TemplateResource($template);
     }
 
     /**
@@ -53,7 +42,10 @@ class TemplateController extends Controller
      */
     public function update(UpdateTemplateRequest $request, Template $template)
     {
-        //
+        $request->validated();
+        $template->update($request->all());
+
+        return new TemplateResource($template);
     }
 
     /**
@@ -61,6 +53,7 @@ class TemplateController extends Controller
      */
     public function destroy(Template $template)
     {
-        //
+        $template->delete();
+        return response()->json(['message' => 'Template berhasil dihapus.'], 200);
     }
 }

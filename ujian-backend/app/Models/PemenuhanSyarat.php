@@ -9,7 +9,7 @@ class PemenuhanSyarat extends Model
 {
     /** @use HasFactory<\Database\Factories\PemenuhanSyaratFactory> */
     use HasFactory;
-    
+
     protected $table = "pemenuhan_syarat";
     protected $fillable = [
         'pendaftaran_ujian_id',
@@ -24,7 +24,7 @@ class PemenuhanSyarat extends Model
         'verified_at',
     ];
 
-    public function pendaftaranUjian()
+    public function pendaftaran_ujian()
     {
         return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
     }

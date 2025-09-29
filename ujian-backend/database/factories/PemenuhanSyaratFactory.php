@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\PengajuanJudul;
+use App\Models\PendaftaranUjian;
 use App\Models\Syarat;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,7 +19,7 @@ class PemenuhanSyaratFactory extends Factory
     public function definition(): array
     {
         return [
-            'pengajuan_judul_id' => PengajuanJudul::inRandomOrder()->first()->id,
+            'pendaftaran_ujian_id' => PendaftaranUjian::inRandomOrder()->first()->id,
             'syarat_id' => Syarat::inRandomOrder()->first()->id,
             'file_path' => $this->faker->filePath(),
             'file_name' => $this->faker->word . '.pdf',

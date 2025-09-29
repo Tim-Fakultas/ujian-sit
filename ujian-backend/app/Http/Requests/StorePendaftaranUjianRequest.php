@@ -22,7 +22,14 @@ class StorePendaftaranUjianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'mahasiswa_id' => 'required|exists:mahasiswa,id',
+            'jenis_ujian_id' => 'required|exists:jenis_ujian,id',
+            'skripsi_id' => 'required|exists:skripsi,id',
+            'status' => 'required|in:menunggu,terverifikasi,dijadwalkan,selesai',
+            'created_by' => 'required|exists:users,id',
+            'verified_by' => 'nullable|exists:users,id',
+            'verified_at' => 'nullable|date',
+            'keterangan' => 'nullable|string',
         ];
     }
 }

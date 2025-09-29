@@ -22,7 +22,7 @@ class Mahasiswa extends Model
         'prodi_id',
     ];
 
-    public function pengajuanJudul(){
+    public function pengajuan_judul(){
         return $this->hasMany(PengajuanJudul::class, 'mahasiswa_id', 'id');
     }
 
@@ -36,7 +36,7 @@ class Mahasiswa extends Model
         return $this->hasMany(Ujian::class, 'mahasiswa_id');
     }
 
-    public function pendaftaranUjian()
+    public function pendaftaran_ujian()
     {
         return $this->hasMany(PendaftaranUjian::class, 'mahasiswa_id');
     }

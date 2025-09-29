@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pemenuhan_syarat', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pengajuan_judul_id')->constrained('pengajuan_judul')->onDelete('cascade');
+            $table->foreignId('pendaftaran_ujian_id')->constrained('pendaftaran_ujian')->onDelete('cascade');
             $table->foreignId('syarat_id')->constrained('syarat')->onDelete('cascade');
             $table->string('file_path');
             $table->string('file_name');

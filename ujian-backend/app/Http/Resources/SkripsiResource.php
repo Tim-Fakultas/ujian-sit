@@ -16,24 +16,18 @@ class SkripsiResource extends JsonResource
     {
         return [
             "id"=> $this->id,
-            'pengajuan' => $this->pengajuan ? [
-                'id' => $this->pengajuan->id,
-                'mahasiswa' => $this->pengajuan->mahasiswa ? [
-                    'id' => $this->pengajuan->mahasiswa->id,
-                    'nama' => $this->pengajuan->mahasiswa->nama,
-                    'nim' => $this->pengajuan->mahasiswa->nim,
-                ] : null,
-                'statusPengajuan' => $this->pengajuan->status,
-            ] : null,
-            "judulSkripsi"=> $this->judul_skripsi,
-            "identifikasiMasalah"=> $this->identifikasi_masalah,
-            "rumusanMasalah"=> $this->rumusan_masalah,
-            "penelitianSebelumnya"=> $this->penelitian_sebelumnya,
-            "pokokMasalah"=> $this->pokok_masalah,
-            "deskripsiLengkap"=> $this->deskripsi_lengkap,
-            "status"=> $this->status,
-            "tanggalMulai"=> $this->tanggal_mulai,
-            "tanggalSelesai"=> $this->tanggal_selesai,
+            'mahasiswa'=>[
+                'id'=> $this->mahasiswa->id,
+                'nama'=> $this->mahasiswa->nama,
+                'nim'=> $this->mahasiswa->nim,
+            ],
+            'ranpel'=>[
+                'id'=> $this->ranpel->id,
+            ],
+            'judul'=> $this->judul,
+            'pembimbing1'=> $this->pembimbing_1,
+            'pembimbing2'=> $this->pembimbing_2,
+            'status'=> $this->status,
             "createdAt"=> $this->created_at,
             "updatedAt"=> $this->updated_at,
             ];

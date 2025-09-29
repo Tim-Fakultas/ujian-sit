@@ -21,11 +21,13 @@ class StoreBimbinganRequest extends FormRequest
      */
     public function rules(): array
     {
-        
+
         return [
             'skripsi_id' => 'required|exists:skripsi,id',
-            'pembimbing_1' => 'required|exists:dosen,id',
-            'pembimbing_2' => 'required|exists:dosen,id',
+            'mahasiswa_id' => 'required|exists:mahasiswa,id',
+            'dosen_id' => 'required|exists:dosen,id',
+            'file_path' => 'nullable|string',
+            'status' => 'nullable|string',
             'keterangan' => 'nullable|string',
         ];
     }

@@ -23,10 +23,12 @@ class UpdatePengajuanJudulRequest extends FormRequest
     {
         return [
             "mahasiswa_id" => "prohibited",
-            "judul_skripsi" => "sometimes|required|string|max:255",
+            "judul" => "sometimes|required|string|max:255",
+            "deskripsi"=> "sometimes|required|string",
             "tanggal_pengajuan" => "prohibited",
             "tanggal_disetujui" => "sometimes|nullable|date|after_or_equal:tanggal_pengajuan",
             "status" => "sometimes|nullable|string|max:50",
+            "dosen_id"=> "sometimes|nullable|exists:dosen,id",
             "keterangan" => "sometimes|nullable|string",
         ];
     }

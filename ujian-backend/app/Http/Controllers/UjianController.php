@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUjianRequest;
 use App\Http\Requests\UpdateUjianRequest;
+use App\Http\Resources\UjianResource;
 use App\Models\Ujian;
 
 class UjianController extends Controller
@@ -13,15 +14,8 @@ class UjianController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $ujian = Ujian::with(['pendaftaran_ujian', 'jenis_ujian', 'mahasiswa', 'penilaian'])->get();
+        return UjianResource::collection($ujian);
     }
 
     /**
@@ -29,23 +23,18 @@ class UjianController extends Controller
      */
     public function store(StoreUjianRequest $request)
     {
-        //
+        $request->validated();
+        $ujian = Ujian::create($request->all());
+        return new UjianResource($ujian);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Ujian $ujian)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Ujian $ujian)
-    {
-        //
+        $ujian = Ujian::with(['pendaftaran', 'jenisUjian', 'mahasiswa', 'penilaian'])->findOrFail($id);
+        return new UjianResource($ujian);
     }
 
     /**
@@ -53,7 +42,10 @@ class UjianController extends Controller
      */
     public function update(UpdateUjianRequest $request, Ujian $ujian)
     {
-        //
+        $request->validated();
+        $ujian->update($request->all());
+
+        return new UjianResource($ujian);
     }
 
     /**
@@ -61,6 +53,7 @@ class UjianController extends Controller
      */
     public function destroy(Ujian $ujian)
     {
-        //
+        $ujian->delete();
+        return response()->json(['message' => 'Ujian berhasil dihapus.'], 200);
     }
 }

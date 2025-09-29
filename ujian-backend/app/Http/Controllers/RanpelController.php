@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRanpelRequest;
 use App\Http\Requests\UpdateRanpelRequest;
+use App\Http\Resources\RanpelResource;
 use App\Models\Ranpel;
 
 class RanpelController extends Controller
@@ -13,15 +14,8 @@ class RanpelController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $ranpel = Ranpel::with(['pengajuan_judul', 'skripsi'])->get();
+        return RanpelResource::collection($ranpel);
     }
 
     /**
@@ -29,23 +23,18 @@ class RanpelController extends Controller
      */
     public function store(StoreRanpelRequest $request)
     {
-        //
+        $request->validated();
+        $ranpel = Ranpel::create($request->all());
+        return new RanpelResource($ranpel);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Ranpel $ranpel)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Ranpel $ranpel)
-    {
-        //
+        $ranpel = Ranpel::with(['pengajuan_judul', 'skripsi'])->findOrFail($id);
+        return new RanpelResource($ranpel);
     }
 
     /**
@@ -53,7 +42,10 @@ class RanpelController extends Controller
      */
     public function update(UpdateRanpelRequest $request, Ranpel $ranpel)
     {
-        //
+        $request->validated();
+        $ranpel->update($request->all());
+
+        return new RanpelResource($ranpel);
     }
 
     /**
@@ -61,6 +53,7 @@ class RanpelController extends Controller
      */
     public function destroy(Ranpel $ranpel)
     {
-        //
+        $ranpel->delete();
+        return response()->json(['message' => 'Ranpel berhasil dihapus.'], 200);
     }
 }

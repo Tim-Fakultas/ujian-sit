@@ -22,7 +22,11 @@ class StorePenilaianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'ujian_id' => 'required|exists:ujian,id',
+            'dosen_id' => 'required|exists:dosen,id',
+            'komponen_penilaian_id' => 'required|exists:komponen_penilaian,id',
+            'nilai' => 'required|numeric|min:0|max:100',
+            'komentar' => 'nullable|string',
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePendaftaranUjianRequest;
 use App\Http\Requests\UpdatePendaftaranUjianRequest;
+use App\Http\Resources\PendaftaranUjianResource;
 use App\Models\PendaftaranUjian;
 
 class PendaftaranUjianController extends Controller
@@ -13,15 +14,8 @@ class PendaftaranUjianController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenis_ujian', 'skripsi'])->get();
+        return PendaftaranUjianResource::collection($pendaftaranUjian);
     }
 
     /**
@@ -29,23 +23,18 @@ class PendaftaranUjianController extends Controller
      */
     public function store(StorePendaftaranUjianRequest $request)
     {
-        //
+        $request->validated();
+        $pendaftaranUjian = PendaftaranUjian::create($request->all());
+        return new PendaftaranUjianResource($pendaftaranUjian);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(PendaftaranUjian $pendaftaranUjian)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(PendaftaranUjian $pendaftaranUjian)
-    {
-        //
+        $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenisUjian', 'skripsi'])->findOrFail($id);
+        return new PendaftaranUjianResource($pendaftaranUjian);
     }
 
     /**
@@ -53,7 +42,10 @@ class PendaftaranUjianController extends Controller
      */
     public function update(UpdatePendaftaranUjianRequest $request, PendaftaranUjian $pendaftaranUjian)
     {
-        //
+        $request->validated();
+        $pendaftaranUjian->update($request->all());
+
+        return new PendaftaranUjianResource($pendaftaranUjian);
     }
 
     /**
@@ -61,6 +53,7 @@ class PendaftaranUjianController extends Controller
      */
     public function destroy(PendaftaranUjian $pendaftaranUjian)
     {
-        //
+        $pendaftaranUjian->delete();
+        return response()->json(['message' => 'Pendaftaran ujian berhasil dihapus.'], 200);
     }
 }

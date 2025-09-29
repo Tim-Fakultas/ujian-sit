@@ -22,7 +22,9 @@ class UpdateJadwalPengujiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'ujian_id' => 'prohibited',
+            'dosen_id' => 'required|exists:dosen,id',
+            'peran' => 'required|in:ketua_penguji,sekretaris_penguji,penguji_1,penguji_2',
         ];
     }
 }

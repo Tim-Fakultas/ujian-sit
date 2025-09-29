@@ -22,7 +22,11 @@ class StoreSyaratRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'jenis_ujian_id' => 'required|exists:jenis_ujian,id',
+            'nama_syarat' => 'required|string|max:255',
+            'kategori' => 'required|in:akademik,administratif,bimbingan',
+            'deskripsi' => 'nullable|string',
+            'wajib' => 'required|boolean',
         ];
     }
 }

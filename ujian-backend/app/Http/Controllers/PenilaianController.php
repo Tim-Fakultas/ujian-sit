@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePenilaianRequest;
 use App\Http\Requests\UpdatePenilaianRequest;
+use App\Http\Resources\PenilaianResource;
 use App\Models\Penilaian;
 
 class PenilaianController extends Controller
@@ -13,15 +14,8 @@ class PenilaianController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $penilaian = Penilaian::with(['ujian', 'dosen', 'komponen_penilaian'])->get();
+        return PenilaianResource::collection($penilaian);
     }
 
     /**
@@ -29,23 +23,18 @@ class PenilaianController extends Controller
      */
     public function store(StorePenilaianRequest $request)
     {
-        //
+        $request->validated();
+        $penilaian = Penilaian::create($request->all());
+        return new PenilaianResource($penilaian);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Penilaian $penilaian)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Penilaian $penilaian)
-    {
-        //
+        $penilaian = Penilaian::with(['ujian', 'dosen', 'komponen_penilaian'])->findOrFail($id);
+        return new PenilaianResource($penilaian);
     }
 
     /**
@@ -53,7 +42,10 @@ class PenilaianController extends Controller
      */
     public function update(UpdatePenilaianRequest $request, Penilaian $penilaian)
     {
-        //
+        $request->validated();
+        $penilaian->update($request->all());
+
+        return new PenilaianResource($penilaian);
     }
 
     /**
@@ -61,6 +53,7 @@ class PenilaianController extends Controller
      */
     public function destroy(Penilaian $penilaian)
     {
-        //
+        $penilaian->delete();
+        return response()->json(['message' => 'Penilaian berhasil dihapus.'], 200);
     }
 }

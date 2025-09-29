@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSyaratRequest;
 use App\Http\Requests\UpdateSyaratRequest;
+use App\Http\Resources\SyaratResource;
 use App\Models\Syarat;
 
 class SyaratController extends Controller
@@ -13,15 +14,8 @@ class SyaratController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $syarat = Syarat::with(['jenis_ujian', 'pemenuhan_syarat'])->get();
+        return SyaratResource::collection($syarat);
     }
 
     /**
@@ -29,23 +23,18 @@ class SyaratController extends Controller
      */
     public function store(StoreSyaratRequest $request)
     {
-        //
+        $request->validated();
+        $syarat = Syarat::create($request->all());
+        return new SyaratResource($syarat);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Syarat $syarat)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Syarat $syarat)
-    {
-        //
+        $syarat = Syarat::with(['jenisUjian', 'pemenuhanSyarat'])->findOrFail($id);
+        return new SyaratResource($syarat);
     }
 
     /**
@@ -53,7 +42,10 @@ class SyaratController extends Controller
      */
     public function update(UpdateSyaratRequest $request, Syarat $syarat)
     {
-        //
+        $request->validated();
+        $syarat->update($request->all());
+
+        return new SyaratResource($syarat);
     }
 
     /**
@@ -61,6 +53,7 @@ class SyaratController extends Controller
      */
     public function destroy(Syarat $syarat)
     {
-        //
+        $syarat->delete();
+        return response()->json(['message' => 'Syarat berhasil dihapus.'], 200);
     }
 }

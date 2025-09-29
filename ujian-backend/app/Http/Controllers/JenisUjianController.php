@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreJenisUjianRequest;
 use App\Http\Requests\UpdateJenisUjianRequest;
+use App\Http\Resources\JenisUjianResource;
 use App\Models\JenisUjian;
 
 class JenisUjianController extends Controller
@@ -13,15 +14,8 @@ class JenisUjianController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $jenisUjian = JenisUjian::all();
+        return JenisUjianResource::collection($jenisUjian);
     }
 
     /**
@@ -29,23 +23,18 @@ class JenisUjianController extends Controller
      */
     public function store(StoreJenisUjianRequest $request)
     {
-        //
+        $request->validated();
+        $jenisUjian = JenisUjian::create($request->all());
+        return new JenisUjianResource($jenisUjian);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(JenisUjian $jenisUjian)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(JenisUjian $jenisUjian)
-    {
-        //
+        $jenisUjian = JenisUjian::findOrFail($id);
+        return new JenisUjianResource($jenisUjian);
     }
 
     /**
@@ -53,7 +42,10 @@ class JenisUjianController extends Controller
      */
     public function update(UpdateJenisUjianRequest $request, JenisUjian $jenisUjian)
     {
-        //
+        $request->validated();
+        $jenisUjian->update($request->all());
+
+        return new JenisUjianResource($jenisUjian);
     }
 
     /**
@@ -61,6 +53,7 @@ class JenisUjianController extends Controller
      */
     public function destroy(JenisUjian $jenisUjian)
     {
-        //
+        $jenisUjian->delete();
+        return response()->json(['message' => 'Jenis ujian berhasil dihapus.'], 200);
     }
 }

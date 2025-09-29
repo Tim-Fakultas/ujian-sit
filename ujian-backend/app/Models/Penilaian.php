@@ -28,7 +28,7 @@ class Penilaian extends Model
         return $this->belongsTo(Dosen::class, 'dosen_id');
     }
 
-    public function komponenPenilaian()
+    public function komponen_penilaian()
     {
         return $this->belongsTo(KomponenPenilaian::class, 'komponen_penilaian_id');
     }

@@ -15,15 +15,16 @@ class Syarat extends Model
         'jenis_ujian_id',
         'nama_syarat',
         'kategori',
+        'deskripsi',
         'wajib',
     ];
 
-    public function jenisUjian()
+    public function jenis_ujian()
     {
         return $this->belongsTo(JenisUjian::class, 'jenis_ujian_id');
     }
 
-    public function pemenuhanSyarat()
+    public function pemenuhan_syarat()
     {
         return $this->hasMany(PemenuhanSyarat::class, 'syarat_id');
     }
