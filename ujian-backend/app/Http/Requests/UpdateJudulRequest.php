@@ -22,7 +22,8 @@ class UpdateJudulRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'judul' => 'sometimes|string|max:500',
+            'deskripsi' => 'sometimes|nullable|string|max:1000',
         ];
     }
 }

@@ -22,7 +22,8 @@ class StoreJudulRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'judul' => 'required|string|max:500',
+            'deskripsi' => 'nullable|string|max:1000',
         ];
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\DosenController;
 use App\Http\Controllers\FakultasController;
 use App\Http\Controllers\JadwalPengujiController;
 use App\Http\Controllers\JenisUjianController;
+use App\Http\Controllers\JudulController;
 use App\Http\Controllers\KomponenPenilaianController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\PejabatController;
@@ -64,3 +65,5 @@ Route::apiResource('template', TemplateController::class);
 Route::apiResource('ujian', UjianController::class);
 
 Route::apiResource('jadwal-penguji', JadwalPengujiController::class);
+
+Route::apiResource('judul', JudulController::class);
