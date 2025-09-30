@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('judul', function (Blueprint $table) {
             $table->id();
-            $table->string(column: 'judul');
-            $table->string(column:'deskripsi')->nullable();
+            $table->string('judul');
+            $table->text('deskripsi')->nullable();
             $table->timestamps();
         });
     }
