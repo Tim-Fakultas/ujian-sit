@@ -18,12 +18,6 @@ class JudulResource extends JsonResource
             'id' => $this->id,
             'judul' => $this->judul,
             'deskripsi' => $this->deskripsi,
-            'ranpel' => $this->ranpel ? $this->ranpel->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'status' => $item->status,
-                ];
-            }) : null,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];
