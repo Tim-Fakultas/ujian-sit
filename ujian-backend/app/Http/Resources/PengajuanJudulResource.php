@@ -22,6 +22,7 @@ class PengajuanJudulResource extends JsonResource
                 "nama" => $this->mahasiswa->nama,
             ] : null,
             'judul' => $this->ranpel->judul ?? $this->judul,
+            'deskripsi'=>$this->deskripsi,
             'tanggalPengajuan' => $this->tanggal_pengajuan,
             'tanggalDisetujui' => $this->tanggal_disetujui,
             'status' => $this->status,
