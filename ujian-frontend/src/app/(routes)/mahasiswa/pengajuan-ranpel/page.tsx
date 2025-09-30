@@ -43,63 +43,10 @@ import {
 } from "@/components/ui/tooltip";
 import { Search, Eye, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { IconFilter2 } from "@tabler/icons-react";
+import { Rancangan } from "@/types/Rancangan";
+import { rancanganData } from "@/lib/constants";
 
 // Type data rancangan
-interface Rancangan {
-  id: number;
-  nama: string;
-  judul: string;
-  tanggalDiajukan: string;
-  tanggalDiverifikasi?: string;
-  status: "pending" | "disetujui" | "ditolak";
-  masalah: string;
-  solusi: string;
-  hasil: string;
-  kebutuhan: string;
-  metode: string;
-}
-
-const dummyData: Rancangan[] = [
-  {
-    id: 1,
-    nama: "Andi Wijaya",
-    judul: "Implementasi Blockchain untuk Sistem Akademik",
-    tanggalDiajukan: "2025-03-01",
-    tanggalDiverifikasi: "2025-03-05",
-    status: "disetujui",
-    masalah: "Keamanan data akademik masih lemah.",
-    solusi: "Menggunakan blockchain untuk integritas data.",
-    hasil: "Sistem lebih transparan dan aman.",
-    kebutuhan: "Data mahasiswa, data nilai, data kehadiran.",
-    metode: "Studi literatur, prototype, pengujian sistem.",
-  },
-  {
-    id: 2,
-    nama: "Dewi Lestari",
-    judul: "Aplikasi Absensi Mahasiswa Berbasis QR Code",
-    tanggalDiajukan: "2025-03-02",
-    status: "pending",
-    masalah: "Absensi manual rawan kecurangan.",
-    solusi: "Menggunakan QR Code untuk validasi kehadiran.",
-    hasil: "Absensi lebih cepat dan transparan.",
-    kebutuhan: "Data mahasiswa, data jadwal kuliah.",
-    metode: "Studi kasus, pengembangan aplikasi, uji coba.",
-  },
-  {
-    id: 3,
-    nama: "Budi Santoso",
-    judul: "Sistem Informasi Manajemen Perpustakaan Berbasis Web",
-    tanggalDiajukan: "2025-03-03",
-    tanggalDiverifikasi: "2025-03-07",
-    status: "ditolak",
-    masalah: "Pengelolaan buku masih manual dan tidak efisien.",
-    solusi: "Membuat sistem informasi berbasis web.",
-    hasil: "Pengelolaan perpustakaan lebih efisien.",
-    kebutuhan: "Data buku, data anggota perpustakaan.",
-    metode: "Analisis sistem, perancangan database, implementasi.",
-  },
-];
 
 const statusColors = {
   pending: "bg-orange-100 text-orange-700",
@@ -120,10 +67,8 @@ export default function DaftarRancanganPage() {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selected, setSelected] = useState<Rancangan | null>(null);
 
-  const filteredData = dummyData.filter((item) => {
-    const matchSearch =
-      item.judul.toLowerCase().includes(search.toLowerCase()) ||
-      item.nama.toLowerCase().includes(search.toLowerCase());
+  const filteredData = rancanganData.filter((item) => {
+    const matchSearch = item.judul.toLowerCase().includes(search.toLowerCase());
     const matchStatus = activeTab === "all" ? true : item.status === activeTab;
     return matchSearch && matchStatus;
   });
@@ -156,34 +101,108 @@ export default function DaftarRancanganPage() {
               <DialogHeader>
                 <DialogTitle>Form Rancangan Penelitian</DialogTitle>
               </DialogHeader>
-              <form className="space-y-4">
+              <form className="space-y-6">
                 <div>
                   <label className="text-sm font-medium">Nama Mahasiswa</label>
-                  <Input placeholder="Nama mahasiswa" className="mt-1 rounded" />
+                  <Input
+                    placeholder="Nama mahasiswa"
+                    className="mt-1 rounded"
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Judul Penelitian</label>
-                  <Input placeholder="Judul penelitian" className="mt-1 rounded" />
+                  <label className="text-sm font-medium">
+                    Judul Penelitian
+                  </label>
+                  <Input
+                    placeholder="Judul penelitian"
+                    className="mt-1 rounded"
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Masalah & Penyebab</label>
-                  <Textarea placeholder="Tuliskan masalah..." className="mt-1 rounded" />
+                  <label className="text-sm font-medium">
+                    Masalah & Penyebab
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Jelaskan permasalahan yang akan diselesaikan beserta
+                    penyebab-penyebabnya. Jika berkaitan dengan objek tertentu,
+                    sebutkan masalah pada objek tersebut. Sertakan data awal
+                    sebagai pendukung.
+                  </p>
+                  <Textarea
+                    placeholder="Jelaskan permasalahan yang akan diselesaikan beserta penyebab-penyebabnya..."
+                    className="mt-1 rounded"
+                    rows={4}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Alternatif Solusi</label>
-                  <Textarea placeholder="Tuliskan alternatif solusi..." className="mt-1 rounded" />
+                  <label className="text-sm font-medium">
+                    Alternatif Solusi
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Jelaskan cara-cara atau solusi yang akan digunakan untuk
+                    menyelesaikan masalah. Harus memiliki dasar teori/keilmuan
+                    yang jelas dengan referensi dari penelitian terdahulu atau
+                    buku.
+                  </p>
+                  <Textarea
+                    placeholder="Jelaskan cara-cara atau solusi yang akan digunakan untuk menyelesaikan masalah..."
+                    className="mt-1 rounded"
+                    rows={4}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Hasil yang Diharapkan</label>
-                  <Textarea placeholder="Tuliskan hasil yang diharapkan..." className="mt-1 rounded" />
+                  <label className="text-sm font-medium">
+                    Hasil yang Diharapkan
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Jelaskan target yang akan dicapai. Berupa{" "}
+                    <strong>hasil (output)</strong> seperti perangkat lunak,
+                    model, prototip, dll, dan <strong>dampak (outcome)</strong>{" "}
+                    yaitu pengaruh implementasi terhadap objek penelitian.
+                  </p>
+                  <Textarea
+                    placeholder="Jelaskan target yang akan dicapai..."
+                    className="mt-1 rounded"
+                    rows={4}
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Kebutuhan Data</label>
-                  <Textarea placeholder="Tuliskan kebutuhan data..." className="mt-1 rounded" />
+                  <p className="text-xs text-gray-500 mb-2">
+                    Sebutkan data yang akan diolah sebagai variabel penelitian.
+                    Meliputi <strong>data awal</strong> untuk merumuskan masalah
+                    dan <strong>bahan penelitian</strong> yang akan diolah
+                    selama penelitian.
+                  </p>
+                  <Textarea
+                    placeholder="Sebutkan data yang akan diolah sebagai variabel penelitian..."
+                    className="mt-1 rounded"
+                    rows={4}
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Metode Pelaksanaan</label>
-                  <Textarea placeholder="Tuliskan metode pelaksanaan..." className="mt-1 rounded" />
+                  <label className="text-sm font-medium">
+                    Metode Pelaksanaan
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Jelaskan metode yang akan digunakan untuk melaksanakan
+                    penelitian. Sesuaikan dengan topik penelitian (metode
+                    analisis, perancangan, pengujian, implementasi, dll).
+                  </p>
+                  <Textarea
+                    placeholder="Jelaskan metode yang akan digunakan untuk melaksanakan penelitian..."
+                    className="mt-1 rounded"
+                    rows={4}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Dosen PA</label>
+                  <Input
+                    placeholder="Nama dosen pembimbing akademik"
+                    value="Indah Hidayanti M.Kom"
+                    className="mt-1 rounded"
+                    readOnly
+                  />
                 </div>
                 <DialogFooter>
                   <Button className="rounded">Submit</Button>
@@ -217,7 +236,7 @@ export default function DaftarRancanganPage() {
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Semua ({dummyData.length})
+              Semua ({rancanganData.length})
             </button>
             <button
               onClick={() => setActiveTab("pending")}
@@ -227,7 +246,8 @@ export default function DaftarRancanganPage() {
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Pending ({dummyData.filter((i) => i.status === "pending").length})
+              Pending (
+              {rancanganData.filter((i) => i.status === "pending").length})
             </button>
             <button
               onClick={() => setActiveTab("disetujui")}
@@ -237,7 +257,8 @@ export default function DaftarRancanganPage() {
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Disetujui ({dummyData.filter((i) => i.status === "disetujui").length})
+              Disetujui (
+              {rancanganData.filter((i) => i.status === "disetujui").length})
             </button>
             <button
               onClick={() => setActiveTab("ditolak")}
@@ -247,7 +268,8 @@ export default function DaftarRancanganPage() {
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Ditolak ({dummyData.filter((i) => i.status === "ditolak").length})
+              Ditolak (
+              {rancanganData.filter((i) => i.status === "ditolak").length})
             </button>
           </div>
         </div>
@@ -258,7 +280,6 @@ export default function DaftarRancanganPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center">No</TableHead>
-                <TableHead>Nama Mahasiswa</TableHead>
                 <TableHead>Judul Penelitian</TableHead>
                 <TableHead>Tanggal Diajukan</TableHead>
                 <TableHead>Tanggal Diverifikasi</TableHead>
@@ -273,7 +294,6 @@ export default function DaftarRancanganPage() {
                     <TableCell className="text-center">
                       {startIndex + index + 1}
                     </TableCell>
-                    <TableCell>{item.nama}</TableCell>
                     <TableCell className="max-w-md truncate text-gray-600">
                       <TooltipProvider>
                         <Tooltip>
@@ -291,7 +311,9 @@ export default function DaftarRancanganPage() {
                     <TableCell>{item.tanggalDiajukan}</TableCell>
                     <TableCell>{item.tanggalDiverifikasi || "-"}</TableCell>
                     <TableCell>
-                      <Badge className={`${statusColors[item.status]} border-0`}>
+                      <Badge
+                        className={`${statusColors[item.status]} border-0`}
+                      >
                         {statusLabels[item.status]}
                       </Badge>
                     </TableCell>
@@ -352,28 +374,31 @@ export default function DaftarRancanganPage() {
                     />
                   </PaginationItem>
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        href="#"
-                        className="rounded"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setCurrentPage(page);
-                        }}
-                        isActive={currentPage === page}
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          className="rounded"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(page);
+                          }}
+                          isActive={currentPage === page}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
 
                   <PaginationItem>
                     <PaginationNext
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                        if (currentPage < totalPages)
+                          setCurrentPage(currentPage + 1);
                       }}
                     />
                   </PaginationItem>
@@ -394,51 +419,125 @@ export default function DaftarRancanganPage() {
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium">Nama</label>
-                      <Input value={selected.nama} readOnly className="mt-1 rounded" />
+                      <label className="text-sm font-medium">NIM</label>
+                      <Input
+                        value="2021001"
+                        readOnly
+                        className="mt-1 rounded"
+                      />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">Status</label>
-                      <div className="mt-1">
-                        <Badge className={`${statusColors[selected.status]} border-0`}>
-                          {statusLabels[selected.status]}
-                        </Badge>
-                      </div>
+                      <label className="text-sm font-medium">Nama</label>
+                      <Input
+                        value="Ahmad Rizki"
+                        readOnly
+                        className="mt-1 rounded"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Status</label>
+                    <div className="mt-1">
+                      <Badge
+                        className={`${statusColors[selected.status]} border-0`}
+                      >
+                        {statusLabels[selected.status]}
+                      </Badge>
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Judul</label>
-                    <Textarea value={selected.judul} readOnly className="mt-1 rounded" rows={2} />
+                    <Textarea
+                      value={selected.judul}
+                      readOnly
+                      className="mt-1 rounded"
+                      rows={2}
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium">Tanggal Diajukan</label>
-                      <Input value={selected.tanggalDiajukan} readOnly className="mt-1 rounded" />
+                      <label className="text-sm font-medium">
+                        Tanggal Diajukan
+                      </label>
+                      <Input
+                        value={selected.tanggalDiajukan}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">Tanggal Diverifikasi</label>
-                      <Input value={selected.tanggalDiverifikasi || "-"} readOnly className="mt-1 rounded" />
+                      <label className="text-sm font-medium">
+                        Tanggal Diverifikasi
+                      </label>
+                      <Input
+                        value={selected.tanggalDiverifikasi || "-"}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Masalah & Penyebab</label>
-                    <Textarea value={selected.masalah} readOnly rows={3} className="mt-1 rounded" />
+                    <label className="text-sm font-medium">
+                      Masalah & Penyebab
+                    </label>
+                    <Textarea
+                      value={selected.masalah}
+                      readOnly
+                      rows={3}
+                      className="mt-1 rounded"
+                    />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Alternatif Solusi</label>
-                    <Textarea value={selected.solusi} readOnly rows={2} className="mt-1 rounded" />
+                    <label className="text-sm font-medium">
+                      Alternatif Solusi
+                    </label>
+                    <Textarea
+                      value={selected.solusi}
+                      readOnly
+                      rows={2}
+                      className="mt-1 rounded"
+                    />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Hasil yang Diharapkan</label>
-                    <Textarea value={selected.hasil} readOnly rows={2} className="mt-1 rounded" />
+                    <label className="text-sm font-medium">
+                      Hasil yang Diharapkan
+                    </label>
+                    <Textarea
+                      value={selected.hasil}
+                      readOnly
+                      rows={2}
+                      className="mt-1 rounded"
+                    />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Kebutuhan Data</label>
-                    <Textarea value={selected.kebutuhan} readOnly rows={2} className="mt-1 rounded" />
+                    <label className="text-sm font-medium">
+                      Kebutuhan Data
+                    </label>
+                    <Textarea
+                      value={selected.kebutuhan}
+                      readOnly
+                      rows={2}
+                      className="mt-1 rounded"
+                    />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Metode Pelaksanaan</label>
-                    <Textarea value={selected.metode} readOnly rows={2} className="mt-1 rounded" />
+                    <label className="text-sm font-medium">
+                      Metode Pelaksanaan
+                    </label>
+                    <Textarea
+                      value={selected.metode}
+                      readOnly
+                      rows={2}
+                      className="mt-1 rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Dosen PA</label>
+                    <Input
+                      value={"Indah Hidayanti M.Kom"}
+                      readOnly
+                      className="mt-1 rounded"
+                    />
                   </div>
                 </div>
                 <DialogFooter>
