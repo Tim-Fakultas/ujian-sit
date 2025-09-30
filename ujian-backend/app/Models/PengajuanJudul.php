@@ -34,10 +34,6 @@ class PengajuanJudul extends Model
         return $this->hasOneThrough(Skripsi::class, Ranpel::class, 'pengajuan_judul_id', 'ranpel_id');
     }
 
-    public function ranpel()
-    {
-        return $this->hasOne(Ranpel::class, 'pengajuan_judul_id');
-    }
 
     public function dosen()
     {

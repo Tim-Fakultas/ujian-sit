@@ -22,8 +22,7 @@ class UpdateRanpelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pengajuan_judul_id' => 'prohibited',
-            'judul' => 'sometimes|string|max:500',
+            'judul_id' => 'sometimes|exists:judul,id',
             'identifikasi_masalah' => 'sometimes|string',
             'rumusan_masalah' => 'sometimes|string',
             'penelitian_sebelumnya' => 'sometimes|string',

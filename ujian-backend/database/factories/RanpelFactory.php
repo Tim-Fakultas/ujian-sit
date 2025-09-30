@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Judul;
 use App\Models\PengajuanJudul;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,8 +19,7 @@ class RanpelFactory extends Factory
     public function definition(): array
     {
         return [
-            'pengajuan_judul_id' => PengajuanJudul::inRandomOrder()->first()->id,
-            'judul' => $this->faker->sentence,
+            'judul_id' => Judul::inRandomOrder()->first()?->id ?? Judul::factory()->create()->id,
             'identifikasi_masalah' => $this->faker->paragraph,
             'rumusan_masalah' => $this->faker->paragraph,
             'penelitian_sebelumnya' => $this->faker->paragraph,

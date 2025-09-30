@@ -22,8 +22,7 @@ class StoreRanpelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pengajuan_judul_id' => 'required|exists:pengajuan_judul,id',
-            'judul' => 'required|string|max:500',
+            'judul_id' => 'required|exists:judul,id',
             'identifikasi_masalah' => 'required|string',
             'rumusan_masalah' => 'required|string',
             'penelitian_sebelumnya' => 'required|string',

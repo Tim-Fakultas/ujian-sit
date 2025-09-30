@@ -12,8 +12,7 @@ class Ranpel extends Model
 
     protected $table = "ranpel";
     protected $fillable = [
-        'pengajuan_judul_id',
-        'judul',
+        'judul_id',
         'identifikasi_masalah',
         'rumusan_masalah',
         'penelitian_sebelumnya',
@@ -21,10 +20,6 @@ class Ranpel extends Model
         'deskripsi_lengkap',
         'status',
     ];
-
-    public function pengajuan_judul(){
-        return $this->belongsTo(PengajuanJudul::class, 'pengajuan_judul_id');
-    }
 
     public function skripsi(){
         return $this->hasOne(Skripsi::class, 'ranpel_id');

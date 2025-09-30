@@ -16,17 +16,11 @@ class RanpelResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'pengajuanJudulId' => $this->pengajuan_judul_id,
-            'pengajuanJudul' => $this->pengajuan_judul ? [
-                'id' => $this->pengajuan_judul->id,
-                'judul' => $this->pengajuan_judul->judul,
-                'mahasiswa' => $this->pengajuan_judul->mahasiswa ? [
-                    'id' => $this->pengajuan_judul->mahasiswa->id,
-                    'nama' => $this->pengajuan_judul->mahasiswa->nama,
-                    'nim' => $this->pengajuan_judul->mahasiswa->nim,
-                ] : null,
+            'judulId' => $this->judul_id,
+            'judul' => $this->judul ? [
+                'id' => $this->judul->id,
+                'judul' => $this->judul->judul,
             ] : null,
-            'judul' => $this->judul,
             'identifikasiMasalah' => $this->identifikasi_masalah,
             'rumusanMasalah' => $this->rumusan_masalah,
             'penelitianSebelumnya' => $this->penelitian_sebelumnya,

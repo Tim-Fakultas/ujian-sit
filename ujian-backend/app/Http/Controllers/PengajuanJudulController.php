@@ -14,7 +14,7 @@ class PengajuanJudulController extends Controller
      */
     public function index()
     {
-        $pengajuanJudul = PengajuanJudul::with(['mahasiswa', 'ranpel.skripsi', 'dosen'])->get();
+        $pengajuanJudul = PengajuanJudul::with(['mahasiswa', , 'dosen'])->get();
         return PengajuanJudulResource::collection($pengajuanJudul);
     }
 

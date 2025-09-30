@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $prodi2 = Prodi::factory()->create([
-            'nama_prodi' => 'Biologi', 
+            'nama_prodi' => 'Biologi',
             'fakultas_id' => $fakultas->id
         ]);
 
@@ -67,13 +67,16 @@ class DatabaseSeeder extends Seeder
         // Step 5: Create supporting data
         // Create some JenisUjian (types of exams)
         \App\Models\JenisUjian::factory(5)->create();
-        
+
         // Create some Syarat (requirements)
         \App\Models\Syarat::factory(10)->create();
 
         // Step 6: Create related data using the factories
-        // Create some PengajuanJudul (thesis proposals) 
+        // Create some PengajuanJudul (thesis proposals)
         PengajuanJudul::factory(50)->create();
+
+        // Create Judul (titles) - sebelum Ranpel
+        \App\Models\Judul::factory(30)->create();
 
         // Create Ranpel (research plans) - harus sebelum Skripsi
         \App\Models\Ranpel::factory(25)->create();
@@ -108,7 +111,7 @@ class DatabaseSeeder extends Seeder
         // Create some Pejabat (officials)
         Pejabat::factory(3)->create();
 
-        
+
 
 //  Fakultas::factory(1)
 // ->has(

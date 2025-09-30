@@ -17,7 +17,8 @@ class JudulFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'judul' => $this->faker->sentence(6, true),
+            'deskripsi' => $this->faker->optional()->paragraph(),
         ];
     }
 }
