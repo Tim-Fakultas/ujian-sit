@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('ranpel', function (Blueprint $table) {
             $table->id();
             $table->foreignId("pengajuan_judul_id")->constrained("pengajuan_judul")->onDelete("cascade");
-            $table->text("judul");
+            $table->foreign('judul')->references('id')->on('judul')->onDelete('cascade');
             $table->text("identifikasi_masalah");
             $table->text("rumusan_masalah");
             $table->text("penelitian_sebelumnya");

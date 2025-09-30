@@ -14,7 +14,7 @@ class MahasiswaController extends Controller
      */
     public function index()
     {
-        $mahasiswa = Mahasiswa::with('prodi')->get();
+        $mahasiswa = Mahasiswa::with(['prodi', 'dosenPembimbingAkademik'])->get();
         return MahasiswaResource::collection($mahasiswa);
     }
 
@@ -33,7 +33,7 @@ class MahasiswaController extends Controller
      */
     public function show($id)
     {
-        $mahasiswa = Mahasiswa::findOrFail($id);
+        $mahasiswa = Mahasiswa::with(['prodi', 'dosenPembimbingAkademik'])->findOrFail($id);
         return new MahasiswaResource($mahasiswa);
     }
 
@@ -42,8 +42,16 @@ class MahasiswaController extends Controller
      */
     public function update(UpdateMahasiswaRequest $request, Mahasiswa $mahasiswa)
     {
-        $request->validated();
-        $mahasiswa->update($request->all());
+        $validated = $request->validated();
+
+        // Handle dosen_id as alias for dosen_pa
+        if (isset($validated['dosen_id'])) {
+            $validated['dosen_pa'] = $validated['dosen_id'];
+            unset($validated['dosen_id']);
+        }
+
+        $mahasiswa->update($validated);
+        $mahasiswa->load(['prodi', 'dosenPembimbingAkademik']);
 
         return new MahasiswaResource($mahasiswa);
     }

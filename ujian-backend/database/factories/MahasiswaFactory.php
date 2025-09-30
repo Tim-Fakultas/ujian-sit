@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Dosen;
 use App\Models\Prodi;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,12 +18,14 @@ class MahasiswaFactory extends Factory
      */
     public function definition(): array
     {
-        return [
+       return [
             'nim' => $this->faker->unique()->numerify('230########'),
             'nama' => $this->faker->name,
             'no_hp' => $this->faker->phoneNumber,
             'alamat' => $this->faker->address,
             'prodi_id' => Prodi::inRandomOrder()->first()->id,
+            'semester' => $this->faker->numberBetween(1, 14),
+            'dosen_pa' => Dosen::inRandomOrder()->first()->id,
         ];
     }
 }

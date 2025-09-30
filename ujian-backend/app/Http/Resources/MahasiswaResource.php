@@ -20,9 +20,15 @@ class MahasiswaResource extends JsonResource
             "nim"=> $this->nim,
             "noHp"=> $this->no_hp,
             "alamat"=> $this->alamat,
+            'semester' => $this->semester,
+            'dosenPaId' => $this->dosen_pa,
             'prodi' => $this->prodi ? [
                 'id' => $this->prodi->id,
                 'nama' => $this->prodi->nama_prodi,
+            ] : null,
+            'dosenPa' => $this->dosenPembimbingAkademik ? [
+                'id' => $this->dosenPembimbingAkademik->id,
+                'nama' => $this->dosenPembimbingAkademik->nama,
             ] : null,
             "createdAt"=> $this->created_at,
             "updatedAt"=> $this->updated_at,

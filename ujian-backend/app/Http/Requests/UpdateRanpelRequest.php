@@ -11,7 +11,7 @@ class UpdateRanpelRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,13 +23,13 @@ class UpdateRanpelRequest extends FormRequest
     {
         return [
             'pengajuan_judul_id' => 'prohibited',
-            'judul' => 'required|string|max:500',
-            'identifikasi_masalah' => 'required|string',
-            'rumusan_masalah' => 'required|string',
-            'penelitian_sebelumnya' => 'required|string',
-            'pokok_masalah' => 'required|string',
-            'deskripsi_lengkap' => 'required|string',
-            'status' => 'required|in:draft,proses,disetujui,ditolak',
+            'judul' => 'sometimes|string|max:500',
+            'identifikasi_masalah' => 'sometimes|string',
+            'rumusan_masalah' => 'sometimes|string',
+            'penelitian_sebelumnya' => 'sometimes|string',
+            'pokok_masalah' => 'sometimes|string',
+            'deskripsi_lengkap' => 'sometimes|string',
+            'status' => 'sometimes|in:menunggu,disetujui,ditolak',
         ];
     }
 }

@@ -20,6 +20,8 @@ class Mahasiswa extends Model
         'no_hp',
         'alamat',
         'prodi_id',
+        'semester',
+        'dosen_pa',
     ];
 
     public function pengajuan_judul(){
@@ -29,6 +31,11 @@ class Mahasiswa extends Model
     public function prodi()
     {
         return $this->belongsTo(Prodi::class);
+    }
+
+    public function dosenPembimbingAkademik()
+    {
+        return $this->belongsTo(Dosen::class, 'dosen_pa');
     }
 
     public function ujian()

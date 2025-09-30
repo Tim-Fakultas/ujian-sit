@@ -27,6 +27,8 @@ class StoreMahasiswaRequest extends FormRequest
             "alamat" => "nullable|string",
             "no_hp" => "nullable|string|max:30",
             "prodi_id" => "required|exists:prodi,id",
+            "semester" => "required|integer|min:1|max:14",
+            "dosen_pa" => "nullable|exists:dosen,id",
         ];
     }
 }

@@ -22,16 +22,12 @@ class StoreSkripsiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pengajuan_id' => 'required|exists:pengajuan,id',
-            'judul_skripsi' => 'required|string|max:255',
-            'identifikasi_masalah' => 'required|string|max:255',
-            'rumusan_masalah' => 'nullable|string',
-            'penelitian_sebelumnya' => 'nullable|string',
-            'pokok_masalah' => 'nullable|string',
-            'deskripsi_lengkap' => 'nullable|string',
-            'status' => 'nullable|string|max:50',
-            'tanggal_mulai' => 'nullable|date',
-            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
+        'mahasiswa_id' => 'required|exists:mahasiswa,id',
+        'ranpel_id' => 'required|exists:ranpel,id',
+        'judul' => 'required|string|max:255',
+        'pembimbing_1' => 'required',
+        'pembimbing_2' => 'required',
+        'status' => 'required',
         ];
     }
 }

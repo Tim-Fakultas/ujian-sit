@@ -16,7 +16,7 @@ class PengajuanJudul extends Model
     protected $fillable = [
         'mahasiswa_id',
         'dosen_id',
-        'judul_skripsi',
+        'judul',
         'deskripsi',
         'tanggal_pengajuan',
         'tanggal_disetujui',

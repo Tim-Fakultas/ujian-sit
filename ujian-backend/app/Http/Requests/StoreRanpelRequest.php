@@ -11,7 +11,7 @@ class StoreRanpelRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class StoreRanpelRequest extends FormRequest
             'penelitian_sebelumnya' => 'required|string',
             'pokok_masalah' => 'required|string',
             'deskripsi_lengkap' => 'required|string',
-            'status' => 'required|in:draft,proses,disetujui,ditolak',
+            'status' => 'required|in:menunggu,disetujui,ditolak',
         ];
     }
 }

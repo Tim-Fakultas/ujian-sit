@@ -26,6 +26,10 @@ class UpdateMahasiswaRequest extends FormRequest
             "nim" => "prohibited",
             "alamat" => "sometimes|nullable|string",
             "no_hp" => "sometimes|nullable|string|max:30",
+            "prodi_id" => "sometimes|exists:prodi,id",
+            "semester" => "sometimes|integer|min:1|max:14",
+            "dosen_pa" => "sometimes|nullable|exists:dosen,id",
+            "dosen_id" => "sometimes|nullable|exists:dosen,id", // alias untuk dosen_pa
         ];
     }
 }

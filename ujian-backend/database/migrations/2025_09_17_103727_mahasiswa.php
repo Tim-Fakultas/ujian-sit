@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string("no_hp", 30);
             $table->string("alamat");
             $table->foreignId("prodi_id")->default(1)->constrained("prodi")->onDelete("cascade");
+            $table->unsignedTinyInteger("semester")->default(1)->check('semester >= 1 AND semester <= 14');
+            $table->unsignedBigInteger('dosen_pa')->nullable();
             $table->timestamps();
         });
     }

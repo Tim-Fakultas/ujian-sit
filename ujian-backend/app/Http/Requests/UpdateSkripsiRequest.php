@@ -22,16 +22,12 @@ class UpdateSkripsiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pengajuan_id' => 'prohibited',
-            'judul_skripsi' => 'sometimes|required|string|max:255',
-            'identifikasi_masalah' => 'sometimes|required|string|max:255',
-            'rumusan_masalah' => 'sometimes|nullable|string',
-            'penelitian_sebelumnya' => 'sometimes|nullable|string',
-            'pokok_masalah' => 'sometimes|nullable|string',
-            'deskripsi_lengkap' => 'sometimes|nullable|string',
-            'status' => 'sometimes|nullable|string|max:50',
-            'tanggal_mulai' => 'sometimes|nullable|date',
-            'tanggal_selesai' => 'sometimes|nullable|date|after_or_equal:tanggal_mulai',
+        'mahasiswa_id' => 'prohibited',
+        'ranpel_id' => 'prohibited',
+        'judul' => 'sometimes|string|max:255',
+        'pembimbing_1' => 'sometimes|required',
+        'pembimbing_2' => 'sometimes',
+        'status' => 'sometimes',
         ];
     }
 }
