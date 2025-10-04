@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId("prodi_id")->default(1)->constrained("prodi")->onDelete("cascade");
             $table->unsignedTinyInteger("semester")->default(1)->check('semester >= 1 AND semester <= 14');
             $table->unsignedBigInteger('dosen_pa')->nullable();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

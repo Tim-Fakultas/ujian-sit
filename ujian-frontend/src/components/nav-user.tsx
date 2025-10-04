@@ -26,15 +26,28 @@ import {
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { logoutAction } from "@/actions/logoutAction";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
+  const { user } = useAuthStore();
 
-  const user = {
-    name: "Muhammad Abdi",
-    email: "muhammad.abdi@example.com",
-    avatar: "/images/avatars/muhammad-abdi.png",
-  };
+  // Fallback jika user belum login
+  if (!user) {
+    return null;
+  }
+
+  // Get user role (ambil role pertama)
+  const userRole =
+    user.roles && user.roles.length > 0 ? user.roles[0].name : "user";
+
+  // Generate initials for avatar fallback
+  const initials = user.nama
+    .split(" ")
+    .map((name) => name.charAt(0))
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <SidebarMenu>
@@ -46,13 +59,14 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate font-medium">{user.nama}</span>
                 <span className="text-muted-foreground truncate text-xs">
-                  {user.email}
+                  {user.nip_nim} • {userRole}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -67,13 +81,17 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate font-medium">{user.nama}</span>
                   <span className="text-muted-foreground truncate text-xs">
                     {user.email}
+                  </span>
+                  <span className="text-muted-foreground truncate text-xs capitalize">
+                    Role: {userRole}
                   </span>
                 </div>
               </div>
@@ -82,7 +100,7 @@ export function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <IconUserCircle />
-                <Link href="/mahasiswa/profile">Profile</Link>
+                <Link href={`/${userRole}/profile`}>Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <IconNotification />

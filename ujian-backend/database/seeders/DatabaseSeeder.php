@@ -26,7 +26,11 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        // Step 0: Create roles and permissions first
+        $this->call(RolesAndPermissionsSeeder::class);
+
+        $adminUser = User::factory()->create([
+                'id' => 1,
                 'nip_nim' => '2120803026',
                 'nama' => 'Muhammad Aldo Saputra',
                 'email' => 'aldo@example.com',
@@ -34,6 +38,31 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
         ]);
+
+        $dosen = User::factory()->create([
+                'id' => 2,
+                'nip_nim' => 'Freddy1987654321',
+                'nama' => 'Freddy Kurnia Wijaya',
+                'email' => 'freddykurnia@gmail.com',
+                'password' => bcrypt('Freddy1987654321'),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+        ]);
+
+        $mahasiswa = User::factory()->create([
+                'id' => 3,
+                'nip_nim' => '23041450085',
+                'nama' => 'Muhammad Luqman Al-Fauzan',
+                'email' => '23041450085@radenfatah.ac.id',
+                'password' => bcrypt('23041450085'),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+        ]);
+
+        // Assign admin role to the created user
+        $adminUser->assignRole('admin');
+        $dosen->assignRole('dosen');
+        $mahasiswa->assignRole('mahasiswa');
 
         // Step 1: Create 1 Fakultas
         $fakultas = Fakultas::factory()->create([

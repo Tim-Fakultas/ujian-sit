@@ -29,4 +29,9 @@ class Prodi extends Model
     public function dosen(){
         return $this->hasMany(Dosen::class);
     }
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }

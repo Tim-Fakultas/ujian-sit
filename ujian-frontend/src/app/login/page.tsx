@@ -40,8 +40,28 @@ export default function LoginPage() {
     }
 
     setUser(result.user);
+    
+    // Store token if available
+    const loginResult = result as any;
+    if (loginResult.access_token) {
+      useAuthStore.getState().setToken(loginResult.access_token);
+    }
 
-    router.push("/mahasiswa/dashboard");
+    // Get the first role name from user roles array
+    const userRole =
+      result.user.roles && result.user.roles.length > 0
+        ? result.user.roles[0].name
+        : null;
+
+    if (userRole === "admin") {
+      router.push("/admin/dashboard");
+    } else if (userRole === "dosen") {
+      router.push("/dosen/dashboard");
+    } else if (userRole === "mahasiswa") {
+      router.push("/mahasiswa/dashboard");
+    } else {
+      setError("Role user tidak dikenali");
+    }
   }
 
   return (

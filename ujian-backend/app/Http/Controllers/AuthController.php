@@ -8,9 +8,10 @@ use Hash;
 use Illuminate\Http\Request;
 
 
+
 class AuthController extends Controller
 {
-    
+
     public function login(Request $request)
     {
         $request->validate([
@@ -30,7 +31,9 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Login berhasil',
-                'success' => true, 
+                'success' => true,
+                'role' => $user->getRoleNames(),
+                'permissons' => $user->getAllPermissions(),
                 'user' => $user,
                 'access_token' => $token,
                 'token_type' => 'Bearer',

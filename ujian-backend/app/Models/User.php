@@ -63,4 +63,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(PemenuhanSyarat::class, 'verified_by');
     }
+
+    public function mahasiswa(){
+        return $this->hasOne(Mahasiswa::class, 'user_id');
+    }
+
+    public function prodi()
+    {
+        return $this->belongsTo(Prodi::class);
+    }
 }
