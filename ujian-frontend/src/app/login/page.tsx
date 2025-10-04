@@ -40,7 +40,7 @@ export default function LoginPage() {
     }
 
     setUser(result.user);
-    
+
     // Store token if available
     const loginResult = result as any;
     if (loginResult.access_token) {
@@ -59,6 +59,8 @@ export default function LoginPage() {
       router.push("/dosen/dashboard");
     } else if (userRole === "mahasiswa") {
       router.push("/mahasiswa/dashboard");
+    } else if (userRole === "kaprodi") {
+      router.push("/kaprodi/dashboard");
     } else {
       setError("Role user tidak dikenali");
     }

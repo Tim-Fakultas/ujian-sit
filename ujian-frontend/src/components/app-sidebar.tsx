@@ -69,7 +69,10 @@ const navAdmin: NavItem[] = [
   {
     title: "Data Master",
     icon: IconBuilding,
-    items: [{ title: "Dosen", url: "/admin/dosen" }],
+    items: [
+      { title: "Dosen", url: "/admin/dosen" },
+      { title: "Mahasiswa", url: "/admin/mahasiswa" },
+    ],
   },
 ];
 

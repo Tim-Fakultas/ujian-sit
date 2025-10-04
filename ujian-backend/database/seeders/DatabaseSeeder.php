@@ -58,11 +58,21 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
         ]);
+        $kaprodi = User::factory()->create([
+                'id' => 4,
+                'nip_nim' => 'Gusmelia12345',
+                'nama' => 'Gusmelia Testiana, M.Kom',
+                'email' => '',
+                'password' => bcrypt('Gusmelia12345'),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+        ]);
 
         // Assign admin role to the created user
         $adminUser->assignRole('admin');
         $dosen->assignRole('dosen');
         $mahasiswa->assignRole('mahasiswa');
+        $kaprodi->assignRole('kaprodi');
 
         // Step 1: Create 1 Fakultas
         $fakultas = Fakultas::factory()->create([
