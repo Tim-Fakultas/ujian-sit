@@ -31,7 +31,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
@@ -40,7 +39,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, Plus, Edit, Trash2, MoreHorizontal } from "lucide-react";
+import { Search, Plus, Edit, Trash2, MoreVertical, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { KomponenPenilaian } from "@/types/KomponenPenilaian";
 import {
@@ -62,13 +61,13 @@ export default function DaftarKomponenPenilaianPage() {
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const [editData, setEditData] = useState<KomponenPenilaian | null>(null);
+  const [selected, setSelected] = useState<KomponenPenilaian | null>(null);
   const [komponenPenilaianData, setKomponenPenilaianData] = useState<
     KomponenPenilaian[]
   >([]);
   const [jenisUjianData, setJenisUjianData] = useState<JenisUjian[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -93,7 +92,7 @@ export default function DaftarKomponenPenilaianPage() {
   const handleSubmitAdd = async (formData: FormData) => {
     const result = await createKomponenPenilaian(formData);
     if (result.success) {
-      setIsAddDialogOpen(false);
+      setIsCreateOpen(false);
       fetchData();
     } else {
       alert(result.message);
@@ -104,7 +103,6 @@ export default function DaftarKomponenPenilaianPage() {
     if (!editData) return;
     const result = await updateKomponenPenilaian(editData.id, formData);
     if (result.success) {
-      setIsEditDialogOpen(false);
       setEditData(null);
       fetchData();
     } else {
@@ -112,9 +110,17 @@ export default function DaftarKomponenPenilaianPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm("Apakah Anda yakin ingin menghapus komponen penilaian ini?")) {
-      const result = await deleteKomponenPenilaian(id);
+  const handleEdit = (item: KomponenPenilaian) => {
+    setEditData(item);
+  };
+
+  const handleDelete = async (item: KomponenPenilaian) => {
+    if (
+      confirm(
+        `Apakah Anda yakin ingin menghapus komponen penilaian "${item.namaKomponen}"?`
+      )
+    ) {
+      const result = await deleteKomponenPenilaian(item.id);
       if (result.success) {
         fetchData();
       } else {
@@ -141,68 +147,16 @@ export default function DaftarKomponenPenilaianPage() {
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              Data Master Komponen Penilaian
+              Komponen Penilaian
             </h1>
             <p className="text-gray-600 mt-1">
               Kelola komponen penilaian untuk setiap jenis ujian
             </p>
           </div>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="rounded">
-                <Plus className="mr-2 h-4 w-4" />
-                Tambah Komponen Penilaian
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
-              <DialogHeader>
-                <DialogTitle>Form Tambah Komponen Penilaian</DialogTitle>
-              </DialogHeader>
-              <form action={handleSubmitAdd} className="space-y-6">
-                <div>
-                  <label className="text-sm font-medium">Jenis Ujian</label>
-                  <Select name="jenisUjianId" required>
-                    <SelectTrigger className="rounded mt-1">
-                      <SelectValue placeholder="Pilih jenis ujian" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded">
-                      {jenisUjianData.map((jenis) => (
-                        <SelectItem key={jenis.id} value={jenis.id.toString()}>
-                          {jenis.namaJenis}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Nama Komponen</label>
-                  <Input
-                    name="namaKomponen"
-                    placeholder="Nama komponen penilaian"
-                    className="mt-1 rounded"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Bobot (%)</label>
-                  <Input
-                    name="bobot"
-                    type="number"
-                    placeholder="Bobot penilaian dalam persen"
-                    className="mt-1 rounded"
-                    min="0"
-                    max="100"
-                    required
-                  />
-                </div>
-                <DialogFooter>
-                  <Button type="submit" className="rounded">
-                    Simpan
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button className="rounded" onClick={() => setIsCreateOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Tambah Komponen Penilaian
+          </Button>
         </div>
 
         {/* Search Bar */}
@@ -210,7 +164,7 @@ export default function DaftarKomponenPenilaianPage() {
           <div className="relative flex-1 max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Cari berdasarkan nama komponen atau jenis ujian"
+              placeholder="Cari nama komponen atau jenis ujian..."
               className="pl-10 border-gray-200 bg-white rounded"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -259,26 +213,34 @@ export default function DaftarKomponenPenilaianPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                          >
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="rounded-md">
                           <DropdownMenuItem
-                            onClick={() => {
-                              setEditData(item);
-                              setIsEditDialogOpen(true);
-                            }}
+                            onClick={() => setSelected(item)}
+                            className="cursor-pointer"
                           >
-                            <Edit className="mr-2 h-4 w-4" />
+                            <Eye className="h-4 w-4 mr-2" />
+                            Lihat Detail
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleEdit(item)}
+                            className="cursor-pointer"
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleDelete(item.id)}
-                            className="text-red-600 focus:text-red-600"
+                            onClick={() => handleDelete(item)}
+                            className="cursor-pointer text-red-600"
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
+                            <Trash2 className="h-4 w-4 mr-2" />
                             Hapus
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -365,73 +327,135 @@ export default function DaftarKomponenPenilaianPage() {
           </div>
         </div>
 
-        {/* Edit Dialog */}
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        {/* Create/Edit Dialog */}
+        <Dialog
+          open={isCreateOpen || !!editData}
+          onOpenChange={(open) => {
+            if (!open) {
+              setIsCreateOpen(false);
+              setEditData(null);
+            }
+          }}
+        >
           <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
-            {editData && (
+            <DialogHeader>
+              <DialogTitle>
+                {editData
+                  ? "Edit Komponen Penilaian"
+                  : "Tambah Komponen Penilaian Baru"}
+              </DialogTitle>
+            </DialogHeader>
+            <form
+              action={editData ? handleSubmitEdit : handleSubmitAdd}
+              className="space-y-6"
+            >
+              <div>
+                <label className="text-sm font-medium">Jenis Ujian *</label>
+                <Select
+                  name="jenisUjianId"
+                  defaultValue={editData?.jenisUjianId.toString()}
+                  required
+                >
+                  <SelectTrigger className="mt-1 rounded">
+                    <SelectValue placeholder="Pilih jenis ujian" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded">
+                    {jenisUjianData.map((jenis) => (
+                      <SelectItem key={jenis.id} value={jenis.id.toString()}>
+                        {jenis.namaJenis}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Nama Komponen *</label>
+                <Input
+                  name="namaKomponen"
+                  placeholder="Nama komponen penilaian"
+                  defaultValue={editData?.namaKomponen}
+                  className="mt-1 rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Bobot (%) *</label>
+                <Input
+                  name="bobot"
+                  type="number"
+                  placeholder="Bobot penilaian dalam persen"
+                  defaultValue={editData?.bobot}
+                  className="mt-1 rounded"
+                  min="0"
+                  max="100"
+                  required
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsCreateOpen(false);
+                    setEditData(null);
+                  }}
+                >
+                  Batal
+                </Button>
+                <Button type="submit" className="rounded">
+                  {editData ? "Simpan Perubahan" : "Tambah Komponen"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Detail Dialog */}
+        <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
+          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
+            {selected && (
               <>
                 <DialogHeader>
-                  <DialogTitle>Edit Komponen Penilaian</DialogTitle>
+                  <DialogTitle>Detail Komponen Penilaian</DialogTitle>
                 </DialogHeader>
-                <form action={handleSubmitEdit} className="space-y-6">
+                <div className="grid gap-4 py-4">
                   <div>
                     <label className="text-sm font-medium">Jenis Ujian</label>
-                    <Select
-                      name="jenisUjianId"
-                      defaultValue={editData.jenisUjianId.toString()}
-                      required
-                    >
-                      <SelectTrigger className="rounded mt-1">
-                        <SelectValue placeholder="Pilih jenis ujian" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded">
-                        {jenisUjianData.map((jenis) => (
-                          <SelectItem
-                            key={jenis.id}
-                            value={jenis.id.toString()}
-                          >
-                            {jenis.namaJenis}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="mt-1">
+                      <Badge variant="outline" className="font-medium">
+                        {selected.jenisUjian.namaJenis}
+                      </Badge>
+                    </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Nama Komponen</label>
                     <Input
-                      name="namaKomponen"
-                      defaultValue={editData.namaKomponen}
-                      placeholder="Nama komponen penilaian"
+                      value={selected.namaKomponen}
+                      readOnly
                       className="mt-1 rounded"
-                      required
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Bobot (%)</label>
+                    <label className="text-sm font-medium">Bobot</label>
                     <Input
-                      name="bobot"
-                      type="number"
-                      defaultValue={editData.bobot}
-                      placeholder="Bobot penilaian dalam persen"
+                      value={`${selected.bobot}%`}
+                      readOnly
                       className="mt-1 rounded"
-                      min="0"
-                      max="100"
-                      required
                     />
                   </div>
-                  <DialogFooter>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsEditDialogOpen(false)}
-                    >
-                      Batal
-                    </Button>
-                    <Button type="submit" className="rounded">
-                      Simpan
-                    </Button>
-                  </DialogFooter>
-                </form>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setSelected(null)}>
+                    Tutup
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setSelected(null);
+                      handleEdit(selected);
+                    }}
+                  >
+                    Edit Komponen
+                  </Button>
+                </DialogFooter>
               </>
             )}
           </DialogContent>

@@ -383,9 +383,7 @@ export default function ProfilePage() {
                           <h4 className="font-medium text-gray-900">
                             Pembimbing 1
                           </h4>
-                          <p className="text-gray-700">
-                            {student.pembimbing1}
-                          </p>
+                          <p className="text-gray-700">{student.pembimbing1}</p>
                         </div>
                       </div>
                     </div>
@@ -399,9 +397,7 @@ export default function ProfilePage() {
                           <h4 className="font-medium text-gray-900">
                             Pembimbing 2
                           </h4>
-                          <p className="text-gray-700">
-                            {student.pembimbing2}
-                          </p>
+                          <p className="text-gray-700">{student.pembimbing2}</p>
                         </div>
                       </div>
                     </div>

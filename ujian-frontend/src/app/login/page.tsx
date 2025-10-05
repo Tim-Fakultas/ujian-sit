@@ -54,9 +54,9 @@ export default function LoginPage() {
         ? result.user.roles[0].name
         : null;
 
-    if (userRole === "superadmin") {
+    if (userRole === "super admin") {
       router.push("/superadmin/dashboard");
-    } else if (userRole === "admin") {
+    } else if (userRole === "admin prodi") {
       router.push("/admin/dashboard");
     } else if (userRole === "sekprodi") {
       router.push("/sekprodi/dashboard");

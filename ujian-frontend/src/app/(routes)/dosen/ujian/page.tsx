@@ -27,7 +27,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, Eye, FileText } from "lucide-react";
+import { Search, Eye, FileText, MoreVertical } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -41,8 +41,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { IconFilter2 } from "@tabler/icons-react";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -229,11 +234,9 @@ export default function UjianDosenPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Daftar Ujian Saya
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Halaman ini menampilkan daftar ujian di mana Anda bertugas sebagai
+          <h1 className="text-2xl font-semibold ">Jadwal Ujian</h1>
+          <p className=" mt-1">
+            Halaman ini menampilkan jadwal ujian di mana Anda bertugas sebagai
             penguji
           </p>
         </div>
@@ -272,7 +275,7 @@ export default function UjianDosenPage() {
               onClick={() => setActiveTab("all")}
               className={`px-3 py-1.5 rounded border ${
                 activeTab === "all"
-                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  ? "bg-blue-100 border-blue-300 text-blue-700"
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
@@ -282,7 +285,7 @@ export default function UjianDosenPage() {
               onClick={() => setActiveTab("pending")}
               className={`px-3 py-1.5 rounded border ${
                 activeTab === "pending"
-                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  ? "bg-blue-100 border-blue-300 text-blue-700"
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
@@ -293,7 +296,7 @@ export default function UjianDosenPage() {
               onClick={() => setActiveTab("dijadwalkan")}
               className={`px-3 py-1.5 rounded border ${
                 activeTab === "dijadwalkan"
-                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  ? "bg-blue-100 border-blue-300 text-blue-700"
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
@@ -304,7 +307,7 @@ export default function UjianDosenPage() {
               onClick={() => setActiveTab("selesai")}
               className={`px-3 py-1.5 rounded border ${
                 activeTab === "selesai"
-                  ? "bg-gray-100 border-gray-300 text-gray-700"
+                  ? "bg-blue-100 border-blue-300 text-blue-700"
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
@@ -315,23 +318,16 @@ export default function UjianDosenPage() {
 
         {/* Table */}
         <div className="bg-white rounded border overflow-x-auto">
-          <Table className="min-w-[1200px]">
+          <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">No</TableHead>
-                <TableHead>NIM</TableHead>
-                <TableHead>Nama</TableHead>
-                <TableHead>Waktu</TableHead>
-                <TableHead>Ruang</TableHead>
-                <TableHead>Judul</TableHead>
-                <TableHead>Ketua Penguji</TableHead>
-                <TableHead>Sekretaris</TableHead>
-                <TableHead>Penguji 1</TableHead>
-                <TableHead>Penguji 2</TableHead>
-                <TableHead>Jenis</TableHead>
-                <TableHead>Nilai</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Aksi</TableHead>
+                <TableHead className="text-center w-16">No</TableHead>
+                <TableHead className="min-w-40">Nama Mahasiswa</TableHead>
+                <TableHead className="min-w-24">Ruang</TableHead>
+                <TableHead className="min-w-90">Judul</TableHead>
+                <TableHead className="min-w-32">Jenis Ujian</TableHead>
+                <TableHead className="min-w-24">Status</TableHead>
+                <TableHead className="text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -341,17 +337,15 @@ export default function UjianDosenPage() {
                     <TableCell className="text-center">
                       {startIndex + idx + 1}
                     </TableCell>
-                    <TableCell>{item.nim}</TableCell>
-                    <TableCell>{item.nama}</TableCell>
-                    <TableCell>{item.waktu}</TableCell>
-                    <TableCell>{item.ruang}</TableCell>
+                    <TableCell className="font-medium">{item.nama}</TableCell>
+                    <TableCell className="text-sm">{item.ruang}</TableCell>
 
                     {/* Tooltip untuk Judul */}
-                    <TableCell className="max-w-md truncate text-gray-600">
+                    <TableCell className="max-w-md">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="truncate cursor-help">
+                            <span className="block truncate cursor-help text-gray-700 hover:text-gray-900">
                               {item.judul}
                             </span>
                           </TooltipTrigger>
@@ -362,44 +356,53 @@ export default function UjianDosenPage() {
                       </TooltipProvider>
                     </TableCell>
 
-                    <TableCell>{item.ketua}</TableCell>
-                    <TableCell>{item.sekretaris}</TableCell>
-                    <TableCell>{item.penguji1}</TableCell>
-                    <TableCell>{item.penguji2}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{item.jenis}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {item.jenis}
+                      </Badge>
                     </TableCell>
-                    <TableCell>{item.nilai || "-"}</TableCell>
                     <TableCell>
                       <Badge
-                        className={`${statusColors[item.status]} border-0`}
+                        className={`${
+                          statusColors[item.status]
+                        } border-0 text-xs`}
                       >
                         {statusLabels[item.status]}
                       </Badge>
                     </TableCell>
-                    <TableCell className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedDetail(item)}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Detail
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedPenilaian(item)}
-                      >
-                        <FileText className="h-4 w-4 mr-1" />
-                        Penilaian
-                      </Button>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0 hover:bg-blue-100"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem
+                            onClick={() => setSelectedDetail(item)}
+                            className="cursor-pointer"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Lihat Detail
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setSelectedPenilaian(item)}
+                            className="cursor-pointer"
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            Buka Penilaian
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={14} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     Tidak ada data ujian
                   </TableCell>
                 </TableRow>
@@ -481,122 +484,206 @@ export default function UjianDosenPage() {
           open={!!selectedDetail}
           onOpenChange={() => setSelectedDetail(null)}
         >
-          <DialogContent className="sm:max-w-lg rounded">
+          <DialogContent className="sm:max-w-2xl rounded-lg max-h-[90vh] overflow-y-auto">
             {selectedDetail && (
               <>
                 <DialogHeader>
-                  <DialogTitle>Detail Ujian</DialogTitle>
+                  <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+                    <Eye className="h-5 w-5" />
+                    Detail Ujian
+                  </DialogTitle>
                   <DialogDescription>
                     Informasi lengkap terkait ujian mahasiswa.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm">NIM</label>
-                      <Input
-                        value={selectedDetail.nim}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm">Nama</label>
-                      <Input
-                        value={selectedDetail.nama}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm">Judul</label>
-                    <Textarea
-                      value={selectedDetail.judul}
-                      readOnly
-                      rows={3}
-                      className="mt-1 rounded"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm">Waktu</label>
-                      <Input
-                        value={selectedDetail.waktu}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm">Ruang</label>
-                      <Input
-                        value={selectedDetail.ruang}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm">Ketua</label>
-                      <Input
-                        value={selectedDetail.ketua}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm">Sekretaris</label>
-                      <Input
-                        value={selectedDetail.sekretaris}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm">Penguji 1</label>
-                      <Input
-                        value={selectedDetail.penguji1}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm">Penguji 2</label>
-                      <Input
-                        value={selectedDetail.penguji2}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm">Jenis</label>
-                      <Input
-                        value={selectedDetail.jenis}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm">Nilai</label>
-                      <Input
-                        value={selectedDetail.nilai || "-"}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                  </div>
+
+                <div className="space-y-6 py-4">
+                  {/* Informasi Mahasiswa */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base font-medium text-blue-900">
+                        Informasi Mahasiswa
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700">
+                            NIM
+                          </Label>
+                          <div className="mt-1 px-3 py-2 bg-gray-50 rounded-md border text-sm font-mono">
+                            {selectedDetail.nim}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700">
+                            Nama Mahasiswa
+                          </Label>
+                          <div className="mt-1 px-3 py-2 bg-gray-50 rounded-md border text-sm font-medium">
+                            {selectedDetail.nama}
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700">
+                          Judul Penelitian
+                        </Label>
+                        <div className="mt-1 px-3 py-2 bg-gray-50 rounded-md border text-sm leading-relaxed">
+                          {selectedDetail.judul}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Informasi Jadwal */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base font-medium text-green-900">
+                        Jadwal Ujian
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700">
+                            Waktu
+                          </Label>
+                          <div className="mt-1 px-3 py-2 bg-gray-50 rounded-md border text-sm">
+                            {new Date(selectedDetail.waktu).toLocaleDateString(
+                              "id-ID",
+                              {
+                                weekday: "long",
+                                day: "2-digit",
+                                month: "long",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700">
+                            Ruang
+                          </Label>
+                          <div className="mt-1 px-3 py-2 bg-gray-50 rounded-md border text-sm font-medium">
+                            {selectedDetail.ruang}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700">
+                            Jenis Ujian
+                          </Label>
+                          <div className="mt-1">
+                            <Badge variant="outline" className="px-3 py-1">
+                              {selectedDetail.jenis}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700">
+                            Status
+                          </Label>
+                          <div className="mt-1">
+                            <Badge
+                              className={`${
+                                statusColors[selectedDetail.status]
+                              } border-0 px-3 py-1`}
+                            >
+                              {statusLabels[selectedDetail.status]}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Tim Penguji */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base font-medium text-purple-900">
+                        Tim Penguji
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 gap-3">
+                        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                          <span className="text-sm font-medium text-blue-900">
+                            Ketua Penguji
+                          </span>
+                          <span className="text-sm text-blue-700">
+                            {selectedDetail.ketua}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                          <span className="text-sm font-medium text-green-900">
+                            Sekretaris
+                          </span>
+                          <span className="text-sm text-green-700">
+                            {selectedDetail.sekretaris}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                          <span className="text-sm font-medium text-orange-900">
+                            Penguji 1
+                          </span>
+                          <span className="text-sm text-orange-700">
+                            {selectedDetail.penguji1}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                          <span className="text-sm font-medium text-red-900">
+                            Penguji 2
+                          </span>
+                          <span className="text-sm text-red-700">
+                            {selectedDetail.penguji2}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Hasil Penilaian */}
+                  {selectedDetail.nilai && selectedDetail.nilai !== "-" && (
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base font-medium text-green-900">
+                          Hasil Penilaian
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-center p-4 bg-green-50 rounded-lg">
+                          <div className="text-2xl font-bold text-green-700 mb-1">
+                            {selectedDetail.nilai}
+                          </div>
+                          <div className="text-sm text-green-600">
+                            Nilai Akhir
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
+
                 <DialogFooter>
                   <Button
                     onClick={() => setSelectedDetail(null)}
                     variant="outline"
+                    className="px-6"
                   >
                     Tutup
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setSelectedDetail(null);
+                      setSelectedPenilaian(selectedDetail);
+                    }}
+                    className="px-6 bg-blue-600 hover:bg-blue-700"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Buka Penilaian
                   </Button>
                 </DialogFooter>
               </>
