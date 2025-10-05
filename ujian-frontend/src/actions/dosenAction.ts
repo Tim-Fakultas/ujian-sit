@@ -37,26 +37,29 @@ export async function getDosenById(id: number) {
     return {
       id: data.id,
       nama: data.nama,
-      nip: data.nip,
-      email: data.email,
+      nidn: data.nidn,
+      noHp: data.noHp,
+      alamat: data.alamat,
       prodi: data.prodi,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
     };
   } catch (err) {
     console.error("Error getDosenById:", err);
   }
 }
-}
 
 export async function createDosen(formData: FormData) {
   const nama = String(formData.get("nama") || "");
-  const nip = String(formData.get("nip") || "");
-  const email = String(formData.get("email") || "");
-  const prodi = String(formData.get("prodi") || "");
+  const nidn = String(formData.get("nidn") || "");
+  const noHp = String(formData.get("noHp") || "");
+  const alamat = String(formData.get("alamat") || "");
+  const prodiId = parseInt(String(formData.get("prodiId") || "1"));
 
   const res = await fetch("http://localhost:8000/api/dosen", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nama, nip, email, prodi }),
+    body: JSON.stringify({ nama, nidn, noHp, alamat, prodiId }),
     cache: "no-store",
   });
 
@@ -71,14 +74,15 @@ export async function createDosen(formData: FormData) {
 
 export async function updateDosen(id: number, formData: FormData) {
   const nama = String(formData.get("nama") || "");
-  const nip = String(formData.get("nip") || "");
-  const email = String(formData.get("email") || "");
-  const prodi = String(formData.get("prodi") || "");
+  const nidn = String(formData.get("nidn") || "");
+  const noHp = String(formData.get("noHp") || "");
+  const alamat = String(formData.get("alamat") || "");
+  const prodiId = parseInt(String(formData.get("prodiId") || "1"));
 
   const res = await fetch(`http://localhost:8000/api/dosen/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nama, nip, email, prodi }),
+    body: JSON.stringify({ nama, nidn, noHp, alamat, prodiId }),
     cache: "no-store",
   });
 

@@ -32,7 +32,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
@@ -71,14 +70,29 @@ const statusLabels = {
   ditolak: "Ditolak",
 };
 
-// Mock student data - in real app this would come from API
+// Mock student and supervisor data - in real app this would come from API
 const studentData = [
-  { id: 1, name: "Ahmad Rizki", nim: "2021001" },
-  { id: 2, name: "Siti Nurhaliza", nim: "2021002" },
-  { id: 3, name: "Budi Santoso", nim: "2021003" },
+  {
+    id: 1,
+    name: "Ahmad Rizki",
+    nim: "2021001",
+    supervisor: "Dr. Ahmad Rahman M.Kom",
+  },
+  {
+    id: 2,
+    name: "Siti Nurhaliza",
+    nim: "2021002",
+    supervisor: "Indah Hidayanti M.Kom",
+  },
+  {
+    id: 3,
+    name: "Budi Santoso",
+    nim: "2021003",
+    supervisor: "Dr. Sari Wulandari M.T",
+  },
 ];
 
-export default function DosenPengajuanRanpelPage() {
+export default function KaprodiPengajuanRanpelPage() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("pending");
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,6 +124,11 @@ export default function DosenPengajuanRanpelPage() {
     return student ? student.name : "Mahasiswa Tidak Ditemukan";
   };
 
+  const getSupervisor = (id: number) => {
+    const student = studentData.find((s) => s.id === id);
+    return student ? student.supervisor : "Dosen Tidak Ditemukan";
+  };
+
   const handleApproval = (action: "approve" | "reject") => {
     // Here you would typically send the approval/rejection to your API
     console.log(`${action} proposal:`, approvalDialog?.item.id, approvalNote);
@@ -124,10 +143,10 @@ export default function DosenPengajuanRanpelPage() {
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              Persetujuan Rancangan Penelitian
+              Review Rancangan Penelitian Mahasiswa
             </h1>
             <p className="text-gray-600 mt-1">
-              Tinjau dan setujui rancangan penelitian mahasiswa bimbingan Anda
+              Tinjau dan setujui rancangan penelitian mahasiswa Program Studi
             </p>
           </div>
         </div>
@@ -137,7 +156,7 @@ export default function DosenPengajuanRanpelPage() {
           <div className="relative flex-1 max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search"
+              placeholder="Cari judul penelitian..."
               className="pl-10 border-gray-200 bg-white rounded"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -195,17 +214,17 @@ export default function DosenPengajuanRanpelPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded border overflow-x-auto">
-          <Table className="min-w-[900px]">
+        <div className="bg-white rounded border overflow-hidden">
+          <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">No</TableHead>
-                <TableHead>NIM</TableHead>
-                <TableHead>Nama Mahasiswa</TableHead>
-                <TableHead>Judul Penelitian</TableHead>
-                <TableHead>Tanggal Diajukan</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Aksi</TableHead>
+                <TableHead className="text-center w-16">No</TableHead>
+                <TableHead className="w-48">Mahasiswa</TableHead>
+                <TableHead className="min-w-0">Judul Penelitian</TableHead>
+                <TableHead className="w-48">Dosen Pembimbing</TableHead>
+                <TableHead className="w-32">Tanggal Diajukan</TableHead>
+                <TableHead className="w-32">Status</TableHead>
+                <TableHead className="w-20">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -215,19 +234,16 @@ export default function DosenPengajuanRanpelPage() {
                     <TableCell className="text-center">
                       {startIndex + index + 1}
                     </TableCell>
-                    <TableCell className="text-gray-600">
-                      {getStudentNim(item.id)}
-                    </TableCell>
-                    <TableCell className="text-gray-600">
+                    <TableCell className="text-gray-600 font-medium">
                       {getStudentName(item.id)}
                     </TableCell>
-                    <TableCell className="max-w-md truncate text-gray-600">
+                    <TableCell className="text-gray-600">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="truncate cursor-help">
+                            <div className="truncate cursor-help max-w-xs">
                               {item.judul}
-                            </span>
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent side="bottom" className="max-w-sm">
                             {item.judul}
@@ -235,10 +251,13 @@ export default function DosenPengajuanRanpelPage() {
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                    <TableCell>{item.tanggalDiajukan}</TableCell>
+                    <TableCell className="text-gray-600 text-sm">
+                      {getSupervisor(item.id)}
+                    </TableCell>
+                    <TableCell className="text-sm">{item.tanggalDiajukan}</TableCell>
                     <TableCell>
                       <Badge
-                        className={`${statusColors[item.status]} border-0`}
+                        className={`${statusColors[item.status]} border-0 text-xs`}
                       >
                         {statusLabels[item.status]}
                       </Badge>
@@ -411,6 +430,13 @@ export default function DosenPengajuanRanpelPage() {
                         <span className="mr-2">:</span>
                         <span>{getStudentName(selected.id)}</span>
                       </div>
+                      <div className="flex">
+                        <span className="w-32 font-medium">
+                          Dosen Pembimbing
+                        </span>
+                        <span className="mr-2">:</span>
+                        <span>{getSupervisor(selected.id)}</span>
+                      </div>
                     </div>
                     <div className="space-y-3">
                       <div className="flex">
@@ -505,7 +531,7 @@ export default function DosenPengajuanRanpelPage() {
 
                   {/* Footer */}
                   <div className="pt-6 border-t mt-8">
-                    <div className="grid grid-cols-2 gap-8">
+                    <div className="grid grid-cols-3 gap-6">
                       <div>
                         <p className="text-center mb-16">Mahasiswa,</p>
                         <div className="text-center border-t border-black pt-2">
@@ -518,11 +544,20 @@ export default function DosenPengajuanRanpelPage() {
                         </div>
                       </div>
                       <div>
-                        <p className="text-center mb-16">
-                          Dosen Pembimbing Akademik,
-                        </p>
+                        <p className="text-center mb-16">Dosen Pembimbing,</p>
                         <div className="text-center border-t border-black pt-2">
-                          <p className="font-medium">Indah Hidayanti M.Kom</p>
+                          <p className="font-medium">
+                            {getSupervisor(selected.id)}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            NIP: ___________________
+                          </p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-center mb-16">Kaprodi,</p>
+                        <div className="text-center border-t border-black pt-2">
+                          <p className="font-medium">___________________</p>
                           <p className="text-sm text-gray-600">
                             NIP: ___________________
                           </p>
@@ -665,3 +700,4 @@ export default function DosenPengajuanRanpelPage() {
     </div>
   );
 }
+     

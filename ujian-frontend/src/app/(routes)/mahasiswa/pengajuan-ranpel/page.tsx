@@ -41,10 +41,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Search, Eye, Plus } from "lucide-react";
+import { Search, Eye, Plus, MoreVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Rancangan } from "@/types/Rancangan";
 import { rancanganData } from "@/lib/constants";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Type data rancangan
 
@@ -318,14 +324,26 @@ export default function DaftarRancanganPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelected(item)}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Detail
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="rounded-md">
+                          <DropdownMenuItem
+                            onClick={() => setSelected(item)}
+                            className="cursor-pointer"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Preview
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
@@ -414,7 +432,7 @@ export default function DaftarRancanganPage() {
             {selected && (
               <>
                 <DialogHeader>
-                  <DialogTitle>Detail Rancangan Penelitian</DialogTitle>
+                  <DialogTitle>Preview Rancangan Penelitian</DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-2 gap-4">

@@ -14,11 +14,19 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { User, Phone, GraduationCap, Edit, Save, X } from "lucide-react";
+import {
+  User,
+  Phone,
+  GraduationCap,
+  Edit,
+  Save,
+  X,
+  Crown,
+} from "lucide-react";
 
-interface DosenProfile {
+interface KaprodiProfile {
   id: number;
-  nidn: string;
+  nip: string;
   nama: string;
   noHp: string;
   alamat: string;
@@ -27,23 +35,24 @@ interface DosenProfile {
     nama: string;
   };
   fakultas?: string;
+  jabatan: string;
 }
 
-export default function DosenProfilePage() {
+export default function KaprodiProfilePage() {
   const { user } = useAuthStore();
-  const [profile, setProfile] = useState<DosenProfile | null>(null);
+  const [profile, setProfile] = useState<KaprodiProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [editData, setEditData] = useState<Partial<DosenProfile>>({});
+  const [editData, setEditData] = useState<Partial<KaprodiProfile>>({});
 
   useEffect(() => {
     // Initialize from auth store
     if (user) {
       // Mock data based on user info from auth store
-      const mockProfile: DosenProfile = {
+      const mockProfile: KaprodiProfile = {
         id: user.id,
-        nidn: user.nip_nim, // Assuming nip_nim contains NIDN for dosen
+        nip: user.nip_nim, // Assuming nip_nim contains NIP for kaprodi
         nama: user.nama,
         noHp: "081234567890", // This would come from API
         alamat: "Jl. Contoh Alamat No. 123, Kota Malang", // This would come from API
@@ -52,6 +61,7 @@ export default function DosenProfilePage() {
           nama: "Teknik Informatika", // This would come from API
         },
         fakultas: "Fakultas Teknologi Informasi", // This would come from API
+        jabatan: "Kepala Program Studi",
       };
       setProfile(mockProfile);
       setEditData(mockProfile);
@@ -74,7 +84,7 @@ export default function DosenProfilePage() {
     setSaving(true);
     try {
       // Here you would make an API call to update the profile
-      // await updateDosenProfile(editData);
+      // await updateKaprodiProfile(editData);
 
       // Mock API delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -93,7 +103,7 @@ export default function DosenProfilePage() {
     }
   };
 
-  const handleInputChange = (field: keyof DosenProfile, value: string) => {
+  const handleInputChange = (field: keyof KaprodiProfile, value: string) => {
     setEditData((prev) => ({
       ...prev,
       [field]: value,
@@ -126,7 +136,9 @@ export default function DosenProfilePage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Profile Dosen</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Profile Kaprodi
+            </h1>
             <p className="text-gray-600 mt-1">
               Kelola informasi personal dan akademik Anda
             </p>
@@ -174,12 +186,17 @@ export default function DosenProfilePage() {
         <Card>
           <CardHeader className="pb-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <User className="h-8 w-8 text-blue-600" />
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
+                <Crown className="h-8 w-8 text-purple-600" />
               </div>
               <div>
                 <CardTitle className="text-xl">{profile.nama}</CardTitle>
-                <CardDescription>NIDN: {profile.nidn}</CardDescription>
+                <CardDescription className="flex items-center gap-2">
+                  <span>NIP: {profile.nip}</span>
+                  <Badge variant="default" className="rounded bg-purple-600">
+                    {profile.jabatan}
+                  </Badge>
+                </CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -193,11 +210,11 @@ export default function DosenProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-medium text-gray-700">
-                    NIDN
+                    NIP
                   </label>
                   <Input
-                    value={isEditing ? editData.nidn || "" : profile.nidn}
-                    onChange={(e) => handleInputChange("nidn", e.target.value)}
+                    value={isEditing ? editData.nip || "" : profile.nip}
+                    onChange={(e) => handleInputChange("nip", e.target.value)}
                     readOnly={!isEditing}
                     className="mt-1 rounded"
                   />
@@ -284,6 +301,16 @@ export default function DosenProfilePage() {
                     className="mt-1 rounded bg-gray-50"
                   />
                 </div>
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Jabatan
+                  </label>
+                  <Input
+                    value={profile.jabatan}
+                    readOnly
+                    className="mt-1 rounded bg-gray-50"
+                  />
+                </div>
               </div>
             </div>
 
@@ -307,21 +334,21 @@ export default function DosenProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Statistik Bimbingan</CardTitle>
+              <CardTitle className="text-lg">Riwayat Pendidikan</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Mahasiswa Aktif</span>
-                  <span className="font-semibold">12</span>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>S3 - Ilmu Komputer (2018)</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Proposal Disetujui</span>
-                  <span className="font-semibold">8</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>S2 - Teknik Informatika (2015)</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Ujian Sidang</span>
-                  <span className="font-semibold">5</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span>S1 - Teknik Informatika (2013)</span>
                 </div>
               </div>
             </CardContent>
@@ -329,21 +356,25 @@ export default function DosenProfilePage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Aktivitas Terbaru</CardTitle>
+              <CardTitle className="text-lg">Sertifikasi & Keahlian</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Menyetujui proposal mahasiswa</span>
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span>Sertifikat Dosen Profesional</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span>Memberikan nilai ujian</span>
+                  <span>Project Management Professional</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                  <span>Update profile</span>
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Machine Learning Specialist</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                  <span>Certified Academic Leader</span>
                 </div>
               </div>
             </CardContent>

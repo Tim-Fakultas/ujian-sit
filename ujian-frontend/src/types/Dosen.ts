@@ -1,16 +1,10 @@
-export interface Mahasiswa {
+export interface Dosen {
   id: number;
+  nidn: string;
   nama: string;
-  nim: string;
   noHp: string;
   alamat: string;
-  semester: number;
-  dosenPaId: number;
   prodi: {
-    id: number;
-    nama: string;
-  };
-  dosenPa: {
     id: number;
     nama: string;
   };

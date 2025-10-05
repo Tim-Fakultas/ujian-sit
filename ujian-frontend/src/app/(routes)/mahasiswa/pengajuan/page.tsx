@@ -127,6 +127,7 @@ export default function PengajuanJudulPage() {
   const [activeTab, setActiveTab] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const filteredData = dummyData.filter((item) => {
     const matchSearch =
@@ -153,75 +154,67 @@ export default function PengajuanJudulPage() {
               Kelola dan pantau pengajuan judul skripsi Anda
             </p>
           </div>
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="rounded">
+              <Button className="rounded" onClick={() => setIsDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Tambah Pengajuan
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-xl h-[90vh] overflow-y-auto rounded">
-              <DialogHeader>
-                <DialogTitle>Form Pengajuan Judul</DialogTitle>
-                <DialogDescription>
-                  Isi form berikut untuk mengajukan judul skripsi.
+            <DialogContent className="sm:max-w-lg rounded-lg">
+              <DialogHeader className="space-y-2">
+                <DialogTitle className="text-xl font-semibold">
+                  Form Pengajuan Judul
+                </DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  Isi form berikut untuk mengajukan judul skripsi Anda.
                 </DialogDescription>
               </DialogHeader>
-              <form className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Judul</label>
-                  <Input
-                    placeholder="Masukkan judul skripsi"
-                    className="rounded"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">
-                    Identifikasi Masalah
-                  </label>
-                  <Textarea
-                    placeholder="Tuliskan identifikasi masalah..."
-                    className="rounded"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Rumusan Masalah</label>
-                  <Textarea
-                    placeholder="Tuliskan rumusan masalah..."
-                    className="rounded"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Pokok Masalah</label>
-                  <Textarea
-                    placeholder="Tuliskan pokok masalah..."
-                    className="rounded"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">
-                    Penelitian Sebelumnya
-                  </label>
-                  <Textarea
-                    placeholder="Tuliskan penelitian sebelumnya..."
-                    className="rounded"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">
-                    Deskripsi Lengkap
-                  </label>
-                  <Textarea
-                    placeholder="Tuliskan deskripsi lengkap..."
-                    className="rounded"
-                  />
-                </div>
-                <DialogFooter>
-                  <Button type="submit" className="rounded">
-                    Simpan
-                  </Button>
-                </DialogFooter>
-              </form>
+
+              <div className="py-6">
+                <form className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Judul Skripsi <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      placeholder="Masukkan judul skripsi"
+                      className="rounded-md border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Keterangan <span className="text-red-500">*</span>
+                    </label>
+                    <Textarea
+                      placeholder="Tuliskan keterangan atau deskripsi singkat tentang judul yang diajukan..."
+                      className="rounded-md border-gray-200 focus:border-blue-500 focus:ring-blue-500 min-h-[100px]"
+                      rows={4}
+                    />
+                  </div>
+                </form>
+              </div>
+
+              <DialogFooter className="flex gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  className="rounded-md flex-1"
+                  onClick={() => setIsDialogOpen(false)}
+                >
+                  Batal
+                </Button>
+                <Button
+                  type="submit"
+                  className="rounded-md flex-1 bg-blue-600 hover:bg-blue-700"
+                  onClick={() => {
+                    // Handle form submission here
+                    setIsDialogOpen(false);
+                  }}
+                >
+                  Simpan Pengajuan
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
@@ -290,16 +283,15 @@ export default function PengajuanJudulPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded border overflow-x-auto">
-          <Table className="min-w-[800px]">
+        <div className="bg-white rounded border overflow-hidden">
+          <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">No</TableHead>
-                <TableHead>Judul</TableHead>
-                <TableHead>Keterangan</TableHead>
-                <TableHead>Tanggal Pengajuan</TableHead>
-                <TableHead>Tanggal Disetujui</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead className="text-center w-16">No</TableHead>
+                <TableHead className="w-2/5">Judul</TableHead>
+                <TableHead className="w-1/5">Keterangan</TableHead>
+                <TableHead className="w-32">Tanggal Pengajuan</TableHead>
+                <TableHead className="w-24">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -309,13 +301,13 @@ export default function PengajuanJudulPage() {
                     <TableCell className="text-center">
                       {startIndex + index + 1}
                     </TableCell>
-                    <TableCell className="max-w-md truncate text-gray-600">
+                    <TableCell className="text-gray-600">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="truncate cursor-help">
+                            <div className="line-clamp-2 cursor-help">
                               {item.judul}
-                            </span>
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent side="bottom" className="max-w-sm">
                             {item.judul}
@@ -323,13 +315,13 @@ export default function PengajuanJudulPage() {
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                    <TableCell className="max-w-md truncate text-gray-600">
+                    <TableCell className="text-gray-600">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="truncate cursor-help">
+                            <div className="line-clamp-2 cursor-help">
                               {item.keterangan}
-                            </span>
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent side="bottom" className="max-w-sm">
                             {item.keterangan}
@@ -338,7 +330,6 @@ export default function PengajuanJudulPage() {
                       </TooltipProvider>
                     </TableCell>
                     <TableCell>{item.tanggalPengajuan}</TableCell>
-                    <TableCell>{item.tanggalDisetujui || "-"}</TableCell>
                     <TableCell>
                       <Badge
                         className={`${statusColors[item.status]} border-0`}
@@ -350,7 +341,7 @@ export default function PengajuanJudulPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={5} className="text-center py-8">
                     Tidak ada data pengajuan
                   </TableCell>
                 </TableRow>

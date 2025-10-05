@@ -34,7 +34,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Search, Eye } from "lucide-react";
+import { Search, Eye, MoreVertical } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -43,7 +43,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { IconFilter2 } from "@tabler/icons-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Type untuk data pengajuan mahasiswa
 interface PengajuanJudul {
@@ -53,11 +58,6 @@ interface PengajuanJudul {
     nama: string;
   };
   judul: string;
-  identifikasi: string;
-  rumusan: string;
-  pokok: string;
-  penelitian: string;
-  deskripsi: string;
   keterangan: string;
   tanggalPengajuan: string;
   tanggalDisetujui?: string;
@@ -69,13 +69,8 @@ const dummyData: PengajuanJudul[] = [
     id: 1,
     mahasiswa: { nim: "23012345", nama: "Budi Santoso" },
     judul: "Implementasi Blockchain untuk Sistem Akademik",
-    identifikasi: "Banyak data akademik belum terjamin keamanannya.",
-    rumusan: "Bagaimana blockchain bisa menjamin integritas data akademik?",
-    pokok: "Keamanan data, efisiensi pencatatan, transparansi.",
-    penelitian: "Studi A (2023) membahas blockchain di keuangan.",
-    deskripsi:
-      "Penelitian ini bertujuan membangun sistem akademik berbasis blockchain.",
-    keterangan: "Menunggu review",
+    keterangan:
+      "Penelitian ini bertujuan membangun sistem akademik berbasis blockchain untuk menjamin keamanan dan integritas data akademik.",
     tanggalPengajuan: "2025-01-15",
     status: "pending",
   },
@@ -83,13 +78,8 @@ const dummyData: PengajuanJudul[] = [
     id: 2,
     mahasiswa: { nim: "23067890", nama: "Siti Aminah" },
     judul: "Aplikasi Mobile untuk Monitoring Kesehatan",
-    identifikasi: "Kurangnya aplikasi monitoring kesehatan real-time.",
-    rumusan: "Bagaimana membuat aplikasi monitoring kesehatan berbasis IoT?",
-    pokok: "Sensor IoT, notifikasi kesehatan, integrasi mobile.",
-    penelitian: "Penelitian sebelumnya di bidang wearable devices.",
-    deskripsi:
-      "Aplikasi ini membantu pasien memonitor kesehatan secara langsung.",
-    keterangan: "Judul dalam pertimbangan",
+    keterangan:
+      "Aplikasi ini membantu pasien memonitor kesehatan secara real-time menggunakan teknologi IoT dan notifikasi mobile.",
     tanggalPengajuan: "2025-02-02",
     tanggalDisetujui: "2025-02-10",
     status: "disetujui",
@@ -204,18 +194,16 @@ export default function PengajuanJudulDosenPage() {
         </div>
 
         {/* Tabel */}
-        <div className="bg-white rounded border overflow-x-auto">
-          <Table className="min-w-[900px]">
+        <div className="bg-white rounded border overflow-hidden">
+          <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">No</TableHead>
-                <TableHead>Mahasiswa</TableHead>
-                <TableHead>Judul</TableHead>
-                <TableHead>Keterangan</TableHead>
-                <TableHead>Tanggal Pengajuan</TableHead>
-                <TableHead>Tanggal Disetujui</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Aksi</TableHead>
+                <TableHead className="text-center w-16">No</TableHead>
+                <TableHead className="w-1/4">Mahasiswa</TableHead>
+                <TableHead className="w-2/5">Judul</TableHead>
+                <TableHead className="w-32">Tanggal Pengajuan</TableHead>
+                <TableHead className="w-24">Status</TableHead>
+                <TableHead className="w-20">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -233,13 +221,13 @@ export default function PengajuanJudulDosenPage() {
                         </p>
                       </div>
                     </TableCell>
-                    <TableCell className="max-w-md truncate text-gray-600">
+                    <TableCell className="text-gray-600">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="truncate cursor-help">
+                            <div className="line-clamp-2 cursor-help">
                               {item.judul}
-                            </span>
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent side="bottom" className="max-w-sm">
                             {item.judul}
@@ -247,9 +235,7 @@ export default function PengajuanJudulDosenPage() {
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                    <TableCell>{item.keterangan}</TableCell>
                     <TableCell>{item.tanggalPengajuan}</TableCell>
-                    <TableCell>{item.tanggalDisetujui || "-"}</TableCell>
                     <TableCell>
                       <Badge
                         className={`${statusColors[item.status]} border-0`}
@@ -258,20 +244,42 @@ export default function PengajuanJudulDosenPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelected(item)}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Detail
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="rounded-md">
+                          <DropdownMenuItem
+                            onClick={() => setSelected(item)}
+                            className="cursor-pointer"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Preview
+                          </DropdownMenuItem>
+                          {item.status === "pending" && (
+                            <>
+                              <DropdownMenuItem className="cursor-pointer text-green-600">
+                                Terima
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="cursor-pointer text-red-600">
+                                Tolak
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={6} className="text-center py-8">
                     Tidak ada data pengajuan judul
                   </TableCell>
                 </TableRow>
@@ -350,123 +358,136 @@ export default function PengajuanJudulDosenPage() {
 
         {/* Dialog Detail */}
         <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
+          <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto rounded-lg">
             {selected && (
               <>
-                <DialogHeader>
-                  <DialogTitle>Detail Pengajuan Judul</DialogTitle>
-                  <DialogDescription>
-                    Informasi lengkap pengajuan judul mahasiswa.
+                <DialogHeader className="space-y-2 pb-4 border-b">
+                  <DialogTitle className="text-xl font-semibold">
+                    Preview Pengajuan Judul
+                  </DialogTitle>
+                  <DialogDescription className="text-gray-600">
+                    Preview dokumen pengajuan judul skripsi mahasiswa.
                   </DialogDescription>
                 </DialogHeader>
 
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">
-                        NIM Mahasiswa
-                      </label>
-                      <Input
-                        value={selected.mahasiswa.nim}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
+                {/* PDF-like content */}
+                <div className="bg-white p-8 space-y-6 text-sm leading-relaxed">
+                  {/* Header */}
+                  <div className="text-center space-y-2 border-b pb-6">
+                    <h1 className="text-lg font-bold uppercase">
+                      FORMULIR PENGAJUAN JUDUL SKRIPSI
+                    </h1>
+                    <p className="text-gray-600">
+                      Program Studi Teknik Informatika
+                    </p>
+                  </div>
+
+                  {/* Student Info */}
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <div className="flex">
+                        <span className="w-32 font-medium">NIM</span>
+                        <span className="mr-2">:</span>
+                        <span>{selected.mahasiswa.nim}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="w-32 font-medium">Nama Mahasiswa</span>
+                        <span className="mr-2">:</span>
+                        <span>{selected.mahasiswa.nama}</span>
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-sm font-medium">
-                        Nama Mahasiswa
-                      </label>
-                      <Input
-                        value={selected.mahasiswa.nama}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
+                    <div className="space-y-3">
+                      <div className="flex">
+                        <span className="w-32 font-medium">
+                          Tanggal Pengajuan
+                        </span>
+                        <span className="mr-2">:</span>
+                        <span>{selected.tanggalPengajuan}</span>
+                      </div>
+                      <div className="flex">
+                        <span className="w-32 font-medium">Status</span>
+                        <span className="mr-2">:</span>
+                        <Badge
+                          className={`${
+                            statusColors[selected.status]
+                          } border-0`}
+                        >
+                          {statusLabels[selected.status]}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-sm font-medium">Judul</label>
-                    <Textarea
-                      value={selected.judul}
-                      readOnly
-                      rows={2}
-                      className="mt-1 rounded"
-                    />
+                  {/* Content */}
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
+                        Judul Skripsi
+                      </h3>
+                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
+                        <p className="text-justify leading-relaxed">
+                          {selected.judul}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
+                        Keterangan
+                      </h3>
+                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
+                        <p className="text-justify leading-relaxed">
+                          {selected.keterangan}
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="text-sm font-medium">
-                      Identifikasi Masalah
-                    </label>
-                    <Textarea
-                      value={selected.identifikasi}
-                      readOnly
-                      rows={3}
-                      className="mt-1 rounded"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium">
-                      Rumusan Masalah
-                    </label>
-                    <Textarea
-                      value={selected.rumusan}
-                      readOnly
-                      rows={3}
-                      className="mt-1 rounded"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium">Pokok Masalah</label>
-                    <Textarea
-                      value={selected.pokok}
-                      readOnly
-                      rows={2}
-                      className="mt-1 rounded"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium">
-                      Penelitian Sebelumnya
-                    </label>
-                    <Textarea
-                      value={selected.penelitian}
-                      readOnly
-                      rows={2}
-                      className="mt-1 rounded"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium">
-                      Deskripsi Lengkap
-                    </label>
-                    <Textarea
-                      value={selected.deskripsi}
-                      readOnly
-                      rows={3}
-                      className="mt-1 rounded"
-                    />
+                  {/* Footer */}
+                  <div className="pt-6 border-t mt-8">
+                    <div className="grid grid-cols-2 gap-8">
+                      <div>
+                        <p className="text-center mb-16">Mahasiswa,</p>
+                        <div className="text-center border-t border-black pt-2">
+                          <p className="font-medium">
+                            {selected.mahasiswa.nama}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            NIM: {selected.mahasiswa.nim}
+                          </p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-center mb-16">Dosen Pembimbing,</p>
+                        <div className="text-center border-t border-black pt-2">
+                          <p className="font-medium">___________________</p>
+                          <p className="text-sm text-gray-600">
+                            NIP: ___________________
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <DialogFooter className="flex gap-2">
+                <DialogFooter className="flex justify-between pt-6 border-t bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
                   <Button
                     variant="outline"
                     onClick={() => setSelected(null)}
-                    className="rounded"
+                    className="rounded-md"
                   >
                     Tutup
                   </Button>
-                  <Button className="bg-emerald-500 hover:bg-emerald-600 text-white rounded">
-                    Terima
-                  </Button>
-                  <Button className="bg-rose-500 hover:bg-rose-600 text-white rounded">
-                    Tolak
-                  </Button>
+                  {selected.status === "pending" && (
+                    <div className="flex gap-2">
+                      <Button className="bg-red-500 hover:bg-red-600 text-white rounded-md">
+                        Tolak
+                      </Button>
+                      <Button className="bg-green-500 hover:bg-green-600 text-white rounded-md">
+                        Terima
+                      </Button>
+                    </div>
+                  )}
                 </DialogFooter>
               </>
             )}
