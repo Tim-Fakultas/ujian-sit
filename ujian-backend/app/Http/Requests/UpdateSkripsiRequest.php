@@ -22,12 +22,12 @@ class UpdateSkripsiRequest extends FormRequest
     public function rules(): array
     {
         return [
-        'mahasiswa_id' => 'prohibited',
-        'ranpel_id' => 'prohibited',
-        'judul' => 'sometimes|string|max:255',
-        'pembimbing_1' => 'sometimes|required',
-        'pembimbing_2' => 'sometimes',
-        'status' => 'sometimes',
+            'mahasiswa_id' => 'prohibited',
+            'ranpel_id' => 'prohibited',
+            'judul' => 'sometimes|string|max:255',
+            'pembimbing_1' => 'sometimes|required',
+            'pembimbing_2' => 'sometimes',
+            'status' => 'sometimes',
         ];
     }
 }

@@ -15,6 +15,7 @@ class KomponenPenilaianController extends Controller
     public function index()
     {
         $komponenPenilaian = KomponenPenilaian::with(['jenis_ujian'])->get();
+
         return KomponenPenilaianResource::collection($komponenPenilaian);
     }
 
@@ -25,6 +26,7 @@ class KomponenPenilaianController extends Controller
     {
         $request->validated();
         $komponenPenilaian = KomponenPenilaian::create($request->all());
+
         return new KomponenPenilaianResource($komponenPenilaian);
     }
 
@@ -34,6 +36,7 @@ class KomponenPenilaianController extends Controller
     public function show($id)
     {
         $komponenPenilaian = KomponenPenilaian::with(['jenis_ujian'])->findOrFail($id);
+
         return new KomponenPenilaianResource($komponenPenilaian);
     }
 
@@ -54,6 +57,7 @@ class KomponenPenilaianController extends Controller
     public function destroy(KomponenPenilaian $komponenPenilaian)
     {
         $komponenPenilaian->delete();
+
         return response()->json(['message' => 'Komponen penilaian berhasil dihapus.'], 200);
     }
 }

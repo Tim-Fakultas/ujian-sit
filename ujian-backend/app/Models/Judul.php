@@ -10,14 +10,15 @@ class Judul extends Model
     /** @use HasFactory<\Database\Factories\JudulFactory> */
     use HasFactory;
 
-    protected $table = "judul";
+    protected $table = 'judul';
 
     protected $fillable = [
         'judul',
         'deskripsi',
     ];
 
-    public function ranpel(){
+    public function ranpel()
+    {
         return $this->hasMany(Ranpel::class, 'judul_id');
     }
 }

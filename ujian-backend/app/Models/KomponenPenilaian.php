@@ -10,10 +10,12 @@ class KomponenPenilaian extends Model
     /** @use HasFactory<\Database\Factories\KomponenPenilaianFactory> */
     use HasFactory;
 
-    protected $table = "komponen_penilaian";
+    protected $table = 'komponen_penilaian';
+
     protected $fillable = [
         'jenis_ujian_id',
         'nama_komponen',
+        'deskripsi',
         'bobot',
     ];
 
@@ -21,7 +23,4 @@ class KomponenPenilaian extends Model
     {
         return $this->belongsTo(JenisUjian::class, 'jenis_ujian_id');
     }
-
-
-
 }

@@ -25,7 +25,7 @@ class SkripsiFactory extends Factory
             'judul' => $this->faker->sentence,
             'pembimbing_1' => Dosen::inRandomOrder()->first()->id,
             'pembimbing_2' => Dosen::inRandomOrder()->skip(1)->first()->id,
-            'status' => $this->faker->randomElement(['berjalan','selesai','dibatalkan']),
+            'status' => $this->faker->randomElement(['berjalan', 'selesai', 'dibatalkan']),
         ];
     }
 }

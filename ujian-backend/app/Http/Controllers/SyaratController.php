@@ -15,6 +15,7 @@ class SyaratController extends Controller
     public function index()
     {
         $syarat = Syarat::with(['jenis_ujian', 'pemenuhan_syarat'])->get();
+
         return SyaratResource::collection($syarat);
     }
 
@@ -25,6 +26,7 @@ class SyaratController extends Controller
     {
         $request->validated();
         $syarat = Syarat::create($request->all());
+
         return new SyaratResource($syarat);
     }
 
@@ -34,6 +36,7 @@ class SyaratController extends Controller
     public function show($id)
     {
         $syarat = Syarat::with(['jenis_ujian', 'pemenuhan_syarat'])->findOrFail($id);
+
         return new SyaratResource($syarat);
     }
 
@@ -54,6 +57,7 @@ class SyaratController extends Controller
     public function destroy(Syarat $syarat)
     {
         $syarat->delete();
+
         return response()->json(['message' => 'Syarat berhasil dihapus.'], 200);
     }
 }

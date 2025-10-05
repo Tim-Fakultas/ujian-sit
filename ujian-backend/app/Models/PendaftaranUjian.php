@@ -10,7 +10,8 @@ class PendaftaranUjian extends Model
     /** @use HasFactory<\Database\Factories\PendaftaranUjianFactory> */
     use HasFactory;
 
-    protected $table = "pendaftaran_ujian";
+    protected $table = 'pendaftaran_ujian';
+
     protected $fillable = [
         'mahasiswa_id',
         'jenis_ujian_id',
@@ -19,22 +20,26 @@ class PendaftaranUjian extends Model
         'created_by',
         'verified_by',
         'verified_at',
-        'keterangan'
+        'keterangan',
     ];
 
-    public function mahasiswa(){
-        return $this->belongsTo(Mahasiswa::class,'mahasiswa_id');
+    public function mahasiswa()
+    {
+        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
     }
 
-    public function jenis_ujian(){
+    public function jenis_ujian()
+    {
         return $this->belongsTo(JenisUjian::class, 'jenis_ujian_id');
     }
 
-    public function ujian(){
+    public function ujian()
+    {
         return $this->hasOne(Ujian::class, 'pendaftaran_ujian_id');
     }
 
-    public function skripsi(){
+    public function skripsi()
+    {
         return $this->belongsTo(Skripsi::class, 'skripsi_id');
     }
 
@@ -42,6 +47,4 @@ class PendaftaranUjian extends Model
     {
         return $this->hasMany(PemenuhanSyarat::class, 'pendaftaran_ujian_id');
     }
-
-
 }

@@ -15,6 +15,7 @@ class SkripsiController extends Controller
     public function index()
     {
         $skripsi = Skripsi::all();
+
         return SkripsiResource::collection($skripsi);
     }
 
@@ -25,6 +26,7 @@ class SkripsiController extends Controller
     {
         $request->validated();
         $skripsi = Skripsi::create($request->all());
+
         return new SkripsiResource($skripsi);
     }
 
@@ -34,6 +36,7 @@ class SkripsiController extends Controller
     public function show($id)
     {
         $skripsi = Skripsi::findOrFail($id);
+
         return new SkripsiResource($skripsi);
     }
 
@@ -54,6 +57,7 @@ class SkripsiController extends Controller
     public function destroy(Skripsi $skripsi)
     {
         $skripsi->delete();
+
         return response()->json(['message' => 'Skripsi berhasil dihapus.'], 200);
     }
 }

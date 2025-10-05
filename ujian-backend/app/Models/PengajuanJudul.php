@@ -10,8 +10,9 @@ class PengajuanJudul extends Model
     /** @use HasFactory<\Database\Factories\PengajuanJudulFactory> */
     use HasFactory;
 
-    protected $table = "pengajuan_judul";
-    protected $primaryKey = "id";
+    protected $table = 'pengajuan_judul';
+
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'mahasiswa_id',
@@ -33,7 +34,6 @@ class PengajuanJudul extends Model
     {
         return $this->hasOneThrough(Skripsi::class, Ranpel::class, 'pengajuan_judul_id', 'ranpel_id');
     }
-
 
     public function dosen()
     {

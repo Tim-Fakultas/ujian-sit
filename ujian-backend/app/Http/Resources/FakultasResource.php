@@ -16,9 +16,9 @@ class FakultasResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            "namaFakultas"=> $this->nama_fakultas,
-            'createdAt'=> $this->created_at,
-            'updatedAt'=> $this->updated_at,
+            'namaFakultas' => $this->nama_fakultas,
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
         ];
     }
 }

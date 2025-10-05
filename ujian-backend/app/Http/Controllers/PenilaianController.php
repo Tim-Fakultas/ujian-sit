@@ -15,6 +15,7 @@ class PenilaianController extends Controller
     public function index()
     {
         $penilaian = Penilaian::with(['ujian', 'dosen', 'komponen_penilaian'])->get();
+
         return PenilaianResource::collection($penilaian);
     }
 
@@ -25,6 +26,7 @@ class PenilaianController extends Controller
     {
         $request->validated();
         $penilaian = Penilaian::create($request->all());
+
         return new PenilaianResource($penilaian);
     }
 
@@ -34,6 +36,7 @@ class PenilaianController extends Controller
     public function show($id)
     {
         $penilaian = Penilaian::with(['ujian', 'dosen', 'komponen_penilaian'])->findOrFail($id);
+
         return new PenilaianResource($penilaian);
     }
 
@@ -54,6 +57,7 @@ class PenilaianController extends Controller
     public function destroy(Penilaian $penilaian)
     {
         $penilaian->delete();
+
         return response()->json(['message' => 'Penilaian berhasil dihapus.'], 200);
     }
 }

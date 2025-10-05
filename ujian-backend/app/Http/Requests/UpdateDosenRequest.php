@@ -22,11 +22,11 @@ class UpdateDosenRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama'=> 'sometimes|required|string|max:255',
-            'nidn'=> 'prohibited',
-            'no_hp'=> 'sometimes|required|string|max:30',
-            'alamat'=> 'sometimes|nullable|string',
-            'prodi_id'=> 'sometimes|required|exists:prodi,id'
+            'nama' => 'sometimes|required|string|max:255',
+            'nidn' => 'prohibited',
+            'no_hp' => 'sometimes|required|string|max:30',
+            'alamat' => 'sometimes|nullable|string',
+            'prodi_id' => 'sometimes|required|exists:prodi,id',
         ];
     }
 }

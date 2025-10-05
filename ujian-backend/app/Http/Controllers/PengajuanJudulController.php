@@ -15,6 +15,7 @@ class PengajuanJudulController extends Controller
     public function index()
     {
         $pengajuanJudul = PengajuanJudul::with(['mahasiswa', 'dosen'])->get();
+
         return PengajuanJudulResource::collection($pengajuanJudul);
     }
 
@@ -25,6 +26,7 @@ class PengajuanJudulController extends Controller
     {
         $request->validated();
         $pengajuanJudul = PengajuanJudul::create($request->all());
+
         return new PengajuanJudulResource($pengajuanJudul);
     }
 
@@ -34,6 +36,7 @@ class PengajuanJudulController extends Controller
     public function show($id)
     {
         $pengajuanJudul = PengajuanJudul::with(['mahasiswa', 'dosen'])->findOrFail($id);
+
         return new PengajuanJudulResource($pengajuanJudul);
     }
 
@@ -54,6 +57,7 @@ class PengajuanJudulController extends Controller
     public function destroy(PengajuanJudul $pengajuanJudul)
     {
         $pengajuanJudul->delete();
+
         return response()->json(['message' => 'PengajuanJudul berhasil dihapus.'], 200);
     }
 }

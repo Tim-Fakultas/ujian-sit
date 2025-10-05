@@ -22,8 +22,8 @@ class StoreProdiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nama_prodi"=> "sometimes|string|max:255|unique:prodi,nama_prodi",
-            "fakultas_id"=> "required|exists:fakultas,id",
+            'nama_prodi' => 'sometimes|string|max:255|unique:prodi,nama_prodi',
+            'fakultas_id' => 'required|exists:fakultas,id',
         ];
     }
 }

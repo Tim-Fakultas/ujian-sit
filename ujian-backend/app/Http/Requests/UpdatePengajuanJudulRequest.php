@@ -22,14 +22,14 @@ class UpdatePengajuanJudulRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "mahasiswa_id" => "prohibited",
-            "judul" => "sometimes|required|string|max:255",
-            "deskripsi"=> "sometimes|required|string",
-            "tanggal_pengajuan" => "prohibited",
-            "tanggal_disetujui" => "sometimes|nullable|date|after_or_equal:tanggal_pengajuan",
-            "status" => "sometimes|nullable|string|max:50",
-            "dosen_id"=> "sometimes|nullable|exists:dosen,id",
-            "keterangan" => "sometimes|nullable|string",
+            'mahasiswa_id' => 'prohibited',
+            'judul' => 'sometimes|required|string|max:255',
+            'deskripsi' => 'sometimes|required|string',
+            'tanggal_pengajuan' => 'prohibited',
+            'tanggal_disetujui' => 'sometimes|nullable|date|after_or_equal:tanggal_pengajuan',
+            'status' => 'sometimes|nullable|string|max:50',
+            'dosen_id' => 'sometimes|nullable|exists:dosen,id',
+            'keterangan' => 'sometimes|nullable|string',
         ];
     }
 }

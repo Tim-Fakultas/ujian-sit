@@ -22,7 +22,7 @@ class StoreFakultasRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nama_fakultas" => "required|string|max:255|unique:fakultas,nama_fakultas",
+            'nama_fakultas' => 'required|string|max:255|unique:fakultas,nama_fakultas',
         ];
     }
 }

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('jenis_ujian_id')->constrained('jenis_ujian')->onDelete('cascade');
             $table->string('nama_komponen');
+            $table->text('deskripsi')->nullable();
             $table->integer('bobot');
             $table->timestamps();
         });

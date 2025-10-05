@@ -15,21 +15,21 @@ class SkripsiResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "id"=> $this->id,
-            'mahasiswa'=>[
-                'id'=> $this->mahasiswa->id,
-                'nama'=> $this->mahasiswa->nama,
-                'nim'=> $this->mahasiswa->nim,
+            'id' => $this->id,
+            'mahasiswa' => [
+                'id' => $this->mahasiswa->id,
+                'nama' => $this->mahasiswa->nama,
+                'nim' => $this->mahasiswa->nim,
             ],
-            'ranpel'=>[
-                'id'=> $this->ranpel->id,
+            'ranpel' => [
+                'id' => $this->ranpel->id,
             ],
-            'judul'=> $this->judul,
-            'pembimbing1'=> $this->pembimbing_1,
-            'pembimbing2'=> $this->pembimbing_2,
-            'status'=> $this->status,
-            "createdAt"=> $this->created_at,
-            "updatedAt"=> $this->updated_at,
-            ];
+            'judul' => $this->judul,
+            'pembimbing1' => $this->pembimbing_1,
+            'pembimbing2' => $this->pembimbing_2,
+            'status' => $this->status,
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
+        ];
     }
 }

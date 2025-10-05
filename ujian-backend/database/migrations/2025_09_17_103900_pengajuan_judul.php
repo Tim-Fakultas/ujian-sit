@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create("pengajuan_judul", function (Blueprint $table) {
+        Schema::create('pengajuan_judul', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("mahasiswa_id")->constrained("mahasiswa")->onDelete("cascade");
-            $table->string("judul");
+            $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
+            $table->string('judul');
             $table->text('deskripsi')->nullable();
-            $table->date("tanggal_pengajuan")->useCurrent();
-            $table->date("tanggal_disetujui")->nullable();
-            $table->enum("status", ['menunggu', 'disetujui', 'ditolak'])->default("menunggu"); // menunggu, disetujui, ditolak
-            $table->foreignId("dosen_id")->constrained("dosen")->onDelete("cascade");
-            $table->text("keterangan")->nullable();
+            $table->date('tanggal_pengajuan')->useCurrent();
+            $table->date('tanggal_disetujui')->nullable();
+            $table->enum('status', ['menunggu', 'disetujui', 'ditolak'])->default('menunggu'); // menunggu, disetujui, ditolak
+            $table->foreignId('dosen_id')->constrained('dosen')->onDelete('cascade');
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists("pengajuan_judul");
+        Schema::dropIfExists('pengajuan_judul');
     }
 };

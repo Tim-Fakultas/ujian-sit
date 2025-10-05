@@ -15,6 +15,7 @@ class PemenuhanSyaratController extends Controller
     public function index()
     {
         $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaran_ujian', 'syarat'])->get();
+
         return PemenuhanSyaratResource::collection($pemenuhanSyarat);
     }
 
@@ -25,6 +26,7 @@ class PemenuhanSyaratController extends Controller
     {
         $request->validated();
         $pemenuhanSyarat = PemenuhanSyarat::create($request->all());
+
         return new PemenuhanSyaratResource($pemenuhanSyarat);
     }
 
@@ -34,6 +36,7 @@ class PemenuhanSyaratController extends Controller
     public function show($id)
     {
         $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaran_ujian', 'syarat'])->findOrFail($id);
+
         return new PemenuhanSyaratResource($pemenuhanSyarat);
     }
 
@@ -54,6 +57,7 @@ class PemenuhanSyaratController extends Controller
     public function destroy(PemenuhanSyarat $pemenuhanSyarat)
     {
         $pemenuhanSyarat->delete();
+
         return response()->json(['message' => 'Pemenuhan syarat berhasil dihapus.'], 200);
     }
 }

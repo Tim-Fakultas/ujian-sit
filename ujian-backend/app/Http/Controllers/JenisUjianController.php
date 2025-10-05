@@ -15,6 +15,7 @@ class JenisUjianController extends Controller
     public function index()
     {
         $jenisUjian = JenisUjian::all();
+
         return JenisUjianResource::collection($jenisUjian);
     }
 
@@ -25,6 +26,7 @@ class JenisUjianController extends Controller
     {
         $request->validated();
         $jenisUjian = JenisUjian::create($request->all());
+
         return new JenisUjianResource($jenisUjian);
     }
 
@@ -34,6 +36,7 @@ class JenisUjianController extends Controller
     public function show($id)
     {
         $jenisUjian = JenisUjian::findOrFail($id);
+
         return new JenisUjianResource($jenisUjian);
     }
 
@@ -54,6 +57,7 @@ class JenisUjianController extends Controller
     public function destroy(JenisUjian $jenisUjian)
     {
         $jenisUjian->delete();
+
         return response()->json(['message' => 'Jenis ujian berhasil dihapus.'], 200);
     }
 }

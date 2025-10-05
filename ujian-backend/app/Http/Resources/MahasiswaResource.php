@@ -15,11 +15,11 @@ class MahasiswaResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "id"=> $this->id,
-            "nama"=> $this->nama,
-            "nim"=> $this->nim,
-            "noHp"=> $this->no_hp,
-            "alamat"=> $this->alamat,
+            'id' => $this->id,
+            'nama' => $this->nama,
+            'nim' => $this->nim,
+            'noHp' => $this->no_hp,
+            'alamat' => $this->alamat,
             'semester' => $this->semester,
             'ipk' => $this->ipk ? (float) $this->ipk : 0.00,
             'dosenPaId' => $this->dosen_pa,
@@ -35,8 +35,8 @@ class MahasiswaResource extends JsonResource
                 'id' => $this->dosenPembimbingAkademik->id,
                 'nama' => $this->dosenPembimbingAkademik->nama,
             ] : null,
-            "createdAt"=> $this->created_at,
-            "updatedAt"=> $this->updated_at,
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
         ];
     }
 }

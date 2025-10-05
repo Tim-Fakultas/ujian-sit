@@ -10,7 +10,8 @@ class Ranpel extends Model
     /** @use HasFactory<\Database\Factories\RanpelFactory> */
     use HasFactory;
 
-    protected $table = "ranpel";
+    protected $table = 'ranpel';
+
     protected $fillable = [
         'judul_id',
         'identifikasi_masalah',
@@ -21,12 +22,14 @@ class Ranpel extends Model
         'status',
     ];
 
-    public function skripsi(){
+    public function skripsi()
+    {
         return $this->hasOne(Skripsi::class, 'ranpel_id');
     }
 
-    public function judul(){
+    public function judul()
+    {
         return $this->belongsTo(Judul::class, 'judul_id');
 
-}
+    }
 }

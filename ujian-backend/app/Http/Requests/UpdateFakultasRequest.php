@@ -21,10 +21,10 @@ class UpdateFakultasRequest extends FormRequest
      */
     public function rules(): array
     {
-         $fakultasId = $this->route('fakultas')?->id ?? null;
+        $fakultasId = $this->route('fakultas')?->id ?? null;
 
         return [
-            'nama_fakultas' => 'required|string|max:255|unique:fakultas,nama_fakultas,' . $fakultasId,
+            'nama_fakultas' => 'required|string|max:255|unique:fakultas,nama_fakultas,'.$fakultasId,
         ];
-}
+    }
 }

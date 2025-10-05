@@ -24,7 +24,7 @@ class PeminatanController extends Controller
 
         // Search by nama_peminatan
         if ($request->has('search')) {
-            $query->where('nama_peminatan', 'like', '%' . $request->search . '%');
+            $query->where('nama_peminatan', 'like', '%'.$request->search.'%');
         }
 
         $peminatan = $query->get();
@@ -72,7 +72,7 @@ class PeminatanController extends Controller
         $peminatan->delete();
 
         return response()->json([
-            'message' => 'Peminatan berhasil dihapus'
+            'message' => 'Peminatan berhasil dihapus',
         ]);
     }
 }

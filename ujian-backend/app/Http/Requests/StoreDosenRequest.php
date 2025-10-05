@@ -22,11 +22,11 @@ class StoreDosenRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama'=> 'required|string|max:255',
-            'nidn'=> 'required|string|max:20|unique:dosen,nidn',
-            'no_hp'=> 'required|string|max:30',
-            'alamat'=> 'nullable|string',
-            'prodi_id'=> 'required|exists:prodi,id'
+            'nama' => 'required|string|max:255',
+            'nidn' => 'required|string|max:20|unique:dosen,nidn',
+            'no_hp' => 'required|string|max:30',
+            'alamat' => 'nullable|string',
+            'prodi_id' => 'required|exists:prodi,id',
         ];
     }
 }

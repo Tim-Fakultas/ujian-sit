@@ -15,6 +15,7 @@ class BimbinganController extends Controller
     public function index()
     {
         $bimbingan = Bimbingan::with(['skripsi', 'dosen', 'mahasiswa'])->get();
+
         return BimbinganResource::collection($bimbingan);
     }
 
@@ -25,6 +26,7 @@ class BimbinganController extends Controller
     {
         $request->validated();
         $bimbingan = Bimbingan::create($request->all());
+
         return new BimbinganResource($bimbingan);
     }
 
@@ -34,6 +36,7 @@ class BimbinganController extends Controller
     public function show($id)
     {
         $bimbingan = Bimbingan::findOrFail($id);
+
         return new BimbinganResource($bimbingan);
     }
 
@@ -54,6 +57,7 @@ class BimbinganController extends Controller
     public function destroy(Bimbingan $bimbingan)
     {
         $bimbingan->delete();
+
         return response()->json(['message' => 'Bimbingan berhasil dihapus.'], 200);
     }
 }

@@ -22,12 +22,12 @@ class StoreSkripsiRequest extends FormRequest
     public function rules(): array
     {
         return [
-        'mahasiswa_id' => 'required|exists:mahasiswa,id',
-        'ranpel_id' => 'required|exists:ranpel,id',
-        'judul' => 'required|string|max:255',
-        'pembimbing_1' => 'required',
-        'pembimbing_2' => 'required',
-        'status' => 'required',
+            'mahasiswa_id' => 'required|exists:mahasiswa,id',
+            'ranpel_id' => 'required|exists:ranpel,id',
+            'judul' => 'required|string|max:255',
+            'pembimbing_1' => 'required',
+            'pembimbing_2' => 'required',
+            'status' => 'required',
         ];
     }
 }

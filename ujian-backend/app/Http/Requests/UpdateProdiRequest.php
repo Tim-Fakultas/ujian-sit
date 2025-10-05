@@ -22,8 +22,8 @@ class UpdateProdiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nama_prodi"=> "sometimes|string|max:255|unique:prodi,nama_prodi," . ($this->route('prodi')?->id ?? null),
-            "fakultas_id"=> "sometimes|exists:fakultas,id",
+            'nama_prodi' => 'sometimes|string|max:255|unique:prodi,nama_prodi,'.($this->route('prodi')?->id ?? null),
+            'fakultas_id' => 'sometimes|exists:fakultas,id',
         ];
     }
 }

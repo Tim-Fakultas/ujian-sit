@@ -15,6 +15,7 @@ class PejabatController extends Controller
     public function index()
     {
         $pejabat = Pejabat::all();
+
         return PejabatResource::collection($pejabat);
     }
 
@@ -25,6 +26,7 @@ class PejabatController extends Controller
     {
         $request->validated();
         $pejabat = Pejabat::create($request->all());
+
         return new PejabatResource($pejabat);
     }
 
@@ -34,6 +36,7 @@ class PejabatController extends Controller
     public function show($id)
     {
         $pejabat = Pejabat::findOrFail($id);
+
         return new PejabatResource($pejabat);
     }
 
@@ -44,6 +47,7 @@ class PejabatController extends Controller
     {
         $request->validated();
         $pejabat->update($request->all());
+
         return new PejabatResource($pejabat);
     }
 
@@ -53,6 +57,7 @@ class PejabatController extends Controller
     public function destroy(Pejabat $pejabat)
     {
         $pejabat->delete();
+
         return response()->json(['message' => 'Pejabat berhasil dihapus.'], 200);
     }
 }

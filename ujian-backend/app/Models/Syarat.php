@@ -10,7 +10,8 @@ class Syarat extends Model
     /** @use HasFactory<\Database\Factories\SyaratFactory> */
     use HasFactory;
 
-    protected $table = "syarat";
+    protected $table = 'syarat';
+
     protected $fillable = [
         'jenis_ujian_id',
         'nama_syarat',

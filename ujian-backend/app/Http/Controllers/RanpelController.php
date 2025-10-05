@@ -15,6 +15,7 @@ class RanpelController extends Controller
     public function index()
     {
         $ranpel = Ranpel::with(['skripsi', 'judul'])->get();
+
         return RanpelResource::collection($ranpel);
     }
 
@@ -25,6 +26,7 @@ class RanpelController extends Controller
     {
         $request->validated();
         $ranpel = Ranpel::create($request->all());
+
         return new RanpelResource($ranpel);
     }
 
@@ -33,7 +35,8 @@ class RanpelController extends Controller
      */
     public function show($id)
     {
-        $ranpel = Ranpel::with([ 'skripsi', 'judul'])->findOrFail($id);
+        $ranpel = Ranpel::with(['skripsi', 'judul'])->findOrFail($id);
+
         return new RanpelResource($ranpel);
     }
 
@@ -54,6 +57,7 @@ class RanpelController extends Controller
     public function destroy(Ranpel $ranpel)
     {
         $ranpel->delete();
+
         return response()->json(['message' => 'Ranpel berhasil dihapus.'], 200);
     }
 }

@@ -15,6 +15,7 @@ class UjianController extends Controller
     public function index()
     {
         $ujian = Ujian::with(['pendaftaran_ujian', 'jenis_ujian', 'mahasiswa', 'penilaian'])->get();
+
         return UjianResource::collection($ujian);
     }
 
@@ -25,6 +26,7 @@ class UjianController extends Controller
     {
         $request->validated();
         $ujian = Ujian::create($request->all());
+
         return new UjianResource($ujian);
     }
 
@@ -34,6 +36,7 @@ class UjianController extends Controller
     public function show($id)
     {
         $ujian = Ujian::with(['pendaftaran_ujian', 'jenis_ujian', 'mahasiswa', 'penilaian'])->findOrFail($id);
+
         return new UjianResource($ujian);
     }
 
@@ -54,6 +57,7 @@ class UjianController extends Controller
     public function destroy(Ujian $ujian)
     {
         $ujian->delete();
+
         return response()->json(['message' => 'Ujian berhasil dihapus.'], 200);
     }
 }

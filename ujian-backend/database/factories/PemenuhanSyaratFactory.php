@@ -22,7 +22,7 @@ class PemenuhanSyaratFactory extends Factory
             'pendaftaran_ujian_id' => PendaftaranUjian::inRandomOrder()->first()->id,
             'syarat_id' => Syarat::inRandomOrder()->first()->id,
             'file_path' => $this->faker->filePath(),
-            'file_name' => $this->faker->word . '.pdf',
+            'file_name' => $this->faker->word.'.pdf',
             'file_size' => $this->faker->numberBetween(1000, 5000000),
             'mime_type' => 'application/pdf',
             'keterangan' => $this->faker->optional()->text,

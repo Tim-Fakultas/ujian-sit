@@ -10,7 +10,7 @@ class Prodi extends Model
     /** @use HasFactory<\Database\Factories\ProdiFactory> */
     use HasFactory;
 
-    protected $table = "prodi";
+    protected $table = 'prodi';
 
     protected $fillable = [
         'nama_prodi',
@@ -22,11 +22,13 @@ class Prodi extends Model
         return $this->belongsTo(Fakultas::class, 'fakultas_id');
     }
 
-    public function mahasiswa(){
+    public function mahasiswa()
+    {
         return $this->hasMany(Mahasiswa::class);
     }
 
-    public function dosen(){
+    public function dosen()
+    {
         return $this->hasMany(Dosen::class);
     }
 

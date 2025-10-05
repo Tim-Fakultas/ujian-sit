@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Judul;
-use App\Models\PengajuanJudul;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

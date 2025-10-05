@@ -10,7 +10,7 @@ class Dosen extends Model
     /** @use HasFactory<\Database\Factories\DosenFactory> */
     use HasFactory;
 
-    protected $table = "dosen";
+    protected $table = 'dosen';
 
     protected $fillable = [
         'nama',
@@ -24,20 +24,22 @@ class Dosen extends Model
     {
         return $this->belongsTo(Prodi::class, 'prodi_id');
     }
+
     public function bimbinganSebagaiPembimbing1()
     {
-    return $this->hasMany(Skripsi::class, 'pembimbing_1');
+        return $this->hasMany(Skripsi::class, 'pembimbing_1');
     }
 
     public function bimbinganSebagaiPembimbing2()
     {
-    return $this->hasMany(Skripsi::class, 'pembimbing_2');
+        return $this->hasMany(Skripsi::class, 'pembimbing_2');
     }
 
     public function pengajuan_judul()
     {
         return $this->hasMany(PengajuanJudul::class, 'pengajuan_id');
     }
+
     public function jadwal_penguji()
     {
         return $this->hasMany(JadwalPenguji::class, 'dosen_id');
@@ -48,7 +50,8 @@ class Dosen extends Model
         return $this->hasMany(Penilaian::class, 'dosen_id');
     }
 
-    public function bimbingan(){
+    public function bimbingan()
+    {
         return $this->hasMany(Bimbingan::class, 'dosen_id');
     }
 }

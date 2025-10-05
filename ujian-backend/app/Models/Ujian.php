@@ -10,7 +10,7 @@ class Ujian extends Model
     /** @use HasFactory<\Database\Factories\UjianFactory> */
     use HasFactory;
 
-    protected $table = "ujian";
+    protected $table = 'ujian';
 
     protected $fillable = [
         'pendaftaran_ujian_id',
@@ -28,14 +28,13 @@ class Ujian extends Model
         'catatan',
     ];
 
-
-
-       public function pendaftaran_ujian()
+    public function pendaftaran_ujian()
     {
         return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
     }
 
-    public function skripsi(){
+    public function skripsi()
+    {
         return $this->hasOneThrough(Skripsi::class, PendaftaranUjian::class, 'id', 'id', 'pendaftaran_ujian_id', 'skripsi_id');
     }
 

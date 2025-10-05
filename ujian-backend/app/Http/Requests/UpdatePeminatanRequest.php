@@ -30,7 +30,7 @@ class UpdatePeminatanRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('peminatan', 'nama_peminatan')->ignore($peminatanId)
+                Rule::unique('peminatan', 'nama_peminatan')->ignore($peminatanId),
             ],
             'prodi_id' => 'sometimes|required|exists:prodi,id',
         ];

@@ -15,6 +15,7 @@ class FakultasController extends Controller
     public function index()
     {
         $fakultas = Fakultas::all();
+
         return FakultasResource::collection($fakultas);
     }
 
@@ -25,6 +26,7 @@ class FakultasController extends Controller
     {
         $request->validated();
         $fakultas = Fakultas::create($request->all());
+
         return new FakultasResource($fakultas);
     }
 
@@ -34,6 +36,7 @@ class FakultasController extends Controller
     public function show($id)
     {
         $fakultas = Fakultas::findOrFail($id);
+
         return new FakultasResource($fakultas);
     }
 
@@ -45,6 +48,7 @@ class FakultasController extends Controller
         $verif = $request->validated();
         $fakultas->update($verif);
         $fakultas->refresh();
+
         return new FakultasResource($fakultas);
     }
 
@@ -54,6 +58,7 @@ class FakultasController extends Controller
     public function destroy(Fakultas $fakultas)
     {
         $fakultas->delete();
+
         return response()->json(['message' => 'Fakultas berhasil dihapus.'], 200);
     }
 }

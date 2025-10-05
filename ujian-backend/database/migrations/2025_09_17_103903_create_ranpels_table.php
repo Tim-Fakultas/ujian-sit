@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('ranpel', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("judul_id")->constrained("judul")->onDelete("cascade");
-            $table->text("identifikasi_masalah");
-            $table->text("rumusan_masalah");
-            $table->text("penelitian_sebelumnya");
-            $table->text("pokok_masalah");
-            $table->text("deskripsi_lengkap");
-            $table->enum("status", ["menunggu", "disetujui", "ditolak"])->default("menunggu");
+            $table->foreignId('judul_id')->constrained('judul')->onDelete('cascade');
+            $table->text('identifikasi_masalah');
+            $table->text('rumusan_masalah');
+            $table->text('penelitian_sebelumnya');
+            $table->text('pokok_masalah');
+            $table->text('deskripsi_lengkap');
+            $table->enum('status', ['menunggu', 'disetujui', 'ditolak'])->default('menunggu');
             $table->timestamps();
         });
     }

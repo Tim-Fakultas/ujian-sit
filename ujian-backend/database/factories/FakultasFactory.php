@@ -17,7 +17,7 @@ class FakultasFactory extends Factory
     public function definition(): array
     {
         return [
-            "nama_fakultas" => $this->faker->unique()->word(),
+            'nama_fakultas' => $this->faker->unique()->word(),
         ];
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use finfo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,7 +16,7 @@ class JadwalPenguji extends Model
         'peran',
     ];
 
-    protected $table = "jadwal_penguji";
+    protected $table = 'jadwal_penguji';
 
     public function ujian()
     {
@@ -28,5 +27,4 @@ class JadwalPenguji extends Model
     {
         return $this->belongsTo(Dosen::class, 'dosen_id');
     }
-
 }

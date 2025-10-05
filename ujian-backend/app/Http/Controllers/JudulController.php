@@ -15,6 +15,7 @@ class JudulController extends Controller
     public function index()
     {
         $judul = Judul::with(['ranpel'])->get();
+
         return JudulResource::collection($judul);
     }
 
@@ -25,6 +26,7 @@ class JudulController extends Controller
     {
         $request->validated();
         $judul = Judul::create($request->all());
+
         return new JudulResource($judul);
     }
 
@@ -34,6 +36,7 @@ class JudulController extends Controller
     public function show($id)
     {
         $judul = Judul::with(['ranpel'])->findOrFail($id);
+
         return new JudulResource($judul);
     }
 
@@ -54,6 +57,7 @@ class JudulController extends Controller
     public function destroy(Judul $judul)
     {
         $judul->delete();
+
         return response()->json(['message' => 'Judul berhasil dihapus.'], 200);
     }
 }

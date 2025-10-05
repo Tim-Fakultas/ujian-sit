@@ -15,7 +15,7 @@ class ProdiAccess
      */
     public function handle(Request $request, Closure $next): Response
     {
-         if ($request->user()->prodi_id !== $request->prodi_id) {
+        if ($request->user()->prodi_id !== $request->prodi_id) {
             abort(403);
         }
 

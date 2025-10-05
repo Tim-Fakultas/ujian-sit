@@ -10,7 +10,7 @@ class Fakultas extends Model
     /** @use HasFactory<\Database\Factories\FakultasFactory> */
     use HasFactory;
 
-    protected $table = "fakultas";
+    protected $table = 'fakultas';
 
     protected $fillable = [
         'nama_fakultas',
@@ -20,6 +20,4 @@ class Fakultas extends Model
     {
         return $this->hasMany(Prodi::class, 'fakultas_id');
     }
-
-
 }

@@ -3,19 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Hash;
 use Illuminate\Http\Request;
-
-
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-
     public function login(Request $request)
     {
         $request->validate([
-            'nip_nim'=> 'required|string',
+            'nip_nim' => 'required|string',
             'password' => 'required|string',
         ]);
 
@@ -24,8 +20,7 @@ class AuthController extends Controller
             'password' => $request->password,
         ];
 
-
-        if(Auth::attempt($credentials)){
+        if (Auth::attempt($credentials)) {
             $user = Auth::user();
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -68,6 +63,10 @@ class AuthController extends Controller
                     'ipk' => $mahasiswa->ipk,
                     'prodi' => $mahasiswa->prodi,
                     'peminatan' => $mahasiswa->peminatan,
+                    'dosen_pa' => $mahasiswa->dosenPembimbingAkademik ? [
+                        'id' => $mahasiswa->dosenPembimbingAkademik->id,
+                        'nama' => $mahasiswa->dosenPembimbingAkademik->nama,
+                    ] : null,
                 ];
             }
         }
@@ -78,7 +77,7 @@ class AuthController extends Controller
             $dosen = \App\Models\Dosen::where('nidn', $user->nip_nim)
                 ->with('prodi')
                 ->first();
-            
+
             if ($dosen) {
                 return [
                     'id' => $dosen->id,

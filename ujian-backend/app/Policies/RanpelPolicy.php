@@ -2,9 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\ranpel;
-use Illuminate\Auth\Access\Response;
+use App\Models\User;
 
 class RanpelPolicy
 {

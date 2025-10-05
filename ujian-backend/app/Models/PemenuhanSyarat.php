@@ -10,7 +10,8 @@ class PemenuhanSyarat extends Model
     /** @use HasFactory<\Database\Factories\PemenuhanSyaratFactory> */
     use HasFactory;
 
-    protected $table = "pemenuhan_syarat";
+    protected $table = 'pemenuhan_syarat';
+
     protected $fillable = [
         'pendaftaran_ujian_id',
         'syarat_id',

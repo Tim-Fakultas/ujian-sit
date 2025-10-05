@@ -22,9 +22,9 @@ class StorePejabatRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nama_pejabat"=> "required|string|max:255",
-            "jabatan"=> "required|string|max:255",
-            "no_hp"=> "nullable|string|max:30",
+            'nama_pejabat' => 'required|string|max:255',
+            'jabatan' => 'required|string|max:255',
+            'no_hp' => 'nullable|string|max:30',
         ];
     }
 }

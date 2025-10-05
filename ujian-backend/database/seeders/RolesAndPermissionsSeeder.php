@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -23,7 +22,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-courses',
             'submit-assignment',
             'grade-assignment',
-            'approve-course'
+            'approve-course',
         ];
 
         // Buat permission
@@ -49,4 +48,4 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Note: User role assignment is handled in DatabaseSeeder after user creation
     }
-    }
+}

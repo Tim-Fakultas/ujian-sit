@@ -10,12 +10,12 @@ class JenisUjian extends Model
     /** @use HasFactory<\Database\Factories\JenisUjianFactory> */
     use HasFactory;
 
-    protected $table = "jenis_ujian";
+    protected $table = 'jenis_ujian';
 
     protected $fillable = [
         'nama_jenis',
         'deskripsi',
-        'aktif'
+        'aktif',
     ];
 
     public function pendaftaran_ujian()
@@ -42,6 +42,4 @@ class JenisUjian extends Model
     {
         return $this->hasMany(Ujian::class, 'jenis_ujian_id');
     }
-
-
 }

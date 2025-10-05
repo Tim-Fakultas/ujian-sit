@@ -22,15 +22,15 @@ class StoreMahasiswaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nama" => "required|string|max:255",
-            "nim" => "required|string|max:20|unique:mahasiswa,nim",
-            "alamat" => "nullable|string",
-            "no_hp" => "nullable|string|max:30",
-            "prodi_id" => "required|exists:prodi,id",
-            "peminatan_id" => "nullable|exists:peminatan,id",
-            "semester" => "required|integer|min:1|max:14",
-            "ipk" => "nullable|numeric|min:0|max:4",
-            "dosen_pa" => "nullable|exists:dosen,id",
+            'nama' => 'required|string|max:255',
+            'nim' => 'required|string|max:20|unique:mahasiswa,nim',
+            'alamat' => 'nullable|string',
+            'no_hp' => 'nullable|string|max:30',
+            'prodi_id' => 'required|exists:prodi,id',
+            'peminatan_id' => 'nullable|exists:peminatan,id',
+            'semester' => 'required|integer|min:1|max:14',
+            'ipk' => 'nullable|numeric|min:0|max:4',
+            'dosen_pa' => 'nullable|exists:dosen,id',
         ];
     }
 }

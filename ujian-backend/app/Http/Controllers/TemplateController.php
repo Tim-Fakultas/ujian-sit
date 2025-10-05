@@ -15,6 +15,7 @@ class TemplateController extends Controller
     public function index()
     {
         $template = Template::with(['jenis_ujian'])->get();
+
         return TemplateResource::collection($template);
     }
 
@@ -25,6 +26,7 @@ class TemplateController extends Controller
     {
         $request->validated();
         $template = Template::create($request->all());
+
         return new TemplateResource($template);
     }
 
@@ -34,6 +36,7 @@ class TemplateController extends Controller
     public function show($id)
     {
         $template = Template::with(['jenis_ujian'])->findOrFail($id);
+
         return new TemplateResource($template);
     }
 
@@ -54,6 +57,7 @@ class TemplateController extends Controller
     public function destroy(Template $template)
     {
         $template->delete();
+
         return response()->json(['message' => 'Template berhasil dihapus.'], 200);
     }
 }

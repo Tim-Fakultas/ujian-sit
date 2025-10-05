@@ -10,13 +10,11 @@ class Pejabat extends Model
     /** @use HasFactory<\Database\Factories\PejabatFactory> */
     use HasFactory;
 
-    protected $table = "pejabat";
-    
+    protected $table = 'pejabat';
+
     protected $fillable = [
         'nama_pejabat',
         'jabatan',
         'no_hp',
     ];
-
-
 }

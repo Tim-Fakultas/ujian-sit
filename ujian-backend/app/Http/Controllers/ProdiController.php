@@ -15,6 +15,7 @@ class ProdiController extends Controller
     public function index()
     {
         $prodi = Prodi::with('fakultas')->get();
+
         return ProdiResource::collection($prodi);
     }
 
@@ -25,14 +26,17 @@ class ProdiController extends Controller
     {
         $request->validated();
         $prodi = Prodi::create($request->all());
+
         return new ProdiResource($prodi);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id){
+    public function show($id)
+    {
         $prodi = Prodi::findOrFail($id);
+
         return new ProdiResource($prodi);
     }
 
@@ -43,6 +47,7 @@ class ProdiController extends Controller
     {
         $request->validated();
         $prodi->update($request->all());
+
         return new ProdiResource($prodi);
     }
 
@@ -52,6 +57,7 @@ class ProdiController extends Controller
     public function destroy(Prodi $prodi)
     {
         $prodi->delete();
+
         return response()->json(['message' => 'Prodi berhasil dihapus.'], 200);
     }
 }

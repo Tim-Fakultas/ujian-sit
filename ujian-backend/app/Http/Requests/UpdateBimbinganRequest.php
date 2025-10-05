@@ -22,7 +22,7 @@ class UpdateBimbinganRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "skripsi_id"=>"prohibited",
+            'skripsi_id' => 'prohibited',
             'mahasiswa_id' => 'sometimes|exists:mahasiswa,id',
             'dosen_id' => 'sometimes|exists:dosen,id',
             'file_path' => 'nullable|string',

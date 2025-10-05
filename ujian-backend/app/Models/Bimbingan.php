@@ -10,7 +10,7 @@ class Bimbingan extends Model
     /** @use HasFactory<\Database\Factories\BimbinganFactory> */
     use HasFactory;
 
-    protected $table = "bimbingan";
+    protected $table = 'bimbingan';
 
     protected $fillable = [
         'skripsi_id',
@@ -21,16 +21,18 @@ class Bimbingan extends Model
         'status',
     ];
 
-
-    public function mahasiswa(){
+    public function mahasiswa()
+    {
         return $this->belongsTo(Mahasiswa::class);
     }
 
-    public function skripsi(){
+    public function skripsi()
+    {
         return $this->belongsTo(Skripsi::class);
     }
 
-    public function dosen(){
+    public function dosen()
+    {
         return $this->belongsTo(Dosen::class);
     }
 }

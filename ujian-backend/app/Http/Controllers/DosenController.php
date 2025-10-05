@@ -15,6 +15,7 @@ class DosenController extends Controller
     public function index()
     {
         $dosen = Dosen::with('prodi')->get();
+
         return DosenResource::collection($dosen);
     }
 
@@ -25,6 +26,7 @@ class DosenController extends Controller
     {
         $request->validated();
         $dosen = Dosen::create($request->all());
+
         return new DosenResource($dosen);
     }
 
@@ -34,6 +36,7 @@ class DosenController extends Controller
     public function show($id)
     {
         $dosen = Dosen::findOrFail($id);
+
         return new DosenResource($dosen);
     }
 
@@ -54,6 +57,7 @@ class DosenController extends Controller
     public function destroy(Dosen $dosen)
     {
         $dosen->delete();
+
         return response()->json(['message' => 'Dosen berhasil dihapus.'], 200);
     }
 }

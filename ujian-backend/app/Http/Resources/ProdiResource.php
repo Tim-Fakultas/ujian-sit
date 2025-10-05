@@ -15,14 +15,14 @@ class ProdiResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "id"=> $this->id,
-            "namaProdi"=> $this->nama_prodi,
+            'id' => $this->id,
+            'namaProdi' => $this->nama_prodi,
             'fakultas' => $this->fakultas ? [
                 'id' => $this->fakultas->id,
                 'nama' => $this->fakultas->nama_fakultas,
             ] : null,
-            "createdAt"=> $this->created_at,
-            "updatedAt"=> $this->updated_at,
-            ];
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
+        ];
     }
 }

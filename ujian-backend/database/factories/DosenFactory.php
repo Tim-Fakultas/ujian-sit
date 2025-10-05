@@ -18,8 +18,8 @@ class DosenFactory extends Factory
     public function definition(): array
     {
         return [
-            "nama"=> $this->faker->name,
-            "nidn" => $this->faker->unique()->numerify('1000####'),
+            'nama' => $this->faker->name,
+            'nidn' => $this->faker->unique()->numerify('1000####'),
             'no_hp' => $this->faker->phoneNumber,
             'alamat' => $this->faker->address,
             'prodi_id' => Prodi::inRandomOrder()->first()->id,

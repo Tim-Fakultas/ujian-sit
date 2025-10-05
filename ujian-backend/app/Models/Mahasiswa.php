@@ -4,16 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Prodi;
-use App\Models\PengajuanJudul;
 
 class Mahasiswa extends Model
 {
     /** @use HasFactory<\Database\Factories\MahasiswaFactory> */
     use HasFactory;
 
-    protected $table = "mahasiswa";
-    protected $primaryKey = "id";
+    protected $table = 'mahasiswa';
+
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'nim',
         'nama',
@@ -30,7 +30,8 @@ class Mahasiswa extends Model
         'ipk' => 'float',
     ];
 
-    public function pengajuan_judul(){
+    public function pengajuan_judul()
+    {
         return $this->hasMany(PengajuanJudul::class, 'mahasiswa_id', 'id');
     }
 
@@ -59,14 +60,18 @@ class Mahasiswa extends Model
         return $this->hasMany(PendaftaranUjian::class, 'mahasiswa_id');
     }
 
-    public function skripsi(){
+    public function skripsi()
+    {
         return $this->hasMany(Skripsi::class, 'mahasiswa_id');
     }
 
-    public function bimbingan(){
+    public function bimbingan()
+    {
         return $this->hasMany(Bimbingan::class, 'mahasiswa_id');
     }
-    public function user(){
+
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
 }

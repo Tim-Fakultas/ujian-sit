@@ -15,6 +15,7 @@ class PendaftaranUjianController extends Controller
     public function index()
     {
         $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenis_ujian', 'skripsi'])->get();
+
         return PendaftaranUjianResource::collection($pendaftaranUjian);
     }
 
@@ -25,6 +26,7 @@ class PendaftaranUjianController extends Controller
     {
         $request->validated();
         $pendaftaranUjian = PendaftaranUjian::create($request->all());
+
         return new PendaftaranUjianResource($pendaftaranUjian);
     }
 
@@ -34,6 +36,7 @@ class PendaftaranUjianController extends Controller
     public function show($id)
     {
         $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenis_ujian', 'skripsi'])->findOrFail($id);
+
         return new PendaftaranUjianResource($pendaftaranUjian);
     }
 
@@ -54,6 +57,7 @@ class PendaftaranUjianController extends Controller
     public function destroy(PendaftaranUjian $pendaftaranUjian)
     {
         $pendaftaranUjian->delete();
+
         return response()->json(['message' => 'Pendaftaran ujian berhasil dihapus.'], 200);
     }
 }

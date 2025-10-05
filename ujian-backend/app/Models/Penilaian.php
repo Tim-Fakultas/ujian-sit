@@ -9,7 +9,9 @@ class Penilaian extends Model
 {
     /** @use HasFactory<\Database\Factories\PenilaianFactory> */
     use HasFactory;
-    protected $table = "penilaian";
+
+    protected $table = 'penilaian';
+
     protected $fillable = [
         'ujian_id',
         'dosen_id',

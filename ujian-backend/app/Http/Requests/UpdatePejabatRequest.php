@@ -22,9 +22,9 @@ class UpdatePejabatRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nama_pejabat"=> "sometimes|required|string|max:255",
-            "jabatan"=> "sometimes|required|string|max:255",
-            "no_hp"=> "sometimes|nullable|string|max:30",
+            'nama_pejabat' => 'sometimes|required|string|max:255',
+            'jabatan' => 'sometimes|required|string|max:255',
+            'no_hp' => 'sometimes|nullable|string|max:30',
         ];
     }
 }
