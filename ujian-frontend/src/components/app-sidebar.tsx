@@ -39,10 +39,7 @@ const navMahasiswa: NavItem[] = [
         title: "Pengajuan Judul",
         url: "/mahasiswa/pengajuan",
       },
-      {
-        title: "Bimbingan",
-        url: "/mahasiswa/bimbingan",
-      },
+  
       {
         title: "Daftar Ujian",
         url: "/mahasiswa/ujian",
@@ -89,7 +86,7 @@ const navDosen: NavItem[] = [
       { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
       { title: "Pengajuan Judul", url: "/dosen/pengajuan-judul" },
       { title: "Mahasiswa", url: "/dosen/mahasiswa" },
-      { title: "Bimbingan", url: "/dosen/bimbingan" },
+      // { title: "Bimbingan", url: "/dosen/bimbingan" },
       { title: "Ujian", url: "/dosen/ujian" },
       { title: "Penilaian", url: "/dosen/penilaian" },
     ],
@@ -116,13 +113,14 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="py-6">
-              <div className="flex">
+              <div className="flex items-center gap-2">
                 <Image
                   src="/images/uin-raden-fatah.png"
                   alt="Logo UIN"
                   width={40}
                   height={40}
-                  className="mb-1 self-center"
+                  className="flex-shrink-0"
+                  unoptimized={true}
                 />
                 <h1 className="text-sm font-medium leading-tight text-neutral-500">
                   Integration System
