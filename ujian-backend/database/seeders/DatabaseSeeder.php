@@ -8,6 +8,7 @@ use App\Models\Fakultas;
 use App\Models\Judul;
 use App\Models\Mahasiswa;
 use App\Models\Pejabat;
+use App\Models\Peminatan;
 use App\Models\PengajuanJudul;
 use App\Models\Prodi;
 use App\Models\Ranpel;
@@ -55,8 +56,8 @@ class DatabaseSeeder extends Seeder
         $adminUser = User::factory()->create([
                 'id' => 1,
                 'nip_nim' => '2120803026',
-                'nama' => 'Muhammad Aldo Saputra',
-                'email' => 'aldo@example.com',
+                'nama' => 'Muhammad Adib Saputra',
+                'email' => 'Abdi@example.com',
                 'password' => bcrypt('2120803026'),
                 'prodi_id'=> null,
                 'email_verified_at' => now(),
@@ -194,6 +195,70 @@ class DatabaseSeeder extends Seeder
         $sekprodi->assignRole('sekprodi');
         $kaprodi->assignRole('kaprodi');
 
+
+        $peminatan = Peminatan::factory()->createMany([
+            // Peminatan untuk Sistem Informasi
+            [
+                'nama_peminatan' => 'Pengembangan Sistem Informasi',
+                'prodi_id' => $prodi1->id
+            ],[
+                'nama_peminatan' => 'Sistem Analis',
+                'prodi_id' => $prodi1->id
+            ],[
+                'nama_peminatan' => 'Data Analis',
+                'prodi_id' => $prodi1->id
+            ],
+            // Peminatan untuk Biologi
+            [
+                'nama_peminatan' => 'Mikrobiologi',
+                'prodi_id' => $prodi2->id
+            ],
+            // Peminatan untuk Kimia
+            [
+                'nama_peminatan' => 'Kimia Analitik',
+                'prodi_id' => $prodi3->id
+            ]
+        ]);
+
+        // Create Mahasiswa records for the test users
+        Mahasiswa::create([
+            'nim' => '23041450085',
+            'nama' => 'Muhammad Luqman Al-Fauzan',
+            'no_hp' => '081234567890',
+            'alamat' => 'Palembang',
+            'semester' => 7,
+            'ipk' => 3.75,
+            'prodi_id' => $prodi1->id,
+            'peminatan_id' => $peminatan[0]->id, // Pengembangan Sistem Informasi
+            'user_id' => $mahasiswaSI->id,
+            'dosen_pa' => 1,
+        ]);
+
+        Mahasiswa::create([
+            'nim' => '23041450086',
+            'nama' => 'Farah Hasywaza Audremayna',
+            'no_hp' => '081234567891',
+            'alamat' => 'Palembang',
+            'semester' => 7,
+            'ipk' => 3.65,
+            'prodi_id' => $prodi2->id,
+            'peminatan_id' => $peminatan[3]->id, // Mikrobiologi
+            'user_id' => $mahasiswaBiologi->id,
+            'dosen_pa' => 7,
+        ]);
+
+        Mahasiswa::create([
+            'nim' => '23041450087',
+            'nama' => 'Rizki Faruli',
+            'no_hp' => '081234567892',
+            'alamat' => 'Palembang',
+            'semester' => 7,
+            'ipk' => 3.50,
+            'prodi_id' => $prodi3->id,
+            'peminatan_id' => $peminatan[4]->id, // Kimia Analitik
+            'user_id' => $mahasiswaKimia->id,
+            'dosen_pa' => 13,
+        ]);
 
 
 

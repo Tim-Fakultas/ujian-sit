@@ -10,6 +10,7 @@ use App\Http\Controllers\KomponenPenilaianController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\PejabatController;
 use App\Http\Controllers\PemenuhanSyaratController;
+use App\Http\Controllers\PeminatanController;
 use App\Http\Controllers\PendaftaranUjianController;
 use App\Http\Controllers\PengajuanJudulController;
 use App\Http\Controllers\PenilaianController;
@@ -43,6 +44,8 @@ Route::apiResource('pejabat', PejabatController::class);
 Route::apiResource('pengajuan-judul', PengajuanJudulController::class);
 
 Route::apiResource('prodi', ProdiController::class);
+
+Route::apiResource('peminatan', PeminatanController::class);
 
 Route::apiResource('skripsi', SkripsiController::class);
 

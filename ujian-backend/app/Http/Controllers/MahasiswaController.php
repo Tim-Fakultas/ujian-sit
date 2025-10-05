@@ -14,7 +14,7 @@ class MahasiswaController extends Controller
      */
     public function index()
     {
-        $mahasiswa = Mahasiswa::with(['prodi', 'dosenPembimbingAkademik'])->get();
+        $mahasiswa = Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik'])->get();
         return MahasiswaResource::collection($mahasiswa);
     }
 
@@ -33,7 +33,7 @@ class MahasiswaController extends Controller
      */
     public function show($id)
     {
-        $mahasiswa = Mahasiswa::with(['prodi', 'dosenPembimbingAkademik'])->findOrFail($id);
+        $mahasiswa = Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik'])->findOrFail($id);
         return new MahasiswaResource($mahasiswa);
     }
 
@@ -51,7 +51,7 @@ class MahasiswaController extends Controller
         }
 
         $mahasiswa->update($validated);
-        $mahasiswa->load(['prodi', 'dosenPembimbingAkademik']);
+        $mahasiswa->load(['prodi', 'peminatan', 'dosenPembimbingAkademik']);
 
         return new MahasiswaResource($mahasiswa);
     }

@@ -21,10 +21,15 @@ class MahasiswaResource extends JsonResource
             "noHp"=> $this->no_hp,
             "alamat"=> $this->alamat,
             'semester' => $this->semester,
+            'ipk' => $this->ipk ? (float) $this->ipk : 0.00,
             'dosenPaId' => $this->dosen_pa,
             'prodi' => $this->prodi ? [
                 'id' => $this->prodi->id,
                 'nama' => $this->prodi->nama_prodi,
+            ] : null,
+            'peminatan' => $this->peminatan ? [
+                'id' => $this->peminatan->id,
+                'nama' => $this->peminatan->nama_peminatan,
             ] : null,
             'dosenPa' => $this->dosenPembimbingAkademik ? [
                 'id' => $this->dosenPembimbingAkademik->id,

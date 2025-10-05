@@ -20,8 +20,14 @@ class Mahasiswa extends Model
         'no_hp',
         'alamat',
         'prodi_id',
+        'peminatan_id',
         'semester',
+        'ipk',
         'dosen_pa',
+    ];
+
+    protected $casts = [
+        'ipk' => 'float',
     ];
 
     public function pengajuan_judul(){
@@ -31,6 +37,11 @@ class Mahasiswa extends Model
     public function prodi()
     {
         return $this->belongsTo(Prodi::class);
+    }
+
+    public function peminatan()
+    {
+        return $this->belongsTo(Peminatan::class, 'peminatan_id');
     }
 
     public function dosenPembimbingAkademik()

@@ -42,9 +42,28 @@ class MahasiswaFactory extends Factory
             'no_hp' => $this->faker->phoneNumber,
             'alamat' => $this->faker->address,
             'prodi_id' => Prodi::inRandomOrder()->first()->id,
+            'peminatan_id' => null, // Will be set in configure method
             'semester' => $this->faker->numberBetween(1, 14),
+            'ipk' => $this->faker->randomFloat(2, 2.00, 4.00), // IPK antara 2.00 - 4.00
             'dosen_pa' => Dosen::inRandomOrder()->first()->id,
             'user_id' => $user->id,
         ];
+    }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (\App\Models\Mahasiswa $mahasiswa) {
+            // Set peminatan based on prodi
+            $peminatan = \App\Models\Peminatan::where('prodi_id', $mahasiswa->prodi_id)
+                ->inRandomOrder()
+                ->first();
+
+            if ($peminatan) {
+                $mahasiswa->update(['peminatan_id' => $peminatan->id]);
+            }
+        });
     }
 }
