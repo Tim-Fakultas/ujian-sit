@@ -33,7 +33,7 @@ class UjianController extends Controller
      */
     public function show($id)
     {
-        $ujian = Ujian::with(['pendaftaran', 'jenisUjian', 'mahasiswa', 'penilaian'])->findOrFail($id);
+        $ujian = Ujian::with(['pendaftaran_ujian', 'jenis_ujian', 'mahasiswa', 'penilaian'])->findOrFail($id);
         return new UjianResource($ujian);
     }
 

@@ -23,8 +23,8 @@ class UpdateJadwalPengujiRequest extends FormRequest
     {
         return [
             'ujian_id' => 'prohibited',
-            'dosen_id' => 'required|exists:dosen,id',
-            'peran' => 'required|in:ketua_penguji,sekretaris_penguji,penguji_1,penguji_2',
+            'dosen_id' => 'sometimes|exists:dosen,id',
+            'peran' => 'sometimes|in:ketua_penguji,sekretaris_penguji,penguji_1,penguji_2',
         ];
     }
 }

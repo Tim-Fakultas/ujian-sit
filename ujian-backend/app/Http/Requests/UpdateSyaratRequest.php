@@ -24,9 +24,9 @@ class UpdateSyaratRequest extends FormRequest
         return [
             'jenis_ujian_id' => 'prohibited',
             'nama_syarat' => 'required|string|max:255',
-            'kategori' => 'required|in:akademik,administratif,bimbingan',
+            'kategori' => 'sometimes|in:akademik,administratif,bimbingan',
             'deskripsi' => 'nullable|string',
-            'wajib' => 'required|boolean',
+            'wajib' => 'sometimes|boolean',
         ];
     }
 }

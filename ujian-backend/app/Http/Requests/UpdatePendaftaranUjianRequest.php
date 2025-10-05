@@ -25,7 +25,7 @@ class UpdatePendaftaranUjianRequest extends FormRequest
             'mahasiswa_id' => 'prohibited',
             'jenis_ujian_id' => 'prohibited',
             'skripsi_id' => 'prohibited',
-            'status' => 'required|in:menunggu,terverifikasi,dijadwalkan,selesai',
+            'status' => 'sometimes|in:menunggu,terverifikasi,dijadwalkan,selesai',
             'created_by' => 'prohibited',
             'verified_by' => 'nullable|exists:users,id',
             'verified_at' => 'nullable|date',

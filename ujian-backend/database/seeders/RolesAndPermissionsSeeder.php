@@ -33,10 +33,12 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Definisi role dan permission
         $roles = [
-            'admin' => ['view-dashboard', 'manage-users', 'manage-courses'],
+            'super admin' => ['view-dashboard', 'manage-users', 'manage-courses'],
+            'admin prodi' => ['view-dashboard', 'manage-users', 'manage-courses'],
             'mahasiswa' => ['submit-assignment'],
             'dosen' => ['grade-assignment'],
-            'kaprodi' => ['approve-course']
+            'kaprodi' => ['approve-course'],
+            'sekprodi' => ['approve-course'],
         ];
 
         // Buat role dan assign permission

@@ -39,25 +39,69 @@ class DatabaseSeeder extends Seeder
                 'remember_token' => Str::random(10),
         ]);
 
-        $dosen = User::factory()->create([
+        $dosenSI = User::factory()->create([
                 'id' => 2,
                 'nip_nim' => 'Freddy1987654321',
                 'nama' => 'Freddy Kurnia Wijaya',
                 'email' => 'freddykurnia@gmail.com',
                 'password' => bcrypt('Freddy1987654321'),
+                'prodi_id'=> 1,
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
         ]);
 
-        $mahasiswa = User::factory()->create([
+        $dosenBiologi = User::factory()->create([
+                'id' => 3,
+                'nip_nim' => 'Dimas12345',
+                'nama' => 'Dimas Prasetyo',
+                'email' => 'dimas@gmail.com',
+                'password' => bcrypt('Dimas12345'),
+                'prodi'=> 'Biologi',
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+        ]);
+        $dosenKimia = User::factory()->create([
+                'id' => 4,
+                'nip_nim' => '13849123',
+                'nama' => 'Dimas Prasetyo',
+                'email' => 'dimas@gmail.com',
+                'password' => bcrypt('Dimas123'),
+                'prodi'=> 'Biologi',
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+        ]);
+
+        $mahasiswaSI = User::factory()->create([
                 'id' => 3,
                 'nip_nim' => '23041450085',
                 'nama' => 'Muhammad Luqman Al-Fauzan',
                 'email' => '23041450085@radenfatah.ac.id',
                 'password' => bcrypt('23041450085'),
+                'prodi'=> 'Sistem Informasi',
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
         ]);
+        $mahasiswaBiologi = User::factory()->create([
+                'id' => 3,
+                'nip_nim' => '23041450085',
+                'nama' => 'Muhammad Luqman Al-Fauzan',
+                'email' => '23041450085@radenfatah.ac.id',
+                'password' => bcrypt('23041450085'),
+                'prodi'=> 'Sistem Informasi',
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+        ]);
+        $mahasiswaKimia = User::factory()->create([
+                'id' => 3,
+                'nip_nim' => '23041450085',
+                'nama' => 'Muhammad Luqman Al-Fauzan',
+                'email' => '23041450085@radenfatah.ac.id',
+                'password' => bcrypt('23041450085'),
+                'prodi'=> 'Sistem Informasi',
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+        ]);
+
         $kaprodi = User::factory()->create([
                 'id' => 4,
                 'nip_nim' => 'Gusmelia12345',
@@ -67,11 +111,40 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
         ]);
+        $adminProdiBiologi = User::factory()->create([
+                'id' => 5,
+                'nip_nim' => 'AdminBio12345',
+                'nama' => 'Admin Prodi Biologi',
+                'email' => '',
+                'password' => bcrypt('AdminBio12345'),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+        ]);
+
+        $adminProdiKimia = User::factory()->create([
+                'id' => 6,
+                'nip_nim' => 'AdminKimia123',
+                'nama' => 'Admin Prodi Kimia',
+                'email' => '',
+                'password' => bcrypt('AdminKimia123'),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+        ]);
+
+        $adminProdiSI = User::factory()->create([
+                'id' => 7,
+                'nip_nim' => 'AdminSI',
+                'nama' => 'Admin Prodi Sistem Informasi',
+                'email' => '',
+                'password' => bcrypt('AdminSI'),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
+        ]);
 
         // Assign admin role to the created user
-        $adminUser->assignRole('admin');
-        $dosen->assignRole('dosen');
-        $mahasiswa->assignRole('mahasiswa');
+        $adminUser->assignRole('super admin');
+        $dosenSI->assignRole('dosen');
+        $mahasiswaSI->assignRole('mahasiswa');
         $kaprodi->assignRole('kaprodi');
 
         // Step 1: Create 1 Fakultas

@@ -33,7 +33,7 @@ class TemplateController extends Controller
      */
     public function show($id)
     {
-        $template = Template::with(['jenisUjian'])->findOrFail($id);
+        $template = Template::with(['jenis_ujian'])->findOrFail($id);
         return new TemplateResource($template);
     }
 

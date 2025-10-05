@@ -23,7 +23,7 @@ class UpdateProdiRequest extends FormRequest
     {
         return [
             "nama_prodi"=> "sometimes|string|max:255|unique:prodi,nama_prodi," . ($this->route('prodi')?->id ?? null),
-            "fakultas_id"=> "required|exists:fakultas,id",
+            "fakultas_id"=> "sometimes|exists:fakultas,id",
         ];
     }
 }

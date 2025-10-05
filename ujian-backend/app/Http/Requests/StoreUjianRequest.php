@@ -30,7 +30,7 @@ class StoreUjianRequest extends FormRequest
             'waktu_selesai' => 'required|date_format:H:i|after:waktu_mulai',
             'ruangan' => 'required|string|max:255',
             'status' => 'required|in:dijadwalkan,berlangsung,selesai,dibatalkan',
-            'hasil' => 'nullable|in:lulus,tidak_lulus,mengulang',
+            'hasil' => 'nullable|in:lulus,tidak lulus',
             'nilai' => 'nullable|numeric|min:0|max:100',
             'catatan' => 'nullable|string',
             'created_by' => 'required|exists:users,id',

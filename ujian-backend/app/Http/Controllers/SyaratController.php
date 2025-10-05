@@ -33,7 +33,7 @@ class SyaratController extends Controller
      */
     public function show($id)
     {
-        $syarat = Syarat::with(['jenisUjian', 'pemenuhanSyarat'])->findOrFail($id);
+        $syarat = Syarat::with(['jenis_ujian', 'pemenuhan_syarat'])->findOrFail($id);
         return new SyaratResource($syarat);
     }
 

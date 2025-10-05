@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nip_nim', 20)->unique();
             $table->string('nama', 35);
             $table->string('email', 35)->unique();
+            $table->foreignId('prodi_id')->nullable()->constrained('prodi')->onDelete('set null');
             $table->timestamp('email_verified_at')->nullable();
             $table->longText('password');
             $table->rememberToken();

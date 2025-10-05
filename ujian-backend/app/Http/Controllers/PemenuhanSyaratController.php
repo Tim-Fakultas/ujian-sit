@@ -33,7 +33,7 @@ class PemenuhanSyaratController extends Controller
      */
     public function show($id)
     {
-        $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaranUjian', 'syarat'])->findOrFail($id);
+        $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaran_ujian', 'syarat'])->findOrFail($id);
         return new PemenuhanSyaratResource($pemenuhanSyarat);
     }
 

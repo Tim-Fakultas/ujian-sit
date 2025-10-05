@@ -22,7 +22,7 @@ class StoreTemplateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'jenis_ujian_id' => 'required|exists:jenis_ujian,id',
+            'jenis_ujian_id' => 'nullable|exists:jenis_ujian,id',
             'nama_template' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'file_path' => 'nullable|string',

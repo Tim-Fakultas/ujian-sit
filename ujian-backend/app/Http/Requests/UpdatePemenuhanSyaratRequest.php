@@ -29,7 +29,7 @@ class UpdatePemenuhanSyaratRequest extends FormRequest
             'file_size' => 'nullable|integer|min:0',
             'mime_type' => 'nullable|string|max:100',
             'keterangan' => 'nullable|string',
-            'status' => 'required|in:menunggu,valid,invalid',
+            'status' => 'sometimes|in:menunggu,valid,invalid',
             'verified_by' => 'nullable|exists:users,id',
             'verified_at' => 'nullable|date',
         ];

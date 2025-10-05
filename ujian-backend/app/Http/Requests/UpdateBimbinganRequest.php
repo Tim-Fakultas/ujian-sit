@@ -23,8 +23,8 @@ class UpdateBimbinganRequest extends FormRequest
     {
         return [
             "skripsi_id"=>"prohibited",
-            'mahasiswa_id' => 'required|exists:mahasiswa,id',
-            'dosen_id' => 'required|exists:dosen,id',
+            'mahasiswa_id' => 'sometimes|exists:mahasiswa,id',
+            'dosen_id' => 'sometimes|exists:dosen,id',
             'file_path' => 'nullable|string',
             'status' => 'nullable|string',
             'keterangan' => 'nullable|string',
