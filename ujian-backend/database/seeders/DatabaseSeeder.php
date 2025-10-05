@@ -260,12 +260,35 @@ class DatabaseSeeder extends Seeder
             'dosen_pa' => 13,
         ]);
 
+        // Create Dosen records for the test users
+        Dosen::create([
+            'nidn' => 'Freddy1987654321',
+            'nama' => 'Freddy Kurnia Wijaya',
+            'no_hp' => '081234567893',
+            'alamat' => 'Palembang',
+            'prodi_id' => $prodi1->id,
+        ]);
 
+        Dosen::create([
+            'nidn' => 'Dimas12345',
+            'nama' => 'Dimas Prasetyo',
+            'no_hp' => '081234567894',
+            'alamat' => 'Palembang',
+            'prodi_id' => $prodi2->id,
+        ]);
+
+        Dosen::create([
+            'nidn' => 'Farhan12345',
+            'nama' => 'Farahan Pratama',
+            'no_hp' => '081234567895',
+            'alamat' => 'Palembang',
+            'prodi_id' => $prodi3->id,
+        ]);
 
         // Step 3: Create 6 Dosen for each prodi (18 total)
-        Dosen::factory(6)->create(['prodi_id' => $prodi1->id]);
-        Dosen::factory(6)->create(['prodi_id' => $prodi2->id]);
-        Dosen::factory(6)->create(['prodi_id' => $prodi3->id]);
+        Dosen::factory(5)->create(['prodi_id' => $prodi1->id]);
+        Dosen::factory(5)->create(['prodi_id' => $prodi2->id]);
+        Dosen::factory(5)->create(['prodi_id' => $prodi3->id]);
 
         // Step 4: Create 30 Mahasiswa for each prodi (90 total)
         Mahasiswa::factory(30)->create(['prodi_id' => $prodi1->id]);
