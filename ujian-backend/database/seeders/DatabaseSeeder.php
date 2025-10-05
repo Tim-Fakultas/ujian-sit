@@ -240,7 +240,7 @@ class DatabaseSeeder extends Seeder
             'no_hp' => '081234567891',
             'alamat' => 'Palembang',
             'semester' => 7,
-            'ipk' => 3.65,
+            'ipk' => 3.88,
             'prodi_id' => $prodi2->id,
             'peminatan_id' => $peminatan[3]->id, // Mikrobiologi
             'user_id' => $mahasiswaBiologi->id,
