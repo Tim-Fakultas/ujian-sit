@@ -1,8 +1,8 @@
 export default function DashboardLayout() {
-    return (
-        <div>
-            <h1>Dosen Dashboard</h1>
-            <p>Welcome to the dosen dashboard layout.</p>
-        </div>
-    );
+  return (
+    <div className="p-4">
+      <h1>Dosen Dashboard</h1>
+      <p>Welcome to the Dosen Dashboard</p>
+    </div>
+  );
 }

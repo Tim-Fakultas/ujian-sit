@@ -32,6 +32,62 @@ export function AppSidebarClient({ user }: { user: any }) {
     if (user) setUser(user);
   }, [user, setUser]);
 
+  // Super Admin
+  const navSuperAdmin: NavItem[] = [
+    { title: "Home", url: "/superadmin/dashboard", icon: IconHome },
+    {
+      title: "Data Master",
+      icon: IconBuilding,
+      items: [
+        { title: "Dosen", url: "/super-admin/dosen" },
+        { title: "Mahasiswa", url: "/super-admin/mahasiswa" },
+        { title: "Peminatan", url: "/super-admin/peminatan" },
+        { title: "Jenis Ujian", url: "/super-admin/jenis-ujian" },
+        { title: "Komponen Penilaian", url: "/super-admin/komponen-penilaian" },
+      ],
+    },
+  ];
+  // Admin
+  const navAdmin: NavItem[] = [
+    { title: "Home", url: "/admin/dashboard", icon: IconHome },
+    { title: "Jadwal Ujian", url: "/admin/jadwal-ujian", icon: IconBook },
+    {
+      title: "Data Master",
+      icon: IconBuilding,
+      items: [
+        { title: "Dosen", url: "/admin/dosen" },
+        { title: "Mahasiswa", url: "/admin/mahasiswa" },
+      ],
+    },
+  ];
+  // Kaprodi
+  const navKaprodi: NavItem[] = [
+    { title: "Home", url: "/kaprodi/dashboard", icon: IconHome },
+    {
+      title: "Skripsi",
+      icon: IconBook,
+      items: [
+        { title: "Rancangan Penelitian", url: "/kaprodi/pengajuan-ranpel" },
+      ],
+    },
+  ];
+
+  // Dosen
+  const navDosen: NavItem[] = [
+    { title: "Home", url: "/dosen/dashboard", icon: IconHome },
+    {
+      title: "Skripsi",
+      icon: IconBook,
+      items: [
+        { title: "Pengajuan Judul", url: "/dosen/pengajuan-judul" },
+        { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
+        { title: "Ujian", url: "/dosen/ujian" },
+        { title: "Penilaian", url: "/dosen/penilaian" },
+      ],
+    },
+  ];
+
+  // Mahasiswa
   const navMahasiswa: NavItem[] = [
     { title: "Home", url: "/mahasiswa/dashboard", icon: IconHome },
     {
@@ -46,52 +102,12 @@ export function AppSidebarClient({ user }: { user: any }) {
     },
   ];
 
-  const navSuperAdmin: NavItem[] = [
-    { title: "Home", url: "/admin/dashboard", icon: IconHome },
-    { title: "Jadwal Ujian", url: "/admin/jadwal-ujian", icon: IconBook },
-    {
-      title: "Data Master",
-      icon: IconBuilding,
-      items: [
-        { title: "Dosen", url: "/admin/dosen" },
-        { title: "Mahasiswa", url: "/admin/mahasiswa" },
-        { title: "Jenis Ujian", url: "/admin/jenis-ujian" },
-        { title: "Komponen Penilaian", url: "/admin/komponen-penilaian" },
-      ],
-    },
-  ];
-
-  const navDosen: NavItem[] = [
-    { title: "Home", url: "/dosen/dashboard", icon: IconHome },
-    {
-      title: "Skripsi",
-      icon: IconBook,
-      items: [
-        { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
-        { title: "Pengajuan Judul", url: "/dosen/pengajuan-judul" },
-        { title: "Mahasiswa", url: "/dosen/mahasiswa" },
-        { title: "Bimbingan", url: "/dosen/bimbingan" },
-        { title: "Ujian", url: "/dosen/ujian" },
-        { title: "Penilaian", url: "/dosen/penilaian" },
-      ],
-    },
-  ];
-  const navKaprodi: NavItem[] = [
-    { title: "Home", url: "/kaprodi/dashboard", icon: IconHome },
-    {
-      title: "Skripsi",
-      icon: IconBook,
-      items: [
-        { title: "Rancangan Penelitian", url: "/kaprodi/pengajuan-ranpel" },
-      ],
-    },
-  ];
-
   let navItems: NavItem[] = [];
   if (pathname.startsWith("/mahasiswa")) navItems = navMahasiswa;
-  else if (pathname.startsWith("/superadmin")) navItems = navSuperAdmin;
+  else if (pathname.startsWith("/super-admin")) navItems = navSuperAdmin;
   else if (pathname.startsWith("/dosen")) navItems = navDosen;
   else if (pathname.startsWith("/kaprodi")) navItems = navKaprodi;
+  else if (pathname.startsWith("/admin")) navItems = navAdmin;
   else navItems = navMahasiswa;
 
   return (

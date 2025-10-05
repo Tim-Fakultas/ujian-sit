@@ -47,7 +47,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Search, Eye, Plus, Edit, Trash2, MoreHorizontal } from "lucide-react";
+import { Search, Eye, Plus, Edit, Trash2, MoreVertical } from "lucide-react";
 import { Mahasiswa } from "@/types/Mahasiswa";
 import {
   getMahasiswa,
@@ -141,6 +141,39 @@ export default function DaftarMahasiswaPage() {
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+  // Pagination logic to show limited page numbers
+  const getVisiblePages = () => {
+    const delta = 2; // Number of pages to show on each side of current page
+    const range = [];
+    const rangeWithDots = [];
+
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, "...");
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push("...", totalPages);
+    } else if (totalPages > 1) {
+      rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots.filter(
+      (item, index, arr) => arr.indexOf(item) === index
+    );
+  };
 
   return (
     <div className="min-h-screen p-6">
@@ -331,7 +364,7 @@ export default function DaftarMahasiswaPage() {
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -405,23 +438,25 @@ export default function DaftarMahasiswaPage() {
                     />
                   </PaginationItem>
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <PaginationItem key={page}>
+                  {getVisiblePages().map((page, index) => (
+                    <PaginationItem key={index}>
+                      {page === "..." ? (
+                        <span className="px-3 py-2 text-gray-500">...</span>
+                      ) : (
                         <PaginationLink
                           href="#"
                           className="rounded"
                           onClick={(e) => {
                             e.preventDefault();
-                            setCurrentPage(page);
+                            setCurrentPage(Number(page));
                           }}
                           isActive={currentPage === page}
                         >
                           {page}
                         </PaginationLink>
-                      </PaginationItem>
-                    )
-                  )}
+                      )}
+                    </PaginationItem>
+                  ))}
 
                   <PaginationItem>
                     <PaginationNext

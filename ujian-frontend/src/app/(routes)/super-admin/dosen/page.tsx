@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -40,32 +41,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, Plus, Edit, Trash2, MoreHorizontal } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { KomponenPenilaian } from "@/types/KomponenPenilaian";
 import {
-  getKomponenPenilaian,
-  createKomponenPenilaian,
-  updateKomponenPenilaian,
-  deleteKomponenPenilaian,
-} from "@/actions/komponenPenilaianAction";
-import { getJenisUjian } from "@/actions/jenisUjianAction";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Search, Plus, Edit, Trash2, MoreVertical, Eye } from "lucide-react";
+import { Dosen } from "@/types/Dosen";
+import {
+  getDosen,
+  createDosen,
+  updateDosen,
+  deleteDosen,
+} from "@/actions/dosenAction";
 
-interface JenisUjian {
-  id: number;
-  namaJenis: string;
-}
-
-export default function DaftarKomponenPenilaianPage() {
+export default function DaftarDosenPage() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-
-  const [editData, setEditData] = useState<KomponenPenilaian | null>(null);
-  const [komponenPenilaianData, setKomponenPenilaianData] = useState<
-    KomponenPenilaian[]
-  >([]);
-  const [jenisUjianData, setJenisUjianData] = useState<JenisUjian[]>([]);
+  const [selected, setSelected] = useState<Dosen | null>(null);
+  const [editData, setEditData] = useState<Dosen | null>(null);
+  const [dosenData, setDosenData] = useState<Dosen[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -77,12 +74,8 @@ export default function DaftarKomponenPenilaianPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [komponenResult, jenisUjianResult] = await Promise.all([
-        getKomponenPenilaian(),
-        getJenisUjian(),
-      ]);
-      setKomponenPenilaianData(komponenResult);
-      setJenisUjianData(jenisUjianResult);
+      const result = await getDosen();
+      setDosenData(result);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -91,7 +84,7 @@ export default function DaftarKomponenPenilaianPage() {
   };
 
   const handleSubmitAdd = async (formData: FormData) => {
-    const result = await createKomponenPenilaian(formData);
+    const result = await createDosen(formData);
     if (result.success) {
       setIsAddDialogOpen(false);
       fetchData();
@@ -102,7 +95,7 @@ export default function DaftarKomponenPenilaianPage() {
 
   const handleSubmitEdit = async (formData: FormData) => {
     if (!editData) return;
-    const result = await updateKomponenPenilaian(editData.id, formData);
+    const result = await updateDosen(editData.id, formData);
     if (result.success) {
       setIsEditDialogOpen(false);
       setEditData(null);
@@ -113,8 +106,8 @@ export default function DaftarKomponenPenilaianPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Apakah Anda yakin ingin menghapus komponen penilaian ini?")) {
-      const result = await deleteKomponenPenilaian(id);
+    if (confirm("Apakah Anda yakin ingin menghapus dosen ini?")) {
+      const result = await deleteDosen(id);
       if (result.success) {
         fetchData();
       } else {
@@ -123,10 +116,11 @@ export default function DaftarKomponenPenilaianPage() {
     }
   };
 
-  const filteredData = komponenPenilaianData.filter((item) => {
+  const filteredData = dosenData.filter((item) => {
     const matchSearch =
-      item.namaKomponen.toLowerCase().includes(search.toLowerCase()) ||
-      item.jenisUjian.namaJenis.toLowerCase().includes(search.toLowerCase());
+      item.nama.toLowerCase().includes(search.toLowerCase()) ||
+      item.nidn.toLowerCase().includes(search.toLowerCase()) ||
+      item.prodi.nama.toLowerCase().includes(search.toLowerCase());
     return matchSearch;
   });
 
@@ -141,59 +135,73 @@ export default function DaftarKomponenPenilaianPage() {
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              Data Master Komponen Penilaian
+              Data Master Dosen
             </h1>
-            <p className="text-gray-600 mt-1">
-              Kelola komponen penilaian untuk setiap jenis ujian
-            </p>
+            <p className="text-gray-600 mt-1">Kelola data dosen dalam sistem</p>
           </div>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button className="rounded">
                 <Plus className="mr-2 h-4 w-4" />
-                Tambah Komponen Penilaian
+                Tambah Dosen
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
               <DialogHeader>
-                <DialogTitle>Form Tambah Komponen Penilaian</DialogTitle>
+                <DialogTitle>Form Tambah Dosen</DialogTitle>
               </DialogHeader>
               <form action={handleSubmitAdd} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">NIDN</label>
+                    <Input
+                      name="nidn"
+                      placeholder="Nomor Induk Dosen Nasional"
+                      className="mt-1 rounded"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Nama Lengkap</label>
+                    <Input
+                      name="nama"
+                      placeholder="Nama lengkap dosen"
+                      className="mt-1 rounded"
+                      required
+                    />
+                  </div>
+                </div>
                 <div>
-                  <label className="text-sm font-medium">Jenis Ujian</label>
-                  <Select name="jenisUjianId" required>
-                    <SelectTrigger className="rounded mt-1">
-                      <SelectValue placeholder="Pilih jenis ujian" />
+                  <label className="text-sm font-medium">No. HP</label>
+                  <Input
+                    name="noHp"
+                    placeholder="Nomor HP"
+                    className="mt-1 rounded"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Alamat</label>
+                  <Textarea
+                    name="alamat"
+                    placeholder="Alamat lengkap"
+                    className="mt-1 rounded"
+                    rows={3}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Prodi</label>
+                  <Select name="prodiId" required>
+                    <SelectTrigger className="rounded">
+                      <SelectValue placeholder="Pilih prodi" />
                     </SelectTrigger>
                     <SelectContent className="rounded">
-                      {jenisUjianData.map((jenis) => (
-                        <SelectItem key={jenis.id} value={jenis.id.toString()}>
-                          {jenis.namaJenis}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="1">Sistem Informasi</SelectItem>
+                      <SelectItem value="2">Teknik Informatika</SelectItem>
+                      <SelectItem value="3">Sistem Komputer</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Nama Komponen</label>
-                  <Input
-                    name="namaKomponen"
-                    placeholder="Nama komponen penilaian"
-                    className="mt-1 rounded"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Bobot (%)</label>
-                  <Input
-                    name="bobot"
-                    type="number"
-                    placeholder="Bobot penilaian dalam persen"
-                    className="mt-1 rounded"
-                    min="0"
-                    max="100"
-                    required
-                  />
                 </div>
                 <DialogFooter>
                   <Button type="submit" className="rounded">
@@ -210,7 +218,7 @@ export default function DaftarKomponenPenilaianPage() {
           <div className="relative flex-1 max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Cari berdasarkan nama komponen atau jenis ujian"
+              placeholder="Cari berdasarkan nama, NIDN, atau prodi"
               className="pl-10 border-gray-200 bg-white rounded"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -220,13 +228,13 @@ export default function DaftarKomponenPenilaianPage() {
 
         {/* Table */}
         <div className="bg-white rounded border overflow-x-auto">
-          <Table className="min-w-[800px]">
+          <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center">No</TableHead>
-                <TableHead>Jenis Ujian</TableHead>
-                <TableHead>Nama Komponen</TableHead>
-                <TableHead>Bobot (%)</TableHead>
+                <TableHead>NIDN</TableHead>
+                <TableHead>Nama</TableHead>
+                <TableHead>Prodi</TableHead>
                 <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -243,28 +251,33 @@ export default function DaftarKomponenPenilaianPage() {
                     <TableCell className="text-center">
                       {startIndex + index + 1}
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="font-medium">
-                        {item.jenisUjian.namaJenis}
-                      </Badge>
+                    <TableCell className="text-gray-600">{item.nidn}</TableCell>
+                    <TableCell className="max-w-md truncate text-gray-600">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="cursor-help">{item.nama}</span>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="max-w-sm">
+                            <p>{item.nama}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
-                    <TableCell className="font-medium text-gray-900">
-                      {item.namaKomponen}
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-semibold text-blue-600">
-                        {item.bobot}%
-                      </span>
-                    </TableCell>
+                    <TableCell>{item.prodi.nama}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setSelected(item)}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Detail
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
                               setEditData(item);
@@ -289,7 +302,7 @@ export default function DaftarKomponenPenilaianPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
-                    Tidak ada data komponen penilaian
+                    Tidak ada data dosen
                   </TableCell>
                 </TableRow>
               )}
@@ -365,59 +378,139 @@ export default function DaftarKomponenPenilaianPage() {
           </div>
         </div>
 
+        {/* Detail Dialog */}
+        <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
+          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
+            {selected && (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Detail Dosen</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">NIDN</label>
+                      <Input
+                        value={selected.nidn}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Nama</label>
+                      <Input
+                        value={selected.nama}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">No. HP</label>
+                    <Input
+                      value={selected.noHp}
+                      readOnly
+                      className="mt-1 rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Alamat</label>
+                    <Textarea
+                      value={selected.alamat}
+                      readOnly
+                      rows={3}
+                      className="mt-1 rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Prodi</label>
+                    <Input
+                      value={selected.prodi.nama}
+                      readOnly
+                      className="mt-1 rounded"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setSelected(null)}>
+                    Tutup
+                  </Button>
+                </DialogFooter>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+
         {/* Edit Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
             {editData && (
               <>
                 <DialogHeader>
-                  <DialogTitle>Edit Komponen Penilaian</DialogTitle>
+                  <DialogTitle>Edit Dosen</DialogTitle>
                 </DialogHeader>
                 <form action={handleSubmitEdit} className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">NIDN</label>
+                      <Input
+                        name="nidn"
+                        defaultValue={editData.nidn}
+                        placeholder="Nomor Induk Dosen Nasional"
+                        className="mt-1 rounded"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">
+                        Nama Lengkap
+                      </label>
+                      <Input
+                        name="nama"
+                        defaultValue={editData.nama}
+                        placeholder="Nama lengkap dosen"
+                        className="mt-1 rounded"
+                        required
+                      />
+                    </div>
+                  </div>
                   <div>
-                    <label className="text-sm font-medium">Jenis Ujian</label>
+                    <label className="text-sm font-medium">No. HP</label>
+                    <Input
+                      name="noHp"
+                      defaultValue={editData.noHp}
+                      placeholder="Nomor HP"
+                      className="mt-1 rounded"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Alamat</label>
+                    <Textarea
+                      name="alamat"
+                      defaultValue={editData.alamat}
+                      placeholder="Alamat lengkap"
+                      className="mt-1 rounded"
+                      rows={3}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Prodi</label>
                     <Select
-                      name="jenisUjianId"
-                      defaultValue={editData.jenisUjianId.toString()}
+                      name="prodiId"
+                      defaultValue={editData.prodi.id.toString()}
                       required
                     >
-                      <SelectTrigger className="rounded mt-1">
-                        <SelectValue placeholder="Pilih jenis ujian" />
+                      <SelectTrigger className="rounded">
+                        <SelectValue placeholder="Pilih prodi" />
                       </SelectTrigger>
                       <SelectContent className="rounded">
-                        {jenisUjianData.map((jenis) => (
-                          <SelectItem
-                            key={jenis.id}
-                            value={jenis.id.toString()}
-                          >
-                            {jenis.namaJenis}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="1">Sistem Informasi</SelectItem>
+                        <SelectItem value="2">Teknik Informatika</SelectItem>
+                        <SelectItem value="3">Sistem Komputer</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Nama Komponen</label>
-                    <Input
-                      name="namaKomponen"
-                      defaultValue={editData.namaKomponen}
-                      placeholder="Nama komponen penilaian"
-                      className="mt-1 rounded"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Bobot (%)</label>
-                    <Input
-                      name="bobot"
-                      type="number"
-                      defaultValue={editData.bobot}
-                      placeholder="Bobot penilaian dalam persen"
-                      className="mt-1 rounded"
-                      min="0"
-                      max="100"
-                      required
-                    />
                   </div>
                   <DialogFooter>
                     <Button
