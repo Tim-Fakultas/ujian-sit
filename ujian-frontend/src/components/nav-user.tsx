@@ -7,7 +7,7 @@ import {
   IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,18 +30,20 @@ import { useAuthStore } from "@/stores/useAuthStore";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { user, role, initializeFromCookies } = useAuthStore();
+  const { user, initializeFromCookies } = useAuthStore();
 
   useEffect(() => {
-    initializeFromCookies(); // ⬅️ penting: muat ulang data dari cookie
+    initializeFromCookies(); // 🔁 Muat ulang data user dari cookies saat komponen mount
   }, [initializeFromCookies]);
 
   if (!user) return null;
 
-  const userRole = role || "user";
+  // ✅ Ambil role dari struktur roles user
+  const userRole =
+    user.roles && user.roles.length > 0 ? user.roles[0].name : "user";
 
   const initials = user.nama
-    .split(" ")
+    ?.split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase()
@@ -61,18 +63,20 @@ export function NavUser() {
                   {initials}
                 </AvatarFallback>
               </Avatar>
+
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.nama}</span>
                 <span className="text-muted-foreground truncate text-xs">
-                  {user.nim}
+                  {user.nim || user.nip_nim}
                 </span>
               </div>
+
               <IconDotsVertical className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -84,6 +88,7 @@ export function NavUser() {
                     {initials}
                   </AvatarFallback>
                 </Avatar>
+
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.nama}</span>
                   <span className="text-muted-foreground truncate text-xs">
@@ -113,9 +118,15 @@ export function NavUser() {
             <DropdownMenuSeparator />
 
             <form action={logoutAction}>
-              <DropdownMenuItem>
-                <IconLogout />
-                <Button variant="ghost">Log out</Button>
+              <DropdownMenuItem asChild>
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  className="w-full justify-start text-red-500 hover:text-red-600"
+                >
+                  <IconLogout className="mr-2" />
+                  Log out
+                </Button>
               </DropdownMenuItem>
             </form>
           </DropdownMenuContent>
