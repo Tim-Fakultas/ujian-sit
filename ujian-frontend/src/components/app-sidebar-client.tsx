@@ -46,7 +46,7 @@ export function AppSidebarClient({ user }: { user: any }) {
     },
   ];
 
-  const navAdmin: NavItem[] = [
+  const navSuperAdmin: NavItem[] = [
     { title: "Home", url: "/admin/dashboard", icon: IconHome },
     { title: "Jadwal Ujian", url: "/admin/jadwal-ujian", icon: IconBook },
     {
@@ -77,7 +77,7 @@ export function AppSidebarClient({ user }: { user: any }) {
     },
   ];
   const navKaprodi: NavItem[] = [
-    { title: "Home", url: "/dosen/dashboard", icon: IconHome },
+    { title: "Home", url: "/kaprodi/dashboard", icon: IconHome },
     {
       title: "Skripsi",
       icon: IconBook,
@@ -89,7 +89,7 @@ export function AppSidebarClient({ user }: { user: any }) {
 
   let navItems: NavItem[] = [];
   if (pathname.startsWith("/mahasiswa")) navItems = navMahasiswa;
-  else if (pathname.startsWith("/admin")) navItems = navAdmin;
+  else if (pathname.startsWith("/superadmin")) navItems = navSuperAdmin;
   else if (pathname.startsWith("/dosen")) navItems = navDosen;
   else if (pathname.startsWith("/kaprodi")) navItems = navKaprodi;
   else navItems = navMahasiswa;

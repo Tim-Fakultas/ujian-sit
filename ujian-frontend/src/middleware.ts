@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 // Define route access rules
 const routePermissions: Record<string, string[]> = {
-  "/admin": ["admin"],
+  "/superadmin": ["superadmin"],
   "/dosen": ["dosen"],
   "/mahasiswa": ["mahasiswa"],
   "/kaprodi": ["kaprodi"],
@@ -24,10 +24,12 @@ export function middleware(request: NextRequest) {
   // If no auth token, redirect to login
   if (
     !authCookie &&
-    (pathname.startsWith("/admin") ||
+    (pathname.startsWith("/superadmin") ||
+      pathname.startsWith("/admin") ||
+      pathname.startsWith("/sekprodi") ||
+      pathname.startsWith("/kaprodi") ||
       pathname.startsWith("/dosen") ||
-      pathname.startsWith("/mahasiswa") ||
-      pathname.startsWith("/kaprodi"))
+      pathname.startsWith("/mahasiswa"))
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -46,8 +48,8 @@ export function middleware(request: NextRequest) {
         if (pathname.startsWith(route)) {
           if (!userRole || !allowedRoles.includes(userRole)) {
             // Redirect to appropriate dashboard based on user's actual role
-            if (userRole === "admin") {
-              return NextResponse.redirect(new URL("/admin", request.url));
+            if (userRole === "superadmin") {
+              return NextResponse.redirect(new URL("/superadmin", request.url));
             } else if (userRole === "dosen") {
               return NextResponse.redirect(new URL("/dosen", request.url));
             } else if (userRole === "mahasiswa") {
@@ -71,7 +73,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/admin/:path*",
+    "/superadmin/:path*",
     "/dosen/:path*",
     "/mahasiswa/:path*",
     "/kaprodi/:path*",
