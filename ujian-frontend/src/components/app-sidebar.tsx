@@ -32,14 +32,15 @@ const navMahasiswa: NavItem[] = [
     icon: IconListDetails,
     items: [
       {
-        title: "Rancangan Penelitian",
-        url: "/mahasiswa/pengajuan-ranpel",
-      },
-      {
         title: "Pengajuan Judul",
         url: "/mahasiswa/pengajuan",
       },
-  
+
+      {
+        title: "Rancangan Penelitian",
+        url: "/mahasiswa/pengajuan-ranpel",
+      },
+
       {
         title: "Daftar Ujian",
         url: "/mahasiswa/ujian",
@@ -69,6 +70,8 @@ const navAdmin: NavItem[] = [
     items: [
       { title: "Dosen", url: "/admin/dosen" },
       { title: "Mahasiswa", url: "/admin/mahasiswa" },
+      { title: "Jenis ujian", url: "/admin/jenis-ujian" },
+      { title: "Komponen Penilaian", url: "/admin/komponen-penilaian" },
     ],
   },
 ];
@@ -86,7 +89,7 @@ const navDosen: NavItem[] = [
       { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
       { title: "Pengajuan Judul", url: "/dosen/pengajuan-judul" },
       { title: "Mahasiswa", url: "/dosen/mahasiswa" },
-      // { title: "Bimbingan", url: "/dosen/bimbingan" },
+      { title: "Bimbingan", url: "/dosen/bimbingan" },
       { title: "Ujian", url: "/dosen/ujian" },
       { title: "Penilaian", url: "/dosen/penilaian" },
     ],
@@ -113,15 +116,18 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="py-6">
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/images/uin-raden-fatah.png"
-                  alt="Logo UIN"
-                  width={40}
-                  height={40}
-                  className="flex-shrink-0"
-                  unoptimized={true}
-                />
+              <div className="flex items-center gap-3">
+                <div className="relative w-10 h-10 flex-shrink-0">
+                  <Image
+                    src="/images/uin-raden-fatah.png"
+                    alt="Logo UIN"
+                    fill
+                    sizes="40px"
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+
                 <h1 className="text-sm font-medium leading-tight text-neutral-500">
                   Integration System
                 </h1>
