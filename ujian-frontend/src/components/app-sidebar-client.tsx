@@ -39,11 +39,11 @@ export function AppSidebarClient({ user }: { user: any }) {
       title: "Data Master",
       icon: IconBuilding,
       items: [
-        { title: "Dosen", url: "/superadmin/dosen" },
-        { title: "Mahasiswa", url: "/superadmin/mahasiswa" },
-        { title: "Peminatan", url: "/superadmin/peminatan" },
-        { title: "Jenis Ujian", url: "/superadmin/jenis-ujian" },
-        { title: "Komponen Penilaian", url: "/superadmin/komponen-penilaian" },
+        { title: "Dosen", url: "/super-admin/dosen" },
+        { title: "Mahasiswa", url: "/super-admin/mahasiswa" },
+        { title: "Peminatan", url: "/super-admin/peminatan" },
+        { title: "Jenis Ujian", url: "/super-admin/jenis-ujian" },
+        { title: "Komponen Penilaian", url: "/super-admin/komponen-penilaian" },
       ],
     },
   ];
@@ -79,6 +79,7 @@ export function AppSidebarClient({ user }: { user: any }) {
       title: "Skripsi",
       icon: IconBook,
       items: [
+        { title: "Pengajuan Judul", url: "/dosen/pengajuan-judul" },
         { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
         { title: "Ujian", url: "/dosen/ujian" },
         { title: "Penilaian", url: "/dosen/penilaian" },
@@ -103,10 +104,10 @@ export function AppSidebarClient({ user }: { user: any }) {
 
   let navItems: NavItem[] = [];
   if (pathname.startsWith("/mahasiswa")) navItems = navMahasiswa;
-  else if (pathname.startsWith("/superadmin")) navItems = navSuperAdmin;
+  else if (pathname.startsWith("/super-admin")) navItems = navSuperAdmin;
   else if (pathname.startsWith("/dosen")) navItems = navDosen;
   else if (pathname.startsWith("/kaprodi")) navItems = navKaprodi;
-  else if (pathname.startsWith("/admin")) navItems = navAdmin;  
+  else if (pathname.startsWith("/admin")) navItems = navAdmin;
   else navItems = navMahasiswa;
 
   return (

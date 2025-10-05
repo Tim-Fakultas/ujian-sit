@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
   // If no auth token, redirect to login
   if (
     !authCookie &&
-    (pathname.startsWith("/superadmin") ||
+    (pathname.startsWith("/super-admin") ||
       pathname.startsWith("/admin") ||
       pathname.startsWith("/sekprodi") ||
       pathname.startsWith("/kaprodi") ||
@@ -50,7 +50,7 @@ export function middleware(request: NextRequest) {
           if (!userRole || !allowedRoles.includes(userRole)) {
             // Redirect to appropriate dashboard based on user's actual role
             if (userRole === "super admin") {
-              return NextResponse.redirect(new URL("/superadmin", request.url));
+              return NextResponse.redirect(new URL("/super-admin", request.url));
             } else if (userRole === "dosen") {
               return NextResponse.redirect(new URL("/dosen", request.url));
             } else if (userRole === "mahasiswa") {

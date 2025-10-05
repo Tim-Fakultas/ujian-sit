@@ -259,7 +259,7 @@ export default function LoginPage() {
 
     // Redirect sesuai role
     if (userRole === "super admin") {
-      router.push("/superadmin/dashboard");
+      router.push("/super-admin/dashboard");
     } else if (userRole === "admin prodi") {
       router.push("/admin/dashboard");
     } else if (userRole === "sekprodi") {
@@ -313,7 +313,10 @@ export default function LoginPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Username */}
                 <div className="space-y-1">
-                  <Label htmlFor="nip_nim" className="text-xs font-medium text-gray-700">
+                  <Label
+                    htmlFor="nip_nim"
+                    className="text-xs font-medium text-gray-700"
+                  >
                     Username
                   </Label>
                   <div className="relative">
@@ -333,7 +336,10 @@ export default function LoginPage() {
 
                 {/* Password */}
                 <div className="space-y-1">
-                  <Label htmlFor="password" className="text-xs font-medium text-gray-700">
+                  <Label
+                    htmlFor="password"
+                    className="text-xs font-medium text-gray-700"
+                  >
                     Password
                   </Label>
                   <div className="relative">
@@ -353,7 +359,11 @@ export default function LoginPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </div>

@@ -105,7 +105,11 @@ export function NavUser() {
 
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link href={`/${userRole}/profile`}>
+                <Link
+                  href={`/${userRole
+                    .replace(/\s+/g, "-")
+                    .toLowerCase()}/profile`}
+                >
                   <IconUserCircle /> Profile
                 </Link>
               </DropdownMenuItem>

@@ -47,22 +47,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Search, Plus, Edit, Trash2, MoreHorizontal, Eye } from "lucide-react";
-import { Dosen } from "@/types/Dosen";
+import { Search, Plus, Edit, Trash2, MoreVertical } from "lucide-react";
+import { JenisUjian } from "@/types/JenisUjian";
 import {
-  getDosen,
-  createDosen,
-  updateDosen,
-  deleteDosen,
-} from "@/actions/dosenAction";
+  getJenisUjian,
+  createJenisUjian,
+  updateJenisUjian,
+  deleteJenisUjian,
+} from "@/actions/jenisUjianAction";
 
-export default function DaftarDosenPage() {
+export default function DaftarJenisUjianPage() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [selected, setSelected] = useState<Dosen | null>(null);
-  const [editData, setEditData] = useState<Dosen | null>(null);
-  const [dosenData, setDosenData] = useState<Dosen[]>([]);
+
+  const [editData, setEditData] = useState<JenisUjian | null>(null);
+  const [jenisUjianData, setJenisUjianData] = useState<JenisUjian[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -74,8 +74,8 @@ export default function DaftarDosenPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const result = await getDosen();
-      setDosenData(result);
+      const result = await getJenisUjian();
+      setJenisUjianData(result);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -84,7 +84,7 @@ export default function DaftarDosenPage() {
   };
 
   const handleSubmitAdd = async (formData: FormData) => {
-    const result = await createDosen(formData);
+    const result = await createJenisUjian(formData);
     if (result.success) {
       setIsAddDialogOpen(false);
       fetchData();
@@ -95,7 +95,7 @@ export default function DaftarDosenPage() {
 
   const handleSubmitEdit = async (formData: FormData) => {
     if (!editData) return;
-    const result = await updateDosen(editData.id, formData);
+    const result = await updateJenisUjian(editData.id, formData);
     if (result.success) {
       setIsEditDialogOpen(false);
       setEditData(null);
@@ -106,8 +106,8 @@ export default function DaftarDosenPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Apakah Anda yakin ingin menghapus dosen ini?")) {
-      const result = await deleteDosen(id);
+    if (confirm("Apakah Anda yakin ingin menghapus jenis ujian ini?")) {
+      const result = await deleteJenisUjian(id);
       if (result.success) {
         fetchData();
       } else {
@@ -116,11 +116,11 @@ export default function DaftarDosenPage() {
     }
   };
 
-  const filteredData = dosenData.filter((item) => {
+  const filteredData = jenisUjianData.filter((item) => {
     const matchSearch =
-      item.nama.toLowerCase().includes(search.toLowerCase()) ||
-      item.nidn.toLowerCase().includes(search.toLowerCase()) ||
-      item.prodi.nama.toLowerCase().includes(search.toLowerCase());
+      item.namaJenis.toLowerCase().includes(search.toLowerCase()) ||
+      (item.deskripsi &&
+        item.deskripsi.toLowerCase().includes(search.toLowerCase()));
     return matchSearch;
   });
 
@@ -135,73 +135,43 @@ export default function DaftarDosenPage() {
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              Data Master Dosen
+              Data Master Jenis Ujian
             </h1>
-            <p className="text-gray-600 mt-1">Kelola data dosen dalam sistem</p>
+            <p className="text-gray-600 mt-1">
+              Kelola jenis ujian dalam sistem
+            </p>
           </div>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button className="rounded">
                 <Plus className="mr-2 h-4 w-4" />
-                Tambah Dosen
+                Tambah Jenis Ujian
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
               <DialogHeader>
-                <DialogTitle>Form Tambah Dosen</DialogTitle>
+                <DialogTitle>Form Tambah Jenis Ujian</DialogTitle>
               </DialogHeader>
               <form action={handleSubmitAdd} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">NIDN</label>
-                    <Input
-                      name="nidn"
-                      placeholder="Nomor Induk Dosen Nasional"
-                      className="mt-1 rounded"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Nama Lengkap</label>
-                    <Input
-                      name="nama"
-                      placeholder="Nama lengkap dosen"
-                      className="mt-1 rounded"
-                      required
-                    />
-                  </div>
-                </div>
                 <div>
-                  <label className="text-sm font-medium">No. HP</label>
+                  <label className="text-sm font-medium">
+                    Nama Jenis Ujian
+                  </label>
                   <Input
-                    name="noHp"
-                    placeholder="Nomor HP"
+                    name="namaJenis"
+                    placeholder="Nama jenis ujian"
                     className="mt-1 rounded"
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Alamat</label>
+                  <label className="text-sm font-medium">Deskripsi</label>
                   <Textarea
-                    name="alamat"
-                    placeholder="Alamat lengkap"
+                    name="deskripsi"
+                    placeholder="Deskripsi jenis ujian"
                     className="mt-1 rounded"
-                    rows={3}
-                    required
+                    rows={4}
                   />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Prodi</label>
-                  <Select name="prodiId" required>
-                    <SelectTrigger className="rounded">
-                      <SelectValue placeholder="Pilih prodi" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded">
-                      <SelectItem value="1">Sistem Informasi</SelectItem>
-                      <SelectItem value="2">Teknik Informatika</SelectItem>
-                      <SelectItem value="3">Sistem Komputer</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
                 <DialogFooter>
                   <Button type="submit" className="rounded">
@@ -218,7 +188,7 @@ export default function DaftarDosenPage() {
           <div className="relative flex-1 max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Cari berdasarkan nama, NIDN, atau prodi"
+              placeholder="Cari berdasarkan nama atau deskripsi"
               className="pl-10 border-gray-200 bg-white rounded"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -228,20 +198,19 @@ export default function DaftarDosenPage() {
 
         {/* Table */}
         <div className="bg-white rounded border overflow-x-auto">
-          <Table className="min-w-[600px]">
+          <Table className="min-w-[700px]">
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center">No</TableHead>
-                <TableHead>NIDN</TableHead>
-                <TableHead>Nama</TableHead>
-                <TableHead>Prodi</TableHead>
+                <TableHead>Nama Jenis Ujian</TableHead>
+                <TableHead>Deskripsi</TableHead>
                 <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={4} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -251,33 +220,38 @@ export default function DaftarDosenPage() {
                     <TableCell className="text-center">
                       {startIndex + index + 1}
                     </TableCell>
-                    <TableCell className="text-gray-600">{item.nidn}</TableCell>
-                    <TableCell className="max-w-md truncate text-gray-600">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="cursor-help">{item.nama}</span>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="max-w-sm">
-                            <p>{item.nama}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    <TableCell className="font-medium text-gray-900">
+                      {item.namaJenis}
                     </TableCell>
-                    <TableCell>{item.prodi.nama}</TableCell>
+                    <TableCell className="max-w-md">
+                      {item.deskripsi ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help line-clamp-2">
+                                {item.deskripsi}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-sm">
+                              <p>{item.deskripsi}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          Tidak ada deskripsi
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setSelected(item)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Detail
-                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
                               setEditData(item);
@@ -301,8 +275,8 @@ export default function DaftarDosenPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
-                    Tidak ada data dosen
+                  <TableCell colSpan={4} className="text-center py-8">
+                    Tidak ada data jenis ujian
                   </TableCell>
                 </TableRow>
               )}
@@ -378,139 +352,36 @@ export default function DaftarDosenPage() {
           </div>
         </div>
 
-        {/* Detail Dialog */}
-        <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
-            {selected && (
-              <>
-                <DialogHeader>
-                  <DialogTitle>Detail Dosen</DialogTitle>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">NIDN</label>
-                      <Input
-                        value={selected.nidn}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Nama</label>
-                      <Input
-                        value={selected.nama}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">No. HP</label>
-                    <Input
-                      value={selected.noHp}
-                      readOnly
-                      className="mt-1 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Alamat</label>
-                    <Textarea
-                      value={selected.alamat}
-                      readOnly
-                      rows={3}
-                      className="mt-1 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Prodi</label>
-                    <Input
-                      value={selected.prodi.nama}
-                      readOnly
-                      className="mt-1 rounded"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setSelected(null)}>
-                    Tutup
-                  </Button>
-                </DialogFooter>
-              </>
-            )}
-          </DialogContent>
-        </Dialog>
-
         {/* Edit Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
             {editData && (
               <>
                 <DialogHeader>
-                  <DialogTitle>Edit Dosen</DialogTitle>
+                  <DialogTitle>Edit Jenis Ujian</DialogTitle>
                 </DialogHeader>
                 <form action={handleSubmitEdit} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">NIDN</label>
-                      <Input
-                        name="nidn"
-                        defaultValue={editData.nidn}
-                        placeholder="Nomor Induk Dosen Nasional"
-                        className="mt-1 rounded"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">
-                        Nama Lengkap
-                      </label>
-                      <Input
-                        name="nama"
-                        defaultValue={editData.nama}
-                        placeholder="Nama lengkap dosen"
-                        className="mt-1 rounded"
-                        required
-                      />
-                    </div>
-                  </div>
                   <div>
-                    <label className="text-sm font-medium">No. HP</label>
+                    <label className="text-sm font-medium">
+                      Nama Jenis Ujian
+                    </label>
                     <Input
-                      name="noHp"
-                      defaultValue={editData.noHp}
-                      placeholder="Nomor HP"
+                      name="namaJenis"
+                      defaultValue={editData.namaJenis}
+                      placeholder="Nama jenis ujian"
                       className="mt-1 rounded"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Alamat</label>
+                    <label className="text-sm font-medium">Deskripsi</label>
                     <Textarea
-                      name="alamat"
-                      defaultValue={editData.alamat}
-                      placeholder="Alamat lengkap"
+                      name="deskripsi"
+                      defaultValue={editData.deskripsi || ""}
+                      placeholder="Deskripsi jenis ujian"
                       className="mt-1 rounded"
-                      rows={3}
-                      required
+                      rows={4}
                     />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Prodi</label>
-                    <Select
-                      name="prodiId"
-                      defaultValue={editData.prodi.id.toString()}
-                      required
-                    >
-                      <SelectTrigger className="rounded">
-                        <SelectValue placeholder="Pilih prodi" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded">
-                        <SelectItem value="1">Sistem Informasi</SelectItem>
-                        <SelectItem value="2">Teknik Informatika</SelectItem>
-                        <SelectItem value="3">Sistem Komputer</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                   <DialogFooter>
                     <Button

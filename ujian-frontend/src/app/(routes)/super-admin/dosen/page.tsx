@@ -47,31 +47,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Search, Eye, Plus, Edit, Trash2, MoreHorizontal } from "lucide-react";
-import { Mahasiswa } from "@/types/Mahasiswa";
+import { Search, Plus, Edit, Trash2, MoreVertical, Eye } from "lucide-react";
+import { Dosen } from "@/types/Dosen";
 import {
-  getMahasiswa,
-  createMahasiswa,
-  updateMahasiswa,
-  deleteMahasiswa,
-} from "@/actions/mahasiswaAction";
-import { getDosen } from "@/actions/dosenAction";
+  getDosen,
+  createDosen,
+  updateDosen,
+  deleteDosen,
+} from "@/actions/dosenAction";
 
-interface Dosen {
-  id: number;
-  nama: string;
-  nip: string;
-  email: string;
-  prodi: string;
-}
-
-export default function DaftarMahasiswaPage() {
+export default function DaftarDosenPage() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [selected, setSelected] = useState<Mahasiswa | null>(null);
-  const [editData, setEditData] = useState<Mahasiswa | null>(null);
-  const [mahasiswaData, setMahasiswaData] = useState<Mahasiswa[]>([]);
+  const [selected, setSelected] = useState<Dosen | null>(null);
+  const [editData, setEditData] = useState<Dosen | null>(null);
   const [dosenData, setDosenData] = useState<Dosen[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -84,12 +74,8 @@ export default function DaftarMahasiswaPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [mahasiswaResult, dosenResult] = await Promise.all([
-        getMahasiswa(),
-        getDosen(),
-      ]);
-      setMahasiswaData(mahasiswaResult);
-      setDosenData(dosenResult);
+      const result = await getDosen();
+      setDosenData(result);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -98,7 +84,7 @@ export default function DaftarMahasiswaPage() {
   };
 
   const handleSubmitAdd = async (formData: FormData) => {
-    const result = await createMahasiswa(formData);
+    const result = await createDosen(formData);
     if (result.success) {
       setIsAddDialogOpen(false);
       fetchData();
@@ -109,7 +95,7 @@ export default function DaftarMahasiswaPage() {
 
   const handleSubmitEdit = async (formData: FormData) => {
     if (!editData) return;
-    const result = await updateMahasiswa(editData.id, formData);
+    const result = await updateDosen(editData.id, formData);
     if (result.success) {
       setIsEditDialogOpen(false);
       setEditData(null);
@@ -120,8 +106,8 @@ export default function DaftarMahasiswaPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Apakah Anda yakin ingin menghapus mahasiswa ini?")) {
-      const result = await deleteMahasiswa(id);
+    if (confirm("Apakah Anda yakin ingin menghapus dosen ini?")) {
+      const result = await deleteDosen(id);
       if (result.success) {
         fetchData();
       } else {
@@ -130,10 +116,10 @@ export default function DaftarMahasiswaPage() {
     }
   };
 
-  const filteredData = mahasiswaData.filter((item) => {
+  const filteredData = dosenData.filter((item) => {
     const matchSearch =
       item.nama.toLowerCase().includes(search.toLowerCase()) ||
-      item.nim.toLowerCase().includes(search.toLowerCase()) ||
+      item.nidn.toLowerCase().includes(search.toLowerCase()) ||
       item.prodi.nama.toLowerCase().includes(search.toLowerCase());
     return matchSearch;
   });
@@ -149,71 +135,50 @@ export default function DaftarMahasiswaPage() {
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              Data Master Mahasiswa
+              Data Master Dosen
             </h1>
-            <p className="text-gray-600 mt-1">
-              Kelola data mahasiswa dalam sistem
-            </p>
+            <p className="text-gray-600 mt-1">Kelola data dosen dalam sistem</p>
           </div>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button className="rounded">
                 <Plus className="mr-2 h-4 w-4" />
-                Tambah Mahasiswa
+                Tambah Dosen
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded">
               <DialogHeader>
-                <DialogTitle>Form Tambah Mahasiswa</DialogTitle>
+                <DialogTitle>Form Tambah Dosen</DialogTitle>
               </DialogHeader>
               <form action={handleSubmitAdd} className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium">Nama Lengkap</label>
+                    <label className="text-sm font-medium">NIDN</label>
                     <Input
-                      name="nama"
-                      placeholder="Nama lengkap mahasiswa"
+                      name="nidn"
+                      placeholder="Nomor Induk Dosen Nasional"
                       className="mt-1 rounded"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">NIM</label>
+                    <label className="text-sm font-medium">Nama Lengkap</label>
                     <Input
-                      name="nim"
-                      placeholder="Nomor Induk Mahasiswa"
+                      name="nama"
+                      placeholder="Nama lengkap dosen"
                       className="mt-1 rounded"
                       required
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">No. HP</label>
-                    <Input
-                      name="noHp"
-                      placeholder="Nomor HP"
-                      className="mt-1 rounded"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Semester</label>
-                    <Select name="semester" required>
-                      <SelectTrigger className="rounded">
-                        <SelectValue placeholder="Pilih semester" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded">
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map(
-                          (sem) => (
-                            <SelectItem key={sem} value={sem.toString()}>
-                              {sem}
-                            </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div>
+                  <label className="text-sm font-medium">No. HP</label>
+                  <Input
+                    name="noHp"
+                    placeholder="Nomor HP"
+                    className="mt-1 rounded"
+                    required
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Alamat</label>
@@ -225,38 +190,18 @@ export default function DaftarMahasiswaPage() {
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">Dosen PA</label>
-                    <Select name="dosenPaId" required>
-                      <SelectTrigger className="rounded">
-                        <SelectValue placeholder="Pilih dosen PA" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded">
-                        {dosenData.map((dosen) => (
-                          <SelectItem
-                            key={dosen.id}
-                            value={dosen.id.toString()}
-                          >
-                            {dosen.nama}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Prodi</label>
-                    <Select name="prodiId" required>
-                      <SelectTrigger className="rounded">
-                        <SelectValue placeholder="Pilih prodi" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded">
-                        <SelectItem value="1">Sistem Informasi</SelectItem>
-                        <SelectItem value="2">Teknik Informatika</SelectItem>
-                        <SelectItem value="3">Sistem Komputer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div>
+                  <label className="text-sm font-medium">Prodi</label>
+                  <Select name="prodiId" required>
+                    <SelectTrigger className="rounded">
+                      <SelectValue placeholder="Pilih prodi" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded">
+                      <SelectItem value="1">Sistem Informasi</SelectItem>
+                      <SelectItem value="2">Teknik Informatika</SelectItem>
+                      <SelectItem value="3">Sistem Komputer</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <DialogFooter>
                   <Button type="submit" className="rounded">
@@ -273,7 +218,7 @@ export default function DaftarMahasiswaPage() {
           <div className="relative flex-1 max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Cari berdasarkan nama, NIM, atau prodi"
+              placeholder="Cari berdasarkan nama, NIDN, atau prodi"
               className="pl-10 border-gray-200 bg-white rounded"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -283,23 +228,20 @@ export default function DaftarMahasiswaPage() {
 
         {/* Table */}
         <div className="bg-white rounded border overflow-x-auto">
-          <Table className="min-w-[900px]">
+          <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center">No</TableHead>
+                <TableHead>NIDN</TableHead>
                 <TableHead>Nama</TableHead>
-                <TableHead>NIM</TableHead>
                 <TableHead>Prodi</TableHead>
-                <TableHead>Semester</TableHead>
-                <TableHead>Dosen PA</TableHead>
-                <TableHead>No. HP</TableHead>
                 <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={5} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -309,6 +251,7 @@ export default function DaftarMahasiswaPage() {
                     <TableCell className="text-center">
                       {startIndex + index + 1}
                     </TableCell>
+                    <TableCell className="text-gray-600">{item.nidn}</TableCell>
                     <TableCell className="max-w-md truncate text-gray-600">
                       <TooltipProvider>
                         <Tooltip>
@@ -321,17 +264,13 @@ export default function DaftarMahasiswaPage() {
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                    <TableCell>{item.nim}</TableCell>
                     <TableCell>{item.prodi.nama}</TableCell>
-                    <TableCell>{item.semester}</TableCell>
-                    <TableCell>{item.dosenPa.nama}</TableCell>
-                    <TableCell>{item.noHp}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -362,8 +301,8 @@ export default function DaftarMahasiswaPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
-                    Tidak ada data mahasiswa
+                  <TableCell colSpan={5} className="text-center py-8">
+                    Tidak ada data dosen
                   </TableCell>
                 </TableRow>
               )}
@@ -445,14 +384,14 @@ export default function DaftarMahasiswaPage() {
             {selected && (
               <>
                 <DialogHeader>
-                  <DialogTitle>Detail Mahasiswa</DialogTitle>
+                  <DialogTitle>Detail Dosen</DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium">NIM</label>
+                      <label className="text-sm font-medium">NIDN</label>
                       <Input
-                        value={selected.nim}
+                        value={selected.nidn}
                         readOnly
                         className="mt-1 rounded"
                       />
@@ -466,23 +405,13 @@ export default function DaftarMahasiswaPage() {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">No. HP</label>
-                      <Input
-                        value={selected.noHp}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Semester</label>
-                      <Input
-                        value={selected.semester.toString()}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
+                  <div>
+                    <label className="text-sm font-medium">No. HP</label>
+                    <Input
+                      value={selected.noHp}
+                      readOnly
+                      className="mt-1 rounded"
+                    />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Alamat</label>
@@ -493,23 +422,13 @@ export default function DaftarMahasiswaPage() {
                       className="mt-1 rounded"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">Prodi</label>
-                      <Input
-                        value={selected.prodi.nama}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Dosen PA</label>
-                      <Input
-                        value={selected.dosenPa.nama}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
+                  <div>
+                    <label className="text-sm font-medium">Prodi</label>
+                    <Input
+                      value={selected.prodi.nama}
+                      readOnly
+                      className="mt-1 rounded"
+                    />
                   </div>
                 </div>
                 <DialogFooter>
@@ -528,10 +447,20 @@ export default function DaftarMahasiswaPage() {
             {editData && (
               <>
                 <DialogHeader>
-                  <DialogTitle>Edit Mahasiswa</DialogTitle>
+                  <DialogTitle>Edit Dosen</DialogTitle>
                 </DialogHeader>
                 <form action={handleSubmitEdit} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">NIDN</label>
+                      <Input
+                        name="nidn"
+                        defaultValue={editData.nidn}
+                        placeholder="Nomor Induk Dosen Nasional"
+                        className="mt-1 rounded"
+                        required
+                      />
+                    </div>
                     <div>
                       <label className="text-sm font-medium">
                         Nama Lengkap
@@ -539,54 +468,21 @@ export default function DaftarMahasiswaPage() {
                       <Input
                         name="nama"
                         defaultValue={editData.nama}
-                        placeholder="Nama lengkap mahasiswa"
-                        className="mt-1 rounded"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">NIM</label>
-                      <Input
-                        name="nim"
-                        defaultValue={editData.nim}
-                        placeholder="Nomor Induk Mahasiswa"
+                        placeholder="Nama lengkap dosen"
                         className="mt-1 rounded"
                         required
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">No. HP</label>
-                      <Input
-                        name="noHp"
-                        defaultValue={editData.noHp}
-                        placeholder="Nomor HP"
-                        className="mt-1 rounded"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Semester</label>
-                      <Select
-                        name="semester"
-                        defaultValue={editData.semester.toString()}
-                        required
-                      >
-                        <SelectTrigger className="rounded">
-                          <SelectValue placeholder="Pilih semester" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded">
-                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map(
-                            (sem) => (
-                              <SelectItem key={sem} value={sem.toString()}>
-                                {sem}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div>
+                    <label className="text-sm font-medium">No. HP</label>
+                    <Input
+                      name="noHp"
+                      defaultValue={editData.noHp}
+                      placeholder="Nomor HP"
+                      className="mt-1 rounded"
+                      required
+                    />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Alamat</label>
@@ -599,46 +495,22 @@ export default function DaftarMahasiswaPage() {
                       required
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">Dosen PA</label>
-                      <Select
-                        name="dosenPaId"
-                        defaultValue={editData.dosenPaId.toString()}
-                        required
-                      >
-                        <SelectTrigger className="rounded">
-                          <SelectValue placeholder="Pilih dosen PA" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded">
-                          {dosenData.map((dosen) => (
-                            <SelectItem
-                              key={dosen.id}
-                              value={dosen.id.toString()}
-                            >
-                              {dosen.nama}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Prodi</label>
-                      <Select
-                        name="prodiId"
-                        defaultValue={editData.prodi.id.toString()}
-                        required
-                      >
-                        <SelectTrigger className="rounded">
-                          <SelectValue placeholder="Pilih prodi" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded">
-                          <SelectItem value="1">Sistem Informasi</SelectItem>
-                          <SelectItem value="2">Teknik Informatika</SelectItem>
-                          <SelectItem value="3">Sistem Komputer</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div>
+                    <label className="text-sm font-medium">Prodi</label>
+                    <Select
+                      name="prodiId"
+                      defaultValue={editData.prodi.id.toString()}
+                      required
+                    >
+                      <SelectTrigger className="rounded">
+                        <SelectValue placeholder="Pilih prodi" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded">
+                        <SelectItem value="1">Sistem Informasi</SelectItem>
+                        <SelectItem value="2">Teknik Informatika</SelectItem>
+                        <SelectItem value="3">Sistem Komputer</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <DialogFooter>
                     <Button
