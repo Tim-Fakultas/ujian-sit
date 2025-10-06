@@ -141,9 +141,14 @@ interface User {
   id: number;
   nip_nim?: string;
   nim?: string;
+  nidn?: string;
   nama: string;
   email: string;
   roles: Role[];
+  prodi?: {
+    id: number;
+    nama: string;
+  };
 }
 
 interface AuthState {

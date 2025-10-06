@@ -18,7 +18,7 @@ import { User, Phone, GraduationCap, Edit, Save, X } from "lucide-react";
 
 interface DosenProfile {
   id: number;
-  nidn: string;
+  nidn?: string;
   nama: string;
   noHp: string;
   alamat: string;
@@ -43,7 +43,7 @@ export default function DosenProfilePage() {
       // Mock data based on user info from auth store
       const mockProfile: DosenProfile = {
         id: user.id,
-        nidn: user.nip_nim, // Assuming nip_nim contains NIDN for dosen
+        nidn: user.nidn, // Assuming nidn contains NIDN for dosen
         nama: user.nama,
         noHp: "081234567890", // This would come from API
         alamat: "Jl. Contoh Alamat No. 123, Kota Malang", // This would come from API

@@ -42,6 +42,7 @@ export function AppSidebarClient({ user }: { user: any }) {
         { title: "Dosen", url: "/super-admin/dosen" },
         { title: "Mahasiswa", url: "/super-admin/mahasiswa" },
         { title: "Peminatan", url: "/super-admin/peminatan" },
+        { title: "Prodi", url: "/super-admin/prodi" },
         { title: "Jenis Ujian", url: "/super-admin/jenis-ujian" },
         { title: "Komponen Penilaian", url: "/super-admin/komponen-penilaian" },
       ],

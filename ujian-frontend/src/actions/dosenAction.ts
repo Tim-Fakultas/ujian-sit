@@ -10,10 +10,36 @@ export async function getDosen() {
       throw new Error(`Gagal fetch dosen: ${res.statusText}`);
     }
 
-    const data = await res.json();
+    const response = await res.json();
 
-    // Kalau API Laravel return { data: [...] }
-    return data.data ?? data;
+    // API Laravel return { data: [...] }
+    // Map data sesuai struktur frontend
+    const dosenData = response.data.map(
+      (dosen: {
+        id: number;
+        nidn: string;
+        nama: string;
+        noHp: string;
+        alamat: string;
+        prodi: { id: number; nama: string };
+        createdAt: string;
+        updatedAt: string;
+      }) => ({
+        id: dosen.id,
+        nidn: dosen.nidn,
+        nama: dosen.nama,
+        noHp: dosen.noHp,
+        alamat: dosen.alamat,
+        prodi: {
+          id: dosen.prodi.id,
+          nama: dosen.prodi.nama,
+        },
+        createdAt: dosen.createdAt,
+        updatedAt: dosen.updatedAt,
+      })
+    );
+
+    return dosenData;
   } catch (err) {
     console.error("Error getDosen:", err);
     return [];
@@ -89,7 +115,10 @@ export async function updateDosen(id: number, formData: FormData) {
   const data = await res.json();
 
   if (!res.ok || !data.success) {
-    return { success: false, message: data.message || "Gagal memperbarui dosen" };
+    return {
+      success: false,
+      message: data.message || "Gagal memperbarui dosen",
+    };
   }
 
   return { success: true };
@@ -108,4 +137,4 @@ export async function deleteDosen(id: number) {
   }
 
   return { success: true };
-}   
+}

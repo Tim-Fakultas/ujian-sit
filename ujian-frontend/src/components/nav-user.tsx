@@ -67,7 +67,7 @@ export function NavUser() {
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.nama}</span>
                 <span className="text-muted-foreground truncate text-xs">
-                  {user.nim || user.nip_nim}
+                  {user.nim || user.nidn || user.nip_nim}
                 </span>
               </div>
 

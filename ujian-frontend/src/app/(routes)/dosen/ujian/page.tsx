@@ -68,6 +68,7 @@ interface Ujian {
   jenis: string;
   nilai?: string;
   status: "pending" | "dijadwalkan" | "selesai";
+  peranDosen: "ketua" | "sekretaris" | "penguji1" | "penguji2";
 }
 
 const dummyData: Ujian[] = [
@@ -85,6 +86,7 @@ const dummyData: Ujian[] = [
     jenis: "Seminar Proposal",
     nilai: "-",
     status: "dijadwalkan",
+    peranDosen: "penguji1",
   },
   {
     id: 2,
@@ -100,6 +102,7 @@ const dummyData: Ujian[] = [
     jenis: "Seminar Skripsi",
     nilai: "A-",
     status: "selesai",
+    peranDosen: "ketua",
   },
 ];
 
@@ -149,27 +152,6 @@ const initialKriteria: Kriteria[] = [
     bobot: 35,
     skor: 0,
   },
-  {
-    id: 6,
-    kriteria: "Sikap/Presentasi",
-    indikator: "Sistematika, logis, percaya diri, kemampuan menjawab",
-    bobot: 35,
-    skor: 0,
-  },
-  {
-    id: 7,
-    kriteria: "Sikap/Presentasi",
-    indikator: "Sistematika, logis, percaya diri, kemampuan menjawab",
-    bobot: 35,
-    skor: 0,
-  },
-  {
-    id: 8,
-    kriteria: "Sikap/Presentasi",
-    indikator: "Sistematika, logis, percaya diri, kemampuan menjawab",
-    bobot: 35,
-    skor: 0,
-  },
 ];
 
 const statusColors: Record<string, string> = {
@@ -182,6 +164,20 @@ const statusLabels: Record<string, string> = {
   pending: "Menunggu",
   dijadwalkan: "Dijadwalkan",
   selesai: "Selesai",
+};
+
+const peranColors: Record<string, string> = {
+  ketua: "bg-blue-100 text-blue-800 border-blue-200",
+  sekretaris: "bg-green-100 text-green-800 border-green-200",
+  penguji1: "bg-orange-100 text-orange-800 border-orange-200",
+  penguji2: "bg-purple-100 text-purple-800 border-purple-200",
+};
+
+const peranLabels: Record<string, string> = {
+  ketua: "Ketua Penguji",
+  sekretaris: "Sekretaris",
+  penguji1: "Penguji 1",
+  penguji2: "Penguji 2",
 };
 
 // -------------------- Komponen Utama --------------------
@@ -260,10 +256,8 @@ export default function UjianDosenPage() {
             <SelectContent className="rounded">
               <SelectItem value="all">Semua Jenis</SelectItem>
               <SelectItem value="Seminar Proposal">Seminar Proposal</SelectItem>
+              <SelectItem value="Seminar Hasil">Seminar Hasil</SelectItem>
               <SelectItem value="Seminar Skripsi">Seminar Skripsi</SelectItem>
-              <SelectItem value="Ujian Komprehensif">
-                Ujian Komprehensif
-              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -324,7 +318,7 @@ export default function UjianDosenPage() {
                 <TableHead className="text-center w-16">No</TableHead>
                 <TableHead className="min-w-40">Nama Mahasiswa</TableHead>
                 <TableHead className="min-w-24">Ruang</TableHead>
-                <TableHead className="min-w-90">Judul</TableHead>
+                <TableHead className="min-w-96">Judul</TableHead>
                 <TableHead className="min-w-32">Jenis Ujian</TableHead>
                 <TableHead className="min-w-24">Status</TableHead>
                 <TableHead className="text-center">Action</TableHead>
@@ -341,7 +335,7 @@ export default function UjianDosenPage() {
                     <TableCell className="text-sm">{item.ruang}</TableCell>
 
                     {/* Tooltip untuk Judul */}
-                    <TableCell className="max-w-md">
+                    <TableCell className="max-w-96">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -498,6 +492,36 @@ export default function UjianDosenPage() {
                 </DialogHeader>
 
                 <div className="space-y-6 py-4">
+                  {/* Peran Dosen Card */}
+                  <Card
+                    className={`border-2 ${peranColors[
+                      selectedDetail.peranDosen
+                    ]
+                      .replace("bg-", "border-")
+                      .replace("-100", "-300")}`}
+                  >
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base font-medium flex items-center gap-2">
+                        <Badge
+                          className={`${
+                            peranColors[selectedDetail.peranDosen]
+                          } text-sm font-semibold px-3 py-1`}
+                        >
+                          {peranLabels[selectedDetail.peranDosen]}
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600">
+                        Anda berperan sebagai{" "}
+                        <span className="font-semibold">
+                          {peranLabels[selectedDetail.peranDosen]}
+                        </span>{" "}
+                        dalam ujian ini.
+                      </p>
+                    </CardContent>
+                  </Card>
+
                   {/* Informasi Mahasiswa */}
                   <Card>
                     <CardHeader className="pb-3">
@@ -609,33 +633,77 @@ export default function UjianDosenPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-1 gap-3">
-                        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                          <span className="text-sm font-medium text-blue-900">
+                        <div
+                          className={`flex items-center justify-between p-3 rounded-lg ${
+                            selectedDetail.peranDosen === "ketua"
+                              ? "bg-blue-100 border-2 border-blue-300"
+                              : "bg-blue-50"
+                          }`}
+                        >
+                          <span className="text-sm font-medium text-blue-900 flex items-center gap-2">
                             Ketua Penguji
+                            {selectedDetail.peranDosen === "ketua" && (
+                              <Badge className="bg-blue-600 text-white text-xs">
+                                Anda
+                              </Badge>
+                            )}
                           </span>
                           <span className="text-sm text-blue-700">
                             {selectedDetail.ketua}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                          <span className="text-sm font-medium text-green-900">
+                        <div
+                          className={`flex items-center justify-between p-3 rounded-lg ${
+                            selectedDetail.peranDosen === "sekretaris"
+                              ? "bg-green-100 border-2 border-green-300"
+                              : "bg-green-50"
+                          }`}
+                        >
+                          <span className="text-sm font-medium text-green-900 flex items-center gap-2">
                             Sekretaris
+                            {selectedDetail.peranDosen === "sekretaris" && (
+                              <Badge className="bg-green-600 text-white text-xs">
+                                Anda
+                              </Badge>
+                            )}
                           </span>
                           <span className="text-sm text-green-700">
                             {selectedDetail.sekretaris}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                          <span className="text-sm font-medium text-orange-900">
+                        <div
+                          className={`flex items-center justify-between p-3 rounded-lg ${
+                            selectedDetail.peranDosen === "penguji1"
+                              ? "bg-orange-100 border-2 border-orange-300"
+                              : "bg-orange-50"
+                          }`}
+                        >
+                          <span className="text-sm font-medium text-orange-900 flex items-center gap-2">
                             Penguji 1
+                            {selectedDetail.peranDosen === "penguji1" && (
+                              <Badge className="bg-orange-600 text-white text-xs">
+                                Anda
+                              </Badge>
+                            )}
                           </span>
                           <span className="text-sm text-orange-700">
                             {selectedDetail.penguji1}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                          <span className="text-sm font-medium text-red-900">
+                        <div
+                          className={`flex items-center justify-between p-3 rounded-lg ${
+                            selectedDetail.peranDosen === "penguji2"
+                              ? "bg-red-100 border-2 border-red-300"
+                              : "bg-red-50"
+                          }`}
+                        >
+                          <span className="text-sm font-medium text-red-900 flex items-center gap-2">
                             Penguji 2
+                            {selectedDetail.peranDosen === "penguji2" && (
+                              <Badge className="bg-red-600 text-white text-xs">
+                                Anda
+                              </Badge>
+                            )}
                           </span>
                           <span className="text-sm text-red-700">
                             {selectedDetail.penguji2}
@@ -703,6 +771,13 @@ export default function UjianDosenPage() {
                   <DialogTitle className="text-xl font-semibold flex items-center gap-2">
                     <FileText className="h-5 w-5" />
                     Form Penilaian Ujian
+                    <Badge
+                      className={`${
+                        peranColors[selectedPenilaian.peranDosen]
+                      } text-sm font-semibold ml-2`}
+                    >
+                      {peranLabels[selectedPenilaian.peranDosen]}
+                    </Badge>
                   </DialogTitle>
                   <DialogDescription className="text-gray-600">
                     Berikan penilaian sesuai kriteria yang telah ditentukan.

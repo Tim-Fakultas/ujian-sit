@@ -203,7 +203,7 @@ export default function PengajuanJudulDosenPage() {
                 <TableHead className="w-2/5">Judul</TableHead>
                 <TableHead className="w-32">Tanggal Pengajuan</TableHead>
                 <TableHead className="w-24">Status</TableHead>
-                <TableHead className="w-20">Aksi</TableHead>
+                <TableHead className="w-20">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
