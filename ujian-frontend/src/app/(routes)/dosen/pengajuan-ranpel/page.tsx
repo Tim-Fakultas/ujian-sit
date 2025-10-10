@@ -32,7 +32,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
@@ -48,74 +47,69 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Search,
-  Eye,
-  CheckCircle,
-  XCircle,
-  MoreHorizontal,
-} from "lucide-react";
+import { Search, Eye, MoreVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Rancangan } from "@/types/Rancangan";
-import { rancanganData } from "@/lib/constants";
+import { PDFDocument } from "@/components/PDFDocument";
+import { RancanganPenelitian } from "@/types/RancanganPenelitian";
 
 const statusColors = {
-  pending: "bg-orange-100 text-orange-700",
-  disetujui: "bg-green-100 text-green-700",
+  menunggu: "bg-orange-100 text-orange-700",
+  diverifikasi: "bg-green-100 text-green-700",
+  diterima: "bg-blue-100 text-blue-700",
   ditolak: "bg-red-100 text-red-700",
 };
 
 const statusLabels = {
-  pending: "Menunggu Persetujuan",
-  disetujui: "Disetujui",
+  menunggu: "Menunggu Persetujuan",
+  diverifikasi: "Diverifikasi",
+  diterima: "Diterima",
   ditolak: "Ditolak",
 };
 
-// Mock student data - in real app this would come from API
-const studentData = [
-  { id: 1, name: "Ahmad Rizki", nim: "2021001" },
-  { id: 2, name: "Siti Nurhaliza", nim: "2021002" },
-  { id: 3, name: "Budi Santoso", nim: "2021003" },
+const rancanganPenelitian: RancanganPenelitian[] = [
+  {
+    id: 1,
+    mahasiswa: { id: 1, nim: "1234567890", nama: "Budi Santoso" },
+    judul_penelitian:
+      "Analisis Pengaruh Media Sosial terhadap Perilaku Konsumen",
+    masalah_dan_penyebab:
+      "Banyaknya penggunaan media sosial yang mempengaruhi keputusan pembelian konsumen.",
+    alternatif_solusi:
+      "Melakukan survei dan wawancara untuk memahami pengaruh media sosial.",
+    metode_penelitian: "Metode kuantitatif dengan menggunakan kuesioner.",
+    hasil_yang_diharapkan:
+      "Memahami sejauh mana media sosial mempengaruhi perilaku konsumen.",
+    kebutuhan_data:
+      "Data dari pengguna media sosial dan perilaku pembelian mereka.",
+    status: "diverifikasi",
+    tanggalPengajuan: "2023-10-01",
+  },
+  {
+    id: 2,
+    mahasiswa: { id: 2, nim: "0987654321", nama: "Siti Aminah" },
+    judul_penelitian: "Studi Efektivitas Pembelajaran Daring di Masa Pandemi",
+    masalah_dan_penyebab:
+      "Tantangan dalam pembelajaran daring yang mempengaruhi hasil belajar siswa.",
+    alternatif_solusi:
+      "Menganalisis metode pembelajaran daring yang paling efektif.",
+    metode_penelitian: "Metode campuran dengan survei dan wawancara.",
+    hasil_yang_diharapkan:
+      "Menemukan strategi pembelajaran daring yang efektif.",
+    kebutuhan_data:
+      "Data dari siswa, guru, dan hasil belajar selama pembelajaran daring.",
+    status: "diterima",
+    tanggalPengajuan: "2023-09-15",
+    keterangan: "Perlu revisi pada bagian metode penelitian.",
+    tanggalDiterima: "2023-09-30",
+  },
 ];
 
 export default function DosenPengajuanRanpelPage() {
+  
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState("pending");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+
   const [selected, setSelected] = useState<Rancangan | null>(null);
-  const [approvalDialog, setApprovalDialog] = useState<{
-    item: Rancangan;
-    action: "approve" | "reject";
-  } | null>(null);
-  const [approvalNote, setApprovalNote] = useState("");
-
-  const filteredData = rancanganData.filter((item) => {
-    const matchSearch = item.judul.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = activeTab === "all" ? true : item.status === activeTab;
-    return matchSearch && matchStatus;
-  });
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
-
-  const getStudentNim = (id: number) => {
-    const student = studentData.find((s) => s.id === id);
-    return student ? student.nim : "N/A";
-  };
-
-  const getStudentName = (id: number) => {
-    const student = studentData.find((s) => s.id === id);
-    return student ? student.name : "Mahasiswa Tidak Ditemukan";
-  };
-
-  const handleApproval = (action: "approve" | "reject") => {
-    // Here you would typically send the approval/rejection to your API
-    console.log(`${action} proposal:`, approvalDialog?.item.id, approvalNote);
-    setApprovalDialog(null);
-    setApprovalNote("");
-  };
 
   return (
     <div className="min-h-screen p-6">
@@ -145,100 +139,51 @@ export default function DosenPengajuanRanpelPage() {
           </div>
         </div>
 
-        {/* Status Filter */}
-        <div className="mb-6">
-          <div className="flex gap-2 text-xs">
-            <button
-              onClick={() => setActiveTab("all")}
-              className={`px-3 py-1.5 rounded border ${
-                activeTab === "all"
-                  ? "bg-gray-100 border-gray-300 text-gray-700"
-                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              Semua ({rancanganData.length})
-            </button>
-            <button
-              onClick={() => setActiveTab("pending")}
-              className={`px-3 py-1.5 rounded border ${
-                activeTab === "pending"
-                  ? "bg-gray-100 border-gray-300 text-gray-700"
-                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              Menunggu Persetujuan (
-              {rancanganData.filter((i) => i.status === "pending").length})
-            </button>
-            <button
-              onClick={() => setActiveTab("disetujui")}
-              className={`px-3 py-1.5 rounded border ${
-                activeTab === "disetujui"
-                  ? "bg-gray-100 border-gray-300 text-gray-700"
-                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              Disetujui (
-              {rancanganData.filter((i) => i.status === "disetujui").length})
-            </button>
-            <button
-              onClick={() => setActiveTab("ditolak")}
-              className={`px-3 py-1.5 rounded border ${
-                activeTab === "ditolak"
-                  ? "bg-gray-100 border-gray-300 text-gray-700"
-                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              Ditolak (
-              {rancanganData.filter((i) => i.status === "ditolak").length})
-            </button>
-          </div>
-        </div>
-
         {/* Table */}
         <div className="bg-white rounded border overflow-x-auto">
-          <Table className="min-w-[900px]">
+          <Table className="w-full">
+            {/* header */}
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">No</TableHead>
-                <TableHead>NIM</TableHead>
-                <TableHead>Nama Mahasiswa</TableHead>
-                <TableHead>Judul Penelitian</TableHead>
-                <TableHead>Tanggal Diajukan</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Aksi</TableHead>
+                <TableHead className="text-center w-12">No</TableHead>
+                <TableHead className="w-32">Nama Mahasiswa</TableHead>
+                <TableHead className="max-w-xs">Judul Penelitian</TableHead>
+                <TableHead className="w-28">Tanggal Pengajuan</TableHead>
+                <TableHead className="w-20">Status</TableHead>
+                <TableHead className="w-12">Aksi</TableHead>
               </TableRow>
             </TableHeader>
+            {/* Body */}
             <TableBody>
-              {currentData.length > 0 ? (
-                currentData.map((item, index) => (
+              {rancanganPenelitian.length > 0 ? (
+                rancanganPenelitian.map((item, index) => (
                   <TableRow key={item.id}>
+                    <TableCell className="text-center">{index + 1}</TableCell>
                     <TableCell className="text-center">
-                      {startIndex + index + 1}
+                      {item.mahasiswa?.nama}
                     </TableCell>
-                    <TableCell className="text-gray-600">
-                      {getStudentNim(item.id)}
-                    </TableCell>
-                    <TableCell className="text-gray-600">
-                      {getStudentName(item.id)}
-                    </TableCell>
-                    <TableCell className="max-w-md truncate text-gray-600">
+                    <TableCell className="max-w-xs truncate text-gray-600">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span className="truncate cursor-help">
-                              {item.judul}
+                              {item.judul_penelitian}
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="bottom" className="max-w-sm">
-                            {item.judul}
+                            {item.judul_penelitian}
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                    <TableCell>{item.tanggalDiajukan}</TableCell>
+                    <TableCell className="text-sm">
+                      {item.tanggalPengajuan}
+                    </TableCell>
                     <TableCell>
                       <Badge
-                        className={`${statusColors[item.status]} border-0`}
+                        className={`${
+                          statusColors[item.status]
+                        } border-0 text-xs`}
                       >
                         {statusLabels[item.status]}
                       </Badge>
@@ -252,7 +197,7 @@ export default function DosenPengajuanRanpelPage() {
                             className="h-8 w-8 p-0"
                           >
                             <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -260,34 +205,6 @@ export default function DosenPengajuanRanpelPage() {
                             <Eye className="mr-2 h-4 w-4" />
                             Preview
                           </DropdownMenuItem>
-                          {item.status === "pending" && (
-                            <>
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  setApprovalDialog({
-                                    item,
-                                    action: "approve",
-                                  })
-                                }
-                                className="text-green-600 focus:text-green-600"
-                              >
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Setujui
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  setApprovalDialog({
-                                    item,
-                                    action: "reject",
-                                  })
-                                }
-                                className="text-red-600 focus:text-red-600"
-                              >
-                                <XCircle className="mr-2 h-4 w-4" />
-                                Tolak
-                              </DropdownMenuItem>
-                            </>
-                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -296,366 +213,50 @@ export default function DosenPengajuanRanpelPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
-                    Tidak ada data rancangan
+                    Belum ada pengajuan rancangan penelitian.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
-
-          {/* Footer Pagination */}
-          <div className="flex items-center justify-between px-6 py-4 border-t">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Tampil per halaman:</span>
-              <Select
-                value={itemsPerPage.toString()}
-                onValueChange={(v) => {
-                  setItemsPerPage(parseInt(v));
-                  setCurrentPage(1);
-                }}
-              >
-                <SelectTrigger className="w-20 rounded">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="rounded">
-                  <SelectItem value="5">5</SelectItem>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {totalPages > 1 && (
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage > 1) setCurrentPage(currentPage - 1);
-                      }}
-                    />
-                  </PaginationItem>
-
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          href="#"
-                          className="rounded"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setCurrentPage(page);
-                          }}
-                          isActive={currentPage === page}
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )
-                  )}
-
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage < totalPages)
-                          setCurrentPage(currentPage + 1);
-                      }}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            )}
-          </div>
         </div>
 
-        {/* Detail Dialog */}
+        {/* Preview */}
         <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-          <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg">
+          <DialogContent className="sm:max-w-6xl max-h-[95vh] overflow-hidden rounded">
             {selected && (
               <>
-                <DialogHeader className="space-y-2 pb-4 border-b">
-                  <DialogTitle className="text-xl font-semibold">
-                    Preview Rancangan Penelitian
-                  </DialogTitle>
-                  <DialogDescription className="text-gray-600">
-                    Preview dokumen rancangan penelitian mahasiswa.
-                  </DialogDescription>
-                </DialogHeader>
-
-                {/* PDF-like content */}
-                <div className="bg-white p-8 space-y-6 text-sm leading-relaxed">
-                  {/* Header */}
-                  <div className="text-center space-y-2 border-b pb-6">
-                    <h1 className="text-lg font-bold uppercase">
-                      RANCANGAN PENELITIAN SKRIPSI
-                    </h1>
-                    <p className="text-gray-600">
-                      Program Studi Teknik Informatika
-                    </p>
-                  </div>
-
-                  {/* Student Info */}
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <div className="flex">
-                        <span className="w-32 font-medium">NIM</span>
-                        <span className="mr-2">:</span>
-                        <span>{getStudentNim(selected.id)}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="w-32 font-medium">Nama Mahasiswa</span>
-                        <span className="mr-2">:</span>
-                        <span>{getStudentName(selected.id)}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex">
-                        <span className="w-32 font-medium">
-                          Tanggal Diajukan
-                        </span>
-                        <span className="mr-2">:</span>
-                        <span>{selected.tanggalDiajukan}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="w-32 font-medium">Status</span>
-                        <span className="mr-2">:</span>
-                        <Badge
-                          className={`${
-                            statusColors[selected.status]
-                          } border-0`}
-                        >
-                          {statusLabels[selected.status]}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Judul Penelitian
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed font-medium">
-                          {selected.judul}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Masalah & Penyebab
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed">
-                          {selected.masalah}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Alternatif Solusi
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed">
-                          {selected.solusi}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Hasil yang Diharapkan
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed">
-                          {selected.hasil}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Kebutuhan Data
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed">
-                          {selected.kebutuhan}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Metode Pelaksanaan
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed">
-                          {selected.metode}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="pt-6 border-t mt-8">
-                    <div className="grid grid-cols-2 gap-8">
-                      <div>
-                        <p className="text-center mb-16">Mahasiswa,</p>
-                        <div className="text-center border-t border-black pt-2">
-                          <p className="font-medium">
-                            {getStudentName(selected.id)}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            NIM: {getStudentNim(selected.id)}
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-center mb-16">
-                          Dosen Pembimbing Akademik,
-                        </p>
-                        <div className="text-center border-t border-black pt-2">
-                          <p className="font-medium">Indah Hidayanti M.Kom</p>
-                          <p className="text-sm text-gray-600">
-                            NIP: ___________________
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <DialogFooter className="flex justify-between pt-6 border-t bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
-                  <Button
-                    variant="outline"
-                    onClick={() => setSelected(null)}
-                    className="rounded-md"
-                  >
-                    Tutup
-                  </Button>
-                  {selected.status === "pending" && (
-                    <div className="flex gap-2">
-                      <Button
-                        className="bg-red-500 hover:bg-red-600 text-white rounded-md"
-                        onClick={() =>
-                          setApprovalDialog({
-                            item: selected,
-                            action: "reject",
-                          })
-                        }
-                      >
-                        Tolak
-                      </Button>
-                      <Button
-                        className="bg-green-500 hover:bg-green-600 text-white rounded-md"
-                        onClick={() =>
-                          setApprovalDialog({
-                            item: selected,
-                            action: "approve",
-                          })
-                        }
-                      >
-                        Setujui
-                      </Button>
-                    </div>
-                  )}
-                </DialogFooter>
-              </>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Approval Dialog */}
-        <Dialog
-          open={!!approvalDialog}
-          onOpenChange={() => setApprovalDialog(null)}
-        >
-          <DialogContent className="sm:max-w-lg rounded">
-            {approvalDialog && (
-              <>
                 <DialogHeader>
-                  <DialogTitle>
-                    {approvalDialog.action === "approve" ? "Setujui" : "Tolak"}{" "}
-                    Rancangan Penelitian
-                  </DialogTitle>
+                  <DialogTitle>Preview Rancangan Penelitian</DialogTitle>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div>
-                    <label className="text-sm font-medium">NIM</label>
-                    <Input
-                      value={getStudentNim(approvalDialog.item.id)}
-                      readOnly
-                      className="mt-1 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">
-                      Nama Mahasiswa
-                    </label>
-                    <Input
-                      value={getStudentName(approvalDialog.item.id)}
-                      readOnly
-                      className="mt-1 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Judul</label>
-                    <Textarea
-                      value={approvalDialog.item.judul}
-                      readOnly
-                      className="mt-1 rounded"
-                      rows={2}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">
-                      Catatan{" "}
-                      {approvalDialog.action === "approve"
-                        ? "Persetujuan"
-                        : "Penolakan"}
-                    </label>
-                    <Textarea
-                      placeholder={
-                        approvalDialog.action === "approve"
-                          ? "Berikan catatan persetujuan (opsional)..."
-                          : "Berikan alasan penolakan..."
-                      }
-                      value={approvalNote}
-                      onChange={(e) => setApprovalNote(e.target.value)}
-                      className="mt-1 rounded"
-                      rows={3}
-                    />
+
+                {/* PDF Preview Container */}
+                <div className="bg-gray-100 p-4 rounded-lg max-h-[75vh] overflow-y-auto">
+                  <div
+                    className="bg-white shadow-2xl mx-auto"
+                    style={{ width: "210mm", minHeight: "297mm" }}
+                  >
+                    <PDFDocument rancangan={selected} id="pdf-content" />
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setApprovalDialog(null)}
-                  >
-                    Batal
-                  </Button>
-                  <Button
-                    className={
-                      approvalDialog.action === "approve"
-                        ? "bg-green-600 hover:bg-green-700"
-                        : ""
-                    }
-                    variant={
-                      approvalDialog.action === "reject"
-                        ? "destructive"
-                        : "default"
-                    }
-                    onClick={() => handleApproval(approvalDialog.action)}
-                  >
-                    {approvalDialog.action === "approve" ? "Setujui" : "Tolak"}
-                  </Button>
+
+                {/* Footer */}
+                <DialogFooter className="flex justify-between ">
+                  {/* Tombol kiri: Tutup & Download */}
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setSelected(null)}>
+                      Tutup
+                    </Button>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button className="bg-red-500 hover:bg-red-600 text-white">
+                      Tolak
+                    </Button>
+                    <Button className="bg-green-500 hover:bg-green-600 text-white">
+                      Setujui
+                    </Button>
+                  </div>
                 </DialogFooter>
               </>
             )}

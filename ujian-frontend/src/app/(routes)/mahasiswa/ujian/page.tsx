@@ -192,17 +192,13 @@ export default function HalamanSemuaUjian() {
 
         {/* Tabel */}
         <div className="bg-white rounded border overflow-x-auto">
-          <Table className="min-w-[900px]">
+          <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow>
                 <TableHead className="text-center">No</TableHead>
-                <TableHead>NIM</TableHead>
                 <TableHead>Nama Mahasiswa</TableHead>
-                <TableHead>Judul Skripsi</TableHead>
-                <TableHead>Waktu Ujian</TableHead>
-                <TableHead>Ruang</TableHead>
                 <TableHead>Jenis Ujian</TableHead>
-                <TableHead>Nilai</TableHead>
+                <TableHead>Tanggal</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Aksi</TableHead>
               </TableRow>
@@ -214,28 +210,20 @@ export default function HalamanSemuaUjian() {
                     <TableCell className="text-center">
                       {startIndex + index + 1}
                     </TableCell>
-                    <TableCell>{item.nim}</TableCell>
-                    <TableCell>{item.nama}</TableCell>
-                    <TableCell className="max-w-md truncate text-gray-600">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="truncate cursor-help">
-                              {item.judul}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="max-w-sm">
-                            {item.judul}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{item.nama}</div>
+                        <div className="text-sm text-gray-500">{item.nim}</div>
+                      </div>
                     </TableCell>
-                    <TableCell>{item.waktu}</TableCell>
-                    <TableCell>{item.ruang}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{item.jenis}</Badge>
                     </TableCell>
-                    <TableCell>{item.nilai || "-"}</TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {item.waktu.split(' ')[0]}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge
                         className={`${statusColors[item.status]} border-0`}
@@ -257,7 +245,7 @@ export default function HalamanSemuaUjian() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8">
+                  <TableCell colSpan={6} className="text-center py-8">
                     Tidak ada data ujian
                   </TableCell>
                 </TableRow>
@@ -336,7 +324,7 @@ export default function HalamanSemuaUjian() {
 
         {/* Dialog Detail */}
         <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-          <DialogContent className="sm:max-w-lg rounded">
+          <DialogContent className="sm:max-w-2xl rounded">
             {selected && (
               <>
                 <DialogHeader>
@@ -348,7 +336,7 @@ export default function HalamanSemuaUjian() {
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm">NIM</label>
+                      <label className="text-sm font-medium">NIM</label>
                       <Input
                         value={selected.nim}
                         readOnly
@@ -356,7 +344,7 @@ export default function HalamanSemuaUjian() {
                       />
                     </div>
                     <div>
-                      <label className="text-sm">Nama Mahasiswa</label>
+                      <label className="text-sm font-medium">Nama Mahasiswa</label>
                       <Input
                         value={selected.nama}
                         readOnly
@@ -365,7 +353,7 @@ export default function HalamanSemuaUjian() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm">Judul Skripsi</label>
+                    <label className="text-sm font-medium">Judul Skripsi</label>
                     <Textarea
                       value={selected.judul}
                       readOnly
@@ -375,25 +363,7 @@ export default function HalamanSemuaUjian() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm">Waktu Ujian</label>
-                      <Input
-                        value={selected.waktu}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm">Ruang</label>
-                      <Input
-                        value={selected.ruang}
-                        readOnly
-                        className="mt-1 rounded"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm">Jenis Ujian</label>
+                      <label className="text-sm font-medium">Jenis Ujian</label>
                       <Input
                         value={selected.jenis}
                         readOnly
@@ -401,13 +371,41 @@ export default function HalamanSemuaUjian() {
                       />
                     </div>
                     <div>
-                      <label className="text-sm">Nilai</label>
+                      <label className="text-sm font-medium">Status</label>
+                      <div className="mt-1">
+                        <Badge
+                          className={`${statusColors[selected.status]} border-0`}
+                        >
+                          {statusLabels[selected.status]}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">Waktu Ujian</label>
                       <Input
-                        value={selected.nilai || "-"}
+                        value={selected.waktu}
                         readOnly
                         className="mt-1 rounded"
                       />
                     </div>
+                    <div>
+                      <label className="text-sm font-medium">Ruang</label>
+                      <Input
+                        value={selected.ruang}
+                        readOnly
+                        className="mt-1 rounded"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Nilai</label>
+                    <Input
+                      value={selected.nilai || "Belum ada nilai"}
+                      readOnly
+                      className="mt-1 rounded"
+                    />
                   </div>
                 </div>
                 <DialogFooter>
@@ -423,3 +421,4 @@ export default function HalamanSemuaUjian() {
     </div>
   );
 }
+  

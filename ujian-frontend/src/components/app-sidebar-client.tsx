@@ -5,6 +5,11 @@ import {
   IconListDetails,
   IconHome,
   IconBook,
+  IconUsers,
+  IconSchool,
+  IconFileText,
+  IconClipboardList,
+  IconCalendar,
 } from "@tabler/icons-react";
 
 import { NavUser } from "@/components/nav-user";
@@ -34,7 +39,7 @@ export function AppSidebarClient({ user }: { user: any }) {
 
   // Super Admin
   const navSuperAdmin: NavItem[] = [
-    { title: "Home", url: "/superadmin/dashboard", icon: IconHome },
+    { title: "Dashboard", url: "/super-admin/dashboard", icon: IconHome },
     {
       title: "Data Master",
       icon: IconBuilding,
@@ -48,22 +53,46 @@ export function AppSidebarClient({ user }: { user: any }) {
       ],
     },
   ];
+
   // Admin
   const navAdmin: NavItem[] = [
-    { title: "Home", url: "/admin/dashboard", icon: IconHome },
-    { title: "Jadwal Ujian", url: "/admin/jadwal-ujian", icon: IconBook },
+    { title: "Dashboard", url: "/admin/dashboard", icon: IconHome },
+    {
+      title: "Pengajuan Ujian",
+      url: "/admin/pengajuan-ujian",
+      icon: IconClipboardList,
+    },
+    {
+      title: "Nilai",
+      url: "/admin/nilai-ujian",
+      icon: IconClipboardList,
+    },
     {
       title: "Data Master",
-      icon: IconBuilding,
+      icon: IconUsers,
       items: [
         { title: "Dosen", url: "/admin/dosen" },
         { title: "Mahasiswa", url: "/admin/mahasiswa" },
       ],
     },
   ];
+  // Sekprodi
+  const navSekprodi: NavItem[] = [
+    { title: "Dashboard", url: "/sekprodi/dashboard", icon: IconHome },
+    {
+      title: "Skripsi",
+      icon: IconBook,
+      items: [
+        { title: "Jadwal Ujian", url: "/sekprodi/jadwal-ujian" },
+        {title: "Kelola Jadwal", url: "/sekprodi/kelola-jadwal"},
+        { title: "Berita Acara", url: "/sekprodi/berita-ujian" },
+      ],
+    },
+  ];
+
   // Kaprodi
   const navKaprodi: NavItem[] = [
-    { title: "Home", url: "/kaprodi/dashboard", icon: IconHome },
+    { title: "Dashboard", url: "/kaprodi/dashboard", icon: IconHome },
     {
       title: "Skripsi",
       icon: IconBook,
@@ -75,12 +104,11 @@ export function AppSidebarClient({ user }: { user: any }) {
 
   // Dosen
   const navDosen: NavItem[] = [
-    { title: "Home", url: "/dosen/dashboard", icon: IconHome },
+    { title: "Dashboard", url: "/dosen/dashboard", icon: IconHome },
     {
       title: "Skripsi",
       icon: IconBook,
       items: [
-        { title: "Pengajuan Judul", url: "/dosen/pengajuan-judul" },
         { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
         { title: "Ujian", url: "/dosen/ujian" },
         { title: "Penilaian", url: "/dosen/penilaian" },
@@ -90,12 +118,11 @@ export function AppSidebarClient({ user }: { user: any }) {
 
   // Mahasiswa
   const navMahasiswa: NavItem[] = [
-    { title: "Home", url: "/mahasiswa/dashboard", icon: IconHome },
+    { title: "Dashboard", url: "/mahasiswa/dashboard", icon: IconHome },
     {
       title: "Skripsi",
       icon: IconListDetails,
       items: [
-        { title: "Pengajuan Judul", url: "/mahasiswa/pengajuan" },
         { title: "Rancangan Penelitian", url: "/mahasiswa/pengajuan-ranpel" },
         { title: "Daftar Ujian", url: "/mahasiswa/ujian" },
         { title: "Penilaian", url: "/mahasiswa/penilaian" },
@@ -108,32 +135,43 @@ export function AppSidebarClient({ user }: { user: any }) {
   else if (pathname.startsWith("/super-admin")) navItems = navSuperAdmin;
   else if (pathname.startsWith("/dosen")) navItems = navDosen;
   else if (pathname.startsWith("/kaprodi")) navItems = navKaprodi;
+  else if (pathname.startsWith("/sekprodi")) navItems = navSekprodi;
   else if (pathname.startsWith("/admin")) navItems = navAdmin;
   else navItems = navMahasiswa;
 
   return (
     <Sidebar collapsible="icon">
       {/* Header */}
-      <SidebarHeader>
+      <SidebarHeader className="border-b border-slate-200/30 dark:border-slate-700/30 p-3">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="py-6">
+            <SidebarMenuButton
+              asChild
+              className={`py-6  px-1  transition-colors group-data-[collapsible=icon]:justify-center`}
+            >
               <div className="flex items-center gap-3">
-                <div className="relative flex-shrink-0">
-                  <Image
-                    src="/images/uin-raden-fatah.png"
-                    alt="Logo UIN"
-                    width={40}
-                    height={40}
-                    className="object-contain"
-                    priority
-                    unoptimized
-                  />
+                <div className="relative flex-shrink-0 ">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shadow-sm">
+                    <Image
+                      src="/images/uin-raden-fatah.png"
+                      alt="Logo UIN"
+                      width={30}
+                      height={30}
+                      className="object-contain"
+                      priority
+                      unoptimized
+                    />
+                  </div>
                 </div>
 
-                <h1 className="text-sm font-medium leading-tight text-neutral-500">
-                  Integration System
-                </h1>
+                <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
+                  <h1 className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
+                    Integration System
+                  </h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                    E-Skripsi Platform
+                  </p>
+                </div>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -141,12 +179,12 @@ export function AppSidebarClient({ user }: { user: any }) {
       </SidebarHeader>
 
       {/* Content */}
-      <SidebarContent>
+      <SidebarContent className="flex-1 overflow-y-auto">
         <NavMain data={{ navItems }} />
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-slate-200/30 dark:border-slate-700/30 mt-auto p-2">
         <NavUser />
       </SidebarFooter>
     </Sidebar>

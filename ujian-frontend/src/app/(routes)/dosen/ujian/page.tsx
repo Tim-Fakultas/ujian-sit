@@ -48,7 +48,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { IconFilter2 } from "@tabler/icons-react";
+import { IconFilter2, IconUser } from "@tabler/icons-react";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -104,9 +104,41 @@ const dummyData: Ujian[] = [
     status: "selesai",
     peranDosen: "ketua",
   },
+  {
+    id: 3,
+    nim: "230778899",
+    nama: "Ahmad Rahman",
+    waktu: "2025-03-20 10:00",
+    ruang: "Ruang C303",
+    judul: "Sistem Manajemen Inventori Berbasis Web",
+    ketua: "Dr. Budi Santoso",
+    sekretaris: "Dr. Andi Wijaya",
+    penguji1: "Dr. Siti Aminah",
+    penguji2: "Dr. Rina Kurnia",
+    jenis: "Seminar Hasil",
+    nilai: "-",
+    status: "pending",
+    peranDosen: "sekretaris",
+  },
+  {
+    id: 4,
+    nim: "230334455",
+    nama: "Sari Indrawati",
+    waktu: "2025-03-25 14:00",
+    ruang: "Ruang D404",
+    judul: "Aplikasi Mobile Learning untuk Pendidikan",
+    ketua: "Dr. Siti Aminah",
+    sekretaris: "Dr. Rina Kurnia",
+    penguji1: "Dr. Budi Santoso",
+    penguji2: "Dr. Andi Wijaya",
+    jenis: "Seminar Skripsi",
+    nilai: "B+",
+    status: "selesai",
+    peranDosen: "penguji2",
+  },
 ];
 
-// -------------------- Data Penilaian --------------------
+// ...existing code...
 interface Kriteria {
   id: number;
   kriteria: string;
@@ -185,6 +217,7 @@ export default function UjianDosenPage() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [filterJenis, setFilterJenis] = useState<string>("all");
+  const [filterPeran, setFilterPeran] = useState<string>("all"); // New state for role filter
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -204,13 +237,27 @@ export default function UjianDosenPage() {
     const matchStatus = activeTab === "all" ? true : item.status === activeTab;
     const matchJenis =
       filterJenis === "all" ? true : item.jenis === filterJenis;
-    return matchSearch && matchStatus && matchJenis;
+    const matchPeran =
+      filterPeran === "all" ? true : item.peranDosen === filterPeran; // New filter condition
+    return matchSearch && matchStatus && matchJenis && matchPeran;
   });
 
   // Pagination
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset page when filters change
+  const handleFilterChange = (filterType: string, value: string) => {
+    setCurrentPage(1);
+    if (filterType === "jenis") {
+      setFilterJenis(value);
+    } else if (filterType === "peran") {
+      setFilterPeran(value);
+    } else if (filterType === "status") {
+      setActiveTab(value);
+    }
+  };
 
   // Perhitungan total nilai
   const handleSkorChange = (id: number, value: string) => {
@@ -224,6 +271,14 @@ export default function UjianDosenPage() {
     (acc, row) => acc + (row.skor * row.bobot) / 100,
     0
   );
+
+  // Statistics for role filter
+  const peranStats = {
+    ketua: dummyData.filter((i) => i.peranDosen === "ketua").length,
+    sekretaris: dummyData.filter((i) => i.peranDosen === "sekretaris").length,
+    penguji1: dummyData.filter((i) => i.peranDosen === "penguji1").length,
+    penguji2: dummyData.filter((i) => i.peranDosen === "penguji2").length,
+  };
 
   return (
     <div className="min-h-screen p-6">
@@ -248,64 +303,123 @@ export default function UjianDosenPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <Select value={filterJenis} onValueChange={setFilterJenis}>
-            <SelectTrigger className="w-42 bg-white rounded">
-              <IconFilter2 className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Filter jenis ujian" />
-            </SelectTrigger>
-            <SelectContent className="rounded">
-              <SelectItem value="all">Semua Jenis</SelectItem>
-              <SelectItem value="Seminar Proposal">Seminar Proposal</SelectItem>
-              <SelectItem value="Seminar Hasil">Seminar Hasil</SelectItem>
-              <SelectItem value="Seminar Skripsi">Seminar Skripsi</SelectItem>
-            </SelectContent>
-          </Select>
+          
+          <div className="flex gap-2">
+            {/* Filter by Exam Type */}
+            <Select 
+              value={filterJenis} 
+              onValueChange={(value) => handleFilterChange("jenis", value)}
+            >
+              <SelectTrigger className="w-42 bg-white rounded">
+                <IconFilter2 className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Filter jenis ujian" />
+              </SelectTrigger>
+              <SelectContent className="rounded">
+                <SelectItem value="all">Semua Jenis</SelectItem>
+                <SelectItem value="Seminar Proposal">Seminar Proposal</SelectItem>
+                <SelectItem value="Seminar Hasil">Seminar Hasil</SelectItem>
+                <SelectItem value="Seminar Skripsi">Seminar Skripsi</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Filter by Role */}
+            <Select 
+              value={filterPeran} 
+              onValueChange={(value) => handleFilterChange("peran", value)}
+            >
+              <SelectTrigger className="w-44 bg-white rounded">
+                <IconUser className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Filter peran" />
+              </SelectTrigger>
+              <SelectContent className="rounded">
+                <SelectItem value="all">
+                  Semua Peran ({dummyData.length})
+                </SelectItem>
+                <SelectItem value="ketua">
+                  <div className="flex items-center justify-between w-full">
+                    <span>Ketua Penguji</span>
+                    <Badge variant="outline" className="ml-2 text-xs">
+                      {peranStats.ketua}
+                    </Badge>
+                  </div>
+                </SelectItem>
+                <SelectItem value="sekretaris">
+                  <div className="flex items-center justify-between w-full">
+                    <span>Sekretaris</span>
+                    <Badge variant="outline" className="ml-2 text-xs">
+                      {peranStats.sekretaris}
+                    </Badge>
+                  </div>
+                </SelectItem>
+                <SelectItem value="penguji1">
+                  <div className="flex items-center justify-between w-full">
+                    <span>Penguji 1</span>
+                    <Badge variant="outline" className="ml-2 text-xs">
+                      {peranStats.penguji1}
+                    </Badge>
+                  </div>
+                </SelectItem>
+                <SelectItem value="penguji2">
+                  <div className="flex items-center justify-between w-full">
+                    <span>Penguji 2</span>
+                    <Badge variant="outline" className="ml-2 text-xs">
+                      {peranStats.penguji2}
+                    </Badge>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Status Filter Tabs */}
         <div className="mb-6">
           <div className="flex gap-2 text-xs">
             <button
-              onClick={() => setActiveTab("all")}
+              onClick={() => handleFilterChange("status", "all")}
               className={`px-3 py-1.5 rounded border ${
                 activeTab === "all"
                   ? "bg-blue-100 border-blue-300 text-blue-700"
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Semua ({dummyData.length})
+              Semua ({filteredData.length})
             </button>
             <button
-              onClick={() => setActiveTab("pending")}
+              onClick={() => handleFilterChange("status", "pending")}
               className={`px-3 py-1.5 rounded border ${
                 activeTab === "pending"
                   ? "bg-blue-100 border-blue-300 text-blue-700"
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Menunggu ({dummyData.filter((i) => i.status === "pending").length}
-              )
+              Menunggu ({dummyData.filter((i) => i.status === "pending" && 
+                (filterPeran === "all" || i.peranDosen === filterPeran) &&
+                (filterJenis === "all" || i.jenis === filterJenis)).length})
             </button>
             <button
-              onClick={() => setActiveTab("dijadwalkan")}
+              onClick={() => handleFilterChange("status", "dijadwalkan")}
               className={`px-3 py-1.5 rounded border ${
                 activeTab === "dijadwalkan"
                   ? "bg-blue-100 border-blue-300 text-blue-700"
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Dijadwalkan (
-              {dummyData.filter((i) => i.status === "dijadwalkan").length})
+              Dijadwalkan ({dummyData.filter((i) => i.status === "dijadwalkan" && 
+                (filterPeran === "all" || i.peranDosen === filterPeran) &&
+                (filterJenis === "all" || i.jenis === filterJenis)).length})
             </button>
             <button
-              onClick={() => setActiveTab("selesai")}
+              onClick={() => handleFilterChange("status", "selesai")}
               className={`px-3 py-1.5 rounded border ${
                 activeTab === "selesai"
                   ? "bg-blue-100 border-blue-300 text-blue-700"
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Selesai ({dummyData.filter((i) => i.status === "selesai").length})
+              Selesai ({dummyData.filter((i) => i.status === "selesai" && 
+                (filterPeran === "all" || i.peranDosen === filterPeran) &&
+                (filterJenis === "all" || i.jenis === filterJenis)).length})
             </button>
           </div>
         </div>
@@ -320,6 +434,7 @@ export default function UjianDosenPage() {
                 <TableHead className="min-w-24">Ruang</TableHead>
                 <TableHead className="min-w-96">Judul</TableHead>
                 <TableHead className="min-w-32">Jenis Ujian</TableHead>
+                <TableHead className="min-w-32">Peran Anda</TableHead> {/* New column */}
                 <TableHead className="min-w-24">Status</TableHead>
                 <TableHead className="text-center">Action</TableHead>
               </TableRow>
@@ -355,6 +470,16 @@ export default function UjianDosenPage() {
                         {item.jenis}
                       </Badge>
                     </TableCell>
+
+                    {/* New Peran Column */}
+                    <TableCell>
+                      <Badge
+                        className={`${peranColors[item.peranDosen]} border text-xs font-medium`}
+                      >
+                        {peranLabels[item.peranDosen]}
+                      </Badge>
+                    </TableCell>
+
                     <TableCell>
                       <Badge
                         className={`${
@@ -396,7 +521,7 @@ export default function UjianDosenPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     Tidak ada data ujian
                   </TableCell>
                 </TableRow>
@@ -473,6 +598,7 @@ export default function UjianDosenPage() {
           </div>
         </div>
 
+        {/* ...existing dialogs... */}
         {/* Dialog Detail */}
         <Dialog
           open={!!selectedDetail}

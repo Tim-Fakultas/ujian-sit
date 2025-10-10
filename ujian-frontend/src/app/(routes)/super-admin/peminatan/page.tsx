@@ -66,10 +66,9 @@ interface Peminatan {
 const peminatanData: Peminatan[] = [
   {
     id: "1",
-    nama: "Sistem Informasi",
-    kode: "SI",
-    deskripsi:
-      "Peminatan yang fokus pada pengembangan sistem informasi dan manajemen data",
+    nama: "Pengembangan Sistem Informasi",
+    kode: "PSI",
+    deskripsi: "Peminatan yang fokus pada pengembangan sistem informasi ",
     status: "aktif",
     totalMahasiswa: 45,
     tanggalDibuat: "2023-01-15",
@@ -77,10 +76,10 @@ const peminatanData: Peminatan[] = [
   },
   {
     id: "2",
-    nama: "Rekayasa Perangkat Lunak",
-    kode: "RPL",
+    nama: "Sistem Informasi Analisis",
+    kode: "SIA",
     deskripsi:
-      "Peminatan yang fokus pada pengembangan aplikasi dan rekayasa perangkat lunak",
+      "Peminatan yang fokus pada analisis sistem informasi dan pengambilan keputusan berbasis data",
     status: "aktif",
     totalMahasiswa: 38,
     tanggalDibuat: "2023-01-15",
@@ -88,25 +87,14 @@ const peminatanData: Peminatan[] = [
   },
   {
     id: "3",
-    nama: "Jaringan Komputer",
-    kode: "JK",
+    nama: "Data Analis",
+    kode: "DTA",
     deskripsi:
-      "Peminatan yang fokus pada infrastruktur jaringan dan keamanan sistem",
+      "Peminatan yang fokus pada pengelolaan dan analisis data besar (big data)",
     status: "aktif",
     totalMahasiswa: 32,
     tanggalDibuat: "2023-01-15",
     tanggalDiperbarui: "2023-12-20",
-  },
-  {
-    id: "4",
-    nama: "Multimedia",
-    kode: "MM",
-    deskripsi:
-      "Peminatan yang fokus pada pengembangan konten multimedia dan desain grafis",
-    status: "nonaktif",
-    totalMahasiswa: 0,
-    tanggalDibuat: "2023-01-15",
-    tanggalDiperbarui: "2023-11-30",
   },
 ];
 
@@ -230,8 +218,8 @@ export default function DaftarPeminatanPage() {
               <TableRow>
                 <TableHead className="text-center">No</TableHead>
                 <TableHead>Kode</TableHead>
-                <TableHead>Nama Peminatan</TableHead>
-                <TableHead>Total Mahasiswa</TableHead>
+                <TableHead >Nama Peminatan</TableHead>
+                <TableHead className="text-center">Total Mahasiswa</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Tanggal Dibuat</TableHead>
                 <TableHead>Aksi</TableHead>
@@ -247,20 +235,17 @@ export default function DaftarPeminatanPage() {
                     <TableCell className="font-mono font-medium">
                       {item.kode}
                     </TableCell>
-                    <TableCell className="max-w-md">
+                    <TableCell className="max-w-sm">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div>
                               <div className="font-medium">{item.nama}</div>
-                              <div className="text-sm text-gray-500 truncate">
-                                {item.deskripsi}
-                              </div>
+                              <TooltipContent className="max-w-xs">
+                                {item.nama}
+                              </TooltipContent>
                             </div>
                           </TooltipTrigger>
-                          <TooltipContent side="bottom" className="max-w-sm">
-                            {item.deskripsi}
-                          </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
