@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const fontSans = Inter({
   variable: "--font-sans",
@@ -29,6 +30,13 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         {children}
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          expand={false}
+          visibleToasts={3}
+        />
       </body>
     </html>
   );

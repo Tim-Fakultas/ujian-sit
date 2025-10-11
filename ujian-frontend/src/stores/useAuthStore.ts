@@ -7,6 +7,7 @@ interface Role {
   guard_name?: string;
 }
 
+// Interface data user yang akan difetch
 interface User {
   id: number;
   nip_nim?: string;
@@ -16,6 +17,18 @@ interface User {
   email: string;
   roles: Role[];
   prodi?: {
+    id: number;
+    nama: string;
+  };
+  dosenPA?: {
+    id: number;
+    nama: string;
+  };
+  dosenPembimbing1?: {
+    id: number;
+    nama: string;
+  };
+  dosenPembimbing2?: {
     id: number;
     nama: string;
   };

@@ -44,9 +44,9 @@ export function NavMain({ data }: NavProps) {
   const { open } = useSidebar();
 
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Menu</SidebarGroupLabel>
-      <SidebarMenu>
+    <SidebarGroup className={`${open ? "px-2" : "px-3"}`}>
+     
+      <SidebarMenu className="space-y-0.5">
         {data.navItems.map((item) => {
           // ✅ Case: Single link (Home)
           if (!item.items) {
@@ -57,14 +57,24 @@ export function NavMain({ data }: NavProps) {
                   <Link
                     href={item.url || "#"}
                     className={cn(
-                      "flex items-center gap-2 transition-colors hover:bg-blue-50 hover:text-site-header",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm font-medium group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2",
                       isActive
-                        ? "font-medium bg-blue-50 text-site-header"
-                        : "text-gray-600 dark:text-gray-300"
+                        ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
                     )}
                   >
-                    {item.icon && <item.icon size={18} />}
-                    <span>{item.title}</span>
+                    {item.icon && (
+                      <item.icon
+                        size={18}
+                        className={cn(
+                          "flex-shrink-0",
+                          isActive
+                            ? "text-blue-600 dark:text-blue-400"
+                            : "text-slate-500 dark:text-slate-400"
+                        )}
+                      />
+                    )}
+                    <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -82,10 +92,35 @@ export function NavMain({ data }: NavProps) {
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton>
-                    {item.icon && <item.icon size={18} />}
-                    <span>{item.title}</span>
-                    <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                  <SidebarMenuButton
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm font-medium w-full group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2",
+                      isGroupActive
+                        ? "bg-slate-50 text-slate-900 dark:bg-slate-800/50 dark:text-slate-100"
+                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
+                    )}
+                  >
+                    {item.icon && (
+                      <item.icon
+                        size={18}
+                        className={cn(
+                          "flex-shrink-0",
+                          isGroupActive
+                            ? "text-slate-700 dark:text-slate-300"
+                            : "text-slate-500 dark:text-slate-400"
+                        )}
+                      />
+                    )}
+                    <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
+                    <ChevronRight
+                      className={cn(
+                        "ml-auto h-3.5 w-3.5 transition-transform flex-shrink-0 group-data-[collapsible=icon]:hidden",
+                        "group-data-[state=open]/collapsible:rotate-90",
+                        isGroupActive
+                          ? "text-slate-600 dark:text-slate-400"
+                          : "text-slate-400 dark:text-slate-500"
+                      )}
+                    />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
               </SidebarMenuItem>
@@ -93,7 +128,7 @@ export function NavMain({ data }: NavProps) {
               {open && (
                 <CollapsibleContent>
                   <SidebarGroupContent>
-                    <SidebarMenu>
+                    <SidebarMenu className="ml-4 mt-1 space-y-0.5">
                       {item.items.map((sub, index) => {
                         // ✅ aktif hanya kalau exact match
                         const isActive = pathname === sub.url;
@@ -104,13 +139,21 @@ export function NavMain({ data }: NavProps) {
                               <Link
                                 href={sub.url}
                                 className={cn(
-                                  "flex items-center gap-2 transition-colors hover:bg-blue-50 hover:text-site-header dark:hover:text-blue-400",
+                                  "flex items-center gap-2.5 px-3 py-2 rounded-md transition-colors text-sm",
                                   isActive
-                                    ? "font-medium bg-blue-50 text-site-header dark:text-blue-400"
-                                    : "text-gray-600 dark:text-gray-300"
+                                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 font-medium"
+                                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-700 dark:hover:text-slate-300"
                                 )}
                               >
-                                <span>{sub.title}</span>
+                                <div
+                                  className={cn(
+                                    "w-1.5 h-1.5 rounded-full flex-shrink-0",
+                                    isActive
+                                      ? "bg-blue-500 dark:bg-blue-400"
+                                      : "bg-slate-300 dark:bg-slate-600"
+                                  )}
+                                />
+                                <span className="truncate">{sub.title}</span>
                               </Link>
                             </SidebarMenuButton>
                           </SidebarMenuItem>

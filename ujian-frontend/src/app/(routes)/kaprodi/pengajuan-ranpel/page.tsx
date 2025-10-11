@@ -53,10 +53,11 @@ import {
   CheckCircle,
   XCircle,
   MoreHorizontal,
+  Download,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Rancangan } from "@/types/Rancangan";
 import { rancanganData } from "@/lib/constants";
+import { PDFDocument } from "@/components/PDFDocument";
 
 const statusColors = {
   pending: "bg-orange-100 text-orange-700",
@@ -98,6 +99,7 @@ export default function KaprodiPengajuanRanpelPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selected, setSelected] = useState<Rancangan | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [approvalDialog, setApprovalDialog] = useState<{
     item: Rancangan;
     action: "approve" | "reject";
@@ -134,6 +136,42 @@ export default function KaprodiPengajuanRanpelPage() {
     console.log(`${action} proposal:`, approvalDialog?.item.id, approvalNote);
     setApprovalDialog(null);
     setApprovalNote("");
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!selected) return;
+
+    setIsDownloading(true);
+    try {
+      const studentName = getStudentName(selected.id);
+      const studentNim = getStudentNim(selected.id);
+      const filename = `Rancangan_Penelitian_${studentName.replace(
+        /\s+/g,
+        "_"
+      )}_${studentNim}.pdf`;
+
+      await generatePDF("pdf-content", filename);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Gagal mengunduh PDF. Silakan coba lagi.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // Convert data format for PDFDocument component
+  const getConvertedRancangan = (item: Rancangan) => {
+    return {
+      ...item,
+      mahasiswa: {
+        nama: getStudentName(item.id),
+        nim: getStudentNim(item.id),
+      },
+      dosenPA: {
+        nama: getSupervisor(item.id),
+        nip: "198505152010121002", // Default NIP, bisa diambil dari data
+      },
+    };
   };
 
   return (
@@ -254,10 +292,14 @@ export default function KaprodiPengajuanRanpelPage() {
                     <TableCell className="text-gray-600 text-sm">
                       {getSupervisor(item.id)}
                     </TableCell>
-                    <TableCell className="text-sm">{item.tanggalDiajukan}</TableCell>
+                    <TableCell className="text-sm">
+                      {item.tanggalDiajukan}
+                    </TableCell>
                     <TableCell>
                       <Badge
-                        className={`${statusColors[item.status]} border-0 text-xs`}
+                        className={`${
+                          statusColors[item.status]
+                        } border-0 text-xs`}
                       >
                         {statusLabels[item.status]}
                       </Badge>
@@ -393,192 +435,47 @@ export default function KaprodiPengajuanRanpelPage() {
 
         {/* Detail Dialog */}
         <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-          <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg">
+          <DialogContent className="sm:max-w-6xl max-h-[95vh] overflow-hidden rounded">
             {selected && (
               <>
-                <DialogHeader className="space-y-2 pb-4 border-b">
-                  <DialogTitle className="text-xl font-semibold">
-                    Preview Rancangan Penelitian
-                  </DialogTitle>
-                  <DialogDescription className="text-gray-600">
-                    Preview dokumen rancangan penelitian mahasiswa.
-                  </DialogDescription>
+                <DialogHeader>
+                  <DialogTitle>Preview Rancangan Penelitian</DialogTitle>
                 </DialogHeader>
 
-                {/* PDF-like content */}
-                <div className="bg-white p-8 space-y-6 text-sm leading-relaxed">
-                  {/* Header */}
-                  <div className="text-center space-y-2 border-b pb-6">
-                    <h1 className="text-lg font-bold uppercase">
-                      RANCANGAN PENELITIAN SKRIPSI
-                    </h1>
-                    <p className="text-gray-600">
-                      Program Studi Teknik Informatika
-                    </p>
-                  </div>
-
-                  {/* Student Info */}
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <div className="flex">
-                        <span className="w-32 font-medium">NIM</span>
-                        <span className="mr-2">:</span>
-                        <span>{getStudentNim(selected.id)}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="w-32 font-medium">Nama Mahasiswa</span>
-                        <span className="mr-2">:</span>
-                        <span>{getStudentName(selected.id)}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="w-32 font-medium">
-                          Dosen Pembimbing
-                        </span>
-                        <span className="mr-2">:</span>
-                        <span>{getSupervisor(selected.id)}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex">
-                        <span className="w-32 font-medium">
-                          Tanggal Diajukan
-                        </span>
-                        <span className="mr-2">:</span>
-                        <span>{selected.tanggalDiajukan}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="w-32 font-medium">Status</span>
-                        <span className="mr-2">:</span>
-                        <Badge
-                          className={`${
-                            statusColors[selected.status]
-                          } border-0`}
-                        >
-                          {statusLabels[selected.status]}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Judul Penelitian
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed font-medium">
-                          {selected.judul}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Masalah & Penyebab
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed">
-                          {selected.masalah}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Alternatif Solusi
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed">
-                          {selected.solusi}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Hasil yang Diharapkan
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed">
-                          {selected.hasil}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Kebutuhan Data
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed">
-                          {selected.kebutuhan}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base mb-3 border-l-4 border-blue-500 pl-3">
-                        Metode Pelaksanaan
-                      </h3>
-                      <div className="bg-gray-50 p-4 rounded border-l-4 border-gray-300">
-                        <p className="text-justify leading-relaxed">
-                          {selected.metode}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="pt-6 border-t mt-8">
-                    <div className="grid grid-cols-3 gap-6">
-                      <div>
-                        <p className="text-center mb-16">Mahasiswa,</p>
-                        <div className="text-center border-t border-black pt-2">
-                          <p className="font-medium">
-                            {getStudentName(selected.id)}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            NIM: {getStudentNim(selected.id)}
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-center mb-16">Dosen Pembimbing,</p>
-                        <div className="text-center border-t border-black pt-2">
-                          <p className="font-medium">
-                            {getSupervisor(selected.id)}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            NIP: ___________________
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-center mb-16">Kaprodi,</p>
-                        <div className="text-center border-t border-black pt-2">
-                          <p className="font-medium">___________________</p>
-                          <p className="text-sm text-gray-600">
-                            NIP: ___________________
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                {/* PDF Preview Container */}
+                <div className="bg-gray-100 p-4 rounded-lg max-h-[75vh] overflow-y-auto">
+                  <div
+                    className="bg-white shadow-2xl mx-auto"
+                    style={{ width: "210mm", minHeight: "297mm" }}
+                  >
+                    <PDFDocument
+                      rancangan={getConvertedRancangan(selected)}
+                      id="pdf-content"
+                    />
                   </div>
                 </div>
 
-                <DialogFooter className="flex justify-between pt-6 border-t bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
-                  <Button
-                    variant="outline"
-                    onClick={() => setSelected(null)}
-                    className="rounded-md"
-                  >
-                    Tutup
-                  </Button>
+                <DialogFooter className="flex justify-between ">
+                  {/* Tombol kiri: Tutup & Download */}
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setSelected(null)}>
+                      Tutup
+                    </Button>
+                    <Button
+                      onClick={handleDownloadPDF}
+                      disabled={isDownloading}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      {isDownloading ? "Mengunduh..." : "Download PDF"}
+                    </Button>
+                  </div>
+
+                  {/* Tombol kanan: Approve / Reject */}
                   {selected.status === "pending" && (
                     <div className="flex gap-2">
                       <Button
-                        className="bg-red-500 hover:bg-red-600 text-white rounded-md"
+                        className="bg-red-500 hover:bg-red-600 text-white"
                         onClick={() =>
                           setApprovalDialog({
                             item: selected,
@@ -589,7 +486,7 @@ export default function KaprodiPengajuanRanpelPage() {
                         Tolak
                       </Button>
                       <Button
-                        className="bg-green-500 hover:bg-green-600 text-white rounded-md"
+                        className="bg-green-500 hover:bg-green-600 text-white"
                         onClick={() =>
                           setApprovalDialog({
                             item: selected,
@@ -700,4 +597,3 @@ export default function KaprodiPengajuanRanpelPage() {
     </div>
   );
 }
-     

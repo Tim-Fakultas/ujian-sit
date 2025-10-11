@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import MahasiswaPage from "./(routes)/mahasiswa/pengajuan/page";
+import MahasiswaPage from "./(routes)/mahasiswa/dashboard/page";
 import LoginPage from "./login/page";
 
 export default function Home() {

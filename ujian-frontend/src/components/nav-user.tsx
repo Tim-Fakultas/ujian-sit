@@ -29,7 +29,7 @@ import { logoutAction } from "@/actions/logoutAction";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export function NavUser() {
-  const { isMobile } = useSidebar();
+  const { isMobile, open } = useSidebar();
   const { user, initializeFromCookies } = useAuthStore();
 
   useEffect(() => {
@@ -50,28 +50,30 @@ export function NavUser() {
     .slice(0, 2);
 
   return (
-    <SidebarMenu>
+    <SidebarMenu className={`${open ? "px-2" : "px-1"}`}>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-slate-50 dark:hover:bg-slate-800/50 h-12 group-data-[collapsible=icon]:justify-center"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarFallback className="rounded-lg">
+              <Avatar className="h-7 w-7 rounded-full flex-shrink-0">
+                <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-[10px] font-medium">
                   {initials}
                 </AvatarFallback>
               </Avatar>
 
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.nama}</span>
-                <span className="text-muted-foreground truncate text-xs">
+              <div className="grid flex-1 text-left text-xs leading-tight min-w-0 group-data-[collapsible=icon]:hidden">
+                <span className="truncate font-medium text-slate-800 dark:text-slate-100">
+                  {user.nama}
+                </span>
+                <span className="text-slate-500 dark:text-slate-400 truncate text-xs">
                   {user.nim || user.nidn || user.nip_nim}
                 </span>
               </div>
 
-              <IconDotsVertical className="ml-auto size-4" />
+              <IconDotsVertical className="ml-auto size-4 text-slate-500 dark:text-slate-400 flex-shrink-0 group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
 
@@ -83,13 +85,13 @@ export function NavUser() {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg">
+                <Avatar className="h-8 w-8 rounded-full flex-shrink-0">
+                  <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-medium">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
 
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="grid flex-1 text-left text-xs leading-tight">
                   <span className="truncate font-medium">{user.nama}</span>
                   <span className="text-muted-foreground truncate text-xs">
                     {user.email}
@@ -110,12 +112,14 @@ export function NavUser() {
                     .replace(/\s+/g, "-")
                     .toLowerCase()}/profile`}
                 >
-                  <IconUserCircle /> Profile
+                  <IconUserCircle className="mr-2 h-4 w-4" />
+                  Profile
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem>
-                <IconNotification /> Notifications
+                <IconNotification className="mr-2 h-4 w-4" />
+                Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
@@ -128,7 +132,7 @@ export function NavUser() {
                   variant="ghost"
                   className="w-full justify-start text-red-500 hover:text-red-600"
                 >
-                  <IconLogout className="mr-2" />
+                  <IconLogout className="mr-2 h-4 w-4" />
                   Log out
                 </Button>
               </DropdownMenuItem>
