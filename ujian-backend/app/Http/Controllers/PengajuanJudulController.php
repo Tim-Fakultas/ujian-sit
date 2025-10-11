@@ -27,6 +27,12 @@ class PengajuanJudulController extends Controller
         $request->validated();
         $pengajuanJudul = PengajuanJudul::create($request->all());
 
+
+        if ($request->hasFile('file_path')) {
+            $path = $request->file('file_path')->store('uploads/proposals');
+            $pengajuanJudul->update(['file_path' => $path]);
+        }
+
         return new PengajuanJudulResource($pengajuanJudul);
     }
 
