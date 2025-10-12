@@ -22,13 +22,12 @@ class UpdateRanpelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'judul_id' => 'sometimes|exists:judul,id',
-            'identifikasi_masalah' => 'sometimes|string',
-            'rumusan_masalah' => 'sometimes|string',
-            'penelitian_sebelumnya' => 'sometimes|string',
-            'pokok_masalah' => 'sometimes|string',
-            'deskripsi_lengkap' => 'sometimes|string',
-            'status' => 'sometimes|in:menunggu,disetujui,ditolak',
+            'judul_penelitian' => 'required|string|max:255',
+            'masalah_dan_penyebab'=> 'required|string',
+            'alternatif_solusi'=> 'required|string',
+            'metode_penelitian' => 'nullable|string',
+            'hasil_yang_diharapkan' => 'nullable|string',
+            'kebutuhan_data'=> 'nullable|string',
         ];
     }
 }

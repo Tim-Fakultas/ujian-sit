@@ -31,10 +31,7 @@ class Mahasiswa extends Model
         'ipk' => 'float',
     ];
 
-    public function pengajuan_judul()
-    {
-        return $this->hasMany(PengajuanJudul::class, 'mahasiswa_id', 'id');
-    }
+
 
     public function prodi()
     {
@@ -74,5 +71,10 @@ class Mahasiswa extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function pengajuan_ranpel()
+    {
+        return $this->hasMany(PengajuanRanpel::class, 'mahasiswa_id');
     }
 }

@@ -11,6 +11,6 @@ class SkripsiSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        \App\Models\Skripsi::factory(30)->create();
     }
 }

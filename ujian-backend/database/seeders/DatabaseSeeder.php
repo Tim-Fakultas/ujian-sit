@@ -28,269 +28,282 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
         // Step 1: Create 1 Fakultas
         $fakultas = Fakultas::factory()->create([
-            'nama_fakultas' => 'Fakultas Sains dan Teknologi',
+            'nama_fakultas' => 'Fakultas Sains dan Teknologi'
         ]);
 
         // Step 2: Create 3 Prod
 
+
+
         $prodi1 = Prodi::factory()->create([
             'nama_prodi' => 'Sistem Informasi',
-            'fakultas_id' => $fakultas->id,
+            'fakultas_id' => $fakultas->id
         ]);
 
         $prodi2 = Prodi::factory()->create([
             'nama_prodi' => 'Biologi',
-            'fakultas_id' => $fakultas->id,
+            'fakultas_id' => $fakultas->id
         ]);
 
         $prodi3 = Prodi::factory()->create([
             'nama_prodi' => 'Kimia',
-            'fakultas_id' => $fakultas->id,
+            'fakultas_id' => $fakultas->id
         ]);
 
         // Step 0: Create roles and permissions first
         $this->call(RolesAndPermissionsSeeder::class);
 
         $adminUser = User::factory()->create([
-            'id' => 1,
-            'nip_nim' => '2120803026',
-            'nama' => 'Muhammad Adib Saputra',
-            'email' => 'Abdi@example.com',
-            'password' => bcrypt('2120803026'),
-            'prodi_id' => null,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
+                'id' => 1,
+                'nip_nim' => '2120803026',
+                'nama' => 'Muhammad Adib Saputra',
+                'email' => 'Abdi@example.com',
+                'password' => bcrypt('2120803026'),
+                'prodi_id'=> null,
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
         ]);
 
         $dosenSI = User::factory()->create([
-            'id' => 2,
-            'nip_nim' => 'Freddy1987654321',
-            'nama' => 'Freddy Kurnia Wijaya',
-            'email' => 'freddykurnia@gmail.com',
-            'password' => bcrypt('Freddy1987654321'),
-            'prodi_id' => $prodi1->id,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
+                'id' => 2,
+                'nip_nim' => 'Freddy1987654321',
+                'nama' => 'Freddy Kurnia Wijaya',
+                'email' => 'freddykurnia@gmail.com',
+                'password' => bcrypt('Freddy1987654321'),
+                'prodi_id'=> $prodi1->id,
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
         ]);
 
         $dosenBiologi = User::factory()->create([
-            'id' => 3,
-            'nip_nim' => 'Dimas12345',
-            'nama' => 'Dimas Prasetyo',
-            'email' => 'dimas@gmail.com',
-            'password' => bcrypt('Dimas12345'),
-            'prodi_id' => $prodi2->id,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
+                'id' => 3,
+                'nip_nim' => 'Dimas12345',
+                'nama' => 'Dimas Prasetyo',
+                'email' => 'dimas@gmail.com',
+                'password' => bcrypt('Dimas12345'),
+                'prodi_id'=> $prodi2->id,
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
         ]);
         $dosenKimia = User::factory()->create([
-            'id' => 4,
-            'nip_nim' => 'Farhan12345',
-            'nama' => 'Farahan Pratama',
-            'email' => 'farhan@gmail.com',
-            'password' => bcrypt('Farhan12345'),
-            'prodi_id' => $prodi3->id,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
+                'id' => 4,
+                'nip_nim' => 'Farhan12345',
+                'nama' => 'Farahan Pratama',
+                'email' => 'farhan@gmail.com',
+                'password' => bcrypt('Farhan12345'),
+                'prodi_id'=> $prodi3->id,
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
         ]);
 
-        $mahasiswaSI = User::factory()->create([
-            'id' => 5,
-            'nip_nim' => '23041450085',
-            'nama' => 'Muhammad Luqman Al-Fauzan',
-            'email' => '23041450085@radenfatah.ac.id',
-            'password' => bcrypt('23041450085'),
-            'prodi_id' => $prodi1->id,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
-        ]);
-        $mahasiswaBiologi = User::factory()->create([
-            'id' => 6,
-            'nip_nim' => '23041450086',
-            'nama' => 'Farah Hasywaza Audremayna',
-            'email' => '23041450086@radenfatah.ac.id',
-            'password' => bcrypt('23041450086'),
-            'prodi_id' => $prodi2->id,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
-        ]);
-        $mahasiswaKimia = User::factory()->create([
-            'id' => 7,
-            'nip_nim' => '23041450087',
-            'nama' => 'Rizki Faruli',
-            'email' => '23041450087@radenfatah.ac.id',
-            'password' => bcrypt('23041450087'),
-            'prodi_id' => $prodi3->id,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
-        ]);
+        // $mahasiswaSI = User::factory()->create([
+        //         'id' => 5,
+        //         'nip_nim' => '23041450085',
+        //         'nama' => 'Muhammad Luqman Al-Fauzan',
+        //         'email' => '23041450085@radenfatah.ac.id',
+        //         'password' => bcrypt('23041450085'),
+        //         'prodi_id'=> $prodi1->id,
+        //         'email_verified_at' => now(),
+        //         'remember_token' => Str::random(10),
+        // ]);
+        // $mahasiswaBiologi = User::factory()->create([
+        //         'id' => 6,
+        //         'nip_nim' => '23041450086',
+        //         'nama' => 'Farah Hasywaza Audremayna',
+        //         'email' => '23041450086@radenfatah.ac.id',
+        //         'password' => bcrypt('23041450086'),
+        //         'prodi_id'=> $prodi2->id,
+        //         'email_verified_at' => now(),
+        //         'remember_token' => Str::random(10),
+        // ]);
+        // $mahasiswaKimia = User::factory()->create([
+        //         'id' => 7,
+        //         'nip_nim' => '23041450087',
+        //         'nama' => 'Rizki Faruli',
+        //         'email' => '23041450087@radenfatah.ac.id',
+        //         'password' => bcrypt('23041450087'),
+        //         'prodi_id'=> $prodi3->id,
+        //         'email_verified_at' => now(),
+        //         'remember_token' => Str::random(10),
+        // ]);
 
         $kaprodi = User::factory()->create([
-            'id' => 9,
-            'nip_nim' => 'Kaprodi12345',
-            'nama' => 'Kaprodi Testiana, M.Kom',
-            'email' => 'kaprodi@radenfatah.ac.id',
-            'password' => bcrypt('Kaprodi12345'),
-            'prodi_id' => 1,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
+                'id' => 9,
+                'nip_nim' => 'Kaprodi12345',
+                'nama' => 'Kaprodi Testiana, M.Kom',
+                'email' => 'kaprodi@radenfatah.ac.id',
+                'password' => bcrypt('Kaprodi12345'),
+                'prodi_id' => 1,
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
         ]);
 
         $sekprodi = User::factory()->create([
-            'id' => 10,
-            'nip_nim' => 'Sekprodi12345',
-            'nama' => 'Sekprodi Testiana, M.Kom',
-            'email' => 'sekprodi@radenfatah.ac.id',
-            'password' => bcrypt('Sekprodi12345'),
-            'prodi_id' => 1,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
+                'id' => 10,
+                'nip_nim' => 'Sekprodi12345',
+                'nama' => 'Sekprodi Testiana, M.Kom',
+                'email' => 'sekprodi@radenfatah.ac.id',
+                'password' => bcrypt('Sekprodi12345'),
+                'prodi_id' => 1,
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
         ]);
 
         $adminProdiSI = User::factory()->create([
-            'id' => 11,
-            'nip_nim' => 'AdminSI',
-            'nama' => 'Admin Prodi Sistem Informasi',
-            'email' => 'adminsi@radenfatah.ac.id',
-            'password' => bcrypt('AdminSI'),
-            'prodi_id' => 1,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
+                'id' => 11,
+                'nip_nim' => 'AdminSI',
+                'nama' => 'Admin Prodi Sistem Informasi',
+                'email' => 'adminsi@radenfatah.ac.id',
+                'password' => bcrypt('AdminSI'),
+                'prodi_id' => 1,
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
         ]);
 
         $adminProdiBiologi = User::factory()->create([
-            'id' => 12,
-            'nip_nim' => 'AdminBio12345',
-            'nama' => 'Admin Prodi Biologi',
-            'email' => 'biologi@radenfatah.ac.id',
-            'password' => bcrypt('AdminBio12345'),
-            'prodi_id' => 2,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
+                'id' => 12,
+                'nip_nim' => 'AdminBio12345',
+                'nama' => 'Admin Prodi Biologi',
+                'email' => 'biologi@radenfatah.ac.id',
+                'password' => bcrypt('AdminBio12345'),
+                'prodi_id' => 2,
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
         ]);
 
         $adminProdiKimia = User::factory()->create([
-            'id' => 13,
-            'nip_nim' => 'AdminKimia123',
-            'nama' => 'Admin Prodi Kimia',
-            'email' => 'AdminKimia123@radenfatah.ac.id',
-            'password' => bcrypt('AdminKimia123'),
-            'prodi_id' => 3,
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
+                'id' => 13,
+                'nip_nim' => 'AdminKimia123',
+                'nama' => 'Admin Prodi Kimia',
+                'email' => 'AdminKimia123@radenfatah.ac.id',
+                'password' => bcrypt('AdminKimia123'),
+                'prodi_id' => 3,
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
         ]);
-        // Assign admin role to the created user
+          // Assign admin role to the created user
         $adminUser->assignRole('super admin');
         $dosenSI->assignRole('dosen');
         $dosenBiologi->assignRole('dosen');
         $dosenKimia->assignRole('dosen');
-        $mahasiswaSI->assignRole('mahasiswa');
-        $mahasiswaBiologi->assignRole('mahasiswa');
-        $mahasiswaKimia->assignRole('mahasiswa');
+        // $mahasiswaSI->assignRole('mahasiswa');
+        // $mahasiswaBiologi->assignRole('mahasiswa');
+        // $mahasiswaKimia->assignRole('mahasiswa');
         $adminProdiSI->assignRole('admin prodi');
         $adminProdiBiologi->assignRole('admin prodi');
         $adminProdiKimia->assignRole('admin prodi');
         $sekprodi->assignRole('sekprodi');
         $kaprodi->assignRole('kaprodi');
 
+
+
+
         $peminatan = Peminatan::factory()->createMany([
             // Peminatan untuk Sistem Informasi
             [
                 'nama_peminatan' => 'Pengembangan Sistem Informasi',
-                'prodi_id' => $prodi1->id,
-            ], [
+                'prodi_id' => $prodi1->id
+            ],[
                 'nama_peminatan' => 'Sistem Analis',
-                'prodi_id' => $prodi1->id,
-            ], [
+                'prodi_id' => $prodi1->id
+            ],[
                 'nama_peminatan' => 'Data Analis',
-                'prodi_id' => $prodi1->id,
+                'prodi_id' => $prodi1->id
             ],
             // Peminatan untuk Biologi
             [
                 'nama_peminatan' => 'Mikrobiologi',
-                'prodi_id' => $prodi2->id,
+                'prodi_id' => $prodi2->id
             ],
             // Peminatan untuk Kimia
             [
                 'nama_peminatan' => 'Kimia Analitik',
-                'prodi_id' => $prodi3->id,
-            ],
+                'prodi_id' => $prodi3->id
+            ]
         ]);
 
-        // Create Mahasiswa records for the test users
-        Mahasiswa::create([
-            'nim' => '23041450085',
-            'nama' => 'Muhammad Luqman Al-Fauzan',
-            'no_hp' => '081234567890',
-            'alamat' => 'Palembang',
-            'semester' => 7,
-            'ipk' => 3.75,
-            'prodi_id' => $prodi1->id,
-            'peminatan_id' => $peminatan[0]->id, // Pengembangan Sistem Informasi
-            'user_id' => $mahasiswaSI->id,
-            'dosen_pa' => 1,
-        ]);
+        // // Create Mahasiswa records for the test users
+        // Mahasiswa::create([
+        //     'nim' => '23041450085',
+        //     'nama' => 'Muhammad Luqman Al-Fauzan',
+        //     'no_hp' => '081234567890',
+        //     'alamat' => 'Palembang',
+        //     'semester' => 7,
+        //     'ipk' => 3.75,
+        //     'prodi_id' => $prodi1->id,
+        //     'peminatan_id' => $peminatan[0]->id, // Pengembangan Sistem Informasi
+        //     'user_id' => $mahasiswaSI->id,
+        //     'dosen_pa' => 1,
+        // ]);
 
-        Mahasiswa::create([
-            'nim' => '23041450086',
-            'nama' => 'Farah Hasywaza Audremayna',
-            'no_hp' => '081234567891',
-            'alamat' => 'Palembang',
-            'semester' => 7,
-            'ipk' => 3.88,
-            'prodi_id' => $prodi2->id,
-            'peminatan_id' => $peminatan[3]->id, // Mikrobiologi
-            'user_id' => $mahasiswaBiologi->id,
-            'dosen_pa' => 7,
-        ]);
+        // Mahasiswa::create([
+        //     'nim' => '23041450086',
+        //     'nama' => 'Farah Hasywaza Audremayna',
+        //     'no_hp' => '081234567891',
+        //     'alamat' => 'Palembang',
+        //     'semester' => 7,
+        //     'ipk' => 3.88,
+        //     'prodi_id' => $prodi2->id,
+        //     'peminatan_id' => $peminatan[3]->id, // Mikrobiologi
+        //     'user_id' => $mahasiswaBiologi->id,
+        //     'dosen_pa' => 7,
+        // ]);
 
-        Mahasiswa::create([
-            'nim' => '23041450087',
-            'nama' => 'Rizki Faruli',
-            'no_hp' => '081234567892',
-            'alamat' => 'Palembang',
-            'semester' => 7,
-            'ipk' => 3.50,
-            'prodi_id' => $prodi3->id,
-            'peminatan_id' => $peminatan[4]->id, // Kimia Analitik
-            'user_id' => $mahasiswaKimia->id,
-            'dosen_pa' => 13,
-        ]);
+        // Mahasiswa::create([
+        //     'nim' => '23041450087',
+        //     'nama' => 'Rizki Faruli',
+        //     'no_hp' => '081234567892',
+        //     'alamat' => 'Palembang',
+        //     'semester' => 7,
+        //     'ipk' => 3.50,
+        //     'prodi_id' => $prodi3->id,
+        //     'peminatan_id' => $peminatan[4]->id, // Kimia Analitik
+        //     'user_id' => $mahasiswaKimia->id,
+        //     'dosen_pa' => 13,
+        // ]);
 
-        // Create Dosen records for the test users
-        Dosen::create([
-            'nidn' => 'Freddy1987654321',
-            'nama' => 'Freddy Kurnia Wijaya',
-            'no_hp' => '081234567893',
-            'alamat' => 'Palembang',
-            'prodi_id' => $prodi1->id,
-        ]);
 
-        Dosen::create([
-            'nidn' => 'Dimas12345',
-            'nama' => 'Dimas Prasetyo',
-            'no_hp' => '081234567894',
-            'alamat' => 'Palembang',
-            'prodi_id' => $prodi2->id,
-        ]);
 
-        Dosen::create([
-            'nidn' => 'Farhan12345',
-            'nama' => 'Farahan Pratama',
-            'no_hp' => '081234567895',
-            'alamat' => 'Palembang',
-            'prodi_id' => $prodi3->id,
-        ]);
+        // // Create Dosen records for the test users
+        // Dosen::create([
+        //     'nidn' => 'Freddy1987654321',
+        //     'nama' => 'Freddy Kurnia Wijaya',
+        //     'no_hp' => '081234567893',
+        //     'alamat' => 'Palembang',
+        //     'prodi_id' => $prodi1->id,
+        // ]);
 
-        // Step 3: Create 6 Dosen for each prodi (18 total)
-        Dosen::factory(5)->create(['prodi_id' => $prodi1->id]);
-        Dosen::factory(5)->create(['prodi_id' => $prodi2->id]);
-        Dosen::factory(5)->create(['prodi_id' => $prodi3->id]);
+        // Dosen::create([
+        //     'nidn' => 'Dimas12345',
+        //     'nama' => 'Dimas Prasetyo',
+        //     'no_hp' => '081234567894',
+        //     'alamat' => 'Palembang',
+        //     'prodi_id' => $prodi2->id,
+        // ]);
 
-        // Step 4: Create 30 Mahasiswa for each prodi (90 total)
-        Mahasiswa::factory(30)->create(['prodi_id' => $prodi1->id]);
-        Mahasiswa::factory(30)->create(['prodi_id' => $prodi2->id]);
-        Mahasiswa::factory(30)->create(['prodi_id' => $prodi3->id]);
+        // Dosen::create([
+        //     'nidn' => 'Farhan12345',
+        //     'nama' => 'Farahan Pratama',
+        //     'no_hp' => '081234567895',
+        //     'alamat' => 'Palembang',
+        //     'prodi_id' => $prodi3->id,
+        // ]);
+
+        // // Step 3: Create 6 Dosen for each prodi (18 total)
+        // Dosen::factory(5)->create(['prodi_id' => $prodi1->id]);
+        // Dosen::factory(5)->create(['prodi_id' => $prodi2->id]);
+        // Dosen::factory(5)->create(['prodi_id' => $prodi3->id]);
+
+        // // Step 4: Create 30 Mahasiswa for each prodi (90 total)
+        // Mahasiswa::factory(30)->create(['prodi_id' => $prodi1->id]);
+        // Mahasiswa::factory(30)->create(['prodi_id' => $prodi2->id]);
+        // Mahasiswa::factory(30)->create(['prodi_id' => $prodi3->id]);
+
+        //buat dosen seeder
+        $this->call(DosenSeeder::class);
+
+        //buat mahasiswa seeder
+        $this->call(MahasiswaSeeder::class);
 
         // Step 5: Create supporting data
         // Create some JenisUjian (types of exams)
@@ -299,149 +312,11 @@ class DatabaseSeeder extends Seeder
         // Create some Syarat (requirements)
         \App\Models\Syarat::factory(10)->create();
 
-        // Step 6: Create related data using the factories
-        // Create some PengajuanJudul (thesis proposals)
-        PengajuanJudul::factory()->create([
-            'mahasiswa_id' => 1,
-            'judul' => 'Analisis Performa Algoritma Machine Learning pada Dataset Besar',
-            'deskripsi' => 'Penelitian ini bertujuan untuk menganalisis performa beberapa algoritma machine learning dalam memproses dataset besar.',
-            'tanggal_pengajuan' => '2023-09-15',
-            'tanggal_disetujui' => '2023-09-22',
-            'status' => 'disetujui',
-            'dosen_id' => 3,
-            'keterangan' => 'Judul relevan dengan bidang ilmu komputer.',
-        ]);
+        //ranpel
+        $this->call(RanpelSeeder::class);
 
-        PengajuanJudul::factory()->create([
-            'mahasiswa_id' => 2,
-            'judul' => 'Pengembangan Aplikasi Mobile Berbasis Augmented Reality untuk Pendidikan',
-            'deskripsi' => 'Membuat aplikasi mobile yang mengintegrasikan teknologi augmented reality untuk meningkatkan metode belajar.',
-            'tanggal_pengajuan' => '2023-09-18',
-            'tanggal_disetujui' => null,
-            'status' => 'menunggu',
-            'dosen_id' => 7,
-            'keterangan' => null,
-        ]);
-
-        PengajuanJudul::factory()->create([
-            'mahasiswa_id' => 3,
-            'judul' => 'Studi Kasus: Implementasi Internet of Things pada Sistem Monitoring Lingkungan',
-            'deskripsi' => 'Menerapkan IoT untuk monitoring parameter lingkungan seperti suhu, kelembaban, dan kualitas udara.',
-            'tanggal_pengajuan' => '2023-09-10',
-            'tanggal_disetujui' => '2023-09-17',
-            'status' => 'disetujui',
-            'dosen_id' => 2,
-            'keterangan' => 'Perlu penyesuaian metodologi penelitian.',
-        ]);
-
-        PengajuanJudul::factory()->create([
-            'mahasiswa_id' => 4,
-            'judul' => 'Optimalisasi Route Planning dengan Metode Metaheuristic',
-            'deskripsi' => 'Mengimplementasikan algoritma metaheuristic untuk menyelesaikan masalah route planning dengan efisiensi maksimal.',
-            'tanggal_pengajuan' => '2023-09-20',
-            'tanggal_disetujui' => null,
-            'status' => 'ditolak',
-            'dosen_id' => 9,
-            'keterangan' => 'Judul terlalu umum, perlu fokus pada area spesifik.',
-        ]);
-
-        PengajuanJudul::factory()->create([
-            'mahasiswa_id' => 5,
-            'judul' => 'Analisis Sentiment pada Media Sosial terhadap Produk Teknologi Terbaru',
-            'deskripsi' => 'Menganalisis sentimen publik terhadap produk teknologi baru menggunakan teknik natural language processing.',
-            'tanggal_pengajuan' => '2023-09-12',
-            'tanggal_disetujui' => '2023-09-25',
-            'status' => 'disetujui',
-            'dosen_id' => 5,
-            'keterangan' => null,
-        ]);
-
-        PengajuanJudul::factory()->create([
-            'mahasiswa_id' => 6,
-            'judul' => 'Pengembangan Sistem Rekomendasi Berbasis Collaborative Filtering',
-            'deskripsi' => 'Membangun sistem rekomendasi produk menggunakan teknik collaborative filtering untuk meningkatkan pengalaman pengguna.',
-            'tanggal_pengajuan' => '2023-09-14',
-            'tanggal_disetujui' => null,
-            'status' => 'menunggu',
-            'dosen_id' => 11,
-            'keterangan' => null,
-        ]);
-
-        PengajuanJudul::factory()->create([
-            'mahasiswa_id' => 7,
-            'judul' => 'Implementasi Blockchain untuk Keamanan Data Transaksi',
-            'deskripsi' => 'Menerapkan teknologi blockchain untuk meningkatkan keamanan dan transparansi dalam transaksi digital.',
-            'tanggal_pengajuan' => '2023-09-16',
-            'tanggal_disetujui' => '2023-09-23',
-            'status' => 'disetujui',
-            'dosen_id' => 14,
-            'keterangan' => 'Perlu penjelasan lebih rinci tentang aspek teknis.',
-        ]);
-
-        // Create additional PengajuanJudul using factory
-
-        // Create Judul (titles) - sebelum Ranpel
-        Judul::factory()->createMany([
-            [
-                'judul' => 'Analisis Performa Algoritma Machine Learning pada Dataset Besar',
-                'deskripsi' => 'Penelitian ini bertujuan untuk menganalisis performa beberapa algoritma machine learning dalam memproses dataset besar.',
-            ],
-            [
-                'judul' => 'Studi Kasus: Implementasi Internet of Things pada Sistem Monitoring Lingkungan',
-                'deskripsi' => 'Menerapkan IoT untuk monitoring parameter lingkungan seperti suhu, kelembaban, dan kualitas udara.',
-            ],
-            [
-                'judul' => 'Analisis Sentiment pada Media Sosial terhadap Produk Teknologi Terbaru',
-                'deskripsi' => 'Menganalisis sentimen publik terhadap produk teknologi baru menggunakan teknik natural language processing.',
-            ],
-            [
-                'judul' => 'Implementasi Blockchain untuk Keamanan Data Transaksi',
-                'deskripsi' => 'Menerapkan teknologi blockchain untuk meningkatkan keamanan dan transparansi dalam transaksi digital.',
-            ],
-        ]);
-
-        // Create Ranpel (research plans) - harus sebelum Skripsi
-        // Membuat 4 data ranpel berdasarkan judul yang ada
-        $ranpelData = [
-            [
-                'judul_id' => 1, // ID judul pertama
-                'identifikasi_masalah' => 'Algoritma machine learning tradisional sering mengalami kendala dalam memproses dataset besar, menyebabkan waktu komputasi tinggi dan akurasi rendah.',
-                'rumusan_masalah' => 'Bagaimana cara mengoptimalkan performa beberapa algoritma machine learning dalam memproses dataset besar dengan efisiensi tinggi?',
-                'penelitian_sebelumnya' => 'Penelitian sebelumnya menunjukkan bahwa algoritma Random Forest dan SVM memiliki performa baik pada dataset medium, namun masih belum optimal untuk dataset besar (>1GB).',
-                'pokok_masalah' => 'Optimalisasi performa algoritma machine learning pada dataset besar dengan trade-off antara akurasi dan waktu komputasi.',
-                'deskripsi_lengkap' => 'Penelitian ini akan membandingkan performa algoritma Random Forest, SVM, dan Neural Network pada dataset besar. Metode optimasi seperti parallel computing dan feature selection akan digunakan untuk meningkatkan efisiensi. Dataset yang digunakan merupakan dataset publik dari Kaggle dengan ukuran >1GB.',
-                'status' => 'ditolak',
-            ],
-            [
-                'judul_id' => 2, // ID judul kedua
-                'identifikasi_masalah' => 'Sistem monitoring lingkungan konvensional masih bergantung pada infrastruktur kabel dan memiliki keterbatasan dalam cakupan area serta real-time monitoring.',
-                'rumusan_masalah' => 'Bagaimana menerapkan sistem IoT yang terintegrasi dengan sensor-sensor modern untuk memonitoring parameter lingkungan secara real-time dan hemat biaya?',
-                'penelitian_sebelumnya' => 'Beberapa penelitian telah berhasil mengimplementasikan IoT untuk monitoring lingkungan, namun mayoritas masih menggunakan protokol komunikasi yang kurang efisien dan sistem manajemen data yang belum optimal.',
-                'pokok_masalah' => 'Pengembangan sistem IoT holistik dengan protokol komunikasi efisien dan arsitektur cloud yang handal untuk analisis data real-time.',
-                'deskripsi_lengkap' => 'Penelitian ini akan membangun sistem IoT dengan sensor-sensor untuk memonitoring suhu, kelembaban, dan kualitas udara. Data akan dikumpulkan menggunakan protokol MQTT dan dianalisis menggunakan dashboard real-time. Sistem akan diuji di area perkotaan dengan variasi kondisi lingkungan.',
-                'status' => 'menunggu',
-            ],
-            [
-                'judul_id' => 3, // ID judul ketiga
-                'identifikasi_masalah' => 'Analisis sentimen pada media sosial terhadap produk teknologi baru seringkali tidak akurat karena tantangan dalam memahami konteks dan bahasa informal.',
-                'rumusan_masalah' => 'Bagaimana meningkatkan akurasi analisis sentimen pada media sosial dengan menggabungkan teknik NLP dan deep learning untuk memahami konteks dan slang?',
-                'penelitian_sebelumnya' => 'Metode klasifikasi tradisional seperti Naive Bayes dan LSTM telah digunakan untuk analisis sentimen, namun masih kesulitan dalam menangani konteks dan bahasa gaul.',
-                'pokok_masalah' => 'Peningkatan akurasi analisis sentimen pada media sosial dengan mempertimbangkan faktor konteks dan bahasa informal.',
-                'deskripsi_lengkap' => 'Penelitian ini akan mengembangkan model hybrid yang menggabungkan transformer-based model (BERT) dengan teknik NLP tradisional. Model akan dilatih menggunakan dataset tweet dan ulasan produk teknologi baru. Evaluasi akan dilakukan dengan membandingkan akurasi model dengan metode konvensional.',
-                'status' => 'disetujui',
-            ],
-            [
-                'judul_id' => 4, // ID judul keempat
-                'identifikasi_masalah' => 'Transaksi digital saat ini masih rentan terhadap risiko keamanan seperti manipulasi data dan penipuan identitas.',
-                'rumusan_masalah' => 'Bagaimana menerapkan teknologi blockchain untuk meningkatkan keamanan dan transparansi dalam transaksi digital dengan meminimalkan risiko篡改 (manipulasi)?',
-                'penelitian_sebelumnya' => 'Blockchain telah terbukti efektif untuk keamanan data, namun implementasinya pada skenario transaksi massal masih menghadapi kendala skalabilitas dan integrasi dengan sistem legacy.',
-                'pokok_masalah' => 'Implementasi blockchain dalam sistem transaksi digital dengan fokus pada skalabilitas dan integrasi sistem.',
-                'deskripsi_lengkap' => 'Penelitian ini akan mengembangkan arsitektur blockchain yang dioptimalkan untuk transaksi digital. Platform akan menggunakan konsensus Proof-of-Stake dan smart contract untuk otomatisasi proses. Uji coba akan dilakukan pada simulasi transaksi e-commerce dan fintech dengan membandingkan performa dengan sistem tradisional.',
-                'status' => 'menunggu',
-            ],
-        ];
-
-        Ranpel::factory()->createMany($ranpelData);
+        //pengajuanRanpel
+        $this->call(PengajuanRanpelSeeder::class);
 
         // Create some Skripsi based on approved proposals - setelah Ranpel dibuat
         Skripsi::factory(30)->create();
@@ -459,44 +334,7 @@ class DatabaseSeeder extends Seeder
         \App\Models\JadwalPenguji::factory(30)->create();
 
         // Create KomponenPenilaian (assessment components)
-        $komponen = [
-            [
-                'nama_komponen' => 'Efektivitas Pendahuluan',
-                'deskripsi' => 'Ketajaman perumusan masalah, Tujuan Penelitian, Kebaharuan dan originalitas penelitian, Kesesuaian tema/judul dengan isi',
-                'bobot' => 15,
-            ],
-            [
-                'nama_komponen' => 'Motivasi pada Penelitian',
-                'deskripsi' => 'Pengembangan IPTEK Pembangunan atau pengembangan Kelembagaan',
-                'bobot' => 30,
-            ],
-            [
-                'nama_komponen' => 'Literatur review',
-                'deskripsi' => 'Referensi Jurnal, Kedalaman Tinjauan Pustaka buku',
-                'bobot' => 15,
-            ],
-            [
-                'nama_komponen' => 'Metodologi dan Konten Teknis',
-                'deskripsi' => 'Ketepatan Desain & Instrumen Ketepatan Analisis Data Relevansi Kejelasan Isi Konten',
-                'bobot' => 15,
-            ],
-            [
-                'nama_komponen' => 'Efektivitas Pengambilan Kesimpulan dan Saran',
-                'deskripsi' => 'Bersifat logis sesuai dengan Hasil temuan penelitian dan mampu menyimpulkan penelitian dengan baik sesuai dengan tujuan penelitian',
-                'bobot' => 15,
-            ],
-            [
-                'nama_komponen' => 'Sikap/Presentasi',
-                'deskripsi' => 'Sistematis & Logis dan daya nalar saat menjawab, Kepercayaan diri saat berbicara',
-                'bobot' => 10,
-            ],
-            [
-                'nama_komponen' => 'Bimbingan',
-                'deskripsi' => '',
-                'bobot' => 10,
-            ],
-        ];
-        \App\Models\KomponenPenilaian::factory()->createMany($komponen);
+        \App\Models\KomponenPenilaian::factory(15)->create();
 
         // Create Penilaian (assessments)
         \App\Models\Penilaian::factory(35)->create();
@@ -510,24 +348,6 @@ class DatabaseSeeder extends Seeder
         // Create some Pejabat (officials)
         Pejabat::factory(3)->create();
 
-        //  Fakultas::factory(1)
-        // ->has(
-        //     Prodi::factory(3)
-        //         ->has(Dosen::factory(10))   // <-- buat dosen dulu, per prodi
-        //         ->has(
-        //             Mahasiswa::factory(30)
-        //                 ->has(
-        //                     PengajuanJudul::factory(2)
-        //                         ->has(
-        //                             Skripsi::factory()
-        //                                 ->has(Bimbingan::factory(2))
-        //                         )
-        //                 )
-        //         )
-        // )
-        // ->create();
-
-        //     Pejabat::factory(3)->create();
 
     }
 }

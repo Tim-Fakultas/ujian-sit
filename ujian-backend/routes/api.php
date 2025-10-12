@@ -14,6 +14,7 @@ use App\Http\Controllers\PemenuhanSyaratController;
 use App\Http\Controllers\PeminatanController;
 use App\Http\Controllers\PendaftaranUjianController;
 use App\Http\Controllers\PengajuanJudulController;
+use App\Http\Controllers\PengajuanRanpelController;
 use App\Http\Controllers\PenilaianController;
 use App\Http\Controllers\ProdiController;
 use App\Http\Controllers\RanpelController;
@@ -41,7 +42,7 @@ Route::apiResource('fakultas', FakultasController::class);
 
 Route::apiResource('pejabat', PejabatController::class);
 
-Route::apiResource('pengajuan-judul', PengajuanJudulController::class);
+// Route::apiResource('pengajuan-judul', PengajuanJudulController::class);
 
 Route::apiResource('prodi', ProdiController::class);
 
@@ -69,4 +70,6 @@ Route::apiResource('ujian', UjianController::class);
 
 Route::apiResource('jadwal-penguji', JadwalPengujiController::class);
 
-Route::apiResource('judul', JudulController::class);
+// Route::apiResource('judul', JudulController::class);
+
+Route::apiResource('pengajuan-ranpel', PengajuanRanpelController::class);

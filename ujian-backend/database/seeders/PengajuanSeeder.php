@@ -11,6 +11,5 @@ class PengajuanSeeder extends Seeder
      */
     public function run(): void
     {
-        //
-    }
+            }
 }

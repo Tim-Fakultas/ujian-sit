@@ -14,7 +14,7 @@ class RanpelController extends Controller
      */
     public function index()
     {
-        $ranpel = Ranpel::with(['skripsi', 'judul'])->get();
+        $ranpel = Ranpel::get();
 
         return RanpelResource::collection($ranpel);
     }
@@ -35,7 +35,7 @@ class RanpelController extends Controller
      */
     public function show($id)
     {
-        $ranpel = Ranpel::with(['skripsi', 'judul'])->findOrFail($id);
+        $ranpel = Ranpel::findOrFail($id);
 
         return new RanpelResource($ranpel);
     }

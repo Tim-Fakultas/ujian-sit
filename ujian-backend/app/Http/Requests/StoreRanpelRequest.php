@@ -22,13 +22,12 @@ class StoreRanpelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'judul_id' => 'required|exists:judul,id',
-            'identifikasi_masalah' => 'required|string',
-            'rumusan_masalah' => 'required|string',
-            'penelitian_sebelumnya' => 'required|string',
-            'pokok_masalah' => 'required|string',
-            'deskripsi_lengkap' => 'required|string',
-            'status' => 'required|in:menunggu,disetujui,ditolak',
+            'judul_penelitian' => 'required|string|max:255',
+            'masalah_dan_penyebab'=> 'required|string',
+            'alternatif_solusi'=> 'required|string',
+            'metode_penelitian' => 'nullable|string',
+            'hasil_yang_diharapkan' => 'nullable|string',
+            'kebutuhan_data'=> 'nullable|string',
         ];
     }
 }

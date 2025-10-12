@@ -11,6 +11,6 @@ class PejabatSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        \App\Models\Pejabat::factory(3)->create();
     }
 }
