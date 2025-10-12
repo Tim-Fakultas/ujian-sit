@@ -73,3 +73,6 @@ Route::apiResource('jadwal-penguji', JadwalPengujiController::class);
 // Route::apiResource('judul', JudulController::class);
 
 Route::apiResource('pengajuan-ranpel', PengajuanRanpelController::class);
+Route::get('/mahasiswa/{id}/pengajuan-ranpel', [PengajuanRanpelController::class, 'getByMahasiswa'])
+    ->name('pengajuan-ranpel.byMahasiswa');
+

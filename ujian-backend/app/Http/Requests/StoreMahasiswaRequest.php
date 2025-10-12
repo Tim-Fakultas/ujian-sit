@@ -31,6 +31,11 @@ class StoreMahasiswaRequest extends FormRequest
             'semester' => 'required|integer|min:1|max:14',
             'ipk' => 'nullable|numeric|min:0|max:4',
             'dosen_pa' => 'nullable|exists:dosen,id',
+            'pembimbing_1' => 'nullable|exists:dosen,id',
+            'pembimbing_2' => 'nullable|exists:dosen,id',
+            'status' => 'required|string|in:aktif,cuti,lulus,nonaktif',
+            'angkatan' => 'required|string|size:4',
+            'user_id' => 'required|exists:users,id',
         ];
     }
 }

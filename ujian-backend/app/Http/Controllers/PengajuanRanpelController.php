@@ -66,4 +66,21 @@ class PengajuanRanpelController extends Controller
         $pengajuanRanpel->delete();
         return response()->json(['message' => 'Pengajuan Ranpel berhasil dihapus.'], 200);
     }
+
+    //Get pengajuan ranpel by mahasiswa id
+    public function getByMahasiswa($id)
+{
+    $pengajuanRanpel = PengajuanRanpel::with(['ranpel', 'mahasiswa'])
+        ->where('mahasiswa_id', $id)
+        ->get();
+
+    if ($pengajuanRanpel->isEmpty()) {
+        return response()->json([
+            'message' => 'Tidak ada pengajuan rancangan penelitian untuk mahasiswa ini.'
+        ], 404);
+    }
+
+    return PengajuanRanpelResource::collection($pengajuanRanpel);
+}
+
 }

@@ -32,6 +32,11 @@ class UpdateMahasiswaRequest extends FormRequest
             'ipk' => 'sometimes|nullable|numeric|min:0|max:4',
             'dosen_pa' => 'sometimes|nullable|exists:dosen,id',
             'dosen_id' => 'sometimes|nullable|exists:dosen,id', // alias untuk dosen_pa
+            'pembimbing_1' => 'sometimes|nullable|exists:dosen,id',
+            'pembimbing_2' => 'sometimes|nullable|exists:dosen,id',
+            'status' => 'sometimes|string|in:aktif,cuti,lulus,nonaktif',
+            'angkatan' => 'sometimes|string|size:4',
+            'user_id' => 'sometimes|exists:users,id',
         ];
     }
 }

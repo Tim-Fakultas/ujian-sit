@@ -25,10 +25,18 @@ class Mahasiswa extends Model
         'semester',
         'ipk',
         'dosen_pa',
+        'pembimbing_1',
+        'pembimbing_2',
+        'status',
+        'angkatan',
+        'user_id'
     ];
 
     protected $casts = [
         'ipk' => 'float',
+        'semester' => 'integer',
+        'status' => 'string',
+        'angkatan' => 'string'
     ];
 
 

@@ -64,37 +64,37 @@ class DatabaseSeeder extends Seeder
                 'remember_token' => Str::random(10),
         ]);
 
-        $dosenSI = User::factory()->create([
-                'id' => 2,
-                'nip_nim' => 'Freddy1987654321',
-                'nama' => 'Freddy Kurnia Wijaya',
-                'email' => 'freddykurnia@gmail.com',
-                'password' => bcrypt('Freddy1987654321'),
-                'prodi_id'=> $prodi1->id,
-                'email_verified_at' => now(),
-                'remember_token' => Str::random(10),
-        ]);
+        // $dosenSI = User::factory()->create([
+        //         'id' => 2,
+        //         'nip_nim' => 'Freddy1987654321',
+        //         'nama' => 'Freddy Kurnia Wijaya',
+        //         'email' => 'freddykurnia@gmail.com',
+        //         'password' => bcrypt('Freddy1987654321'),
+        //         'prodi_id'=> $prodi1->id,
+        //         'email_verified_at' => now(),
+        //         'remember_token' => Str::random(10),
+        // ]);
 
-        $dosenBiologi = User::factory()->create([
-                'id' => 3,
-                'nip_nim' => 'Dimas12345',
-                'nama' => 'Dimas Prasetyo',
-                'email' => 'dimas@gmail.com',
-                'password' => bcrypt('Dimas12345'),
-                'prodi_id'=> $prodi2->id,
-                'email_verified_at' => now(),
-                'remember_token' => Str::random(10),
-        ]);
-        $dosenKimia = User::factory()->create([
-                'id' => 4,
-                'nip_nim' => 'Farhan12345',
-                'nama' => 'Farahan Pratama',
-                'email' => 'farhan@gmail.com',
-                'password' => bcrypt('Farhan12345'),
-                'prodi_id'=> $prodi3->id,
-                'email_verified_at' => now(),
-                'remember_token' => Str::random(10),
-        ]);
+        // $dosenBiologi = User::factory()->create([
+        //         'id' => 3,
+        //         'nip_nim' => 'Dimas12345',
+        //         'nama' => 'Dimas Prasetyo',
+        //         'email' => 'dimas@gmail.com',
+        //         'password' => bcrypt('Dimas12345'),
+        //         'prodi_id'=> $prodi2->id,
+        //         'email_verified_at' => now(),
+        //         'remember_token' => Str::random(10),
+        // ]);
+        // $dosenKimia = User::factory()->create([
+        //         'id' => 4,
+        //         'nip_nim' => 'Farhan12345',
+        //         'nama' => 'Farahan Pratama',
+        //         'email' => 'farhan@gmail.com',
+        //         'password' => bcrypt('Farhan12345'),
+        //         'prodi_id'=> $prodi3->id,
+        //         'email_verified_at' => now(),
+        //         'remember_token' => Str::random(10),
+        // ]);
 
         // $mahasiswaSI = User::factory()->create([
         //         'id' => 5,
@@ -183,9 +183,9 @@ class DatabaseSeeder extends Seeder
         ]);
           // Assign admin role to the created user
         $adminUser->assignRole('super admin');
-        $dosenSI->assignRole('dosen');
-        $dosenBiologi->assignRole('dosen');
-        $dosenKimia->assignRole('dosen');
+        // $dosenSI->assignRole('dosen');
+        // $dosenBiologi->assignRole('dosen');
+        // $dosenKimia->assignRole('dosen');
         // $mahasiswaSI->assignRole('mahasiswa');
         // $mahasiswaBiologi->assignRole('mahasiswa');
         // $mahasiswaKimia->assignRole('mahasiswa');
