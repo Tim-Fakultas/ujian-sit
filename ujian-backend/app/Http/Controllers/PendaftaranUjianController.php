@@ -6,6 +6,7 @@ use App\Http\Requests\StorePendaftaranUjianRequest;
 use App\Http\Requests\UpdatePendaftaranUjianRequest;
 use App\Http\Resources\PendaftaranUjianResource;
 use App\Models\PendaftaranUjian;
+use DB;
 
 class PendaftaranUjianController extends Controller
 {
@@ -14,7 +15,7 @@ class PendaftaranUjianController extends Controller
      */
     public function index()
     {
-        $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenis_ujian', 'skripsi'])->get();
+        $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenis_ujian', 'ranpel', 'berkas'])->get();
 
         return PendaftaranUjianResource::collection($pendaftaranUjian);
     }
@@ -24,10 +25,45 @@ class PendaftaranUjianController extends Controller
      */
     public function store(StorePendaftaranUjianRequest $request)
     {
-        $request->validated();
-        $pendaftaranUjian = PendaftaranUjian::create($request->all());
+        DB::beginTransaction();
 
-        return new PendaftaranUjianResource($pendaftaranUjian);
+        try {
+            $validated = $request->validated();
+
+            // 1️⃣ Buat pendaftaran ujian baru
+            $pendaftaran = PendaftaranUjian::create([
+                'mahasiswa_id' => $validated['mahasiswaId'],
+                'ranpel_id' => $validated['ranpelId'],
+                'jenis_ujian_id' => $validated['jenisUjianId'],
+                'tanggal_pengajuan' => now(),
+                'status' => 'menunggu',
+                'keterangan' => $validated['keterangan'] ?? null,
+            ]);
+
+            // 2️⃣ Upload semua berkas (jika ada)
+            if ($request->hasFile('berkas')) {
+                foreach ($request->file('berkas') as $file) {
+                    $path = $file->store('uploads/berkas_ujian', 'public');
+                    $pendaftaran->berkas()->create([
+                        'nama_berkas' => $file->getClientOriginalName(),
+                        'file_path' => $path,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return new PendaftaranUjianResource(
+                $pendaftaran->load(['mahasiswa', 'ranpel', 'jenis_ujian', 'berkas'])
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Gagal menyimpan pendaftaran ujian.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -45,10 +81,24 @@ class PendaftaranUjianController extends Controller
      */
     public function update(UpdatePendaftaranUjianRequest $request, PendaftaranUjian $pendaftaranUjian)
     {
-        $request->validated();
-        $pendaftaranUjian->update($request->all());
+        $validated = $request->validated();
 
-        return new PendaftaranUjianResource($pendaftaranUjian);
+        $pendaftaranUjian->update($validated);
+
+        // Jika admin ingin menambah berkas tambahan
+        if ($request->hasFile('berkas')) {
+            foreach ($request->file('berkas') as $file) {
+                $path = $file->store('uploads/berkas_ujian', 'public');
+                $pendaftaranUjian->berkas()->create([
+                    'nama_berkas' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                ]);
+            }
+        }
+
+        return new PendaftaranUjianResource(
+            $pendaftaranUjian->load(['mahasiswa', 'ranpel', 'jenisUjian', 'berkas'])
+        );
     }
 
     /**

@@ -28,6 +28,8 @@ class Ujian extends Model
         'catatan',
     ];
 
+
+
     public function pendaftaran_ujian()
     {
         return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
@@ -52,4 +54,27 @@ class Ujian extends Model
     {
         return $this->hasMany(Penilaian::class, 'ujian_id');
     }
+
+
+
+    public function hitungNilaiAkhir()
+{
+    $nilaiPerDosen = $this->penilaian()
+        ->join('komponen_penilaian', 'penilaian.komponen_penilaian_id', '=', 'komponen_penilaian.id')
+        ->selectRaw('penilaian.dosen_id, SUM(penilaian.nilai * komponen_penilaian.bobot) / SUM(komponen_penilaian.bobot) as total')
+        ->groupBy('penilaian.dosen_id')
+        ->pluck('total');
+
+    if ($nilaiPerDosen->isEmpty()) {
+        return;
+    }
+
+    // Rata-rata antar semua penguji (ketua, sekretaris, penguji 1, penguji 2)
+    $rataRata = $nilaiPerDosen->avg();
+
+    $this->update([
+        'nilai_akhir' => round($rataRata, 2),
+        'hasil' => $rataRata >= 70 ? 'lulus' : 'tidak lulus',
+    ]);
+}
 }

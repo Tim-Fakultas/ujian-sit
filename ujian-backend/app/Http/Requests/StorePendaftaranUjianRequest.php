@@ -22,14 +22,27 @@ class StorePendaftaranUjianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mahasiswa_id' => 'required|exists:mahasiswa,id',
-            'jenis_ujian_id' => 'required|exists:jenis_ujian,id',
-            'skripsi_id' => 'required|exists:skripsi,id',
-            'status' => 'required|in:menunggu,terverifikasi,dijadwalkan,selesai',
-            'created_by' => 'required|exists:users,id',
-            'verified_by' => 'nullable|exists:users,id',
-            'verified_at' => 'nullable|date',
+            'mahasiswaId' => 'required|exists:mahasiswa,id',
+            'ranpelId' => 'required|exists:ranpel,id',
+            'jenisUjianId' => 'required|exists:jenis_ujian,id',
+            'tanggalPengajuan' => 'nullable|date',
+            'tanggalDisetujui' => 'nullable|date',
+            'status' => 'required|in:menunggu, dijadwalkan, selesai, ditolak',
             'keterangan' => 'nullable|string',
+
+            'berkas' => 'nullable|array',
+            'berkas.*' => 'file|mimes:pdf,jpg,jpeg,png|max:2048',
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'mahasiswa_id' => $this->mahasiswaId,
+            'ranpel_id' => $this->ranpelId,
+            'jenis_ujian_id' => $this->jenisUjianId,
+            'tanggal_pengajuan' => $this->tanggalPengajuan,
+            'tanggal_disetujui' => $this->tanggalDisetujui,
+        ]);
     }
 }

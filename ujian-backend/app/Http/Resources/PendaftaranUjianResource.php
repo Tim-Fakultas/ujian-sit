@@ -16,26 +16,30 @@ class PendaftaranUjianResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'mahasiswaId' => $this->mahasiswa_id,
             'mahasiswa' => $this->mahasiswa ? [
                 'id' => $this->mahasiswa->id,
                 'nama' => $this->mahasiswa->nama,
                 'nim' => $this->mahasiswa->nim,
             ] : null,
-            'jenisUjianId' => $this->jenis_ujian_id,
+            'ranpel' => $this->ranpel ? [
+                'id' => $this->ranpel->id,
+                'judulPenelitian' => $this->ranpel->judul_penelitian,
+            ] : null,
             'jenisUjian' => $this->jenis_ujian ? [
                 'id' => $this->jenis_ujian->id,
                 'namaJenis' => $this->jenis_ujian->nama_jenis,
             ] : null,
-            'skripsiId' => $this->skripsi_id,
-            'skripsi' => $this->skripsi ? [
-                'id' => $this->skripsi->id,
-                'judul' => $this->skripsi->judul,
-            ] : null,
+            'tanggalPengajuan' => $this->tanggal_pengajuan,
+            'tanggalDisetujui' => $this->tanggal_disetujui,
             'status' => $this->status,
-            'createdBy' => $this->created_by,
-            'verifiedBy' => $this->verified_by,
-            'verifiedAt' => $this->verified_at,
+            'berkas' => $this->berkas ? $this->berkas->map(function ($berkas) {
+                return [
+                    'id' => $berkas->id,
+                    'namaBerkas' => $berkas->nama_berkas,
+                    'filePath' => $berkas->file_path,
+                    'uploadedAt' => $berkas->created_at,
+                ];
+            }) : [],
             'keterangan' => $this->keterangan,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,

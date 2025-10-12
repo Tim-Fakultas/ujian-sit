@@ -318,17 +318,17 @@ class DatabaseSeeder extends Seeder
         //pengajuanRanpel
         $this->call(PengajuanRanpelSeeder::class);
 
-        // Create some Skripsi based on approved proposals - setelah Ranpel dibuat
-        Skripsi::factory(30)->create();
+        // // Create some Skripsi based on approved proposals - setelah Ranpel dibuat
+        // Skripsi::factory(30)->create();
 
         // Create some PendaftaranUjian (exam registrations)
-        \App\Models\PendaftaranUjian::factory(25)->create();
+        // \App\Models\PendaftaranUjian::factory(25)->create();
 
         // // Create some Ujian (exams)
         // \App\Models\Ujian::factory(20)->create();
 
-        // Create Bimbingan (supervisions)
-        Bimbingan::factory(40)->create();
+        // // Create Bimbingan (supervisions)
+        // Bimbingan::factory(40)->create();
 
         // // Create JadwalPenguji (examiner schedules)
         // \App\Models\JadwalPenguji::factory(30)->create();
@@ -340,10 +340,10 @@ class DatabaseSeeder extends Seeder
         // \App\Models\Penilaian::factory(35)->create();
 
         // Create Templates
-        \App\Models\Template::factory(8)->create();
+        // \App\Models\Template::factory(8)->create();
 
-        // Create PemenuhanSyarat (requirement fulfillments)
-        \App\Models\PemenuhanSyarat::factory(60)->create();
+        // // Create PemenuhanSyarat (requirement fulfillments)
+        // \App\Models\PemenuhanSyarat::factory(60)->create();
 
         // Create some Pejabat (officials)
         Pejabat::factory(3)->create();

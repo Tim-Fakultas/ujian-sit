@@ -14,12 +14,11 @@ class PendaftaranUjian extends Model
 
     protected $fillable = [
         'mahasiswa_id',
+        'ranpel_id',
         'jenis_ujian_id',
-        'skripsi_id',
+        'tanggal_pengajuan',
+        'tanggal_disetujui',
         'status',
-        'created_by',
-        'verified_by',
-        'verified_at',
         'keterangan',
     ];
 
@@ -46,5 +45,15 @@ class PendaftaranUjian extends Model
     public function pemenuhan_syarat()
     {
         return $this->hasMany(PemenuhanSyarat::class, 'pendaftaran_ujian_id');
+    }
+
+    public function ranpel()
+    {
+        return $this->belongsTo(Ranpel::class, 'ranpel_id');
+    }
+
+    public function berkas()
+    {
+        return $this->hasMany(Berkas::class, 'pendaftaran_ujian_id');
     }
 }

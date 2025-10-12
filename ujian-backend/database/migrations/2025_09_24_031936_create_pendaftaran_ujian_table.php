@@ -14,12 +14,11 @@ return new class extends Migration
         Schema::create('pendaftaran_ujian', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
+            $table->foreignId('ranpel_id')->constrained('ranpel')->onDelete('cascade');
             $table->foreignId('jenis_ujian_id')->constrained('jenis_ujian')->onDelete('cascade');
-            $table->foreignId('skripsi_id')->constrained('skripsi')->onDelete('cascade');
-            $table->enum('status', ['menunggu', 'terverifikasi', 'dijadwalkan', 'selesai'])->default('menunggu');
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $table->foreignId('verified_by')->nullable()->constrained('users')->nullonDelete();
-            $table->timestamp('verified_at')->nullable();
+            $table->dateTime('tanggal_pengajuan')->default(now());
+            $table->dateTime('tanggal_disetujui')->nullable();
+            $table->enum('status', ['menunggu', 'dijadwalkan', 'selesai', 'ditolak'])->default('menunggu');
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

@@ -14,17 +14,18 @@ return new class extends Migration
         Schema::create('ujian', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pendaftaran_ujian_id')->constrained('pendaftaran_ujian')->onDelete('cascade');
-            $table->foreignId('jenis_ujian_id')->constrained('jenis_ujian')->onDelete('cascade');
             $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
+            $table->foreignId('jenis_ujian_id')->constrained('jenis_ujian')->onDelete('cascade');
             $table->dateTime('jadwal_ujian')->nullable();
             $table->time('waktu_mulai')->nullable();
             $table->time('waktu_selesai')->nullable();
             $table->string('ruangan')->nullable();
-            // $table->enum('status', ['dijadwalkan', 'selesai', 'dibatalkan'])->default('dijadwalkan');
+            $table->foreignId('ketua_penguji')->nullable()->constrained('dosen')->nullOnDelete();
+            $table->foreignId('sekretaris_penguji')->nullable()->constrained('dosen')->nullOnDelete();
             $table->foreignId('penguji_1')->nullable()->constrained('dosen')->nullOnDelete();
             $table->foreignId('penguji_2')->nullable()->constrained('dosen')->nullOnDelete();
             $table->enum('hasil', ['lulus', 'tidak lulus'])->nullable();
-            $table->unsignedBigInteger('nilai')->nullable();
+            $table->unsignedBigInteger('nilai_akhir')->nullable();
             $table->text('catatan')->nullable();
             $table->timestamps();
         });

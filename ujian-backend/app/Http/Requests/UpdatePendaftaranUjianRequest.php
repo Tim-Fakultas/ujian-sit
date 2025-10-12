@@ -22,14 +22,26 @@ class UpdatePendaftaranUjianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mahasiswa_id' => 'prohibited',
-            'jenis_ujian_id' => 'prohibited',
-            'skripsi_id' => 'prohibited',
-            'status' => 'sometimes|in:menunggu,terverifikasi,dijadwalkan,selesai',
-            'created_by' => 'prohibited',
-            'verified_by' => 'nullable|exists:users,id',
-            'verified_at' => 'nullable|date',
+            'mahasiswaId' => 'prohibited',
+            'ranpelId' => 'sometimes|exists:ranpel,id',
+            'jenisUjianId' => 'sometimes|exists:jenis_ujian,id',
+            'tanggalPengajuan' => 'nullable|date',
+            'tanggalDisetujui' => 'nullable|date',
+            'status' => 'sometimes|in:menunggu, dijadwalkan, selesai, ditolak',
             'keterangan' => 'nullable|string',
+            'berkas' => 'nullable|array',
+            'berkas.*' => 'file|mimes:pdf,jpg,jpeg,png|max:2048',
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'mahasiswa_id' => $this->mahasiswaId,
+            'ranpel_id' => $this->ranpelId,
+            'jenis_ujian_id' => $this->jenisUjianId,
+            'tanggal_pengajuan' => $this->tanggalPengajuan,
+            'tanggal_disetujui' => $this->tanggalDisetujui,
+        ]);
     }
 }
