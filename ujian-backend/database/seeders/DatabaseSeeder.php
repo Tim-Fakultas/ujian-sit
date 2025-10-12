@@ -322,7 +322,7 @@ class DatabaseSeeder extends Seeder
         // Skripsi::factory(30)->create();
 
         // Create some PendaftaranUjian (exam registrations)
-        // \App\Models\PendaftaranUjian::factory(25)->create();
+        $this->call(PendaftaranUjianSeeder::class);
 
         // // Create some Ujian (exams)
         // \App\Models\Ujian::factory(20)->create();
