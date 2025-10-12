@@ -306,8 +306,8 @@ class DatabaseSeeder extends Seeder
         $this->call(MahasiswaSeeder::class);
 
         // Step 5: Create supporting data
-        // Create some JenisUjian (types of exams)
-        \App\Models\JenisUjian::factory(5)->create();
+        //jenis ujian
+        $this->call(JenisUjianSeeder::class);
 
         // Create some Syarat (requirements)
         \App\Models\Syarat::factory(10)->create();

@@ -24,7 +24,7 @@ class StorePengajuanRanpelRequest extends FormRequest
         return [
             'mahasiswa_id' => 'required|exists:mahasiswa,id',
             'ranpel_id' => 'required|exists:ranpel,id',
-            'tanggal_pengajuan' => 'required|date',
+            'tanggal_pengajuan' => 'nullable|date',
             'tanggal_diterima' => 'nullable|date',
             'status' => 'in:menunggu,diverifikasi,diterima,ditolak',
             'keterangan' => 'nullable|string',

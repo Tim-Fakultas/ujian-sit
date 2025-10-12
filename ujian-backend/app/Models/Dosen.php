@@ -15,9 +15,21 @@ class Dosen extends Model
     protected $fillable = [
         'nama',
         'nidn',
+        'nip',
         'no_hp',
         'alamat',
+        'tempat_tanggal_lahir',
+        'pangkat',
+        'golongan',
+        'tmt_fst',
+        'jabatan',
         'prodi_id',
+        'foto',
+        'user_id'
+    ];
+
+    protected $casts = [
+        'tmt_fst' => 'datetime',
     ];
 
     public function prodi()

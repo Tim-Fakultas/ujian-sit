@@ -21,6 +21,24 @@ class PengajuanRanpel extends Model
         'keterangan',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($pengajuan) {
+            if (empty($pengajuan->tanggal_pengajuan)) {
+                $pengajuan->tanggal_pengajuan = now();
+            }
+        });
+
+        static::updating(function ($pengajuan) {
+            if ($pengajuan->isDirty('status') && $pengajuan->status === 'diterima') {
+                $pengajuan->tanggal_diterima = now();
+            }
+        });
+    }
+
+
+
+
     public function ranpel()
     {
         return $this->belongsTo(Ranpel::class, 'ranpel_id');

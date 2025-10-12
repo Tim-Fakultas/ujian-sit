@@ -24,9 +24,17 @@ class UpdateDosenRequest extends FormRequest
         return [
             'nama' => 'sometimes|required|string|max:255',
             'nidn' => 'prohibited',
-            'no_hp' => 'sometimes|required|string|max:30',
+            'nip' => 'prohibited',
+            'no_hp' => 'sometimes|nullable|string|max:30',
             'alamat' => 'sometimes|nullable|string',
+            'tempat_tanggal_lahir' => 'sometimes|nullable|string',
+            'pangkat' => 'sometimes|nullable|string',
+            'golongan' => 'sometimes|nullable|string',
+            'tmt_fst' => 'sometimes|nullable|date',
+            'jabatan' => 'sometimes|nullable|string',
             'prodi_id' => 'sometimes|required|exists:prodi,id',
+            'foto' => 'sometimes|nullable|string',
+            'user_id' => 'sometimes|nullable|exists:users,id',
         ];
     }
 }

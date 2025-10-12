@@ -23,10 +23,18 @@ class StoreDosenRequest extends FormRequest
     {
         return [
             'nama' => 'required|string|max:255',
-            'nidn' => 'required|string|max:20|unique:dosen,nidn',
-            'no_hp' => 'required|string|max:30',
+            'nidn' => 'nullable|string|max:20|unique:dosen,nidn',
+            'nip' => 'nullable|string|max:20|unique:dosen,nip',
+            'no_hp' => 'nullable|string|max:30',
             'alamat' => 'nullable|string',
+            'tempat_tanggal_lahir' => 'nullable|string',
+            'pangkat' => 'nullable|string',
+            'golongan' => 'nullable|string',
+            'tmt_fst' => 'nullable|date',
+            'jabatan' => 'nullable|string',
             'prodi_id' => 'required|exists:prodi,id',
+            'foto' => 'nullable|string',
+            'user_id' => 'nullable|exists:users,id',
         ];
     }
 }
