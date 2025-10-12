@@ -25,16 +25,27 @@ class StoreDosenRequest extends FormRequest
             'nama' => 'required|string|max:255',
             'nidn' => 'nullable|string|max:20|unique:dosen,nidn',
             'nip' => 'nullable|string|max:20|unique:dosen,nip',
-            'no_hp' => 'nullable|string|max:30',
+            'noHp' => 'nullable|string|max:30',
             'alamat' => 'nullable|string',
-            'tempat_tanggal_lahir' => 'nullable|string',
+            'tempatTanggalLahir' => 'nullable|string',
             'pangkat' => 'nullable|string',
             'golongan' => 'nullable|string',
-            'tmt_fst' => 'nullable|date',
+            'tmtFst' => 'nullable|date',
             'jabatan' => 'nullable|string',
-            'prodi_id' => 'required|exists:prodi,id',
+            'prodiId' => 'required|exists:prodi,id',
             'foto' => 'nullable|string',
-            'user_id' => 'nullable|exists:users,id',
+            'userId' => 'nullable|exists:users,id',
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'no_hp' => $this->noHp,
+            'tempat_tanggal_lahir' => $this->tempatTanggalLahir,
+            'tmt_fst' => $this->tmtFst,
+            'prodi_id' => $this->prodiId,
+            'user_id' => $this->userId,
+        ]);
     }
 }
