@@ -22,12 +22,24 @@ class StoreRanpelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'judul_penelitian' => 'required|string|max:255',
-            'masalah_dan_penyebab'=> 'required|string',
-            'alternatif_solusi'=> 'required|string',
-            'metode_penelitian' => 'nullable|string',
-            'hasil_yang_diharapkan' => 'nullable|string',
-            'kebutuhan_data'=> 'nullable|string',
+            'judulPenelitian' => 'required|string|max:255',
+            'masalahDanPenyebab' => 'nullable|string',
+            'alternatifSolusi' => 'nullable|string',
+            'metodePenelitian' => 'nullable|string',
+            'hasilYangDiharapkan' => 'nullable|string',
+            'kebutuhanData' => 'nullable|string',
         ];
+    }
+
+     protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'judul_penelitian' => $this->judulPenelitian,
+            'masalah_dan_penyebab' => $this->masalahDanPenyebab,
+            'alternatif_solusi' => $this->alternatifSolusi,
+            'metode_penelitian' => $this->metodePenelitian,
+            'hasil_yang_diharapkan' => $this->hasilYangDiharapkan,
+            'kebutuhan_data' => $this->kebutuhanData,
+        ]);
     }
 }

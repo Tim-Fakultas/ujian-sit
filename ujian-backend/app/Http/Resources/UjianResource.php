@@ -31,6 +31,18 @@ class UjianResource extends JsonResource
                 'id' => $this->mahasiswa->id,
                 'nama' => $this->mahasiswa->nama,
                 'nim' => $this->mahasiswa->nim,
+                'pembimbing1' => $this->mahasiswa->pembimbing1 ? [
+                    'id' => $this->mahasiswa->pembimbing1->id,
+                    'nip' => $this->mahasiswa->pembimbing1->nip,
+                    'nidn' => $this->mahasiswa->pembimbing1->nidn,
+                    'nama' => $this->mahasiswa->pembimbing1->nama,
+                ] : null,
+                'pembimbing2' => $this->mahasiswa->pembimbing2 ? [
+                    'id' => $this->mahasiswa->pembimbing2->id,
+                    'nip' => $this->mahasiswa->pembimbing2->nip,
+                    'nidn' => $this->mahasiswa->pembimbing2->nidn,
+                    'nama' => $this->mahasiswa->pembimbing2->nama,
+                ] : null,
             ] : null,
             'jadwalUjian' => $this->jadwal_ujian,
             'waktuMulai' => $this->waktu_mulai,

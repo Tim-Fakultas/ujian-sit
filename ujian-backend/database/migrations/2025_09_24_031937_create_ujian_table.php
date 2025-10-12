@@ -20,11 +20,11 @@ return new class extends Migration
             $table->time('waktu_mulai')->nullable();
             $table->time('waktu_selesai')->nullable();
             $table->string('ruangan')->nullable();
-            $table->enum('status', ['dijadwalkan', 'selesai', 'dibatalkan'])->default('dijadwalkan');
+            // $table->enum('status', ['dijadwalkan', 'selesai', 'dibatalkan'])->default('dijadwalkan');
+            $table->foreignId('penguji_1')->nullable()->constrained('dosen')->nullOnDelete();
+            $table->foreignId('penguji_2')->nullable()->constrained('dosen')->nullOnDelete();
             $table->enum('hasil', ['lulus', 'tidak lulus'])->nullable();
             $table->unsignedBigInteger('nilai')->nullable();
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->text('catatan')->nullable();
             $table->timestamps();
         });
