@@ -73,10 +73,19 @@ Route::apiResource('jadwal-penguji', JadwalPengujiController::class);
 // Route::apiResource('judul', JudulController::class);
 
 Route::apiResource('pengajuan-ranpel', PengajuanRanpelController::class);
+
 Route::prefix('mahasiswa/{id}')->group(function () {
+    //pengajuan-ranpel
     Route::get('pengajuan-ranpel', [PengajuanRanpelController::class, 'getByMahasiswa']);
     Route::post('pengajuan-ranpel', [PengajuanRanpelController::class, 'storeByMahasiswa']);
     Route::put('pengajuan-ranpel/{pengajuan}', [PengajuanRanpelController::class, 'updateByMahasiswa']);
     Route::delete('pengajuan-ranpel/{pengajuan}', [PengajuanRanpelController::class, 'destroyByMahasiswa']);
+
+    //pendaftaran-ujian
+    Route::get('/pendaftaran-ujian', [PendaftaranUjianController::class, 'getByMahasiswa']);
+    Route::get('/pendaftaran-ujian/{pendaftaran}', [PendaftaranUjianController::class, 'showByMahasiswa']); // satu
+    Route::post('/pendaftaran-ujian', [PendaftaranUjianController::class, 'storeByMahasiswa']);
+    Route::put('/pendaftaran-ujian/{pendaftaran}', [PendaftaranUjianController::class, 'updateByMahasiswa']);
+    Route::delete('/pendaftaran-ujian/{pendaftaran}', [PendaftaranUjianController::class, 'destroyByMahasiswa']);
 });
 
