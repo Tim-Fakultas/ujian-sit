@@ -27,7 +27,7 @@ class UpdatePendaftaranUjianRequest extends FormRequest
             'jenisUjianId' => 'sometimes|exists:jenis_ujian,id',
             'tanggalPengajuan' => 'nullable|date',
             'tanggalDisetujui' => 'nullable|date',
-            'status' => 'sometimes|in:menunggu, dijadwalkan, selesai, ditolak',
+            'status' => 'sometimes|in:menunggu,dijadwalkan,selesai,ditolak',
             'keterangan' => 'nullable|string',
             'berkas' => 'nullable|array',
             'berkas.*' => 'file|mimes:pdf,jpg,jpeg,png|max:2048',

@@ -20,6 +20,10 @@ class PendaftaranUjianResource extends JsonResource
                 'id' => $this->mahasiswa->id,
                 'nama' => $this->mahasiswa->nama,
                 'nim' => $this->mahasiswa->nim,
+                'prodiId' => $this->mahasiswa->prodi_id ? [
+                    'id' => $this->mahasiswa->prodi->id,
+                    'namaProdi' => $this->mahasiswa->prodi->nama_prodi,
+                ] : null,
             ] : null,
             'ranpel' => $this->ranpel ? [
                 'id' => $this->ranpel->id,

@@ -14,17 +14,18 @@ class Ujian extends Model
 
     protected $fillable = [
         'pendaftaran_ujian_id',
-        'jenis_ujian_id',
         'mahasiswa_id',
+        'jenis_ujian_id',
         'jadwal_ujian',
         'waktu_mulai',
         'waktu_selesai',
         'ruangan',
-        'status',
+        'ketua_penguji',
+        'sekretaris_penguji',
+        'penguji_1',
+        'penguji_2',
         'hasil',
-        'nilai',
-        'created_by',
-        'updated_by',
+        'nilai_akhir',
         'catatan',
     ];
 
@@ -35,10 +36,18 @@ class Ujian extends Model
         return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
     }
 
-    public function skripsi()
+    public function ranpel()
     {
-        return $this->hasOneThrough(Skripsi::class, PendaftaranUjian::class, 'id', 'id', 'pendaftaran_ujian_id', 'skripsi_id');
+        return $this->belongsToThrough(
+            Ranpel::class,
+            PendaftaranUjian::class,
+            'pendaftaran_ujian_id', // FK di tabel ujian
+            'id',                   // PK di tabel ranpel
+            'id',                   // PK di tabel ujian
+            'ranpel_id'             // FK di tabel pendaftaran_ujian
+        );
     }
+
 
     public function jenis_ujian()
     {
@@ -54,6 +63,27 @@ class Ujian extends Model
     {
         return $this->hasMany(Penilaian::class, 'ujian_id');
     }
+
+    public function ketua()
+    {
+        return $this->belongsTo(Dosen::class, 'ketua_penguji');
+    }
+
+    public function sekretaris()
+    {
+        return $this->belongsTo(Dosen::class, 'sekretaris_penguji');
+    }
+
+    public function penguji_satu()
+    {
+        return $this->belongsTo(Dosen::class, 'penguji_1');
+    }
+
+    public function penguji_dua()
+    {
+        return $this->belongsTo(Dosen::class, 'penguji_2');
+    }
+
 
 
 
@@ -76,5 +106,6 @@ class Ujian extends Model
         'nilai_akhir' => round($rataRata, 2),
         'hasil' => $rataRata >= 70 ? 'lulus' : 'tidak lulus',
     ]);
+    return $this;
 }
 }

@@ -56,4 +56,20 @@ class PendaftaranUjian extends Model
     {
         return $this->hasMany(Berkas::class, 'pendaftaran_ujian_id');
     }
+
+    protected static function booted()
+{
+    static::updating(function ($pendaftaran) {
+        if ($pendaftaran->isDirty('status') && $pendaftaran->status === 'dijadwalkan') {
+            Ujian::create([
+                'pendaftaran_ujian_id' => $pendaftaran->id,
+                'jenis_ujian_id' => $pendaftaran->jenis_ujian_id,
+                'mahasiswa_id' => $pendaftaran->mahasiswa_id,
+                'ranpel_id' => $pendaftaran->ranpel_id,
+                'ketua_penguji' => $pendaftaran->mahasiswa->pembimbing_1,
+                'sekretaris_penguji' => $pendaftaran->mahasiswa->pembimbing_2,
+            ]);
+        }
+    });
+}
 }

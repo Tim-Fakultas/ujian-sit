@@ -325,7 +325,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PendaftaranUjianSeeder::class);
 
         // // Create some Ujian (exams)
-        // \App\Models\Ujian::factory(20)->create();
+        $this->call(UjianSeeder::class);
 
         // // Create Bimbingan (supervisions)
         // Bimbingan::factory(40)->create();
