@@ -73,24 +73,23 @@ class AuthController extends Controller
 
         // Check if user is dosen
         if ($user->hasRole('dosen')) {
-            // Find dosen by matching nidn with nip_nim
-            $dosen = \App\Models\Dosen::where('nidn', $user->nip_nim)
-                ->with('prodi')
-                ->first();
+            $dosen = $user->dosen()->with('prodi')->first();
 
-            if ($dosen) {
-                return [
-                    'id' => $dosen->id,
-                    'user_id' => $user->id,
-                    'nidn' => $dosen->nidn,
-                    'nama' => $dosen->nama,
-                    'email' => $user->email,
-                    'no_hp' => $dosen->no_hp,
-                    'alamat' => $dosen->alamat,
-                    'prodi' => $dosen->prodi,
-                ];
-            }
+        if ($dosen) {
+            return [
+                'id' => $dosen->id,               // dosen_id
+                'user_id' => $user->id,           // user_id
+                'nidn' => $dosen->nidn,
+                'nip' => $dosen->nip,
+                'nama' => $dosen->nama,
+                'email' => $user->email,
+                'no_hp' => $dosen->noHp,
+                'alamat' => $dosen->alamat,
+                'prodi' => $dosen->prodi,
+            ];
         }
+}
+
 
         // For other roles (admin, kaprodi, sekprodi, admin prodi)
         return [

@@ -47,8 +47,6 @@ class Dosen extends Model
         return $this->hasMany(Skripsi::class, 'pembimbing_2');
     }
 
-
-
     public function jadwal_penguji()
     {
         return $this->hasMany(JadwalPenguji::class, 'dosen_id');
@@ -62,5 +60,10 @@ class Dosen extends Model
     public function bimbingan()
     {
         return $this->hasMany(Bimbingan::class, 'dosen_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
