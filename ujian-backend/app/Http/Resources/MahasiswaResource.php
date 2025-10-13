@@ -53,7 +53,7 @@ class MahasiswaResource extends JsonResource
             ] : null,
             'user' => $this->user ? [
                 'id' => $this->user->id,
-                'name' => $this->user->name,
+                'nama' => $this->user->nama,
             ] : null,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,

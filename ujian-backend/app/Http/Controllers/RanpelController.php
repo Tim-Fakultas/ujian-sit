@@ -100,4 +100,19 @@ class RanpelController extends Controller
         return new RanpelResource($ranpel);
     }
 
+    // public function updateByMahasiswa(UpdateRanpelRequest $request, Ranpel $ranpel)
+    // {
+    //     $request->validated();
+    //     $ranpel->update($request->all());
+
+    //     return new RanpelResource($ranpel);
+    // }
+    
+    // public function destroyByMahasiswa(Ranpel $ranpel)
+    // {
+    //     $ranpel->delete();
+
+    //     return response()->json(['message' => 'Ranpel berhasil dihapus.'], 200);
+    // }
+
 }
