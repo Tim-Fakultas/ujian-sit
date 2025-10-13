@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\KomponenPenilaian;
 use Illuminate\Database\Seeder;
 
 class KomponenPenilaianSeeder extends Seeder
@@ -49,9 +50,7 @@ class KomponenPenilaianSeeder extends Seeder
             ],
         ];
 
-        \App\Models\KomponenPenilaian::factory()->createMany($komponen);
+        KomponenPenilaian::factory()->createMany($komponen);
 
-        // Additional components
-        \App\Models\KomponenPenilaian::factory(5)->create();
     }
 }

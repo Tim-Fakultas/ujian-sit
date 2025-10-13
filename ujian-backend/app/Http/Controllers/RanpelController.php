@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRanpelRequest;
 use App\Http\Requests\UpdateRanpelRequest;
 use App\Http\Resources\RanpelResource;
+use App\Models\PengajuanRanpel;
 use App\Models\Ranpel;
 
 class RanpelController extends Controller
@@ -24,8 +25,8 @@ class RanpelController extends Controller
      */
     public function store(StoreRanpelRequest $request)
     {
-        $request->validated();
-        $ranpel = Ranpel::create($request->all());
+        $validated = $request->validated();
+        $ranpel = Ranpel::create($validated);
 
         return new RanpelResource($ranpel);
     }
@@ -60,4 +61,43 @@ class RanpelController extends Controller
 
         return response()->json(['message' => 'Ranpel berhasil dihapus.'], 200);
     }
+
+    public function getByMahasiswa($id)
+    {
+        $ranpel = Ranpel::whereHas('pengajuan_ranpel', function ($query) use ($id) {$query->where('mahasiswa_id', $id);})->get();
+
+        if ($ranpel->isEmpty()) {
+            return response()->json([
+                'message' => 'Tidak ada pengajuan rancangan penelitian untuk mahasiswa ini.'
+            ], 404);
+        }
+
+        return RanpelResource::collection($ranpel);
+    }
+
+    public function storeByMahasiswa(StoreRanpelRequest $request, $id)
+    {
+        $request->validated();
+        $ranpelData = $request->only([
+            'judul_penelitian',
+            'masalah_dan_penyebab',
+            'alternatif_solusi',
+            'metode_penelitian',
+            'hasil_yang_diharapkan',
+            'kebutuhan_data',
+        ]);
+
+        $ranpel = Ranpel::create($ranpelData);
+
+        PengajuanRanpel::create([
+            'ranpel_id' => $ranpel->id,
+            'mahasiswa_id' => $id ?? $request->input('mahasiswa_id'), // fleksibel, tergantung login
+            'tanggalPengajuan' => now(),
+            'status' => 'menunggu',
+            'keterangan' => 'Pengajuan rancangan penelitian baru.',
+        ]);
+
+        return new RanpelResource($ranpel);
+    }
+
 }

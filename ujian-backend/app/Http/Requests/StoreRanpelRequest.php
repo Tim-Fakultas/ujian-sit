@@ -31,7 +31,7 @@ class StoreRanpelRequest extends FormRequest
         ];
     }
 
-     protected function prepareForValidation(): void
+    protected function prepareForValidation(): void
     {
         $this->merge([
             'judul_penelitian' => $this->judulPenelitian,
@@ -42,4 +42,5 @@ class StoreRanpelRequest extends FormRequest
             'kebutuhan_data' => $this->kebutuhanData,
         ]);
     }
+
 }

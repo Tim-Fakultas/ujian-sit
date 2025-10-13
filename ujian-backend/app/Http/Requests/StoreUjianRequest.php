@@ -22,19 +22,38 @@ class StoreUjianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pendaftaran_ujian_id' => 'required|exists:pendaftaran_ujian,id',
-            'jenis_ujian_id' => 'required|exists:jenis_ujian,id',
-            'mahasiswa_id' => 'required|exists:mahasiswa,id',
-            'jadwal_ujian' => 'required|date',
-            'waktu_mulai' => 'required|date_format:H:i',
-            'waktu_selesai' => 'required|date_format:H:i|after:waktu_mulai',
+            'pendaftaranUjianId' => 'required|exists:pendaftaran_ujian,id',
+            'mahasiswaId' => 'required|exists:mahasiswa,id',
+            'jenisUjianId' => 'required|exists:jenis_ujian,id',
+            'jadwalUjian' => 'required|date',
+            'waktuMulai' => 'required|date_format:H:i',
+            'waktuSelesai' => 'required|date_format:H:i|after:waktu_mulai',
             'ruangan' => 'required|string|max:255',
-            'status' => 'required|in:dijadwalkan,berlangsung,selesai,dibatalkan',
+            'ketuaPenguji' => 'nullable|exists:dosen,id',
+            'sekretarisPenguji' => 'nullable|exists:dosen,id',
+            'penguji1' => 'nullable|exists:dosen,id',
+            'penguji2' => 'nullable|exists:dosen,id',
             'hasil' => 'nullable|in:lulus,tidak lulus',
-            'nilai' => 'nullable|numeric|min:0|max:100',
+            'nilaiAkhir' => 'nullable|numeric|min:0|max:100',
             'catatan' => 'nullable|string',
-            'created_by' => 'required|exists:users,id',
-            'updated_by' => 'nullable|exists:users,id',
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'pendaftaran_ujian_id' => $this->input('pendaftaranUjianId'),
+            'mahasiswa_id' => $this->input('mahasiswaId'),
+            'jenis_ujian_id' => $this->input('jenisUjianId'),
+            'jadwal_ujian' => $this->input('jadwalUjian'),
+            'waktu_mulai' => $this->input('waktuMulai'),
+            'waktu_selesai' => $this->input('waktuSelesai'),
+            'ruangan' => $this->input('ruangan'),
+            'ketua_penguji' => $this->input('ketuaPenguji'),
+            'sekretaris_penguji' => $this->input('sekretarisPenguji'),
+            'penguji_1' => $this->input('penguji1'),
+            'penguji_2' => $this->input('penguji2'),
+            'nilai_akhir' => $this->input('nilaiAkhir'),
+        ]);
     }
 }

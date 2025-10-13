@@ -22,7 +22,7 @@ class StorePendaftaranUjianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mahasiswaId' => 'required|exists:mahasiswa,id',
+            // 'mahasiswaId' => 'required|exists:mahasiswa,id',
             'ranpelId' => 'required|exists:ranpel,id',
             'jenisUjianId' => 'required|exists:jenis_ujian,id',
             'tanggalPengajuan' => 'nullable|date',
@@ -38,7 +38,7 @@ class StorePendaftaranUjianRequest extends FormRequest
     public function prepareForValidation(): void
     {
         $this->merge([
-            'mahasiswa_id' => $this->mahasiswaId,
+            // 'mahasiswa_id' => $this->mahasiswaId,
             'ranpel_id' => $this->ranpelId,
             'jenis_ujian_id' => $this->jenisUjianId,
             'tanggal_pengajuan' => $this->tanggalPengajuan,

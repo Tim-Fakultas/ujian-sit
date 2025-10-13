@@ -22,19 +22,36 @@ class UpdateUjianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pendaftaran_ujian_id' => 'prohibited',
-            'jenis_ujian_id' => 'prohibited',
-            'mahasiswa_id' => 'prohibited',
-            'jadwal_ujian' => 'sometimes|date',
-            'waktu_mulai' => 'sometimes|date_format:H:i',
-            'waktu_selesai' => 'sometimes|date_format:H:i|after:waktu_mulai',
+            'pendaftaranUjianId' => 'prohibited',
+            'mahasiswaId' => 'prohibited',
+            'jenisUjianId' => 'prohibited',
+            'jadwalUjian' => 'sometimes|date',
+            'waktuMulai' => 'sometimes|date_format:H:i',
+            'waktuSelesai' => 'sometimes|date_format:H:i|after:waktuMulai',
             'ruangan' => 'sometimes|string|max:255',
-            'status' => 'sometimes|in:dijadwalkan,berlangsung,selesai,dibatalkan',
-            'hasil' => 'nullable|in:lulus,tidak lulus',
-            'nilai' => 'nullable|numeric|min:0|max:100',
+            'ketuaPenguji' => 'sometimes|nullable|exists:dosen,id',
+            'sekretarisPenguji' => 'sometimes|nullable|exists:dosen,id',
+            'penguji1' => 'sometimes|nullable|exists:dosen,id',
+            'penguji2' => 'sometimes|nullable|exists:dosen,id',
+            'hasil' => 'sometimes|nullable|in:lulus,tidak lulus',
+            'nilaiAkhir' => 'sometimes|nullable|numeric|min:0|max:100',
             'catatan' => 'nullable|string',
-            'created_by' => 'prohibited',
-            'updated_by' => 'nullable|exists:users,id',
         ];
+
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'jadwal_ujian' => $this->input('jadwalUjian'),
+            'waktu_mulai' => $this->input('waktuMulai'),
+            'waktu_selesai' => $this->input('waktuSelesai'),
+            'ruangan' => $this->input('ruangan'),
+            'ketua_penguji' => $this->input('ketuaPenguji'),
+            'sekretaris_penguji' => $this->input('sekretarisPenguji'),
+            'penguji_1' => $this->input('penguji1'),
+            'penguji_2' => $this->input('penguji2'),
+            'nilai_akhir' => $this->input('nilaiAkhir'),
+        ]);
     }
 }

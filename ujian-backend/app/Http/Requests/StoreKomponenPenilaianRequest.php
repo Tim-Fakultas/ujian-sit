@@ -22,9 +22,20 @@ class StoreKomponenPenilaianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'jenis_ujian_id' => 'required|exists:jenis_ujian,id',
-            'nama_komponen' => 'required|string|max:255',
+            'jenisUjianId' => 'required|exists:jenis_ujian,id',
+            'namaKomponen' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
             'bobot' => 'required|numeric|min:0|max:100',
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'jenis_ujian_id' => $this->input('jenisUjianId'),
+            'nama_komponen' => $this->input('namaKomponen'),
+            'deskripsi' => $this->input('deskripsi'),
+            'bobot' => $this->input('bobot'),
+        ]);
     }
 }

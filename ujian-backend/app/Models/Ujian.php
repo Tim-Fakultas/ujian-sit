@@ -48,7 +48,6 @@ class Ujian extends Model
         );
     }
 
-
     public function jenis_ujian()
     {
         return $this->belongsTo(JenisUjian::class, 'jenis_ujian_id');

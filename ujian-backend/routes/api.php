@@ -81,6 +81,10 @@ Route::prefix('mahasiswa/{id}')->group(function () {
     Route::put('pengajuan-ranpel/{pengajuan}', [PengajuanRanpelController::class, 'updateByMahasiswa']);
     Route::delete('pengajuan-ranpel/{pengajuan}', [PengajuanRanpelController::class, 'destroyByMahasiswa']);
 
+    //ranpel
+    Route::get('/ranpel', [RanpelController::class, 'getByMahasiswa']);
+    Route::post('/ranpel', [RanpelController::class, 'storeByMahasiswa']);
+
     //pendaftaran-ujian
     Route::get('/pendaftaran-ujian', [PendaftaranUjianController::class, 'getByMahasiswa']);
     Route::get('/pendaftaran-ujian/{pendaftaran}', [PendaftaranUjianController::class, 'showByMahasiswa']); // satu

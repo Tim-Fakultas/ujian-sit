@@ -169,6 +169,7 @@ class MahasiswaSeeder extends Seeder
                 'angkatan' => '2023',
             ],
             [
+                //11
                 'nim' => '2230803102',
                 'nama' => 'Ade Kurniawan',
                 'no_hp' => '081234567893',
@@ -181,7 +182,8 @@ class MahasiswaSeeder extends Seeder
                 'pembimbing_2' => 4,
                 'status' => 'aktif',
                 'angkatan' => '2022',
-            ]
+            ],
+
         ];
 
         foreach ($initialData as $data) {

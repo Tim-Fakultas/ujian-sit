@@ -21,6 +21,10 @@ class Ranpel extends Model
         'kebutuhan_data',
     ];
 
+    protected $casts = [
+        'judulPenelitian' => 'string',
+    ];
+
     public function skripsi()
     {
         return $this->hasOne(Skripsi::class, 'ranpel_id');
@@ -28,7 +32,7 @@ class Ranpel extends Model
 
     public function pengajuan_ranpel()
     {
-        return $this->hasMany(PengajuanRanpel::class, 'ranpel_id');
+        return $this->hasOne(PengajuanRanpel::class, 'ranpel_id');
     }
 
     public function pendaftaran_ujian()

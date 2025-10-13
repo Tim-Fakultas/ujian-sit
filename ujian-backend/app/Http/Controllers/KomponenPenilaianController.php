@@ -46,7 +46,11 @@ class KomponenPenilaianController extends Controller
     public function update(UpdateKomponenPenilaianRequest $request, KomponenPenilaian $komponenPenilaian)
     {
         $request->validated();
-        $komponenPenilaian->update($request->all());
+        $komponenPenilaian->update($request->only([
+            'nama_komponen',
+            'deskripsi',
+            'bobot',
+        ]));
 
         return new KomponenPenilaianResource($komponenPenilaian);
     }

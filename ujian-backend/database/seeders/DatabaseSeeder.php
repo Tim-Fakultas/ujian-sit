@@ -334,7 +334,7 @@ class DatabaseSeeder extends Seeder
         // \App\Models\JadwalPenguji::factory(30)->create();
 
         // // Create KomponenPenilaian (assessment components)
-        // \App\Models\KomponenPenilaian::factory(15)->create();
+        $this->call(KomponenPenilaianSeeder::class);
 
         // // Create Penilaian (assessments)
         // \App\Models\Penilaian::factory(35)->create();

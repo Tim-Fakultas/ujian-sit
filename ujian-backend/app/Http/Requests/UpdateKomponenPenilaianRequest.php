@@ -22,9 +22,30 @@ class UpdateKomponenPenilaianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'jenis_ujian_id' => 'prohibited',
-            'nama_komponen' => 'required|string|max:255',
-            'bobot' => 'required|numeric|min:0|max:100',
+            'jenisUjianId' => 'prohibited',
+            'namaKomponen' => 'sometimes|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'bobot' => 'sometimes|numeric|min:0|max:100',
         ];
     }
+
+    public function prepareForValidation(): void
+    {
+        $data = [];
+
+        if ($this->has('namaKomponen')) {
+            $data['nama_komponen'] = $this->input('namaKomponen');
+        }
+
+        if ($this->has('deskripsi')) {
+            $data['deskripsi'] = $this->input('deskripsi');
+        }
+
+        if ($this->has('bobot')) {
+            $data['bobot'] = $this->input('bobot');
+        }
+
+        $this->merge($data);
+    }
+
 }

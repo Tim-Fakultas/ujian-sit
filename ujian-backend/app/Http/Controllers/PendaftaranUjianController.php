@@ -82,7 +82,7 @@ class PendaftaranUjianController extends Controller
     public function update(UpdatePendaftaranUjianRequest $request, PendaftaranUjian $pendaftaranUjian)
     {
         $validated = $request->validated();
-        
+
         // Jika status diubah ke 'dijadwalkan', set tanggal disetujui
         if (isset($validated['status']) && $validated['status'] === 'dijadwalkan') {
             $validated['tanggal_disetujui'] = now();
@@ -154,6 +154,7 @@ class PendaftaranUjianController extends Controller
                 'mahasiswa_id' => $id, // otomatis dari route param
                 'ranpel_id' => $request->input('ranpelId'),
                 'jenis_ujian_id' => $request->input('jenisUjianId'),
+                'tanggal_pengajuan' => now(),
                 'status' => $request->input('status', 'menunggu'),
                 'keterangan' => $request->input('keterangan'),
             ];

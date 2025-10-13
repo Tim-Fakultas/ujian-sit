@@ -34,4 +34,20 @@ class Penilaian extends Model
     {
         return $this->belongsTo(KomponenPenilaian::class, 'komponen_penilaian_id');
     }
+
+    protected static function booted()
+    {
+    static::saved(function ($penilaian) {
+        if ($penilaian->ujian) {
+            $penilaian->ujian->hitungNilaiAkhir();
+        }
+    });
+
+    static::deleted(function ($penilaian) {
+        if ($penilaian->ujian) {
+            $penilaian->ujian->hitungNilaiAkhir();
+        }
+    });
+    }
+
 }
