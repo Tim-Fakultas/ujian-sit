@@ -46,6 +46,7 @@ class UjianResource extends JsonResource
                 'id' => $this->jenisUjian->id,
                 'namaJenis' => $this->jenisUjian->nama_jenis,
             ] : null,
+            'hariUjian' => $this->hari_ujian,
             'jadwalUjian' => $this->jadwal_ujian,
             'waktuMulai' => $this->waktu_mulai,
             'waktuSelesai' => $this->waktu_selesai,

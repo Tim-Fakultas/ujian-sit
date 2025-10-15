@@ -32,6 +32,17 @@ class UjianSeeder extends Seeder
             $durasiJam = rand(1, 2); // 1–2 jam durasi ujian
             $waktuSelesai = $waktuMulai->copy()->addHours($durasiJam);
 
+            $hariUjian = strtolower($tanggalUjian->format('l'));
+            $hariUjianIndonesia = [
+                'monday' => 'senin',
+                'tuesday' => 'selasa',
+                'wednesday' => 'rabu',
+                'thursday' => 'kamis',
+                'friday' => 'jumat',
+                'saturday' => 'sabtu',
+                'sunday' => 'minggu'
+            ][$hariUjian];
+
             Ujian::create([
                 'pendaftaran_ujian_id' => $pendaftaran->id,
                 'jenis_ujian_id' => $pendaftaran->jenis_ujian_id,

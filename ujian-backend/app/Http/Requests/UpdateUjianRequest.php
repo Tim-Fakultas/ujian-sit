@@ -25,6 +25,7 @@ class UpdateUjianRequest extends FormRequest
             'pendaftaranUjianId' => 'prohibited',
             'mahasiswaId' => 'prohibited',
             'jenisUjianId' => 'prohibited',
+            'hariUjian' => 'sometimes|in:senin,selasa,rabu,kamis,jumat,sabtu,minggu',
             'jadwalUjian' => 'sometimes|date',
             'waktuMulai' => 'sometimes|date_format:H:i',
             'waktuSelesai' => 'sometimes|date_format:H:i|after:waktuMulai',
@@ -43,6 +44,7 @@ class UpdateUjianRequest extends FormRequest
     public function prepareForValidation(): void
     {
         $this->merge([
+            'hari_ujian' => $this->input('hariUjian'),
             'jadwal_ujian' => $this->input('jadwalUjian'),
             'waktu_mulai' => $this->input('waktuMulai'),
             'waktu_selesai' => $this->input('waktuSelesai'),

@@ -16,6 +16,7 @@ class Ujian extends Model
         'pendaftaran_ujian_id',
         'mahasiswa_id',
         'jenis_ujian_id',
+        'hari_ujian',
         'jadwal_ujian',
         'waktu_mulai',
         'waktu_selesai',

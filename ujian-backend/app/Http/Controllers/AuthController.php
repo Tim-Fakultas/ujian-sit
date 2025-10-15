@@ -67,6 +67,16 @@ class AuthController extends Controller
                         'id' => $mahasiswa->dosenPembimbingAkademik->id,
                         'nama' => $mahasiswa->dosenPembimbingAkademik->nama,
                     ] : null,
+                    'pembimbing1' => $mahasiswa->pembimbing1 ? [
+                        'id' => $mahasiswa->pembimbing1->id,
+                        'nama' => $mahasiswa->pembimbing1->nama,
+                    ] : null,
+                    'pembimbing2' => $mahasiswa->pembimbing2 ? [
+                        'id' => $mahasiswa->pembimbing2->id,
+                        'nama' => $mahasiswa->pembimbing2->nama,
+                    ] : null,
+                    'status' => $mahasiswa->status,
+                    'angkatan' => $mahasiswa->angkatan,
                 ];
             }
         }

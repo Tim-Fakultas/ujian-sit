@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('pendaftaran_ujian_id')->constrained('pendaftaran_ujian')->onDelete('cascade');
             $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
             $table->foreignId('jenis_ujian_id')->constrained('jenis_ujian')->onDelete('cascade');
+            $table->enum('hari_ujian', ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'])->nullable();
             $table->dateTime('jadwal_ujian')->nullable();
             $table->time('waktu_mulai')->nullable();
             $table->time('waktu_selesai')->nullable();
