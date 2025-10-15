@@ -15,7 +15,7 @@ class PendaftaranUjianController extends Controller
      */
     public function index()
     {
-        $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenis_ujian', 'ranpel', 'berkas'])->get();
+        $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenisUjian', 'ranpel', 'berkas'])->get();
 
         return PendaftaranUjianResource::collection($pendaftaranUjian);
     }
@@ -54,7 +54,7 @@ class PendaftaranUjianController extends Controller
             DB::commit();
 
             return new PendaftaranUjianResource(
-                $pendaftaran->load(['mahasiswa', 'ranpel', 'jenis_ujian', 'berkas'])
+                $pendaftaran->load(['mahasiswa', 'ranpel', 'jenisUjian', 'berkas'])
             );
         } catch (\Exception $e) {
             DB::rollBack();
@@ -71,7 +71,7 @@ class PendaftaranUjianController extends Controller
      */
     public function show($id)
     {
-        $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenis_ujian', 'skripsi'])->findOrFail($id);
+        $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenisUjian', 'skripsi'])->findOrFail($id);
 
         return new PendaftaranUjianResource($pendaftaranUjian);
     }
@@ -101,7 +101,7 @@ class PendaftaranUjianController extends Controller
             }
         }
         return new PendaftaranUjianResource(
-            $pendaftaranUjian->load(['mahasiswa', 'ranpel', 'jenis_ujian', 'berkas'])
+            $pendaftaranUjian->load(['mahasiswa', 'ranpel', 'jenisUjian', 'berkas'])
         );
     }
 
@@ -119,7 +119,7 @@ class PendaftaranUjianController extends Controller
     public function getByMahasiswa($id)
     {
         // ambil semua pendaftaran ujian milik mahasiswa ini
-        $pendaftaran = PendaftaranUjian::with(['mahasiswa', 'ranpel', 'jenis_ujian', 'berkas'])
+        $pendaftaran = PendaftaranUjian::with(['mahasiswa', 'ranpel', 'jenisUjian', 'berkas'])
             ->where('mahasiswa_id', $id)
             ->get();
 
@@ -141,7 +141,7 @@ class PendaftaranUjianController extends Controller
         ], 403);
     }
 
-    $pendaftaran->load(['mahasiswa', 'ranpel', 'jenis_ujian', 'berkas']);
+    $pendaftaran->load(['mahasiswa', 'ranpel', 'jenisUjian', 'berkas']);
 
     return new PendaftaranUjianResource($pendaftaran);
 }

@@ -36,17 +36,17 @@ class Skripsi extends Model
         return $this->hasMany(Bimbingan::class, 'skripsi_id');
     }
 
-    public function pendaftaran_ujian()
+    public function pendaftaranUjian()
     {
         return $this->hasMany(PendaftaranUjian::class, 'skripsi_id');
     }
 
-    public function pembimbing_1()
+    public function pembimbing1()
     {
         return $this->belongsTo(Dosen::class, 'pembimbing_1');
     }
 
-    public function pembimbing_2()
+    public function pembimbing2()
     {
         return $this->belongsTo(Dosen::class, 'pembimbing_1');
     }

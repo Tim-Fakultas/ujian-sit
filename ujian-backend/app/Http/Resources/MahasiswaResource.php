@@ -45,6 +45,7 @@ class MahasiswaResource extends JsonResource
                 'nidn' => $this->pembimbing1->nidn,
                 'nama' => $this->pembimbing1->nama,
             ] : null,
+
             'pembimbing2' => $this->pembimbing2 ? [
                 'id' => $this->pembimbing2->id,
                 'nip' => $this->pembimbing2->nip,

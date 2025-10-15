@@ -31,7 +31,7 @@ class Ujian extends Model
 
 
 
-    public function pendaftaran_ujian()
+    public function pendaftaranUjian()
     {
         return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
     }
@@ -48,7 +48,7 @@ class Ujian extends Model
         );
     }
 
-    public function jenis_ujian()
+    public function jenisUjian()
     {
         return $this->belongsTo(JenisUjian::class, 'jenis_ujian_id');
     }
@@ -73,18 +73,15 @@ class Ujian extends Model
         return $this->belongsTo(Dosen::class, 'sekretaris_penguji');
     }
 
-    public function penguji_satu()
+    public function pengujiSatu()
     {
         return $this->belongsTo(Dosen::class, 'penguji_1');
     }
 
-    public function penguji_dua()
+    public function pengujiDua()
     {
         return $this->belongsTo(Dosen::class, 'penguji_2');
     }
-
-
-
 
     public function hitungNilaiAkhir()
 {

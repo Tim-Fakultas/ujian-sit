@@ -18,7 +18,7 @@ class JenisUjian extends Model
         'aktif',
     ];
 
-    public function pendaftaran_ujian()
+    public function pendaftaranUjian()
     {
         return $this->hasMany(PendaftaranUjian::class, 'jenis_ujian_id');
     }
@@ -28,7 +28,7 @@ class JenisUjian extends Model
         return $this->hasMany(Syarat::class, 'jenis_ujian_id');
     }
 
-    public function komponen_penilaian()
+    public function komponenPenilaian()
     {
         return $this->hasMany(KomponenPenilaian::class, 'jenis_ujian_id');
     }

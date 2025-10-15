@@ -14,7 +14,7 @@ class MahasiswaController extends Controller
      */
     public function index()
     {
-        $mahasiswa = Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik'])->get();
+        $mahasiswa = Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik', 'pembimbing1', 'pembimbing2'])->get();
 
         return MahasiswaResource::collection($mahasiswa);
     }
@@ -35,7 +35,7 @@ class MahasiswaController extends Controller
      */
     public function show($id)
     {
-        $mahasiswa = Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik'])->findOrFail($id);
+        $mahasiswa = Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik', 'pembimbing1', 'pembimbing2'])->findOrFail($id);
 
         return new MahasiswaResource($mahasiswa);
     }
@@ -43,21 +43,33 @@ class MahasiswaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMahasiswaRequest $request, Mahasiswa $mahasiswa)
+   public function update(UpdateMahasiswaRequest $request, Mahasiswa $mahasiswa)
     {
         $validated = $request->validated();
 
-        // Handle dosen_id as alias for dosen_pa
-        if (isset($validated['dosen_id'])) {
-            $validated['dosen_pa'] = $validated['dosen_id'];
-            unset($validated['dosen_id']);
-        }
+        // Ambil hanya versi snake_case
+        $merged = array_filter($request->only([
+            'no_hp',
+            'prodi_id',
+            'peminatan_id',
+            'dosen_pa',
+            'pembimbing_1',
+            'pembimbing_2',
+            'user_id',
+        ]), fn($v) => !is_null($v));
 
-        $mahasiswa->update($validated);
+        \Log::info('DEBUG UPDATE MAHASISWA', [
+            'validated' => $validated,
+            'merged' => $merged,
+        ]);
+
+        $mahasiswa->update($merged);
         $mahasiswa->load(['prodi', 'peminatan', 'dosenPembimbingAkademik']);
 
         return new MahasiswaResource($mahasiswa);
     }
+
+
 
     /**
      * Remove the specified resource from storage.

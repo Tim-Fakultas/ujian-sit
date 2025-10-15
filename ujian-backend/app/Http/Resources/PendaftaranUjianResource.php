@@ -29,9 +29,9 @@ class PendaftaranUjianResource extends JsonResource
                 'id' => $this->ranpel->id,
                 'judulPenelitian' => $this->ranpel->judul_penelitian,
             ] : null,
-            'jenisUjian' => $this->jenis_ujian ? [
-                'id' => $this->jenis_ujian->id,
-                'namaJenis' => $this->jenis_ujian->nama_jenis,
+            'jenisUjian' => $this->jenisUjian ? [
+                'id' => $this->jenisUjian->id,
+                'namaJenis' => $this->jenisUjian->nama_jenis,
             ] : null,
             'tanggalPengajuan' => $this->tanggal_pengajuan,
             'tanggalDisetujui' => $this->tanggal_disetujui,

@@ -61,7 +61,7 @@ class Mahasiswa extends Model
         return $this->hasMany(Ujian::class, 'mahasiswa_id');
     }
 
-    public function pendaftaran_ujian()
+    public function pendaftaranUjian()
     {
         return $this->hasMany(PendaftaranUjian::class, 'mahasiswa_id');
     }
@@ -81,8 +81,19 @@ class Mahasiswa extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function pengajuan_ranpel()
+    public function pengajuanRanpel()
     {
         return $this->hasMany(PengajuanRanpel::class, 'mahasiswa_id');
     }
+
+    public function pembimbing1()
+    {
+        return $this->belongsTo(Dosen::class, 'pembimbing_1');
+    }
+
+    public function pembimbing2()
+    {
+        return $this->belongsTo(Dosen::class, 'pembimbing_2');
+    }
+
 }

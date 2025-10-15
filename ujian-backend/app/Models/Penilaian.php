@@ -30,7 +30,7 @@ class Penilaian extends Model
         return $this->belongsTo(Dosen::class, 'dosen_id');
     }
 
-    public function komponen_penilaian()
+    public function komponenPenilaian()
     {
         return $this->belongsTo(KomponenPenilaian::class, 'komponen_penilaian_id');
     }

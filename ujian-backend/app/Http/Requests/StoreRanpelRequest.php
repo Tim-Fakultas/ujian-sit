@@ -43,4 +43,13 @@ class StoreRanpelRequest extends FormRequest
         ]);
     }
 
+    public function messages(): array
+    {
+        return [
+            'judulPenelitian.required' => 'Judul penelitian harus diisi.',
+            'judulPenelitian.string' => 'Judul penelitian harus berupa teks.',
+            'judulPenelitian.max' => 'Judul penelitian maksimal 255 karakter',
+        ];
+    }
+
 }

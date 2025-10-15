@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nim')->unique();
             $table->string('nama');
-            $table->string('no_hp', 30);
+            $table->string('no_hp', 30)->nullable();
             $table->string('alamat')->nullable();
             $table->foreignId('prodi_id')->default(1)->constrained('prodi')->onDelete('cascade');
             $table->foreignId('peminatan_id')->nullable()->constrained('peminatan')->onDelete('set null');

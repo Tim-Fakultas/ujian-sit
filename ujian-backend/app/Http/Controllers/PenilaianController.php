@@ -14,7 +14,7 @@ class PenilaianController extends Controller
      */
     public function index()
     {
-        $penilaian = Penilaian::with(['ujian', 'dosen', 'komponen_penilaian'])->get();
+        $penilaian = Penilaian::with(['ujian', 'dosen', 'komponenPenilaian'])->get();
 
         return PenilaianResource::collection($penilaian);
     }
@@ -35,7 +35,7 @@ class PenilaianController extends Controller
      */
     public function show($id)
     {
-        $penilaian = Penilaian::with(['ujian', 'dosen', 'komponen_penilaian'])->findOrFail($id);
+        $penilaian = Penilaian::with(['ujian', 'dosen', 'komponenPenilaian'])->findOrFail($id);
 
         return new PenilaianResource($penilaian);
     }

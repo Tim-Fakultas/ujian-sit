@@ -18,7 +18,7 @@ class Berkas extends Model
         'file_path',
     ];
 
-    public function pendaftaran_ujian()
+    public function pendaftaranUjian()
     {
         return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
     }

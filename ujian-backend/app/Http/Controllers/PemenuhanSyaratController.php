@@ -14,7 +14,7 @@ class PemenuhanSyaratController extends Controller
      */
     public function index()
     {
-        $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaran_ujian', 'syarat'])->get();
+        $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaranUjian', 'syarat'])->get();
 
         return PemenuhanSyaratResource::collection($pemenuhanSyarat);
     }
@@ -35,7 +35,7 @@ class PemenuhanSyaratController extends Controller
      */
     public function show($id)
     {
-        $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaran_ujian', 'syarat'])->findOrFail($id);
+        $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaranUjian', 'syarat'])->findOrFail($id);
 
         return new PemenuhanSyaratResource($pemenuhanSyarat);
     }

@@ -37,17 +37,17 @@ class Dosen extends Model
         return $this->belongsTo(Prodi::class, 'prodi_id');
     }
 
-    public function bimbinganSebagaiPembimbing1()
-    {
-        return $this->hasMany(Skripsi::class, 'pembimbing_1');
-    }
+    // public function bimbinganSebagaiPembimbing1()
+    // {
+    //     return $this->hasMany(Skripsi::class, 'pembimbing_1');
+    // }
 
-    public function bimbinganSebagaiPembimbing2()
-    {
-        return $this->hasMany(Skripsi::class, 'pembimbing_2');
-    }
+    // public function bimbinganSebagaiPembimbing2()
+    // {
+    //     return $this->hasMany(Skripsi::class, 'pembimbing_2');
+    // }
 
-    public function jadwal_penguji()
+    public function jadwalPenguji()
     {
         return $this->hasMany(JadwalPenguji::class, 'dosen_id');
     }
@@ -66,4 +66,15 @@ class Dosen extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function mahasiswaBimbingan1()
+    {
+        return $this->hasMany(Mahasiswa::class, 'pembimbing_1');
+    }
+
+    public function mahasiswaBimbingan2()
+    {
+        return $this->hasMany(Mahasiswa::class, 'pembimbing_2');
+    }
+
 }

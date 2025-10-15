@@ -14,7 +14,7 @@ class UjianController extends Controller
      */
     public function index()
     {
-        $ujian = Ujian::with(['pendaftaran_ujian.ranpel', 'jenis_ujian', 'mahasiswa', 'penilaian'])->get();
+        $ujian = Ujian::with(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'penilaian'])->get();
 
         return UjianResource::collection($ujian);
     }
@@ -35,7 +35,7 @@ class UjianController extends Controller
      */
     public function show($id)
     {
-        $ujian = Ujian::with(['pendaftaran_ujian.ranpel', 'jenis_ujian', 'mahasiswa', 'penilaian'])->findOrFail($id);
+        $ujian = Ujian::with(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'penilaian'])->findOrFail($id);
 
         return new UjianResource($ujian);
     }

@@ -20,12 +20,12 @@ class Syarat extends Model
         'wajib',
     ];
 
-    public function jenis_ujian()
+    public function jenisUjian()
     {
         return $this->belongsTo(JenisUjian::class, 'jenis_ujian_id');
     }
 
-    public function pemenuhan_syarat()
+    public function pemenuhanSyarat()
     {
         return $this->hasMany(PemenuhanSyarat::class, 'syarat_id');
     }

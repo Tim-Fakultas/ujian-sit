@@ -16,11 +16,11 @@ class UjianResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'pendaftaranUjian' => $this->pendaftaran_ujian ? [
-                'id' => $this->pendaftaran_ujian->id,
-                'status' => $this->pendaftaran_ujian->status,
+            'pendaftaranUjian' => $this->pendaftaranUjian ? [
+                'id' => $this->pendaftaranUjian->id,
+                'status' => $this->pendaftaranUjian->status,
                 ] : null,
-            'judulPenelitian' => $this->pendaftaran_ujian->ranpel->judul_penelitian ?? null,
+            'judulPenelitian' => $this->pendaftaranUjian->ranpel->judul_penelitian ?? null,
             'mahasiswa' => $this->mahasiswa ? [
                 'id' => $this->mahasiswa->id,
                 'nama' => $this->mahasiswa->nama,
@@ -42,9 +42,9 @@ class UjianResource extends JsonResource
                     'nama' => $this->mahasiswa->pembimbing2->nama,
                     ] : null,
                 ] : null,
-            'jenisUjian' => $this->jenis_ujian ? [
-                'id' => $this->jenis_ujian->id,
-                'namaJenis' => $this->jenis_ujian->nama_jenis,
+            'jenisUjian' => $this->jenisUjian ? [
+                'id' => $this->jenisUjian->id,
+                'namaJenis' => $this->jenisUjian->nama_jenis,
             ] : null,
             'jadwalUjian' => $this->jadwal_ujian,
             'waktuMulai' => $this->waktu_mulai,

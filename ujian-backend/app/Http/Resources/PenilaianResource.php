@@ -27,11 +27,11 @@ class PenilaianResource extends JsonResource
                 'nama' => $this->dosen->nama,
                 'nidn' => $this->dosen->nidn,
             ] : null,
-            'komponenPenilaianId' => $this->komponen_penilaian_id,
-            'komponenPenilaian' => $this->komponen_penilaian ? [
-                'id' => $this->komponen_penilaian->id,
-                'namaKomponen' => $this->komponen_penilaian->nama_komponen,
-                'bobot' => $this->komponen_penilaian->bobot,
+            'komponenPenilaianId' => $this->komponenPenilaian->id,
+            'komponenPenilaian' => $this->komponenPenilaian ? [
+                'id' => $this->komponenPenilaian->id,
+                'namaKomponen' => $this->komponenPenilaian->nama_komponen,
+                'bobot' => $this->komponenPenilaian->bobot,
             ] : null,
             'nilai' => $this->nilai,
             'komentar' => $this->komentar,

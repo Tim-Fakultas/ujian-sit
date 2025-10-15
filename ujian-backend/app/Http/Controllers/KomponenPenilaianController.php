@@ -14,7 +14,7 @@ class KomponenPenilaianController extends Controller
      */
     public function index()
     {
-        $komponenPenilaian = KomponenPenilaian::with(['jenis_ujian'])->get();
+        $komponenPenilaian = KomponenPenilaian::with(['jenisUjian'])->get();
 
         return KomponenPenilaianResource::collection($komponenPenilaian);
     }
@@ -35,7 +35,7 @@ class KomponenPenilaianController extends Controller
      */
     public function show($id)
     {
-        $komponenPenilaian = KomponenPenilaian::with(['jenis_ujian'])->findOrFail($id);
+        $komponenPenilaian = KomponenPenilaian::with(['jenisUjian'])->findOrFail($id);
 
         return new KomponenPenilaianResource($komponenPenilaian);
     }

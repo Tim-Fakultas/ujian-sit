@@ -16,10 +16,10 @@ class PemenuhanSyaratResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'pendaftaranUjianId' => $this->pendaftaran_ujian_id,
-            'pendaftaranUjian' => $this->pendaftaran_ujian ? [
-                'id' => $this->pendaftaran_ujian->id,
-                'status' => $this->pendaftaran_ujian->status,
+            'pendaftaranUjianId' => $this->pendaftaranUjian_id,
+            'pendaftaranUjian' => $this->pendaftaranUjian ? [
+                'id' => $this->pendaftaranUjian->id,
+                'status' => $this->pendaftaranUjian->status,
             ] : null,
             'syaratId' => $this->syarat_id,
             'syarat' => $this->syarat ? [

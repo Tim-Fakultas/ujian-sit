@@ -30,12 +30,12 @@ class Ranpel extends Model
         return $this->hasOne(Skripsi::class, 'ranpel_id');
     }
 
-    public function pengajuan_ranpel()
+    public function pengajuanRanpel()
     {
         return $this->hasOne(PengajuanRanpel::class, 'ranpel_id');
     }
 
-    public function pendaftaran_ujian()
+    public function pendaftaranUjian()
     {
         return $this->hasMany(PendaftaranUjian::class, 'ranpel_id');
     }

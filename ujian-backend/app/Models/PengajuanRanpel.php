@@ -37,8 +37,6 @@ class PengajuanRanpel extends Model
     }
 
 
-
-
     public function ranpel()
     {
         return $this->belongsTo(Ranpel::class, 'ranpel_id');

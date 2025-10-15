@@ -16,10 +16,10 @@ class SyaratResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'jenisUjianId' => $this->jenis_ujian_id,
-            'jenisUjian' => $this->jenis_ujian ? [
-                'id' => $this->jenis_ujian->id,
-                'namaJenis' => $this->jenis_ujian->nama_jenis,
+            'jenisUjianId' => $this->jenisUjian->id,
+            'jenisUjian' => $this->jenisUjian ? [
+                'id' => $this->jenisUjian->id,
+                'namaJenis' => $this->jenisUjian->nama_jenis,
             ] : null,
             'namaSyarat' => $this->nama_syarat,
             'kategori' => $this->kategori,

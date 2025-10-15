@@ -18,7 +18,7 @@ class Template extends Model
         'file_path',
     ];
 
-    public function jenis_ujian()
+    public function jenisUjian()
     {
         return $this->belongsTo(JenisUjian::class);
     }

@@ -14,7 +14,7 @@ class TemplateController extends Controller
      */
     public function index()
     {
-        $template = Template::with(['jenis_ujian'])->get();
+        $template = Template::with(['jenisUjian'])->get();
 
         return TemplateResource::collection($template);
     }
@@ -35,7 +35,7 @@ class TemplateController extends Controller
      */
     public function show($id)
     {
-        $template = Template::with(['jenis_ujian'])->findOrFail($id);
+        $template = Template::with(['jenisUjian'])->findOrFail($id);
 
         return new TemplateResource($template);
     }

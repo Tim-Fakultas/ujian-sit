@@ -27,7 +27,7 @@ class PendaftaranUjian extends Model
         return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
     }
 
-    public function jenis_ujian()
+    public function jenisUjian()
     {
         return $this->belongsTo(JenisUjian::class, 'jenis_ujian_id');
     }
@@ -42,7 +42,7 @@ class PendaftaranUjian extends Model
         return $this->belongsTo(Skripsi::class, 'skripsi_id');
     }
 
-    public function pemenuhan_syarat()
+    public function pemenuhanSyarat()
     {
         return $this->hasMany(PemenuhanSyarat::class, 'pendaftaran_ujian_id');
     }

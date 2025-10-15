@@ -14,7 +14,7 @@ class SyaratController extends Controller
      */
     public function index()
     {
-        $syarat = Syarat::with(['jenis_ujian', 'pemenuhan_syarat'])->get();
+        $syarat = Syarat::with(['jenisUjian', 'pemenuhanSyarat'])->get();
 
         return SyaratResource::collection($syarat);
     }
@@ -35,7 +35,7 @@ class SyaratController extends Controller
      */
     public function show($id)
     {
-        $syarat = Syarat::with(['jenis_ujian', 'pemenuhan_syarat'])->findOrFail($id);
+        $syarat = Syarat::with(['jenisUjian', 'pemenuhanSyarat'])->findOrFail($id);
 
         return new SyaratResource($syarat);
     }
