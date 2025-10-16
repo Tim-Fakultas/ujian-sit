@@ -77,4 +77,22 @@ class Dosen extends Model
         return $this->hasMany(Mahasiswa::class, 'pembimbing_2');
     }
 
+    //ujian dosen
+    public function ujianKetua()
+    {
+        return $this->hasMany(Ujian::class, 'ketua_penguji');
+    }
+    public function ujianSekretaris()
+    {
+        return $this->hasMany(Ujian::class, 'sekretaris_penguji');
+    }
+    public function ujianPenguji1()
+    {
+        return $this->hasMany(Ujian::class, 'penguji_1');
+    }
+    public function ujianPenguji2()
+    {
+        return $this->hasMany(Ujian::class, 'penguji_2');
+    }
+
 }

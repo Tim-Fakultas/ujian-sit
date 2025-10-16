@@ -37,6 +37,26 @@ class Ujian extends Model
         return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
     }
 
+    public function ketuaPenguji()
+    {
+        return $this->belongsTo(Dosen::class, 'ketua_penguji');
+    }
+
+    public function sekretarisPenguji()
+    {
+        return $this->belongsTo(Dosen::class, 'sekretaris_penguji');
+    }
+
+    public function penguji1()
+    {
+        return $this->belongsTo(Dosen::class, 'penguji_1');
+    }
+
+    public function penguji2()
+    {
+        return $this->belongsTo(Dosen::class, 'penguji_2');
+    }
+
     public function ranpel()
     {
         return $this->belongsToThrough(

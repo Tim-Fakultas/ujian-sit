@@ -47,6 +47,7 @@ class UjianSeeder extends Seeder
                 'pendaftaran_ujian_id' => $pendaftaran->id,
                 'jenis_ujian_id' => $pendaftaran->jenis_ujian_id,
                 'mahasiswa_id' => $pendaftaran->mahasiswa_id,
+                'hari_ujian' => $hariUjianIndonesia,
                 'jadwal_ujian' => $tanggalUjian,
                 'waktu_mulai' => $waktuMulai,
                 'waktu_selesai' => $waktuSelesai,
