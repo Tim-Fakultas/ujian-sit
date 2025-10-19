@@ -1,19 +1,16 @@
+import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import React from "react";
-import { RancanganPenelitian } from "@/types/RancanganPenelitian";
-import { useAuthStore } from "@/stores/useAuthStore";
 
 // interface PDFDocumentProps
 interface PDFDocumentProps {
-  rancangan: RancanganPenelitian;
+  pengajuan: PengajuanRanpel;
   id?: string;
 }
 
 export const PDFDocument: React.FC<PDFDocumentProps> = ({
-  rancangan,
+  pengajuan,
   id = "pdf-content",
 }) => {
-  const { user } = useAuthStore();
-
   return (
     <div
       id={id}
@@ -55,8 +52,16 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
             marginBottom: "4mm",
             fontWeight: "normal",
           }}
+        ></div>
+
+        <div
+          style={{
+            fontSize: "13pt", // Smaller for better fit
+            marginBottom: "15mm", // Reduce spacing
+            fontWeight: "normal",
+          }}
         >
-          {rancangan.judul_penelitian}
+          {pengajuan?.ranpel?.judulPenelitian}
         </div>
 
         <div
@@ -66,9 +71,8 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
             fontWeight: "normal",
           }}
         >
-          {user?.nama} ({user?.nim})-
+          {pengajuan?.mahasiswa.nama} ({pengajuan?.mahasiswa?.nim})
         </div>
-
       </div>
 
       {/* Document Content */}
@@ -77,9 +81,9 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
         <div style={{ marginBottom: "10mm" }}>
           <div
             style={{
-              fontSize: "12pt", 
+              fontSize: "12pt",
               fontWeight: "bold",
-              marginBottom: "5mm", 
+              marginBottom: "5mm",
               textAlign: "left",
             }}
           >
@@ -93,7 +97,7 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
               marginBottom: "3mm",
             }}
           >
-            {rancangan.masalah_dan_penyebab}
+            {pengajuan?.ranpel?.masalahDanPenyebab}
           </div>
         </div>
 
@@ -117,7 +121,7 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
               marginBottom: "3mm",
             }}
           >
-            {rancangan.alternatif_solusi}
+            {pengajuan?.ranpel?.alternatifSolusi}
           </div>
         </div>
 
@@ -141,7 +145,7 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
               marginBottom: "3mm",
             }}
           >
-            {rancangan.hasil_yang_diharapkan}
+            {pengajuan?.ranpel?.hasilYangDiharapkan}
           </div>
         </div>
 
@@ -165,7 +169,7 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
               marginBottom: "3mm",
             }}
           >
-            {rancangan.kebutuhan_data}
+            {pengajuan?.ranpel?.kebutuhanData}
           </div>
         </div>
 
@@ -189,7 +193,7 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
               marginBottom: "3mm",
             }}
           >
-            {rancangan.metode_penelitian}
+            {pengajuan?.ranpel?.metodePenelitian}
           </div>
         </div>
 
@@ -210,7 +214,12 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
                 textAlign: "left",
               }}
             >
-              Palembang, _____________
+              {pengajuan?.tanggalDiterima
+                ? "Palembang, " +
+                  new Date(pengajuan.tanggalDiterima).toLocaleDateString(
+                    "id-ID"
+                  )
+                : "Palembang, _____________"}
             </div>
             <div
               style={{
@@ -239,10 +248,12 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
                 textAlign: "left",
               }}
             >
-              {user?.dosenPA?.nama}
+              {pengajuan?.mahasiswa?.dosenPa?.nama}
             </div>
             <div style={{ fontSize: "12pt", textAlign: "left" }}>
-              NIP. {user?.dosenPA?.id}
+              NIP.{" "}
+              {pengajuan?.mahasiswa?.dosenPa?.nip ||
+                pengajuan?.mahasiswa?.dosenPa?.nidn}
             </div>
           </div>
 
@@ -253,10 +264,10 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
 
             <div style={{ height: "25mm", marginBottom: "4mm" }}></div>
             <div style={{ fontSize: "12pt", fontWeight: "normal" }}>
-              {user?.nama}
+              {pengajuan?.mahasiswa?.nama}
             </div>
             <div style={{ fontSize: "12pt", textAlign: "left" }}>
-              NIM. {user?.nim}
+              NIM. {pengajuan?.mahasiswa?.nim}
             </div>
           </div>
         </div>

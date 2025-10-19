@@ -4,13 +4,11 @@ import { useState } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { User, Lock, Eye, EyeOff, Shield, GraduationCap } from "lucide-react";
 import { loginAction } from "@/actions/loginAction";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,7 +18,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const setUser = useAuthStore((state) => state.setUser);
-  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,52 +50,50 @@ export default function LoginPage() {
 
     console.log("Detected user role:", userRole);
 
-    // Redirect sesuai role
-    if (userRole === "super admin") {
-      router.push("/super-admin/dashboard");
-    } else if (userRole === "admin prodi") {
-      router.push("/admin/dashboard");
-    } else if (userRole === "sekprodi") {
-      router.push("/sekprodi/dashboard");
-    } else if (userRole === "kaprodi") {
-      router.push("/kaprodi/dashboard");
-    } else if (userRole === "dosen") {
-      router.push("/dosen/dashboard");
-    } else if (userRole === "mahasiswa") {
-      router.push("/mahasiswa/dashboard");
-    } else {
-      setError("Role user tidak dikenali");
+    // Redirect berdasarkan role
+    if (userRole) {
+      if (userRole === "admin") {
+        window.location.href = "/admin";
+      } else if (userRole === "super admin") {
+        window.location.href = "/super-admin/dashboard";
+      } else if (userRole === "dosen") {
+        window.location.href = "/dosen/dashboard";
+      } else if (userRole === "mahasiswa") {
+        window.location.href = "/mahasiswa/dashboard";
+      } else if (userRole === "kaprodi") {
+        window.location.href = "/kaprodi/dashboard";
+      } else if (userRole === "sekprodi") {
+        window.location.href = "/sekprodi/dashboard";
+      } else if (userRole === "admin prodi") {
+        window.location.href = "/admin/dashboard";
+      } else {
+        // Role tidak dikenal, redirect ke login
+        window.location.href = "/login";
+      }
     }
   }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
+    <div className="min-h-screen ">
       <div className="relative min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-800 to-blue-600 rounded-xl mb-3 shadow-lg">
+            <div className="inline-flex items-center justify-center ">
               <Image
                 src="/images/uin-raden-fatah.png"
                 alt="UIN Logo"
-                width={24}
-                height={24}
-                className="filter brightness-0 invert"
+                width={100}
+                height={1000}
+                className=""
               />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              Selamat Datang
-            </h1>
-            <p className="text-sm text-gray-600">
-              Sistem Informasi Ujian Skripsi
-            </p>
           </div>
         </div>
 
         <div className="mt-2 sm:mx-auto sm:w-full sm:max-w-sm px-4">
-          <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
-            <CardHeader className="space-y-1 pb-4 pt-6">
+          <Card className="shadow-md border-0 backdrop-blur-xs">
+            <CardHeader className="space-y-1 pb-4 ">
               <div className="text-center">
-                <h2 className="text-lg font-semibold text-gray-900">Login</h2>
+                <h2 className="text-2xl font-semibold text-gray-900">Login</h2>
                 <p className="text-xs text-gray-600 mt-1">
                   Masuk dengan akun SIMAK Anda
                 </p>
@@ -174,7 +169,7 @@ export default function LoginPage() {
                 {/* Submit */}
                 <Button
                   type="submit"
-                  className="w-full h-10 bg-gradient-to-r from-blue-800 to-blue-600 hover:from-blue-900 hover:to-blue-700 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 rounded-lg"
+                  className="w-full h-10 bg-blue-600  hover:bg-blue-700  text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 rounded-lg"
                   disabled={loading}
                 >
                   {loading ? (
@@ -184,7 +179,6 @@ export default function LoginPage() {
                     </div>
                   ) : (
                     <div className="flex items-center justify-center">
-                      <Shield className="h-4 w-4 mr-2" />
                       <span className="text-sm">Masuk</span>
                     </div>
                   )}
@@ -200,7 +194,7 @@ export default function LoginPage() {
               <span>UIN Raden Fatah Palembang</span>
             </div>
             <p className="text-xs text-gray-400 mt-1">
-              © 2025 Sistem Informasi Ujian Skripsi
+              © 2025 E-Skripsi 
             </p>
           </div>
         </div>

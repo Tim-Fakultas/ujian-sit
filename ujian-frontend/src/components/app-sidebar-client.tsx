@@ -6,10 +6,7 @@ import {
   IconHome,
   IconBook,
   IconUsers,
-  IconSchool,
-  IconFileText,
   IconClipboardList,
-  IconCalendar,
 } from "@tabler/icons-react";
 
 import { NavUser } from "@/components/nav-user";
@@ -58,8 +55,8 @@ export function AppSidebarClient({ user }: { user: any }) {
   const navAdmin: NavItem[] = [
     { title: "Dashboard", url: "/admin/dashboard", icon: IconHome },
     {
-      title: "Pengajuan Ujian",
-      url: "/admin/pengajuan-ujian",
+      title: "Pendaftaran Ujian",
+      url: "/admin/pendaftaran-ujian",
       icon: IconClipboardList,
     },
     {
@@ -84,8 +81,9 @@ export function AppSidebarClient({ user }: { user: any }) {
       icon: IconBook,
       items: [
         { title: "Jadwal Ujian", url: "/sekprodi/jadwal-ujian" },
-        {title: "Kelola Jadwal", url: "/sekprodi/kelola-jadwal"},
+        { title: "Daftar Ujian", url: "/sekprodi/daftar-ujian" },
         { title: "Berita Acara", url: "/sekprodi/berita-ujian" },
+        { title: "Rekapitulasi Nilai", url: "/sekprodi/rekapitulasi-nilai" },
       ],
     },
   ];
@@ -110,7 +108,7 @@ export function AppSidebarClient({ user }: { user: any }) {
       icon: IconBook,
       items: [
         { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
-        { title: "Ujian", url: "/dosen/ujian" },
+        { title: "Jadwal Ujian", url: "/dosen/jadwal-ujian" },
         { title: "Penilaian", url: "/dosen/penilaian" },
       ],
     },
@@ -124,20 +122,29 @@ export function AppSidebarClient({ user }: { user: any }) {
       icon: IconListDetails,
       items: [
         { title: "Rancangan Penelitian", url: "/mahasiswa/pengajuan-ranpel" },
-        { title: "Daftar Ujian", url: "/mahasiswa/ujian" },
+        { title: "Daftar Ujian", url: "/mahasiswa/pendaftaran-ujian" },
         { title: "Penilaian", url: "/mahasiswa/penilaian" },
       ],
     },
   ];
 
   let navItems: NavItem[] = [];
-  if (pathname.startsWith("/mahasiswa")) navItems = navMahasiswa;
-  else if (pathname.startsWith("/super-admin")) navItems = navSuperAdmin;
-  else if (pathname.startsWith("/dosen")) navItems = navDosen;
-  else if (pathname.startsWith("/kaprodi")) navItems = navKaprodi;
-  else if (pathname.startsWith("/sekprodi")) navItems = navSekprodi;
-  else if (pathname.startsWith("/admin")) navItems = navAdmin;
-  else navItems = navMahasiswa;
+
+  const getNavItems = (): NavItem[] => {
+    const routeMap: Record<string, NavItem[]> = {
+      "/super-admin": navSuperAdmin,
+      "/admin": navAdmin,
+      "/sekprodi": navSekprodi,
+      "/kaprodi": navKaprodi,
+      "/dosen": navDosen,
+      "/mahasiswa": navMahasiswa,
+    };
+
+    const route = Object.keys(routeMap).find((key) => pathname.startsWith(key));
+    return route ? routeMap[route] : navMahasiswa;
+  };
+
+  navItems = getNavItems();
 
   return (
     <Sidebar collapsible="icon">

@@ -33,12 +33,11 @@ export function NavUser() {
   const { user, initializeFromCookies } = useAuthStore();
 
   useEffect(() => {
-    initializeFromCookies(); // 🔁 Muat ulang data user dari cookies saat komponen mount
+    initializeFromCookies();
   }, [initializeFromCookies]);
 
   if (!user) return null;
 
-  // ✅ Ambil role dari struktur roles user
   const userRole =
     user.roles && user.roles.length > 0 ? user.roles[0].name : "user";
 
@@ -96,6 +95,7 @@ export function NavUser() {
                   <span className="text-muted-foreground truncate text-xs">
                     {user.email}
                   </span>
+
                   <span className="text-muted-foreground truncate text-xs capitalize">
                     Role: {userRole}
                   </span>

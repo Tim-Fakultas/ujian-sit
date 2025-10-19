@@ -13,6 +13,7 @@ export function getAuthFromCookies() {
   const dummyRole = cookieStore.get("auth_role")?.value;
 
   let user = null;
+
   if (userCookie) {
     try {
       user = JSON.parse(userCookie);
@@ -26,7 +27,15 @@ export function getAuthFromCookies() {
       nip_nim: "000000",
       nama: dummyUser,
       email: `${dummyUser}@example.com`,
-      roles: [{ id: 1, name: dummyRole, guard_name: "web", created_at: "", updated_at: "" }],
+      roles: [
+        {
+          id: 1,
+          name: dummyRole,
+          guard_name: "web",
+          created_at: "",
+          updated_at: "",
+        },
+      ],
     };
   }
 

@@ -58,6 +58,7 @@ export default function ProfilePage() {
       (user as { peminatan?: { nama_peminatan?: string } }).peminatan
         ?.nama_peminatan || "-",
     avatar: (user as { avatar?: string }).avatar || "",
+
   };
 
   const getIPKColor = (ipk: number) => {

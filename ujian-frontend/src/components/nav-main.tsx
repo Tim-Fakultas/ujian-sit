@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
@@ -45,7 +44,6 @@ export function NavMain({ data }: NavProps) {
 
   return (
     <SidebarGroup className={`${open ? "px-2" : "px-3"}`}>
-     
       <SidebarMenu className="space-y-0.5">
         {data.navItems.map((item) => {
           // ✅ Case: Single link (Home)
@@ -59,7 +57,7 @@ export function NavMain({ data }: NavProps) {
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm font-medium group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2",
                       isActive
-                        ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                        ? "bg-blue-50 text-blue-400 dark:bg-blue-900/20 dark:text-blue-300"
                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
                     )}
                   >
@@ -69,12 +67,14 @@ export function NavMain({ data }: NavProps) {
                         className={cn(
                           "flex-shrink-0",
                           isActive
-                            ? "text-blue-600 dark:text-blue-400"
+                            ? "text-blue-400 dark:text-blue-400"
                             : "text-slate-500 dark:text-slate-400"
                         )}
                       />
                     )}
-                    <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
+                    <span className="truncate group-data-[collapsible=icon]:hidden">
+                      {item.title}
+                    </span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -111,7 +111,9 @@ export function NavMain({ data }: NavProps) {
                         )}
                       />
                     )}
-                    <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
+                    <span className="truncate group-data-[collapsible=icon]:hidden">
+                      {item.title}
+                    </span>
                     <ChevronRight
                       className={cn(
                         "ml-auto h-3.5 w-3.5 transition-transform flex-shrink-0 group-data-[collapsible=icon]:hidden",
@@ -141,7 +143,7 @@ export function NavMain({ data }: NavProps) {
                                 className={cn(
                                   "flex items-center gap-2.5 px-3 py-2 rounded-md transition-colors text-sm",
                                   isActive
-                                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 font-medium"
+                                    ? "bg-blue-50 text-blue-400 dark:bg-blue-900/20 dark:text-blue-300 font-medium"
                                     : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-700 dark:hover:text-slate-300"
                                 )}
                               >

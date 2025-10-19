@@ -1,0 +1,326 @@
+"use client";
+
+import React, { useState, useEffect, useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { toast } from "sonner";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Eye, MoreVertical } from "lucide-react";
+import { getMahasiswaById } from "@/actions/mahasiswa";
+import { getJenisUjianColor, getStatusColor, truncateTitle } from "@/lib/utils";
+import { jadwalkanUjianAction } from "@/actions/jadwalUjian";
+
+type PendaftaranUjian = {
+  id: number | string;
+  mahasiswa: {
+    id: number | string;
+    nama: string;
+  };
+  ranpel: {
+    judulPenelitian: string;
+  };
+  jenisUjian: {
+    id: number | string;
+    namaJenis: string;
+  };
+  status: string;
+};
+
+export default function PendaftaranUjianTable({
+  pendaftaranUjian,
+  dosen,
+}: {
+  pendaftaranUjian: PendaftaranUjian[];
+  dosen: { data: { id: number | string; nama: string }[] };
+}) {
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<PendaftaranUjian | null>(null);
+  type MahasiswaDetail = {
+    id: number | string;
+    nama: string;
+    pembimbing1?: { id: number | string; nama: string };
+    pembimbing2?: { id: number | string; nama: string };
+    // Add other fields as needed
+  };
+
+  const [mahasiswaDetail, setMahasiswaDetail] =
+    useState<MahasiswaDetail | null>(null);
+  const [penguji1, setPenguji1] = useState("");
+  const [penguji2, setPenguji2] = useState("");
+
+  useEffect(() => {
+    if (selected) {
+      getMahasiswaById(Number(selected.mahasiswa.id)).then((res) =>
+        setMahasiswaDetail(res?.data || null)
+      );
+    }
+  }, [selected]);
+
+  const jadwalkanUjianReducer = async (
+    state: { success: boolean; message?: string },
+    formData: FormData
+  ) => {
+    const result = await jadwalkanUjianAction(formData);
+    return result;
+  };
+
+  // Ganti useFormState dengan useActionState
+  const [state, formAction] = useActionState(jadwalkanUjianReducer, {
+    success: false,
+    message: "",
+  });
+
+  useEffect(() => {
+    if (state?.success) {
+      toast.success("Ujian berhasil dijadwalkan!");
+      setOpen(false);
+    } else if (state?.message) {
+      toast.error(state.message);
+    }
+  }, [state]);
+
+  const { pending } = useFormStatus();
+
+  return (
+    <div className="rounded-sm overflow-x-auto">
+      <Table>
+        <TableHeader className="bg-accent">
+          <TableRow>
+            <TableHead>No</TableHead>
+            <TableHead>Nama Mahasiswa</TableHead>
+            <TableHead>Judul</TableHead>
+            <TableHead>Jenis Ujian</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Aksi</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {pendaftaranUjian.map((p, i) => (
+            <TableRow key={p.id}>
+              <TableCell>{i + 1}</TableCell>
+              <TableCell>{p.mahasiswa.nama}</TableCell>
+              <TableCell>{truncateTitle(p.ranpel.judulPenelitian)}</TableCell>
+              <TableCell>
+                <span
+                  className={`px-2 py-1 rounded text-xs font-semibold inline-block ${getJenisUjianColor(
+                    p.jenisUjian.namaJenis
+                  )}`}
+                >
+                  {p.jenisUjian.namaJenis}
+                </span>
+              </TableCell>
+              <TableCell>
+                <span
+                  className={`px-2 py-1 rounded text-xs ${getStatusColor(
+                    p.status
+                  )}`}
+                >
+                  {p.status}
+                </span>
+              </TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <MoreVertical size={18} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setSelected(p)}>
+                      <Eye size={16} /> Lihat Detail
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelected(p);
+                        setOpen(true);
+                      }}
+                    >
+                      Jadwalkan
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      {/* Dialog Jadwal */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Jadwalkan Ujian</DialogTitle>
+            <DialogDescription>Isi data ujian di bawah ini.</DialogDescription>
+          </DialogHeader>
+
+          {selected && !mahasiswaDetail && (
+            <div className="text-center py-8">Memuat data pembimbing...</div>
+          )}
+
+          {selected && mahasiswaDetail && (
+            <form
+              action={formAction}
+              className="space-y-3"
+              onSubmit={() => {
+                console.log(
+                  "DEBUG: akan submit dengan penguji1 =",
+                  penguji1,
+                  "penguji2 =",
+                  penguji2
+                );
+              }}
+            >
+              <input
+                type="hidden"
+                name="pendaftaranUjianId"
+                value={String(selected?.id ?? "")}
+              />
+              <input
+                type="hidden"
+                name="mahasiswaId"
+                value={String(selected?.mahasiswa?.id ?? "")}
+              />
+              <input
+                type="hidden"
+                name="jenisUjianId"
+                value={String(selected?.jenisUjian?.id ?? "")}
+              />
+              <input
+                type="hidden"
+                name="ketuaPenguji"
+                value={String(mahasiswaDetail?.pembimbing1?.id ?? "")}
+                required
+              />
+              <input
+                type="hidden"
+                name="sekretarisPenguji"
+                value={String(mahasiswaDetail?.pembimbing2?.id ?? "")}
+                required
+              />
+              <input
+                type="hidden"
+                name="penguji1"
+                value={penguji1 ?? ""}
+                required
+              />
+              <input
+                type="hidden"
+                name="penguji2"
+                value={penguji2 ?? ""}
+                required
+              />
+
+              <Label>Ketua Penguji</Label>
+              <Input
+                type="text"
+                value={mahasiswaDetail?.pembimbing1?.nama || "-"}
+                readOnly
+              />
+
+              <Label>Sekretaris Penguji</Label>
+              <Input
+                type="text"
+                value={mahasiswaDetail?.pembimbing2?.nama || "-"}
+                readOnly
+              />
+
+              <Label>Tanggal Ujian</Label>
+              <Input type="date" name="tanggalUjian" required />
+
+              <div className="flex gap-2">
+                <div className="w-1/2">
+                  <Label>Waktu Mulai</Label>
+                  <Input type="time" name="waktuMulai" required />
+                </div>
+                <div className="w-1/2">
+                  <Label>Waktu Selesai</Label>
+                  <Input type="time" name="waktuSelesai" required />
+                </div>
+              </div>
+
+              <Label>Ruangan</Label>
+              <Input
+                type="text"
+                name="ruangan"
+                placeholder="Ruang A1"
+                required
+              />
+
+              <Label>Dosen Penguji 1</Label>
+              <Select value={penguji1} onValueChange={setPenguji1}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Dosen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dosen.data.map((d) => (
+                    <SelectItem key={d.id} value={String(d.id)}>
+                      {d.nama}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Label>Dosen Penguji 2</Label>
+              <Select value={penguji2} onValueChange={setPenguji2}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Dosen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dosen.data.map((d) => (
+                    <SelectItem key={d.id} value={String(d.id)}>
+                      {d.nama}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={
+                  !mahasiswaDetail?.pembimbing1?.id ||
+                  !mahasiswaDetail?.pembimbing2?.id ||
+                  !penguji1 ||
+                  !penguji2
+                }
+              >
+                Simpan Jadwal
+              </Button>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
