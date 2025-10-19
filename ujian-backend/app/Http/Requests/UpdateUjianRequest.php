@@ -6,44 +6,112 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateUjianRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
+            // Tidak boleh diubah
             'pendaftaranUjianId' => 'prohibited',
             'mahasiswaId' => 'prohibited',
             'jenisUjianId' => 'prohibited',
+
+            // Boleh diubah sebagian
             'hariUjian' => 'sometimes|in:senin,selasa,rabu,kamis,jumat,sabtu,minggu',
             'jadwalUjian' => 'sometimes|date',
             'waktuMulai' => 'sometimes|date_format:H:i',
-            'waktuSelesai' => 'sometimes|date_format:H:i|after:waktuMulai',
+            'waktuSelesai' => [
+                'sometimes',
+                'date_format:H:i',
+                'after:waktuMulai',
+                function ($attribute, $value, $fail) {
+                    if ($this->filled(['waktuMulai', 'waktuSelesai'])) {
+                        $waktuMulai = strtotime($this->input('waktuMulai'));
+                        $waktuSelesai = strtotime($value);
+                        $durasi = ($waktuSelesai - $waktuMulai) / 3600;
+                        if ($durasi > 4) {
+                            $fail('Durasi ujian tidak boleh lebih dari 4 jam.');
+                        }
+                    }
+                }
+            ],
             'ruangan' => 'sometimes|string|max:255',
-            'ketuaPenguji' => 'sometimes|nullable|exists:dosen,id',
-            'sekretarisPenguji' => 'sometimes|nullable|exists:dosen,id',
-            'penguji1' => 'sometimes|nullable|exists:dosen,id',
-            'penguji2' => 'sometimes|nullable|exists:dosen,id',
-            'hasil' => 'sometimes|nullable|in:lulus,tidak lulus',
-            'nilaiAkhir' => 'sometimes|nullable|numeric|min:0|max:100',
-            'catatan' => 'nullable|string',
-        ];
 
+            // Penguji
+            'ketuaPenguji' => [
+                'sometimes', 'nullable', 'exists:dosen,id',
+                'different:sekretarisPenguji', 'different:penguji1', 'different:penguji2'
+            ],
+            'sekretarisPenguji' => [
+                'sometimes', 'nullable', 'exists:dosen,id',
+                'different:ketuaPenguji', 'different:penguji1', 'different:penguji2'
+            ],
+            'penguji1' => [
+                'sometimes', 'nullable', 'exists:dosen,id',
+                'different:ketuaPenguji', 'different:sekretarisPenguji', 'different:penguji2'
+            ],
+            'penguji2' => [
+                'sometimes', 'nullable', 'exists:dosen,id',
+                'different:ketuaPenguji', 'different:sekretarisPenguji', 'different:penguji1'
+            ],
+
+            // Hasil & nilai
+            'hasil' => 'sometimes|nullable|in:lulus,tidak lulus',
+            'nilaiAkhir' => [
+                'sometimes', 'nullable', 'numeric', 'min:0', 'max:100',
+                function ($attribute, $value, $fail) {
+                    $hasil = $this->input('hasil');
+                    if ($hasil === 'lulus' && $value !== null && $value < 70) {
+                        $fail('Nilai minimum kelulusan adalah 70.');
+                    }
+                    if ($hasil === 'tidak lulus' && $value !== null && $value >= 70) {
+                        $fail('Nilai di bawah 70 tidak dapat dinyatakan lulus.');
+                    }
+                }
+            ],
+
+            // Keputusan (hanya untuk ujian hasil / skripsi)
+            'keputusan' => [
+                'sometimes', 'nullable',
+                'in:Dapat diterima tanpa perbaikan,Dapat diterima dengan perbaikan kecil,Dapat diterima dengan perbaikan besar,Belum dapat diterima',
+                function ($attribute, $value, $fail) {
+                    // Hindari error jika relasi tidak dimuat
+                    $jenisUjian = optional($this->ujian->jenisUjian)->nama_jenis;
+                    if ($value && !in_array(strtolower($jenisUjian ?? ''), ['ujian hasil', 'ujian skripsi'])) {
+                        $fail('Keputusan hanya bisa diisi untuk ujian hasil dan ujian skripsi.');
+                    }
+                },
+            ],
+
+            'catatan' => 'sometimes|nullable|string',
+        ];
     }
 
-    public function prepareForValidation(): void
+    protected function prepareForValidation(): void
     {
-        $this->merge([
+        // Otomatis tentukan hariUjian dari jadwalUjian jika ada
+        if ($this->has('jadwalUjian')) {
+            $hariJadwal = strtolower(date('l', strtotime($this->input('jadwalUjian'))));
+            $hariIndonesia = [
+                'monday' => 'senin',
+                'tuesday' => 'selasa',
+                'wednesday' => 'rabu',
+                'thursday' => 'kamis',
+                'friday' => 'jumat',
+                'saturday' => 'sabtu',
+                'sunday' => 'minggu',
+            ];
+
+            $this->merge([
+                'hariUjian' => $hariIndonesia[$hariJadwal] ?? null,
+            ]);
+        }
+
+        // Normalisasi nama field ke snake_case (sesuai kolom di DB)
+        $mapped = [
             'hari_ujian' => $this->input('hariUjian'),
             'jadwal_ujian' => $this->input('jadwalUjian'),
             'waktu_mulai' => $this->input('waktuMulai'),
@@ -54,6 +122,9 @@ class UpdateUjianRequest extends FormRequest
             'penguji_1' => $this->input('penguji1'),
             'penguji_2' => $this->input('penguji2'),
             'nilai_akhir' => $this->input('nilaiAkhir'),
-        ]);
+        ];
+
+        // Hanya merge field yang terisi untuk menghindari overwrite null
+        $this->merge(array_filter($mapped, fn($v) => $v !== null));
     }
 }

@@ -27,7 +27,7 @@ class StorePendaftaranUjianRequest extends FormRequest
             'jenisUjianId' => 'required|exists:jenis_ujian,id',
             'tanggalPengajuan' => 'nullable|date',
             'tanggalDisetujui' => 'nullable|date',
-            'status' => 'required|in:menunggu, dijadwalkan, selesai, ditolak',
+            'status' => 'in:menunggu, diterima, dijadwalkan, selesai, ditolak',
             'keterangan' => 'nullable|string',
 
             'berkas' => 'nullable|array',

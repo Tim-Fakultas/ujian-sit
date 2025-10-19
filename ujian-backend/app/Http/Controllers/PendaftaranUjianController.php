@@ -30,7 +30,6 @@ class PendaftaranUjianController extends Controller
         try {
             $validated = $request->validated();
 
-            // 1️⃣ Buat pendaftaran ujian baru
             $pendaftaran = PendaftaranUjian::create([
                 'mahasiswa_id' => $validated['mahasiswaId'],
                 'ranpel_id' => $validated['ranpelId'],
@@ -40,7 +39,7 @@ class PendaftaranUjianController extends Controller
                 'keterangan' => $validated['keterangan'] ?? null,
             ]);
 
-            // 2️⃣ Upload semua berkas (jika ada)
+            // berkas
             if ($request->hasFile('berkas')) {
                 foreach ($request->file('berkas') as $file) {
                     $path = $file->store('uploads/berkas_ujian', 'public');
@@ -83,9 +82,9 @@ class PendaftaranUjianController extends Controller
     {
         $validated = $request->validated();
 
-        // Jika status diubah ke 'dijadwalkan', set tanggal disetujui
-        if (isset($validated['status']) && $validated['status'] === 'dijadwalkan') {
-            $validated['tanggal_disetujui'] = now();
+        // Jika status diubah ke 'diterima', set tanggal disetujui
+        if (isset($validated['status']) && $validated['status'] === 'diterima') {
+            $validated['tanggal_disetujui'] = now()->format('Y-m-d H:i:s');;
         }
 
         $pendaftaranUjian->update($validated);

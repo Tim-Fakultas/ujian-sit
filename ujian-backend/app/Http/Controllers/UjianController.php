@@ -48,6 +48,7 @@ class UjianController extends Controller
         // Ambil hanya field yang dikirim (bukan semua yang lolos validasi)
         $data = array_filter(
             $request->only([
+                'hari_ujian',   
                 'jadwal_ujian',
                 'waktu_mulai',
                 'waktu_selesai',
@@ -73,7 +74,7 @@ class UjianController extends Controller
         }
 
         return new UjianResource(
-            $ujian->load(['pendaftaran_ujian.ranpel', 'jenis_ujian', 'mahasiswa'])
+            $ujian->load(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa'])
         );
     }
 

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('mahasiswa', function (Blueprint $table) {
             $table->id();
             $table->string('nim')->unique();
-            $table->string('nama');
+            $table->string('nama', 100)->nullable(false);
             $table->string('no_hp', 30)->nullable();
             $table->string('alamat')->nullable();
             $table->foreignId('prodi_id')->default(1)->constrained('prodi')->onDelete('cascade');

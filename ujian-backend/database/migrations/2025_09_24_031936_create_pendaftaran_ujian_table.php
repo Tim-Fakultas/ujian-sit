@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('jenis_ujian_id')->constrained('jenis_ujian')->onDelete('cascade');
             $table->dateTime('tanggal_pengajuan')->default(now());
             $table->dateTime('tanggal_disetujui')->nullable();
-            $table->enum('status', ['menunggu', 'dijadwalkan', 'selesai', 'ditolak'])->default('menunggu');
+            $table->enum('status', ['menunggu','diterima','dijadwalkan', 'selesai', 'ditolak'])->default('menunggu');
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

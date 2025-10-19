@@ -60,32 +60,37 @@ class PendaftaranUjian extends Model
     protected static function booted()
     {
         static::updating(function ($pendaftaran) {
-            if ($pendaftaran->isDirty('status') && $pendaftaran->status === 'dijadwalkan') {
-                Ujian::create([
-                    'pendaftaran_ujian_id' => $pendaftaran->id,
-                    'jenis_ujian_id' => $pendaftaran->jenis_ujian_id,
-                    'mahasiswa_id' => $pendaftaran->mahasiswa_id,
-                    'ranpel_id' => $pendaftaran->ranpel_id,
-                    'ketua_penguji' => $pendaftaran->mahasiswa->pembimbing_1,
-                    'sekretaris_penguji' => $pendaftaran->mahasiswa->pembimbing_2,
-                ]);
+            // Kalau status berubah jadi diterima
+            if ($pendaftaran->isDirty('status') && $pendaftaran->status === 'diterima') {
+
+                // Pastikan tanggal_disetujui terisi string
+                if (empty($pendaftaran->tanggal_disetujui)) {
+                    $pendaftaran->tanggal_disetujui = now()->toDateTimeString();
+                }
+
+                // Hindari duplikasi ujian
+                if (!Ujian::where('pendaftaran_ujian_id', $pendaftaran->id)->exists()) {
+                    Ujian::create([
+                        'pendaftaran_ujian_id' => $pendaftaran->id,
+                        'jenis_ujian_id' => $pendaftaran->jenis_ujian_id,
+                        'mahasiswa_id' => $pendaftaran->mahasiswa_id,
+                        'ranpel_id' => $pendaftaran->ranpel_id,
+                        'ketua_penguji' => $pendaftaran->mahasiswa->pembimbing_1,
+                        'sekretaris_penguji' => $pendaftaran->mahasiswa->pembimbing_2,
+                    ]);
+                }
             }
         });
 
         static::creating(function ($pendaftaran) {
-        if (empty($pendaftaran->tanggal_pengajuan)) {
-            $pendaftaran->tanggal_pengajuan = now();
-        }
+            if (empty($pendaftaran->tanggal_pengajuan)) {
+                $pendaftaran->tanggal_pengajuan = now()->toDateTimeString();
+            }
 
-        if ($pendaftaran->status === 'dijadwalkan' && empty($pendaftaran->tanggal_disetujui)) {
-            $pendaftaran->tanggal_disetujui = now();
-        }
-        });
-
-        static::updating(function ($pendaftaran) {
-            if ($pendaftaran->isDirty('status') && $pendaftaran->status === 'dijadwalkan') {
-                $pendaftaran->tanggal_disetujui = now();
+            if ($pendaftaran->status === 'diterima' && empty($pendaftaran->tanggal_disetujui)) {
+                $pendaftaran->tanggal_disetujui = now()->toDateTimeString();
             }
         });
     }
+
 }

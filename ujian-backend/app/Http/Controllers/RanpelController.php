@@ -26,7 +26,15 @@ class RanpelController extends Controller
     public function store(StoreRanpelRequest $request)
     {
         $validated = $request->validated();
-        $ranpel = Ranpel::create($validated);
+        $ranpelData = $request->only([
+            'judul_penelitian',
+            'masalah_dan_penyebab',
+            'alternatif_solusi',
+            'metode_penelitian',
+            'hasil_yang_diharapkan',
+            'kebutuhan_data',
+        ]);
+        $ranpel = Ranpel::create($ranpelData);
 
         return new RanpelResource($ranpel);
     }

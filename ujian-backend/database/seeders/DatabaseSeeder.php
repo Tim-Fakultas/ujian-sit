@@ -55,10 +55,10 @@ class DatabaseSeeder extends Seeder
 
         $adminUser = User::factory()->create([
                 'id' => 1,
-                'nip_nim' => '2120803026',
+                'nip_nim' => '1',
                 'nama' => 'Muhammad Adib Saputra',
                 'email' => 'Abdi@example.com',
-                'password' => bcrypt('2120803026'),
+                'password' => bcrypt('1'),
                 'prodi_id'=> null,
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),

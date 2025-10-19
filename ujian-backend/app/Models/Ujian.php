@@ -125,4 +125,14 @@ class Ujian extends Model
     ]);
     return $this;
 }
+
+    protected static function booted()
+    {
+        static::updating(function ($ujian) {
+            // Jika nilai_akhir diubah, otomatis set hasil
+            if($ujian->isDirty('jadwal_ujian') && !empty($ujian->jadwal_ujian)){
+                $ujian->pendaftaranUjian()->update(['status' => 'dijadwalkan']);
+            }
+        });
+    }
 }

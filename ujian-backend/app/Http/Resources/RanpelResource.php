@@ -22,6 +22,7 @@ class RanpelResource extends JsonResource
             'metodePenelitian' => $this->metode_penelitian,
             'hasilYangDiharapkan' => $this->hasil_yang_diharapkan,
             'kebutuhanData' => $this->kebutuhan_data,
+            'status'=> $this->pengajuanRanpel->status,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];

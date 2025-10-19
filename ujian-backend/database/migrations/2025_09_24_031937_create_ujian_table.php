@@ -27,6 +27,10 @@ return new class extends Migration
             $table->foreignId('penguji_2')->nullable()->constrained('dosen')->nullOnDelete();
             $table->enum('hasil', ['lulus', 'tidak lulus'])->nullable();
             $table->unsignedBigInteger('nilai_akhir')->nullable();
+            $table->enum('keputusan', ['Dapat diterima tanpa perbaikan',
+                                                        'Dapat diterima dengan perbaikan kecil',
+                                                        'Dapat diterima dengan perbaikan besar',
+                                                        'Belum dapat diterima'])->nullable();
             $table->text('catatan')->nullable();
             $table->timestamps();
         });

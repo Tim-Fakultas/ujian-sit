@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\JenisUjian;
 use Illuminate\Database\Seeder;
 
 class JenisUjianSeeder extends Seeder
@@ -16,8 +17,8 @@ class JenisUjianSeeder extends Seeder
             ['nama_jenis' => 'Ujian Hasil'],
             ['nama_jenis' => 'Ujian Skripsi'],
         ];
-        \App\Models\JenisUjian::insert($jenisUjian);
+        JenisUjian::insert($jenisUjian);
 
-        
+
     }
 }

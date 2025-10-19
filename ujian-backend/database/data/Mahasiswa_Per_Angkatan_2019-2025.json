@@ -1,0 +1,7326 @@
+{
+    "2019": [
+        {
+            "nim": 1930803038,
+            "nama": "ABDULLAH GIMNASTIAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803043,
+            "nama": "AGUS FAJAR RIANY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803036,
+            "nama": "AGUS RUKANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803047,
+            "nama": "AIDIL MARSA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803010,
+            "nama": "AISYAH PUTRI LESTARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803073,
+            "nama": "ALDI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803035,
+            "nama": "ANANDA ASA ABDUL FATAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803033,
+            "nama": "APDI PRAMEDIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803051,
+            "nama": "ARDIANSYAH DARUSSALAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1910803003,
+            "nama": "ARMAN HIDAYAT S",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803065,
+            "nama": "ASRAFLI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803011,
+            "nama": "BUNGA HOFIFAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803028,
+            "nama": "CHAIRIL IRVAN MASADJIE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803053,
+            "nama": "CHOIRUL RIJAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803056,
+            "nama": "DINDUH RILYANSA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803063,
+            "nama": "FADILA RASYIDINA SETYATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803044,
+            "nama": "FATIMAH AZ ZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803020,
+            "nama": "FRISKA KARUNIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803024,
+            "nama": "GHALIK ASNAWI PANGINDOMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803037,
+            "nama": "HAFIZ AKBAR FALAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803041,
+            "nama": "IKA RIZKI AMALIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803075,
+            "nama": "INDAH PERMATA BUNDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803061,
+            "nama": "INTAN UTAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803014,
+            "nama": "IRWANDA LUBIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803070,
+            "nama": "ISMA SHAFIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803046,
+            "nama": "IZALNA SABDARIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803045,
+            "nama": "JODDY RYAN YOGASWARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803040,
+            "nama": "JORGIE SATYAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803032,
+            "nama": "JUHENDRI PELAYERTEDY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803042,
+            "nama": "KARTINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803068,
+            "nama": "KHOIRUL AZIZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803031,
+            "nama": "KIAGUS MUHAMMAD AZHARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1910803006,
+            "nama": "LALA AGUSTINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803034,
+            "nama": "LUKY SRI ANDRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803029,
+            "nama": "M. AGUS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803049,
+            "nama": "M. CHOIRY OKTARIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803018,
+            "nama": "M.YUDI SETIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803039,
+            "nama": "MELLIANA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803022,
+            "nama": "MITRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803059,
+            "nama": "MONICA ANGGRAINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1910803009,
+            "nama": "MUHAMAD AL HAVIZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803072,
+            "nama": "MUHAMMAD HADI MUBIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1910803005,
+            "nama": "MUHAMMAD HAFIS AL-ASSAD",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803050,
+            "nama": "MUHAMMAD ILHAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803067,
+            "nama": "MUHAMMAD RIFQI PERDANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803015,
+            "nama": "NABILLA NUR AMALINDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803016,
+            "nama": "NANA NATASA SINAGA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803074,
+            "nama": "NURJIHAN RAFIFAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803012,
+            "nama": "NURRAHMAH EKA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1910803002,
+            "nama": "NURUL HIMA HIDAYATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803052,
+            "nama": "OCTAVIA NIZA WARDHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803026,
+            "nama": "OSA DENADAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803025,
+            "nama": "PAKUNIYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803023,
+            "nama": "PUTRI NURIZKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1910803004,
+            "nama": "RAGIL PRIMA ELVIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803064,
+            "nama": "RAMADHONI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803066,
+            "nama": "RANTI WIDIA PERMATASARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803076,
+            "nama": "ROIHANUDDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803030,
+            "nama": "ROSALINA DEWI YOLANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803027,
+            "nama": "SINDI ANTIKA RATNASARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803060,
+            "nama": "SISKA APRILLIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803019,
+            "nama": "SITI IMROATUS SHOLIKAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803055,
+            "nama": "SITI REGINA CAHYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803017,
+            "nama": "SITI WULANDARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803058,
+            "nama": "SUBINTA IMANIAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1910803008,
+            "nama": "SUCI FATMAWATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803069,
+            "nama": "SUNDARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803013,
+            "nama": "SUYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1920803021,
+            "nama": "SYADIDUL HAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803054,
+            "nama": "THOORIQ AMRILLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1910803007,
+            "nama": "TRI ASTINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803057,
+            "nama": "VINA FITRIYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803071,
+            "nama": "VIVI SEPTIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803062,
+            "nama": "WENTI INDRI SISTA KARINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1910803001,
+            "nama": "WHINDY OVIANTY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 1930803048,
+            "nama": "YUNITA FEBRIYANTI",
+            "prodi_id": 1
+        }
+    ],
+    "2020": [
+        {
+            "nim": 2020803022,
+            "nama": "ABDI IKHSANUDDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803059,
+            "nama": "ACHMAD FACHRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803070,
+            "nama": "ADE SULTAN SYAFIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803056,
+            "nama": "ADITIYA FEBRIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803074,
+            "nama": "AGUNG NUR MUKHLIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803040,
+            "nama": "AGUS SETIONO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803156,
+            "nama": "AHMAD ADIB PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803034,
+            "nama": "AHMAD LUCKYTA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803062,
+            "nama": "AHMAD NURUDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803157,
+            "nama": "AHMAD RIDHO RAMDHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803109,
+            "nama": "AHMAD ROFI KHOSYI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803126,
+            "nama": "AHMAD ZHAFRAN FADHLI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803093,
+            "nama": "AKBAR DERBY YANWAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803080,
+            "nama": "AKHMAD RAMADHONI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803148,
+            "nama": "AKMAL DWI SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803036,
+            "nama": "ALBETS TABEMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803033,
+            "nama": "ALDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803135,
+            "nama": "ALDI SAGITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803092,
+            "nama": "ALFINA DAMAYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803127,
+            "nama": "ALIF WAHYUDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803130,
+            "nama": "ALISON",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803035,
+            "nama": "ALWAN MAULANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803031,
+            "nama": "AMELIA RAHMADINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803018,
+            "nama": "AMILYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803095,
+            "nama": "ANGGA AFRIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803072,
+            "nama": "ANGGITA UTARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803121,
+            "nama": "ANISAH MAYANG SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803076,
+            "nama": "ANNISA NUR JANNAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803090,
+            "nama": "ARDIANSA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803152,
+            "nama": "ARIO FADLI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803115,
+            "nama": "AULIA RIZKI RAMADHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803005,
+            "nama": "AYU ANDINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803150,
+            "nama": "AYU WANDIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803004,
+            "nama": "AZELLIA AXELA ARIZONA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803088,
+            "nama": "BELLA APRILLIANIE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803057,
+            "nama": "BENI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803002,
+            "nama": "CHUSNUL KHOTIMAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803113,
+            "nama": "DAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803061,
+            "nama": "DANU GRAHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803028,
+            "nama": "DARMAWAN AGAM MERDA WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803025,
+            "nama": "DEA SUCI ARDANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803154,
+            "nama": "DEDI DERMAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803060,
+            "nama": "DEFRI YANDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803039,
+            "nama": "DELA ARDIYANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803141,
+            "nama": "DERIKA ANANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803138,
+            "nama": "DERPI TRI YANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803009,
+            "nama": "DESVI YANI PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803024,
+            "nama": "DEVI PERMATA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803047,
+            "nama": "DHEA UMI CHOIRIYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803111,
+            "nama": "DITO PRAMU DITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803123,
+            "nama": "DWI SELVI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803146,
+            "nama": "ENY LAROSA PUTRI UTAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803017,
+            "nama": "ERLINDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803100,
+            "nama": "ERNI PATMAWATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803016,
+            "nama": "FAHRU SETIAWAN ISKANDAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803091,
+            "nama": "FATHIMA AZ ZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803064,
+            "nama": "FITRIA INDRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803011,
+            "nama": "FRANDISKA AGDA LIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803131,
+            "nama": "HABIBURRAHMAN AL-FARISI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803142,
+            "nama": "HARTANIAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803102,
+            "nama": "HELPI ANGGRAINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803117,
+            "nama": "IHSAN SAHIDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803139,
+            "nama": "IKHSAN ALMI IRFANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803054,
+            "nama": "IKHWAN SYIHABUDDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803143,
+            "nama": "ILHAM AHMAD RIFALDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803063,
+            "nama": "INDAH DESTRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803161,
+            "nama": "INNA HIKMAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803007,
+            "nama": "IZZATI MILLAH HANIFAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803030,
+            "nama": "JIHAN FEBRINA ANGGRAINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803125,
+            "nama": "JULIAN PUTRA PERDANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803048,
+            "nama": "JUNIDAR RAHMAWATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803001,
+            "nama": "KAYLA AURELIA AKBAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803068,
+            "nama": "KHOIRONI WIRANANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803096,
+            "nama": "LAURENTZ ANNE SAFILLA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803158,
+            "nama": "M. ADE YUDISTIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803049,
+            "nama": "M. BAGAS TRIYUDHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803052,
+            "nama": "M. FASKAL PUTRA PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803147,
+            "nama": "M. HANIF",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803003,
+            "nama": "M. LUTHFI SEPTORIO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803014,
+            "nama": "M. REALDI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803082,
+            "nama": "M. RIZKI PRAYOGA SYAHPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803119,
+            "nama": "M.KEVINDRA FAJRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803089,
+            "nama": "M.PARHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803124,
+            "nama": "MALIKUL MULKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803081,
+            "nama": "MELDA ANEKA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803075,
+            "nama": "MESI KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803101,
+            "nama": "MESSI LAILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803087,
+            "nama": "MEYTA DYARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803086,
+            "nama": "MILDA YANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803118,
+            "nama": "MUHAMAD CERAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803129,
+            "nama": "MUHAMMAD ABIN PRAYUDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803077,
+            "nama": "MUHAMMAD AFIF ISLAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803144,
+            "nama": "MUHAMMAD AL FADJRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803012,
+            "nama": "MUHAMMAD ALFATTAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803019,
+            "nama": "MUHAMMAD ALIEF SULADEN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803159,
+            "nama": "MUHAMMAD ALIF PERDANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803120,
+            "nama": "MUHAMMAD ALPIN ZAPIIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803097,
+            "nama": "MUHAMMAD BASYIR THOYYIB",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803153,
+            "nama": "MUHAMMAD FARHAN FADLUROHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803021,
+            "nama": "MUHAMMAD FERILIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803037,
+            "nama": "MUHAMMAD GILANG MAULANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803116,
+            "nama": "MUHAMMAD HUSYAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803013,
+            "nama": "MUHAMMAD INDRA SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803122,
+            "nama": "MUHAMMAD JUSTIAN NUGROHO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803151,
+            "nama": "MUHAMMAD KHOLID SAIFUNNASER",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803045,
+            "nama": "MUHAMMAD MUSHLEH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803078,
+            "nama": "MUHAMMAD MUSTAFA RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803032,
+            "nama": "MUHAMMAD RAFLI AL HASRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803136,
+            "nama": "MUHAMMAD RAHMADAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803094,
+            "nama": "MUHAMMAD RICO MUHAQQI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803042,
+            "nama": "MUHAMMAD RIDUAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803029,
+            "nama": "MUHAMMAD RISKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803069,
+            "nama": "MUHAMMAD SANDI ARIADI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803026,
+            "nama": "MUTIARA MAHARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803084,
+            "nama": "MUTIARA SANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803043,
+            "nama": "NABILAH AL HANIYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803044,
+            "nama": "NADIA AGITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803108,
+            "nama": "NADIA WATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803114,
+            "nama": "NADILA BONETA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803027,
+            "nama": "NADYA HASENA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803006,
+            "nama": "NINDI AZISTA MARNANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803145,
+            "nama": "NIRA ELSA JUNISIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803098,
+            "nama": "NUR RAIDAH SOLIHAT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803132,
+            "nama": "NUR SAFIRA MUNAWAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803008,
+            "nama": "OCKA ROMEO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803103,
+            "nama": "OGIE JUNANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803041,
+            "nama": "PUJA MARSELA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803058,
+            "nama": "PUPUT HAIDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803107,
+            "nama": "PUTRI ANANDA DESTARY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803065,
+            "nama": "PUTRI APRILLIA DAMAYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803162,
+            "nama": "PUTRI NURHALIZAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803038,
+            "nama": "PUTRI SAFITRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803067,
+            "nama": "R ZAINAL ABIDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803104,
+            "nama": "RACHUL RAM DHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803083,
+            "nama": "RADEN AMIR HAMZAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803149,
+            "nama": "RANI DAMAYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803106,
+            "nama": "REDHO ILHAMDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803085,
+            "nama": "REZA APRILIA HUMAIRO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803073,
+            "nama": "RIKA OKTAVIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803051,
+            "nama": "RIZKI KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803055,
+            "nama": "RIZKY NUR ANNISA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803015,
+            "nama": "ROMI NOVRIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803110,
+            "nama": "RONALDO ARSAD",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803053,
+            "nama": "SINTA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803046,
+            "nama": "SITI HAPSYAH ADELIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803155,
+            "nama": "SOFYAN AR RASYID",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803137,
+            "nama": "SURYA SYAH PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803134,
+            "nama": "SYANYAH MELATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803128,
+            "nama": "SYLA ANGRA AZHARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803023,
+            "nama": "TRY JENI ADELIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803140,
+            "nama": "UTARI RISKITA LIAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803133,
+            "nama": "VIKI ANDRIA PRAMUJA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803066,
+            "nama": "WAHYU NUROHIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803112,
+            "nama": "WELI SAPUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803071,
+            "nama": "YOLANDA MAHARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803079,
+            "nama": "YOVI NASRULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803099,
+            "nama": "YUDHA PUTRA PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803160,
+            "nama": "ZAKILA AMELINDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2030803105,
+            "nama": "ZANDI PEBRIAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803020,
+            "nama": "ZAURA DWI RAHMAWATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2020803050,
+            "nama": "ZEINA ALPIA RAHMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2010803010,
+            "nama": "ZERRY HARNADO",
+            "prodi_id": 1
+        }
+    ],
+    "2021": [
+        {
+            "nim": 2130803119,
+            "nama": "ABDURRAHMAN ALI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803014,
+            "nama": "ADAM NURRIZKY WIBOWO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803034,
+            "nama": "ADISTY KHARISMA VIRGIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803133,
+            "nama": "ADITYA REVALDO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803032,
+            "nama": "AGIEL FRASTIO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803065,
+            "nama": "AHMAD FIRMAN ARI YANTO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803089,
+            "nama": "AHMAD HASYEIMI SYARIATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803095,
+            "nama": "AHMAD MUZAKKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803094,
+            "nama": "AKBAR HARMEYTIH PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803041,
+            "nama": "AL HABIB RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803084,
+            "nama": "ALDI NANDA PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803077,
+            "nama": "ALDI SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803023,
+            "nama": "ALYATISA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803113,
+            "nama": "AMELIA FEBRIYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803101,
+            "nama": "AMIRAH SAKINAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803144,
+            "nama": "ANANDA JENLY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803080,
+            "nama": "ANANTA WIRA KESUMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803066,
+            "nama": "ANDRES OKTALIANTO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803086,
+            "nama": "ANTI FARIKHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803045,
+            "nama": "ATTHAHIRAH PEROLA SATRIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803035,
+            "nama": "AUDI RAHMANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803074,
+            "nama": "AURIA RAMADHAN CAHYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803016,
+            "nama": "AZAM CHOIRUL ANAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803079,
+            "nama": "AZZAHRA PUTRI PRIANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803028,
+            "nama": "BELLA PUSPITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803140,
+            "nama": "BRILIANI HUSNUL KHOTIMAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803072,
+            "nama": "CEIDHO HAFIZ DZURRIYATH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803005,
+            "nama": "CHINTIA SEPTIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803087,
+            "nama": "DAVID MAULANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803104,
+            "nama": "DELLA EKA PUSPITA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803017,
+            "nama": "DENDI KURNIADI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803039,
+            "nama": "DESI ARYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803020,
+            "nama": "DESI MAYANG SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803056,
+            "nama": "DEVI WULAN SAFITRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803036,
+            "nama": "DHEA AFNISYAH PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803047,
+            "nama": "DHENI ADITIA APRILIO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803114,
+            "nama": "DIDI PUTRA HASKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803030,
+            "nama": "DWI PUTRI AMANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803075,
+            "nama": "DYAH MEYGANIZRA KHALIFATUNISWA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803082,
+            "nama": "EMILIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803129,
+            "nama": "ESSA AZBALDO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803116,
+            "nama": "FARHAN DWI NUGROHO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803058,
+            "nama": "FARHANA PUTI ANDAYU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803037,
+            "nama": "FENI ANGELIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803018,
+            "nama": "FERI ARDIANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803051,
+            "nama": "FERNANDA SABITAH RAMELIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803013,
+            "nama": "FITRA JAYA LAKSMANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803021,
+            "nama": "FITRIA RAMADHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803108,
+            "nama": "GERISCA ANANDA MUTIARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803049,
+            "nama": "GUSTIANSYAH PUTRA ZAHWANEGARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803022,
+            "nama": "HARI MATAHARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803009,
+            "nama": "HILDA SEPTIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803050,
+            "nama": "IKE YULINDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803142,
+            "nama": "IMAM AHMAD ROYYAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803099,
+            "nama": "INDAH PUTRI ANDRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803024,
+            "nama": "IVAN HIDAYAT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803004,
+            "nama": "KALVIN JULIO PRANATA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803137,
+            "nama": "KALVIN RISWANDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803097,
+            "nama": "KEVIN RAHMATULLAH SAKTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803043,
+            "nama": "KHAIRUNNISA AYU ASMARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803088,
+            "nama": "KHOLDI DARUSSALAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803067,
+            "nama": "LESY MARCELLA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803054,
+            "nama": "LISA JULIA ANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803138,
+            "nama": "M FAUZAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803120,
+            "nama": "M HAFIDZ RAFI RABBANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803010,
+            "nama": "M. AGUS SYAWALUDDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803046,
+            "nama": "M. AHDAD ALWI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803042,
+            "nama": "M. ANDRE GHAZALI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803015,
+            "nama": "M. ARIQ FARRAS FATIH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803096,
+            "nama": "M. DANDI AKHDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803008,
+            "nama": "M. RIZKY BARKHA ANANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803062,
+            "nama": "M. RIZKY MAHENDRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803112,
+            "nama": "M.ABDUL RAHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803078,
+            "nama": "M.ABUDZAR AL GHIFARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803052,
+            "nama": "M.ARIQ RISALDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803069,
+            "nama": "M.FARHAN AZZAKKY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803070,
+            "nama": "M.FAUZAN DJEFRIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803103,
+            "nama": "M.WAHYU PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803146,
+            "nama": "MALAYA AURA DINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803057,
+            "nama": "MARSELLINDO PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803111,
+            "nama": "MARTINA SAFITTRIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803027,
+            "nama": "MASAGUS ADIT ZAMIR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803064,
+            "nama": "MASAYU SAKINAH ALIYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803063,
+            "nama": "MAUDY TRIE AULIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803048,
+            "nama": "MGS M ZAKY RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803100,
+            "nama": "MICKPRI ADITYA SETIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803106,
+            "nama": "MUHAMAD HAFIZH RIZKY PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803026,
+            "nama": "MUHAMMAD ALDO SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803135,
+            "nama": "MUHAMMAD ALTHAF RIZKY AKBAR LATIEF",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803148,
+            "nama": "MUHAMMAD BARAKAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803117,
+            "nama": "MUHAMMAD BAYU DESWARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803085,
+            "nama": "MUHAMMAD FAJAR AL FARISSI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803053,
+            "nama": "MUHAMMAD GALIH ALFARIZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803068,
+            "nama": "MUHAMMAD IRZA ADHITIA NAF'AN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803060,
+            "nama": "MUHAMMAD RACHMAD ADITYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803109,
+            "nama": "MUHAMMAD RAMADHONI AL FURQON",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803107,
+            "nama": "MUHAMMAD RIVALDO ANANTA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803055,
+            "nama": "MUHAMMAD TEGAR SEPTIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803115,
+            "nama": "NABILA RAMADHINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803141,
+            "nama": "NANDO SATRIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803044,
+            "nama": "NATASHA ADELIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803121,
+            "nama": "NEKA SUSITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803123,
+            "nama": "NILAM SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803011,
+            "nama": "NOVITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803071,
+            "nama": "NOVITA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803145,
+            "nama": "NURALYA APRILIZA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803098,
+            "nama": "NURBAITI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803126,
+            "nama": "OTTI SAFARDAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803033,
+            "nama": "PANDU SATRIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803132,
+            "nama": "PRAMAULADI MUKRIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803139,
+            "nama": "PUTRI RINDIA MAHARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803061,
+            "nama": "RAESUL IBRAHIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803031,
+            "nama": "RAFKY PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803147,
+            "nama": "RAHEZA KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803019,
+            "nama": "RAHMAH NOVITASARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803090,
+            "nama": "REGITA CAHYA SAPHIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803012,
+            "nama": "REZALDY AZMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803073,
+            "nama": "RICO ARDIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803007,
+            "nama": "RICO SHANDY MAHENDRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803128,
+            "nama": "RIDHO HARI SUTRISNO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803092,
+            "nama": "RIFQA AULIA SYALASANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803124,
+            "nama": "RINDA AMELISA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803105,
+            "nama": "RIZALDYARRASYID",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803093,
+            "nama": "RIZKI NOUVAL ERLANGGA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803006,
+            "nama": "RIZKY ROMADON",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803076,
+            "nama": "RIZQI LESTARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803059,
+            "nama": "SAFA PERNANDO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803081,
+            "nama": "SALSABILLA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803003,
+            "nama": "SARI YULIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803134,
+            "nama": "SELFIRA AGUSTIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803118,
+            "nama": "SHOFIYYATUL HASANAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803038,
+            "nama": "SINDI ANGGRAINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803125,
+            "nama": "SISI SAFITRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803136,
+            "nama": "SITI FATIMAH YUNI DUWI RISKIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803110,
+            "nama": "SITI HANNA TRIA AGUSTIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803122,
+            "nama": "SONYA FEBRINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803130,
+            "nama": "SUCI PITRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803025,
+            "nama": "SULTAN DAFFA FATTARSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803131,
+            "nama": "SULTHANI ADJIE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803102,
+            "nama": "SYAFIQ MUHAMMAD ALIF",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803001,
+            "nama": "TALITHA ZUHURA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803083,
+            "nama": "TARRA AYUDIA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2110803002,
+            "nama": "TIFANIE SHALSABILA IMANIAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803143,
+            "nama": "TRI PUJIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803091,
+            "nama": "UBAY FAJRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803040,
+            "nama": "WINIDIA AYU GUNTARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2130803127,
+            "nama": "YAN PANDRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2120803029,
+            "nama": "YUSRIZAL HAMDI",
+            "prodi_id": 1
+        }
+    ],
+    "2022": [
+        {
+            "nim": 2230803102,
+            "nama": "ADE KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803025,
+            "nama": "ADHIS SHIFA AULIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803084,
+            "nama": "ADITYA NUGRAHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803079,
+            "nama": "ADITYA SURYA WIGUNA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803092,
+            "nama": "AHMAD JIBRAEL ALGANDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803136,
+            "nama": "ALDI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803103,
+            "nama": "ALIF PUTRA ANUGERAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803073,
+            "nama": "ALISA ALMADIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803138,
+            "nama": "ALIYA AZIZAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803108,
+            "nama": "ALMAHIRA MUTI'A ZAKIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803060,
+            "nama": "ANDRE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803069,
+            "nama": "ANTON SUKMA WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803155,
+            "nama": "APRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803144,
+            "nama": "AYUNI FEBILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803095,
+            "nama": "BERLIA NISYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803107,
+            "nama": "BILLO DWI SEPTIAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803012,
+            "nama": "CANTIKA MUTIARA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803145,
+            "nama": "CICA SERIOKTAWA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803011,
+            "nama": "CLARIA DWI SAPUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803166,
+            "nama": "DEFRI HENZEN HERIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803034,
+            "nama": "DEMPI ARISKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803143,
+            "nama": "DESTI MARSYANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803125,
+            "nama": "DHIKE FIDORA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803169,
+            "nama": "DIKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803139,
+            "nama": "DIMAS ARIYOGA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803158,
+            "nama": "DIMIS AGUSTIAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803124,
+            "nama": "DINA OLYVIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803128,
+            "nama": "DINDA EKA MARETHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803007,
+            "nama": "DINI HERMIYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803163,
+            "nama": "DIYAN EPANDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803119,
+            "nama": "DUWI FEBYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803019,
+            "nama": "DZURRIYA AL-KARIMAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803153,
+            "nama": "EFRAN ARMANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803068,
+            "nama": "EKA MAISITO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803021,
+            "nama": "ELDA FITRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803098,
+            "nama": "ELVISA DWIAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803029,
+            "nama": "EMILIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803088,
+            "nama": "ENDRIKA SYAHRANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803082,
+            "nama": "ERDI GUNAWAN PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803110,
+            "nama": "ERIN ARYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803041,
+            "nama": "ERLIN LILIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803065,
+            "nama": "FATIMAH AZ ZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803134,
+            "nama": "FAZA INTANIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803129,
+            "nama": "FERY KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803005,
+            "nama": "GIRI SYAWEGA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803057,
+            "nama": "HALIYAH SALSABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803164,
+            "nama": "HANA PRATIWI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803018,
+            "nama": "HASTI FATRYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803027,
+            "nama": "HESYAH MAYUSDILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803036,
+            "nama": "ILHAM AKBAR ADEGUNO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803130,
+            "nama": "ILMIA TANJUNG",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803023,
+            "nama": "IRFAN CANDRA RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803003,
+            "nama": "IRMALIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803147,
+            "nama": "ISMI MELYANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803093,
+            "nama": "JANU SUHANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803017,
+            "nama": "JENI ASTUTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803048,
+            "nama": "JESIKA ANDRIYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803086,
+            "nama": "KHAIRUL AMIN AWARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803122,
+            "nama": "KHOIRIAH MAULA NANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803101,
+            "nama": "KRISTIA APRIANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803148,
+            "nama": "KRISTIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803050,
+            "nama": "LAILA INDRI YANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803081,
+            "nama": "LIA SYAPUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803006,
+            "nama": "LILIS ANDERWANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803131,
+            "nama": "M ABDUS SALAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803117,
+            "nama": "M DAVA MUNASYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803099,
+            "nama": "M. ADIM DWI PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803059,
+            "nama": "M. AJI SUKMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803051,
+            "nama": "M. CALVIN SEPTIANO. K",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803047,
+            "nama": "M. DWI AFDHOL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803002,
+            "nama": "M. FAQIH IBRAHIM AL-FATHI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803118,
+            "nama": "M. ILHAM SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803064,
+            "nama": "M. RAYHAN DZAKI AL FALAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803165,
+            "nama": "M. RIZKI RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803038,
+            "nama": "M. WINDU PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803146,
+            "nama": "M.IKRAM ABIB SYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803167,
+            "nama": "M.KEVIN RIZKI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803115,
+            "nama": "M.MUZZAMIL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803135,
+            "nama": "M.RIDHO KARUNIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803149,
+            "nama": "M.SATRIA DARMAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803035,
+            "nama": "MAIKO APRIANTO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803156,
+            "nama": "MARLINGGA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803157,
+            "nama": "MARLINGGI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803072,
+            "nama": "MIFTAHUL JANNAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803071,
+            "nama": "MUHAMAD FARIS HIDAYAT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803020,
+            "nama": "MUHAMMAD AFIF NAFIDZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803001,
+            "nama": "MUHAMMAD AKBAR PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803067,
+            "nama": "MUHAMMAD AL FAAIZ ILHAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803040,
+            "nama": "MUHAMMAD AL GHIFARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803037,
+            "nama": "MUHAMMAD ALBARIQI QOLBU ISLAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803151,
+            "nama": "MUHAMMAD ANDRE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803075,
+            "nama": "MUHAMMAD ARDHY AL-HAFIZH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803159,
+            "nama": "MUHAMMAD ARISKI SADDAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803132,
+            "nama": "MUHAMMAD DARWIN SATRIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803010,
+            "nama": "MUHAMMAD FAIZ MAULANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803008,
+            "nama": "MUHAMMAD FAKHRI AZFAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803127,
+            "nama": "MUHAMMAD FARHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803083,
+            "nama": "MUHAMMAD FARHAN AL MUNTASHIR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803114,
+            "nama": "MUHAMMAD INDRA IRILLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803033,
+            "nama": "MUHAMMAD IQBAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803031,
+            "nama": "MUHAMMAD IQBAL RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803078,
+            "nama": "MUHAMMAD PRASETYO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803030,
+            "nama": "MUHAMMAD RAFI ALFARIZI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803080,
+            "nama": "MUHAMMAD RAFI RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803091,
+            "nama": "MUHAMMAD RAFIQ FADILLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803109,
+            "nama": "MUHAMMAD RIFKY ANDREAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803009,
+            "nama": "MUHAMMAD RIFQI THOOHAA ANAS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803100,
+            "nama": "MUHAMMAD RISKY PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803070,
+            "nama": "MUHAMMAD RIVAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803013,
+            "nama": "MUHAMMAD RIYADHI RANGKUTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803063,
+            "nama": "MUHAMMAD RIZKI APRIYANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803106,
+            "nama": "MUSTOFA IHSAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803089,
+            "nama": "MUTIARA AGUSTIYYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803016,
+            "nama": "MUZZADI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803154,
+            "nama": "NABILA MIFTHA HULJANAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803150,
+            "nama": "NABILA ZILKA KURNIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803121,
+            "nama": "NAUFAL DHIYA ULHAG",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803085,
+            "nama": "NAUFAL IKHSAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803137,
+            "nama": "NIA RAHMAWATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803054,
+            "nama": "NIA SAKA LENA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803142,
+            "nama": "NINDY TRI BUANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803160,
+            "nama": "NURFA BERLIANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803162,
+            "nama": "OBIE JACKSENT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803053,
+            "nama": "OWEN SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803043,
+            "nama": "PANDU WIJAYA SATRIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803090,
+            "nama": "PANDU WIRA BUANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803120,
+            "nama": "PANI MUNIKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803056,
+            "nama": "PUTRI DELARANI AZZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803061,
+            "nama": "PUTRI MAHARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803113,
+            "nama": "RAHMAN PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803087,
+            "nama": "RAISA HUMAIDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803076,
+            "nama": "RAKA RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803126,
+            "nama": "RAMA ANTONIUS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803123,
+            "nama": "RAMDAN EKA SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803104,
+            "nama": "RATIH TARINA UTAMI PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803028,
+            "nama": "REDHO ZULFANUR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803055,
+            "nama": "RENDI MAHENDRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803077,
+            "nama": "RENDY AL BENZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803133,
+            "nama": "RENDY FEBRIYANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803112,
+            "nama": "RESA AYU SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803039,
+            "nama": "REYNALDI YUDIANTO PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803066,
+            "nama": "RIDHO DARMAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803097,
+            "nama": "RISKA APRILIA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803024,
+            "nama": "RIZKY AMALIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803015,
+            "nama": "RIZKY TRI WAHYUDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803094,
+            "nama": "ROBERT TRI ANUGRAH FAUZAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803022,
+            "nama": "RONAL YUDI ARTA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803052,
+            "nama": "ROSSI OKTAVIANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803168,
+            "nama": "RYO ANANDA PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803049,
+            "nama": "SAFIRA AZZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803096,
+            "nama": "SAFITRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803105,
+            "nama": "SALYA AMIRIA YUSKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803004,
+            "nama": "SANTRIYANI MY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803046,
+            "nama": "SATRIA PUTRA LIGASI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803045,
+            "nama": "SILVA MELVINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803042,
+            "nama": "SITI AULIA ZURIATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803140,
+            "nama": "SOFA MARWATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803116,
+            "nama": "SRI JAYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803044,
+            "nama": "SUHARTINI YULIANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803026,
+            "nama": "SUNDARI MELISA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803152,
+            "nama": "SYAFIQ FADHLULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803141,
+            "nama": "SYUFIULLOH SYUKUR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803058,
+            "nama": "TAUFIK KURRAHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803111,
+            "nama": "TIARA MEFTAHUL JANNAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2230803161,
+            "nama": "WIDIYA SRI LESTARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803062,
+            "nama": "WINDA NURMALIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803074,
+            "nama": "YOGI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2210803014,
+            "nama": "YORA VERONICA ANANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 2220803032,
+            "nama": "ZAHRA RAMADHANI",
+            "prodi_id": 1
+        }
+    ],
+    "2023": [
+        {
+            "nim": 23051450269,
+            "nama": "A. ISSAH MEILIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450051,
+            "nama": "ABDILLAH ZAHID",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450119,
+            "nama": "ACHMAD FAUZAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450124,
+            "nama": "ADIB MUHAMMAD MAROS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450082,
+            "nama": "ADINDA AMALIA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450145,
+            "nama": "ADISTIRA PRAMUDITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450038,
+            "nama": "ADYA DUTA MAULAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450212,
+            "nama": "AGUNG PRAYOGA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450249,
+            "nama": "AHMAD SUBARKAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450028,
+            "nama": "AHMAD WIDAD HUDHAIBI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450003,
+            "nama": "AHMAD YOGA PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450121,
+            "nama": "AISHWARYA RAI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450254,
+            "nama": "AKHMAD SYARIFULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450114,
+            "nama": "AKRAM NOUVAL ANAZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450117,
+            "nama": "ALDA DWI AGUSTINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450275,
+            "nama": "ALDA DWI APTASARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450223,
+            "nama": "ALDO BINTANG RHAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450113,
+            "nama": "ALDO RAMA OKTARIAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450285,
+            "nama": "ALDY SURYA DHARMAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450081,
+            "nama": "ALFIN GUSANTO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450101,
+            "nama": "ALVATA HASIM MUZAKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450200,
+            "nama": "ALVIYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450110,
+            "nama": "ALYA SALSABILLA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450024,
+            "nama": "AMELIA CAROLINE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450222,
+            "nama": "ANASTASYA AISYAH FATIMAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450286,
+            "nama": "ANDRA FUTRIA AYU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450260,
+            "nama": "ANGGI ANJELINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450076,
+            "nama": "ANI RUSNANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450097,
+            "nama": "ANING RETNO PRAMESWARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450109,
+            "nama": "ANISA ANGGRAINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450199,
+            "nama": "ANISA RAMADHANTI PASARIBU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450279,
+            "nama": "ANISYA RAHMANIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450252,
+            "nama": "ANRA MUHAMMAD ZUL ROMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450186,
+            "nama": "APRILIAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450242,
+            "nama": "ARIEF FADHILLAH RAHMAN S",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450219,
+            "nama": "ARSIKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450253,
+            "nama": "ARYA BHARATA SENA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450106,
+            "nama": "ARYA DWI PANGGA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450120,
+            "nama": "ASEP NUR ARIFIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450023,
+            "nama": "ASMY MUTIARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450282,
+            "nama": "ATTILA REQQI ARBHATSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450156,
+            "nama": "AULIA BERLIANA SHANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450163,
+            "nama": "AWANG PRAMANA OKTA RIO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450022,
+            "nama": "AYU MUTMA INA AGUSTIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450273,
+            "nama": "AYU WULANDARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450026,
+            "nama": "AZKIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450188,
+            "nama": "AZMI FALKI IKHSAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450021,
+            "nama": "AZRA MUTHIAH FADHILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450050,
+            "nama": "AZZAHRA DWI PUTRI WIDARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450091,
+            "nama": "AZZAM AKHMAD AL FIKRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450045,
+            "nama": "BAGAS ATILA NUR WAHID",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450198,
+            "nama": "BASKORO JODI PRASTAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450289,
+            "nama": "BELLA RAMADHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450157,
+            "nama": "BINTANG ADJI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450284,
+            "nama": "BINTANG RAMANDA PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450107,
+            "nama": "BUNGA ROBI'AH AL ADAWIYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450092,
+            "nama": "CAHYA ADI SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450177,
+            "nama": "CHAIRUL ANWAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450129,
+            "nama": "DALVIN ARYA DANU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450267,
+            "nama": "DELVAN ALFARIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450201,
+            "nama": "DENDI IRWANTO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450071,
+            "nama": "DENI ARDIANSAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450162,
+            "nama": "DHEA ANANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450059,
+            "nama": "DHEA SENI PERMATA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450128,
+            "nama": "DIAN SARI AMALIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450195,
+            "nama": "DIANA PUTRI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450144,
+            "nama": "DIMAS AGUNG SUBAYU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450078,
+            "nama": "DIMAS PRASETYO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450153,
+            "nama": "DINDA AYU RISTIANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450262,
+            "nama": "DINO ATTILA ZAKY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450217,
+            "nama": "DIO ANANDA SYAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450248,
+            "nama": "DIO PUTRA ANUGERAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450166,
+            "nama": "DWI ADIKA SILVAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450271,
+            "nama": "DWI APRILIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450052,
+            "nama": "DWI INDAH RAMADHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450140,
+            "nama": "DWI MEITHA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450130,
+            "nama": "DWI PUTRA SAPTA WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450069,
+            "nama": "DZAKY KARTAPALA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450168,
+            "nama": "EGO LAWIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450241,
+            "nama": "EQQY ADELIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450077,
+            "nama": "ERICK KOBARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450141,
+            "nama": "ERIEL BUDIMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450041,
+            "nama": "ESTIYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450027,
+            "nama": "FADILLAH RAHMA PUTRI RIZAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450068,
+            "nama": "FADLY RACHMANDANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450016,
+            "nama": "FAJAR ADI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450239,
+            "nama": "FAJRUL MISHBAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450015,
+            "nama": "FANNISYAH ARRAHMAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450086,
+            "nama": "FARAH HASYWAZA AUDREMAYNA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450001,
+            "nama": "FARHAN ADINUSEHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450126,
+            "nama": "FATIMAH TRI ZAHARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450139,
+            "nama": "FAUZAN AZIMAN PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450013,
+            "nama": "FIKRI RAIS MIFTAHULHAQI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450205,
+            "nama": "FIKRIYAH NURUL AISYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450233,
+            "nama": "FITRIA AZZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450132,
+            "nama": "FITRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450235,
+            "nama": "GEBY ANGGUN ANDREANY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450014,
+            "nama": "HABIL BARARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450213,
+            "nama": "HAFIZ KURNIA RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450234,
+            "nama": "HANIF ARRIZKY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450272,
+            "nama": "HEMIRSAN MORENO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450210,
+            "nama": "HENDY ALMANFALUTHI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450131,
+            "nama": "ILHAM RAYYAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450264,
+            "nama": "INALDO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450183,
+            "nama": "INDAH DAMAI SAPUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450180,
+            "nama": "INDAH PERMATASARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450148,
+            "nama": "INTAN MERVINASARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450265,
+            "nama": "IQWA GUNTUR AFDAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450257,
+            "nama": "IRCHA ALTRI BAMER",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450174,
+            "nama": "ISTIQOMAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450244,
+            "nama": "JAMES BOND",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450208,
+            "nama": "JESSEN FANZHELA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450096,
+            "nama": "JESSICA AZZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450012,
+            "nama": "JUNITA INDRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450191,
+            "nama": "KANA MIATHA SYARTIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450146,
+            "nama": "KAYLA RANATASYA RAHMADANIA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450291,
+            "nama": "KEMAS MUHAMMAD FAIZ RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450209,
+            "nama": "KGS MOCH FAUZAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450105,
+            "nama": "KHALIFA AL HASAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450151,
+            "nama": "KHALISHA ALYA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450073,
+            "nama": "KHALISTA AZZAHRA PRATAMIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450230,
+            "nama": "LATIF NURAKHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450066,
+            "nama": "LILI SUKMA MELATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450055,
+            "nama": "LOUIS INTAN RIZKYKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450226,
+            "nama": "LUKMAN NUL HAKIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450187,
+            "nama": "M EZRA HILMIDIN KAFA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450270,
+            "nama": "M RIDHO SUBHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450088,
+            "nama": "M ROMADHON ARIF BILLA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450225,
+            "nama": "M. ABDI NUGROHO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450138,
+            "nama": "M. AJIE SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450243,
+            "nama": "M. DICKY ABIMANYU FUTRASYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450061,
+            "nama": "M. FAHMI ABDILLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450098,
+            "nama": "M. FAIZUL AZKIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450048,
+            "nama": "M. HAFIZH IKHSANULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450127,
+            "nama": "M. IQBAL HAKIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450044,
+            "nama": "M. IRDAN ALJIBRAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450115,
+            "nama": "M. KRISNA YUDHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450112,
+            "nama": "M. RAHUL IBNU AL ANDIKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450251,
+            "nama": "M. RIDHO KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450143,
+            "nama": "M. RIZKI ASSHIDIQIE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450167,
+            "nama": "M.AGUNG",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450185,
+            "nama": "M.ALVIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450155,
+            "nama": "M.DZULFIKRI ALIFAJRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450227,
+            "nama": "M.GHALYNDRA PERDANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450194,
+            "nama": "M.NAUFAL SYAHRIAL FIKRAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450276,
+            "nama": "M.SAEFUL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450075,
+            "nama": "M.Y RAMA WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450079,
+            "nama": "MAITSA DEFATSANIYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450181,
+            "nama": "MAYA AGUSTIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450280,
+            "nama": "MAYA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450237,
+            "nama": "MEISYA ANDELA FITRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450060,
+            "nama": "MELISA YULANDARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450158,
+            "nama": "MESYA USWATUN HASANAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450094,
+            "nama": "MEYLINDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450142,
+            "nama": "MEYLINDA PRATIWI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450204,
+            "nama": "MEYRA SEPTIA ARDINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450031,
+            "nama": "MGS MUHAMMAD RIZKI HIDAYATULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450036,
+            "nama": "MGS. ARYA CANNAVARO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450104,
+            "nama": "MHD BAHRUL AMIN PARAPAT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450020,
+            "nama": "MIA PUSPITA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450202,
+            "nama": "MIFTA HULJANAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450136,
+            "nama": "MITRA ASINDU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450064,
+            "nama": "MOCHAMMAD JAM JUNIOR AKBAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450011,
+            "nama": "MOHAMMAD ILHAM AL RIZQY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450100,
+            "nama": "MONICA ANGELINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450089,
+            "nama": "MUHAMAD HUMAM ALCHAK",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450002,
+            "nama": "MUHAMAD NUR SYAMSI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450118,
+            "nama": "MUHAMAD RAJA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450236,
+            "nama": "MUHAMAD RIZKI RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450067,
+            "nama": "MUHAMAD ZAKI RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450074,
+            "nama": "MUHAMMAD ABDUL AL FALAF",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450240,
+            "nama": "MUHAMMAD ADI SYAHPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450207,
+            "nama": "MUHAMMAD ADIB MUZAKKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450274,
+            "nama": "MUHAMMAD ADLI GIFFARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450025,
+            "nama": "MUHAMMAD AL PAJRIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450192,
+            "nama": "MUHAMMAD AL-MISYKAT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450221,
+            "nama": "MUHAMMAD ALIE NURWAHID",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450056,
+            "nama": "MUHAMMAD ALIF I'TISHAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450189,
+            "nama": "MUHAMMAD ARIF MARWANDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450010,
+            "nama": "MUHAMMAD ARIFIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450246,
+            "nama": "MUHAMMAD DHIAS HABIBI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450046,
+            "nama": "MUHAMMAD FADHIL RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450292,
+            "nama": "MUHAMMAD FADILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450063,
+            "nama": "MUHAMMAD FAHRI UTAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450184,
+            "nama": "MUHAMMAD FAQIH RABBANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450173,
+            "nama": "MUHAMMAD FARHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450122,
+            "nama": "MUHAMMAD FATTAN ATTAUR RAHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450040,
+            "nama": "MUHAMMAD IRSYAD HARISTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450259,
+            "nama": "MUHAMMAD KIRANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450085,
+            "nama": "MUHAMMAD LUQMAN AL-FAUZAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450178,
+            "nama": "MUHAMMAD LUTHFI AULIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450228,
+            "nama": "MUHAMMAD NAUFAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450108,
+            "nama": "MUHAMMAD RAFI ASH SHIDDIQIE UMAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450277,
+            "nama": "MUHAMMAD RAFLI ARFANDHO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450238,
+            "nama": "MUHAMMAD RAIHAN ABDUL AZIZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450165,
+            "nama": "MUHAMMAD RIDHO HAMDANU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450090,
+            "nama": "MUHAMMAD RIFQI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450039,
+            "nama": "MUHAMMAD RIHAN AFIF HIDAYAT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450294,
+            "nama": "MUHAMMAD THAMIN SURYA NEGARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450159,
+            "nama": "MUHAMMAD ZAKI ZAIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450281,
+            "nama": "MUHAMMAD ZAKY AKBAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450099,
+            "nama": "MUHAMMAD ZAKY PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450256,
+            "nama": "MUHAMMAD ZAKYTARIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450133,
+            "nama": "MUKTIONO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450261,
+            "nama": "MUTIARA PERTIWI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450054,
+            "nama": "NABIL SANJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450179,
+            "nama": "NABILA AMJAD SYAHIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450009,
+            "nama": "NABILA ATHIYYAH RAMADHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450029,
+            "nama": "NABILA AYU TALITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450176,
+            "nama": "NADHIN MUTIARA HERVANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450049,
+            "nama": "NADIA DEVITA MAHARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450152,
+            "nama": "NADIA OKTAVIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450182,
+            "nama": "NADIATURRAHMAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450062,
+            "nama": "NAISYA MARCELLA TRI PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450154,
+            "nama": "NAUFAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450080,
+            "nama": "NAVASSA ANASTHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450245,
+            "nama": "NAZA NUROKOTANIE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450229,
+            "nama": "NAZWA SYAKHILLA MAHARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450057,
+            "nama": "NESA HERLIKA BALQIS PARADE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450008,
+            "nama": "NIA YOLANDA SAPITRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450123,
+            "nama": "NICCO ROLAND",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450035,
+            "nama": "NICKYTHA NUNIK RINDI ARYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450093,
+            "nama": "NOVELITA DIFANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450030,
+            "nama": "NUGROHO AGUNG SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450007,
+            "nama": "NUR ASTI PAVITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450196,
+            "nama": "NUR AZIZA FITRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450293,
+            "nama": "NUR AZIZAH SALSABILA FITDIEN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450134,
+            "nama": "PAISAL AGUNG NUSANTARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450103,
+            "nama": "POPY SAPIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450193,
+            "nama": "POPY SARTIKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450043,
+            "nama": "PRIA SEMBADA SIREGAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450295,
+            "nama": "PUPUT NUR RASIO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450135,
+            "nama": "PUTRI NABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450018,
+            "nama": "R. MUHAMMAD BETA FATHIR RAHIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450288,
+            "nama": "RADA MONIKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450037,
+            "nama": "RAEHAN PRATAMA SINAGA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450053,
+            "nama": "RAHMA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450125,
+            "nama": "RAHMAT HIDAYAT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450005,
+            "nama": "RAISYA PUTRI AULIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450268,
+            "nama": "RAMADHAN DHARMA PRASETYO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450095,
+            "nama": "RANDIKA PRATAMA PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450170,
+            "nama": "RANGGA PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450058,
+            "nama": "REFKY MAHENDRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450147,
+            "nama": "REICA ENGGEL LINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450072,
+            "nama": "REKI KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450250,
+            "nama": "RENI RESMAWATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450149,
+            "nama": "REVA AZZAHRA TRIANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450224,
+            "nama": "REYNDO REYNALDO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450116,
+            "nama": "RHAFFI AHMAD PERDANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450283,
+            "nama": "RICO SEPTIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450197,
+            "nama": "RICSKY NUGRAHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450006,
+            "nama": "RIFDHA AURELIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450084,
+            "nama": "RIFKY OKTRI ROMAHDONI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450172,
+            "nama": "RIFQI AL ADLIANTINO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450161,
+            "nama": "RIRIN ULANDARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450102,
+            "nama": "RISA WAHYUNI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450164,
+            "nama": "RISKIYAH PUSPITA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450019,
+            "nama": "RITA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450258,
+            "nama": "RIVALDY ARLIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450220,
+            "nama": "RIZKA MEYLANI PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450087,
+            "nama": "RIZKI FARULI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450137,
+            "nama": "RIZKY SYATRIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450169,
+            "nama": "RIZKY TEGUH FERMANDO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450034,
+            "nama": "RIZQYANANDA IQLIMA FITRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450216,
+            "nama": "ROSITA AZALY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450004,
+            "nama": "RYU UMAM MUBAROK",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450255,
+            "nama": "SALMAN AL FAHIRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450203,
+            "nama": "SANDI NAYOAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450083,
+            "nama": "SELVIRAMADANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450111,
+            "nama": "SHERINA SEPTARIQAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450263,
+            "nama": "SHOBA ALFAUZANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450266,
+            "nama": "SITI MONALISA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450290,
+            "nama": "SOPHIE NABILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450278,
+            "nama": "SOPIAH PLOBA MORA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450042,
+            "nama": "SULAIMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450206,
+            "nama": "SUNI SAMBERA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450047,
+            "nama": "SYARIFAH RIZQIYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450171,
+            "nama": "TADEO FATWA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450287,
+            "nama": "TASYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450033,
+            "nama": "TERI RAHAYU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450231,
+            "nama": "TIYO ADITIYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450065,
+            "nama": "TRI PAMA JULIYUSRIYYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450214,
+            "nama": "TRIAMITA MEILIANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450232,
+            "nama": "VANY ALIA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450070,
+            "nama": "VELIA NUR HADISA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23041450150,
+            "nama": "VELISA DESTIRIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450017,
+            "nama": "VIONA VIOLETTA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450218,
+            "nama": "VIRA NUR RAMADHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450247,
+            "nama": "VIRGO SEPTIANO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450160,
+            "nama": "WILLIAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23021450032,
+            "nama": "YONGKI REBIAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450175,
+            "nama": "YONIZA RAHMAWATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450211,
+            "nama": "YUNIAR ANTIKA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450215,
+            "nama": "YUNITA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 23051450190,
+            "nama": "ZAHWA AULYA CAHYATI",
+            "prodi_id": 1
+        }
+    ],
+    "2024": [
+        {
+            "nim": 24091450291,
+            "nama": "ABDALFATH SALAH AWAD ATIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450300,
+            "nama": "ABDELMONEM YAGOUB IBRAHIM ADAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450130,
+            "nama": "ABDUL AZIZ RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450197,
+            "nama": "ABDULLAH AHMAD ALI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450075,
+            "nama": "ABDUR RACHMAN RAFI THORIF",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450285,
+            "nama": "ABID KHOLLILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450287,
+            "nama": "ABUOBIADA HASSAN AHMED GEBREAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450247,
+            "nama": "ADIDTIYA DEWA LAKSANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450015,
+            "nama": "ADIMAS BAYU WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450256,
+            "nama": "ADRIAN SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450261,
+            "nama": "AFIFAZAHRA SYAMPUTRI KARIMUS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450268,
+            "nama": "AHMAD ARIQ IZDIHAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450150,
+            "nama": "AHMAD BAGUS MUZZAKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450186,
+            "nama": "AHMAD MUZAKKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450096,
+            "nama": "AHMAD RIZKI KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450023,
+            "nama": "AHMAD ZIDAN CAKRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450305,
+            "nama": "AHMED MAHMOUD FADUL ABAKER",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450286,
+            "nama": "AHMED MAHMOUD MOHAMED NOMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450296,
+            "nama": "AHMED YOUSIF ABDALLAH ESHAG",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450083,
+            "nama": "AJI ARLANDO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450103,
+            "nama": "AKIO OLO DALIMUNTHE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450152,
+            "nama": "AKIRA HABIBULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450205,
+            "nama": "AL HAFIZ RIZQULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450237,
+            "nama": "AL NUR DWI PRIYA NOPTRITIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450049,
+            "nama": "ALAN MALIK KUSUMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450192,
+            "nama": "ALAN NUWRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450211,
+            "nama": "ALDINO NAMA KASUMMIK",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450127,
+            "nama": "ALDO PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450201,
+            "nama": "ALIYA NAJWA AMANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450119,
+            "nama": "ALIYAH AYU LESTARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450134,
+            "nama": "ALIYYAH QAANITAH PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450308,
+            "nama": "ALMODTHER AMER ALFADEL KHAIRALLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450055,
+            "nama": "ALYA KAMILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450017,
+            "nama": "AMELIA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450292,
+            "nama": "AMER MOHAMMED DALDOUM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450104,
+            "nama": "AMI FITRIA SALMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450005,
+            "nama": "AMINING MAHARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450228,
+            "nama": "ANGGA PRASETYO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450266,
+            "nama": "ANGGI TITA LESTARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450131,
+            "nama": "ANI MARSELA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450143,
+            "nama": "ANINDYA NAISYIFADILLA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450020,
+            "nama": "ANNISA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450071,
+            "nama": "ARIEL DEMILO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450100,
+            "nama": "ARIEL MUFTHI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450246,
+            "nama": "ARIF KHOIRIL WALID",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450151,
+            "nama": "ARIL BASTIAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450026,
+            "nama": "ARINKA RAHMADANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450191,
+            "nama": "ARISTA KAYLA ARINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450260,
+            "nama": "ASTI FADHILLAH AHMAD",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450185,
+            "nama": "AULIA ANNISYA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450077,
+            "nama": "AULIA SYARIFAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450135,
+            "nama": "AURA AISYAH UNAYBELLA HAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450213,
+            "nama": "AYU SAFIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450019,
+            "nama": "AZI RINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450009,
+            "nama": "AZMI DWIYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450027,
+            "nama": "AZZAH NAURAH RAYYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450101,
+            "nama": "BUNGA ALIYA GINA NABILA NADA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450244,
+            "nama": "CITRA PUTRI AZ ZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450269,
+            "nama": "DAFFA PREMIDIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450231,
+            "nama": "DAVINA NABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450053,
+            "nama": "DELLA SYAFIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450123,
+            "nama": "DENDAKA PUTRA IRFANTIO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450032,
+            "nama": "DENDI REGIAN HANAKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450155,
+            "nama": "DESSYCHA INGGI RAHAYU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450112,
+            "nama": "DESTRI AMELIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450086,
+            "nama": "DESVINA RANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450041,
+            "nama": "DEVI EVANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450115,
+            "nama": "DEYNA AYESHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450064,
+            "nama": "DHEA ANANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450220,
+            "nama": "DIMAS KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450167,
+            "nama": "DIMAS SATRIA RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450094,
+            "nama": "DINI ERINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450118,
+            "nama": "DIRGA DARMA WICAKSONO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450187,
+            "nama": "DIVKA VAREN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450068,
+            "nama": "DWIKI SHANDIKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450088,
+            "nama": "DZASKYA EKA PUTERI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450177,
+            "nama": "ECI MAYA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450054,
+            "nama": "ELDO AGUNG PRANATA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450092,
+            "nama": "ENDITA TRI RAHMANIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450126,
+            "nama": "FADILAH FEBRIYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450168,
+            "nama": "FADILAH NURVALIZA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450142,
+            "nama": "FALEVI PUTRI AYU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450161,
+            "nama": "FAREL SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450081,
+            "nama": "FATIH SYAFRAN HARIRY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450209,
+            "nama": "FEBRYANI SAFITRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450121,
+            "nama": "FIKRI SUPRIYADI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450061,
+            "nama": "FIRMAN HUDA SYAPUTRA HARAHAP",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450304,
+            "nama": "FOAD ABAKER ADAM ALI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450174,
+            "nama": "GANTI LOVIA SAFITRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450299,
+            "nama": "GHANDOUR KHALEEL MOHAMMED",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450069,
+            "nama": "GHINA RAUDHATUL JANNAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450219,
+            "nama": "GHINA SALSABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450137,
+            "nama": "GISKA AUDILIA FREMESIA CAHYANII",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450144,
+            "nama": "GITA MEILINDA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450056,
+            "nama": "HAFIDZ KHAIDIR FITRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450010,
+            "nama": "HAIKAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450011,
+            "nama": "HANGTUAH KALOKO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450073,
+            "nama": "HELEN DWI MARDALINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450058,
+            "nama": "HENGKI PRAKARSA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450243,
+            "nama": "IBRAHIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450159,
+            "nama": "ICHA YOLINDASARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450036,
+            "nama": "IHSAN AKMAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450264,
+            "nama": "IKHWAN MUSTAKIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450066,
+            "nama": "IKSAN BAY HAQI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450110,
+            "nama": "ILHAM AZIZ AL BUKHORI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450198,
+            "nama": "IMAM AZZIKRI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450087,
+            "nama": "IMAM MAKHMUDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450089,
+            "nama": "INTAN ADELIA FAJRUNA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450147,
+            "nama": "IQBAL ROSYEHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450099,
+            "nama": "IRANI DESMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450067,
+            "nama": "IZA ZALIANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450288,
+            "nama": "JABIR HUSSIN ABUBAKER ADAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450215,
+            "nama": "JEFRI NGALIMAN MUKTIONO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450120,
+            "nama": "JIHAN NUR AGUSTIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450178,
+            "nama": "JULIET",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450037,
+            "nama": "KANAYA SAYLA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450274,
+            "nama": "KEMAS FATHURRAHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450249,
+            "nama": "KEMAS MUHAMMAD DZAKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450030,
+            "nama": "KEYSYAH MUTIAH HENDRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450218,
+            "nama": "KHAIRA HEVDA AQILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450082,
+            "nama": "KHOIRUL IMAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450235,
+            "nama": "KRISNA TRI KUNCORO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450221,
+            "nama": "KURNIA MIFTAHUL HUDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450093,
+            "nama": "LARA SATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450190,
+            "nama": "LENIE MARCELIENA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450059,
+            "nama": "LIDIA APRIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450044,
+            "nama": "LIDIA SALSABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450169,
+            "nama": "LIDYA VATRICIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450145,
+            "nama": "LINA SILIS TIA NINGSIH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450006,
+            "nama": "LULU FAZA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450265,
+            "nama": "LULU NURUL AULIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450173,
+            "nama": "LYRA NABILA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450250,
+            "nama": "M ADE MAHIRAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450273,
+            "nama": "M. AKBAR RIANTO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450279,
+            "nama": "M. ALFARIZI AKBAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450046,
+            "nama": "M. EZRA SYAHPUTRA BATUBARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450117,
+            "nama": "M. FAHRI ABDILLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450160,
+            "nama": "M. FAJRI NUGRAHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450039,
+            "nama": "M. FAKHRI ASSHOFI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450210,
+            "nama": "M. FIRDAUS SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450080,
+            "nama": "M. GILANG ALBY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450079,
+            "nama": "M. GILANG RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450063,
+            "nama": "M. HAFA ROFIQON",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450113,
+            "nama": "M. IHWAN HUSEIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450022,
+            "nama": "M. ILHAM ALFARIZI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450065,
+            "nama": "M. ILHAM TRI GUSTIANTO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450014,
+            "nama": "M. IRFAN RAHMANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450282,
+            "nama": "M. RADIT FIRMANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450183,
+            "nama": "M. RAFI PRAMANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450052,
+            "nama": "M. RENO JULIANSYAH PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450016,
+            "nama": "M. REZA PRASETYO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450272,
+            "nama": "M. SOLEH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450181,
+            "nama": "M. ZIDAN ABRORI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450255,
+            "nama": "M.AKMAL ABILLOH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450107,
+            "nama": "M.BA'ASYIR DARMAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450029,
+            "nama": "M.BILAL ALWALI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450281,
+            "nama": "M.FAUZAN AMMAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450259,
+            "nama": "M.JONY KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450236,
+            "nama": "M.REZA ALFETRAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450270,
+            "nama": "M.THOMI KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450170,
+            "nama": "MAHARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450166,
+            "nama": "MAHENDRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450234,
+            "nama": "MARISSA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450203,
+            "nama": "MARTA RISKY AULIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450248,
+            "nama": "MAULANA IMAM SULAIMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450076,
+            "nama": "MEISI SALSABILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450193,
+            "nama": "MEISYA AULIA META PRATIWI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450050,
+            "nama": "MEITRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450001,
+            "nama": "MISNA DWI NURYATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450290,
+            "nama": "MOHAMED ADAM AHMED ALI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450302,
+            "nama": "MOHAMED AHMED ABDALLA ALI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450307,
+            "nama": "MOHAMED YASIR BASHIR ELWASILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450031,
+            "nama": "MOHAMMAD RIFQI ASHABUL KAHFI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450306,
+            "nama": "MOHAMMED ABAZER ABASS BABEKER",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450301,
+            "nama": "MOHAMMED OSMAN MOHAMMED AHMED",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450303,
+            "nama": "MOHANAD MALIK KHLIL MOHAMED",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450289,
+            "nama": "MOUTEZ GAMAL ALI HAMID",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450194,
+            "nama": "MUAMMAR SAYID AL-HAQQI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450253,
+            "nama": "MUHAMAD SULTAN ARDHONI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450280,
+            "nama": "MUHAMMAD",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450184,
+            "nama": "MUHAMMAD ABDUL ROUF",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450172,
+            "nama": "MUHAMMAD AKBAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450277,
+            "nama": "MUHAMMAD ARIF FAUZAN AL-BASRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450072,
+            "nama": "MUHAMMAD AWALLUDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450114,
+            "nama": "MUHAMMAD BAGAS NADAR MAULANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450057,
+            "nama": "MUHAMMAD DAVA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450267,
+            "nama": "MUHAMMAD DAVA RIVANO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450138,
+            "nama": "MUHAMMAD DIMAS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450226,
+            "nama": "MUHAMMAD DZAKIY KAMIL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450102,
+            "nama": "MUHAMMAD DZAKKI ALHALIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450275,
+            "nama": "MUHAMMAD EZA RAFLI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450008,
+            "nama": "MUHAMMAD FADHILAH SUBHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450133,
+            "nama": "MUHAMMAD FAHRID FAQIH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450252,
+            "nama": "MUHAMMAD FAKHRI HAMAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450106,
+            "nama": "MUHAMMAD FAKIH SULTON",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450171,
+            "nama": "MUHAMMAD FALDI ILHAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450179,
+            "nama": "MUHAMMAD GALANG FAJAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24061450283,
+            "nama": "MUHAMMAD HAIKAL KAMIL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450040,
+            "nama": "MUHAMMAD HANIF",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450245,
+            "nama": "MUHAMMAD HAPIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450263,
+            "nama": "MUHAMMAD HAYKAL RIFANDI ADRIAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450200,
+            "nama": "MUHAMMAD IKMAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450045,
+            "nama": "MUHAMMAD ILHAM FAUZAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450208,
+            "nama": "MUHAMMAD IQBAL PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450156,
+            "nama": "MUHAMMAD NAWFAL HARMI AZIZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450241,
+            "nama": "MUHAMMAD RAFLI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450240,
+            "nama": "MUHAMMAD RAHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450199,
+            "nama": "MUHAMMAD RAMDANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450140,
+            "nama": "MUHAMMAD RASYID RIDHO ALPASYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450165,
+            "nama": "MUHAMMAD REFFI AMRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450258,
+            "nama": "MUHAMMAD RENDI JUNIARTA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450206,
+            "nama": "MUHAMMAD RIFKI FADILLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450242,
+            "nama": "MUHAMMAD SABILILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450043,
+            "nama": "MUHAMMAD SYAFIQUL FALAKH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450136,
+            "nama": "MUHAMMAD ZAIDAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450293,
+            "nama": "MUHANAD HAMID ELTAHIR ALI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450297,
+            "nama": "MUSAB MAHMOUD ABDALKREEM ALSADDIG",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450298,
+            "nama": "MUSTAFA MOHAMED AHMED MOHAMED",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450024,
+            "nama": "NABILA ZAHIRAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450207,
+            "nama": "NADELA AMIRILIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450003,
+            "nama": "NADHIRAH YUNA AZZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450182,
+            "nama": "NAFIKAR SAWITAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450214,
+            "nama": "NEISYAH NATARI PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450116,
+            "nama": "NESA OKTA RAMADHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450148,
+            "nama": "NOVALINA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450122,
+            "nama": "NOVELINA DWI DEWANTY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450085,
+            "nama": "NOVIA AYU PUSPITA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450163,
+            "nama": "NURIYATI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450295,
+            "nama": "OSMAN HASSAN ALI ADAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24091450294,
+            "nama": "OTHMAN ALI NASSER",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450018,
+            "nama": "PAHWANI UMDATUN NAJAH SIREGAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450254,
+            "nama": "PAIS MUHAMMAD PIKRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450225,
+            "nama": "PHILIP THAMSIR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450149,
+            "nama": "PRAMESTI DWI WARDHANY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450223,
+            "nama": "PUTRI AYU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450062,
+            "nama": "PUTRI NATASYA BERLIANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450047,
+            "nama": "PUTRI PURNAMA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450084,
+            "nama": "PUTRI WULAN RAMADHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450271,
+            "nama": "QUEEN FATHIYA MAHIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450012,
+            "nama": "R. TRIWIBOWO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450204,
+            "nama": "R.M. BAYU SATRIA ANANTA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450216,
+            "nama": "RAFA RAMADHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450074,
+            "nama": "RAFFLI MARDIAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450262,
+            "nama": "RAFIF AHSAN FAZLI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450202,
+            "nama": "RAFLI FARHAN AZIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450028,
+            "nama": "RAFLY AHMAD",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450157,
+            "nama": "RAGAS ALAN SAMULA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450078,
+            "nama": "RAHMAN APRIAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450188,
+            "nama": "RAJABAL RAHMAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450004,
+            "nama": "RAJWA FARH SYIFA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450097,
+            "nama": "RAKHA AFIF HAIRY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450038,
+            "nama": "RANDI SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450051,
+            "nama": "RANDY SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450090,
+            "nama": "RASSYA JAVIER DHANASAKHI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450227,
+            "nama": "RASSYA SURYA PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450233,
+            "nama": "REKA APRINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450230,
+            "nama": "RENDY BONDAN SANTOSO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450128,
+            "nama": "RESTU IDUL ADHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450132,
+            "nama": "REVA INDRIANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450224,
+            "nama": "REVA IVVANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450091,
+            "nama": "REVI RAFAA MARISKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450013,
+            "nama": "RISKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450232,
+            "nama": "RISYA KAMALIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450007,
+            "nama": "ROBBIAH AINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450111,
+            "nama": "ROFIATUL FADHILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450109,
+            "nama": "RONI OSCAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450239,
+            "nama": "ROSALIA AZZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450070,
+            "nama": "SAFIRAH SHAHAB",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450162,
+            "nama": "SALSA CINTYA BELLA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450125,
+            "nama": "SAMUDRA ELIANDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450251,
+            "nama": "SANDRA APRIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450124,
+            "nama": "SEFNA GUSTRIANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450164,
+            "nama": "SHAFA ANNISA NIRMALA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450095,
+            "nama": "SHAYLA SALSABILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450238,
+            "nama": "SHERLY SEPTRIASA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450002,
+            "nama": "SIR MUMTAZ. H",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450108,
+            "nama": "SITI AINUN FADILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450176,
+            "nama": "SITI NUROHMAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450048,
+            "nama": "SRI HARNEISYAH PUTRI. S",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450025,
+            "nama": "SUKMA HADI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450276,
+            "nama": "SUSILO HADI PRAYOGO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450175,
+            "nama": "SUTAN PANCA PRAWIRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450158,
+            "nama": "SYAHRUL RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450189,
+            "nama": "SYAVIRA TRI RAMADHONA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450033,
+            "nama": "SYIFA ANGGIA AZZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450042,
+            "nama": "TANGGUH FATTAH AL BAROKAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450180,
+            "nama": "TIRA SASKIA DEWI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450153,
+            "nama": "TIYO FIRMANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450154,
+            "nama": "TRI NUR FADHILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450146,
+            "nama": "TRIANA FADHILAH WARDAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450141,
+            "nama": "ULFIAH OKINA AFIFAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450105,
+            "nama": "VENIA INSANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450196,
+            "nama": "VERON CANIAGO JUNIOR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450222,
+            "nama": "VINKAN KAILA MAHARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450021,
+            "nama": "VIONY NABILA UTAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450195,
+            "nama": "WAHYU IHSANUDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24061450284,
+            "nama": "WAZIN AKBAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450034,
+            "nama": "WILZA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450098,
+            "nama": "YONGKI SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450060,
+            "nama": "YULIA EKA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450129,
+            "nama": "YUNI APRILIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450278,
+            "nama": "YUSDINADA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24021450035,
+            "nama": "ZAHRA AULIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450217,
+            "nama": "ZAHRA NURAINI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450257,
+            "nama": "ZAKIYAH AL DEVELLA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24051450229,
+            "nama": "ZAKY HILMI ANUGRAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 24041450139,
+            "nama": "ZULVA ZAKARIA",
+            "prodi_id": 1
+        }
+    ],
+    "2025": [
+        {
+            "nim": 25041450151,
+            "nama": "A.FATHIN FIRDAUS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450153,
+            "nama": "ABDURRAHMAN MAULA AL A'LA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450292,
+            "nama": "ABI MANYU RAMADHANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450045,
+            "nama": "ABID RIZKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450158,
+            "nama": "ABRANZAH ZENICO PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450013,
+            "nama": "ADEL AMELLIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450068,
+            "nama": "ADELIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450067,
+            "nama": "ADEN FEBRIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450304,
+            "nama": "ADI RIYANTO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450094,
+            "nama": "AFRAL SIDDIQ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450171,
+            "nama": "AGNES WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450030,
+            "nama": "AGUNG NUGROHO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450015,
+            "nama": "AHMAD AHROZA TRI PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450189,
+            "nama": "AHMAD FAKHRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450020,
+            "nama": "AHMAD FIKRY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450267,
+            "nama": "AHMAD PAISAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450126,
+            "nama": "AHMAD RIZKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450223,
+            "nama": "AISYAH REVALINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450106,
+            "nama": "AJENG FADILAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450161,
+            "nama": "AJENG PUTRI NAILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450297,
+            "nama": "AKBAR SAYYIDINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450272,
+            "nama": "AKMAL ABDURRAHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450191,
+            "nama": "AL'LIKA ZAHWA AZHARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450052,
+            "nama": "ALBAR ABDUL ROUF",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450141,
+            "nama": "ALDA MELIANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450117,
+            "nama": "ALFIAN SYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450295,
+            "nama": "ALIA ANISA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450213,
+            "nama": "ALIF ADHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450104,
+            "nama": "ALIKA FAIRUZ HAMAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450082,
+            "nama": "ALIKA SYAHARANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450024,
+            "nama": "ALIYA SINTA BELA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450155,
+            "nama": "ALMA RIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450218,
+            "nama": "AMBAR SULISTYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450169,
+            "nama": "ANANDA NICOLA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450093,
+            "nama": "ANANDIA SAFIRAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450135,
+            "nama": "ANDRA MULIA FAREL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450190,
+            "nama": "ANES",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450271,
+            "nama": "ANGGA SETIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450224,
+            "nama": "ANGGIE RAHMA DANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450049,
+            "nama": "ANGGUN YULIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450238,
+            "nama": "ANISTASYA ELSAPUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450115,
+            "nama": "AQILLA NADINE PUTRI IANDHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450217,
+            "nama": "AQTIKA SOLEHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450001,
+            "nama": "ARIEFKI ADITYA PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450120,
+            "nama": "ARIENT INDANA ESA ATHAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450290,
+            "nama": "ARIFANI SYAHADA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450234,
+            "nama": "ATTHIYAH FAQIH MAHARDHIKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450281,
+            "nama": "AULIA AMANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450088,
+            "nama": "AYUDIA DWI SAPUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450207,
+            "nama": "BIMA TIRTA WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450264,
+            "nama": "CAEYLA FEBIANTIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450060,
+            "nama": "CAHAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450087,
+            "nama": "CHELSEA AMELIA PUTRI LEE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450299,
+            "nama": "CITRA ANNISA FITRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450148,
+            "nama": "DAFFA LUTHFI KHOIRULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450142,
+            "nama": "DAFY DARDANELA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450005,
+            "nama": "DANIA RESSY IRAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450081,
+            "nama": "DAVIN ANGGARA PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450265,
+            "nama": "DEA AGUSTINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450273,
+            "nama": "DELIMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450073,
+            "nama": "DELLYTA RAMANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450182,
+            "nama": "DIMAS RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450029,
+            "nama": "DIMAS SEPDIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450195,
+            "nama": "DINA MARATUSH SHOLIHAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450165,
+            "nama": "DONY FEBRIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450204,
+            "nama": "DWI AGESHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450261,
+            "nama": "DZAKY AHMAD ALHASYIMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450255,
+            "nama": "ECI BUNGA LESTARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450085,
+            "nama": "ELMA CAHAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450132,
+            "nama": "EMA ARIYANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450101,
+            "nama": "FADHLI MA'ARIF",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450276,
+            "nama": "FADLY AKBAR FAUZY KATMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450075,
+            "nama": "FAHREZA RAMAWINATA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450033,
+            "nama": "FAJAR ADRIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450114,
+            "nama": "FAJAR DWI SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450270,
+            "nama": "FAJRI ALFARIZI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450242,
+            "nama": "FARAS VIRGIL PRAJALIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450300,
+            "nama": "FAREHAN ADE SETIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450138,
+            "nama": "FAREL ILYASA HABI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450010,
+            "nama": "FARHAN ABDILLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450198,
+            "nama": "FARHAN NIKO ANGGRORO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450294,
+            "nama": "FARID HIBATULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450023,
+            "nama": "FATIMAH AZZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450202,
+            "nama": "FAUZAN ZAHRIANSAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450152,
+            "nama": "FEBRIAN ISAN SYAHPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450036,
+            "nama": "FEBRIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450123,
+            "nama": "FEDRO DZAKWAN DELMORA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450184,
+            "nama": "FERDI ANDRIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450037,
+            "nama": "FERDY ROVY APRIZALDY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450240,
+            "nama": "FIA SHANDRINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450095,
+            "nama": "FIKRAM ARIEF",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450247,
+            "nama": "FRISCA DIAH FLORANITTA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450031,
+            "nama": "GELSI ALMA TANISHA IRAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450090,
+            "nama": "GHINA LUTHFIAH SALSABILLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450233,
+            "nama": "GHINA ZALIANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450125,
+            "nama": "GRECYLLA REMIFA LASIDO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450206,
+            "nama": "HAFIT WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450055,
+            "nama": "HANIF MUFTI RAMADAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450110,
+            "nama": "HAYATUN NUPUS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450051,
+            "nama": "HERU PURNAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450034,
+            "nama": "ICHSAN ADHADIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450016,
+            "nama": "IHSAN KURNIAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450185,
+            "nama": "ILHAM MUQSITH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450058,
+            "nama": "ILHAM PANGESTU",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450174,
+            "nama": "ILHAM PUTRA AHMAD MAURA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450250,
+            "nama": "INDAH JULIANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450196,
+            "nama": "INDAH TRI RAHMA SARI AYU SYAPUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450164,
+            "nama": "IRHAN RESTU WIBOWO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450283,
+            "nama": "IRPAN HAKIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450201,
+            "nama": "IRSYA SABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450019,
+            "nama": "ISMAWATI ROFIQOH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450200,
+            "nama": "IZZAH OKTARINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450160,
+            "nama": "JAKA SAMUDRA AL BARAKA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450288,
+            "nama": "JEFER ROSIDIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450098,
+            "nama": "JHENIUS MITRA WIDODO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450301,
+            "nama": "KAKARASETYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450011,
+            "nama": "KENZO MORENO RAHMATULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450022,
+            "nama": "KESYA NUZULA AL SALSABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450150,
+            "nama": "KEVIN HAQQY FIRDIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450097,
+            "nama": "KHADIJAH AGATHA AZALIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450214,
+            "nama": "KHANIEN SALSABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450144,
+            "nama": "KHOIRUL NURFAUZI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450286,
+            "nama": "KIAGUS MUHAMMAD TITAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450145,
+            "nama": "KMS MUHAMMAD AL QODRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450167,
+            "nama": "KRISNA JULIAN KLANA PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450216,
+            "nama": "LORENZA ERIN DWI CAHYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450054,
+            "nama": "LULUK ROFAIDAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450263,
+            "nama": "M ALBY EGITYA SEBAKAS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450259,
+            "nama": "M FATHUR RACHMAN HAKIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450172,
+            "nama": "M RANGGA ALFARIZKY",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450180,
+            "nama": "M. AIDIL FITRI SAZILI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450053,
+            "nama": "M. ANGGA RAHMADITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450062,
+            "nama": "M. DESRIAN MAULID AL-HAKIIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450079,
+            "nama": "M. DIAN ALHADI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450162,
+            "nama": "M. DWI RIVALDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450157,
+            "nama": "M. FADHIL HIBATULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450236,
+            "nama": "M. FADHIL TRI PUSASI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450078,
+            "nama": "M. FAHRI RASYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450298,
+            "nama": "M. HABIB R.",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450146,
+            "nama": "M. HAIKAL HIDAYATULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450129,
+            "nama": "M. HASBI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450074,
+            "nama": "M. IHSAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450056,
+            "nama": "M. IRFAN ARIWAHYUDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450139,
+            "nama": "M. RAIHAN KHOIRULLAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450077,
+            "nama": "M. RIFKY FAUZAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450127,
+            "nama": "M. RIKO APANDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450070,
+            "nama": "M. RISKY AL FATTAH FEBRIAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450012,
+            "nama": "M. RIZIQ FATHURRAHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450089,
+            "nama": "M. RIZKI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450057,
+            "nama": "M. ZACKY AZRIEL AL - AZIZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450221,
+            "nama": "M.AKMAL FAUZAN ERSHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450257,
+            "nama": "M.ALKINDI PASE PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450212,
+            "nama": "M.RAZAN WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450199,
+            "nama": "M.YARITS EL FIRDAUS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450277,
+            "nama": "MARCELLO FAIZA MARTHERTYLIENO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450173,
+            "nama": "MARTONDI HIDAYAT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450004,
+            "nama": "MASAYU ASETERA YUMNA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450047,
+            "nama": "MELATI INTAN PERTIWI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450136,
+            "nama": "MIFTAHUL JANNAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450154,
+            "nama": "MONICA ANASTASYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450163,
+            "nama": "MONICA HERSAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450178,
+            "nama": "MUHAMAD ISA RUMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450260,
+            "nama": "MUHAMAD RAHEL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450269,
+            "nama": "MUHAMAD RIKI PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450249,
+            "nama": "MUHAMAD YADI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450279,
+            "nama": "MUHAMMAD ABYAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450177,
+            "nama": "MUHAMMAD ADIL UWAIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450038,
+            "nama": "MUHAMMAD AFLAH AMAR DANISH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450113,
+            "nama": "MUHAMMAD AJI ZULHAPIS",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450116,
+            "nama": "MUHAMMAD AKBAR PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450133,
+            "nama": "MUHAMMAD AL ARRABIE",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450111,
+            "nama": "MUHAMMAD AL HAPIITD",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450243,
+            "nama": "MUHAMMAD ARYAWAN ARIPIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450048,
+            "nama": "MUHAMMAD FADLIL MAULANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450064,
+            "nama": "MUHAMMAD FAHRI ALI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450245,
+            "nama": "MUHAMMAD FARRAND JULIAN AL-ZUHAYR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450170,
+            "nama": "MUHAMMAD FATHUR REYHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450105,
+            "nama": "MUHAMMAD HARZA JULIANDRA PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450121,
+            "nama": "MUHAMMAD HERLI DERMAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450009,
+            "nama": "MUHAMMAD IKHLASHUL AMAL",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450241,
+            "nama": "MUHAMMAD IRFANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450061,
+            "nama": "MUHAMMAD NAF'AN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450193,
+            "nama": "MUHAMMAD NAUFAL ALTHAFAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450188,
+            "nama": "MUHAMMAD NAUFAL FATTAHURRAHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450181,
+            "nama": "MUHAMMAD NIKI RAIHANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450032,
+            "nama": "MUHAMMAD NUR HAFIDZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450137,
+            "nama": "MUHAMMAD PANDU JULIANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450086,
+            "nama": "MUHAMMAD PARELIAL SAFA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450219,
+            "nama": "MUHAMMAD PASHYA RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450108,
+            "nama": "MUHAMMAD RAFFI ARSYKILANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450225,
+            "nama": "MUHAMMAD RAFI AKBAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450122,
+            "nama": "MUHAMMAD RAJA ALFAATIH MT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450035,
+            "nama": "MUHAMMAD RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450215,
+            "nama": "MUHAMMAD RHIDO ALFIANSAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450209,
+            "nama": "MUHAMMAD RIDHO RAMADHAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450262,
+            "nama": "MUHAMMAD RIFANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450211,
+            "nama": "MUHAMMAD RIFKY SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450002,
+            "nama": "MUHAMMAD RIFQI ALFAHRIZZI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450293,
+            "nama": "MUHAMMAD ROFIF FADLURAHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450096,
+            "nama": "MUHAMMAD SAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450284,
+            "nama": "MUHAMMAD TAMMAM RASYID",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450192,
+            "nama": "MUHAMMAD YUSRIL WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450274,
+            "nama": "MUHAMMAD ZAKI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450166,
+            "nama": "MUHAMMAD ZAKIR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450043,
+            "nama": "MUHAMMAD ZAQQI RIDHO AKBAR TAHSIN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450268,
+            "nama": "MUHAMMAD ZHILAL AR-RAHMAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450080,
+            "nama": "MUTIAH MUFTI YASUNO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450228,
+            "nama": "NABILA JAISYA HAQ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450100,
+            "nama": "NABILA ZALSABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450021,
+            "nama": "NADIA REGINA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450059,
+            "nama": "NAJUWA RAHMA GANDHI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450156,
+            "nama": "NAYLA MULYA DWI VHALZA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450159,
+            "nama": "NAYLA MUTIA RAHMADANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450042,
+            "nama": "NAZURA RAHMADANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450092,
+            "nama": "NESYA AMRINA ROSADA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450071,
+            "nama": "NISMA OKTA RISA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450063,
+            "nama": "NOTO NEGORO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450237,
+            "nama": "NOVITA PUTRI UTAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450302,
+            "nama": "NUR FITRI YANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450118,
+            "nama": "NURHAQ QOLBI IHSAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450230,
+            "nama": "NURUL AINI AL AZIZAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450131,
+            "nama": "OCCA RIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450229,
+            "nama": "PADLI ARYA WIJAYA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450018,
+            "nama": "PAIZAL ALI PORQON",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450232,
+            "nama": "PANDU HERLANGGA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450175,
+            "nama": "PRAMESTHI PURWA. P",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450065,
+            "nama": "PUTRI ADELIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450006,
+            "nama": "PUTRI AYU DAYANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450253,
+            "nama": "PUTRI ZALVA SALSABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450140,
+            "nama": "RAESYAH ASSYAF ANAM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450246,
+            "nama": "RAFIKA ALFATHIA RAMONA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450205,
+            "nama": "RAFLYANSYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450040,
+            "nama": "RAGIL DWI ANISA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450275,
+            "nama": "RAHMA AYU NINGSIH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450244,
+            "nama": "RAKHARIYADI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450194,
+            "nama": "RAMADHAN SYAHRI INDRAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450282,
+            "nama": "RASYA ADITYA PRATAMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450119,
+            "nama": "RASYAH NOOR RIZQI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450066,
+            "nama": "RATU MARCELINA HARAHAP",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450227,
+            "nama": "REGITA CAHYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450176,
+            "nama": "RENA AGNES SERA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450147,
+            "nama": "RENDI SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450251,
+            "nama": "RESI MAUREL SEMBIRING",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450050,
+            "nama": "REYCA MEILY KUSUMA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450256,
+            "nama": "RIANDRA NUGROHO ADIGUNA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450231,
+            "nama": "RIDHO ALFAT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450103,
+            "nama": "RIHHADATUL'AISYA KENCANA UTAMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450069,
+            "nama": "RIJAL LULHODDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450197,
+            "nama": "RIRIN ARYANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450149,
+            "nama": "RISCA INDAH AMELIZA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450099,
+            "nama": "RISKI SAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450226,
+            "nama": "RISYAD BAIHAQQI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450210,
+            "nama": "RIZKI GUNA AKBAR",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450254,
+            "nama": "RODHIYAH MUFIDAH GUSMIANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450026,
+            "nama": "ROSI ARJUNA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450143,
+            "nama": "RYO HERLAMBANG",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450014,
+            "nama": "SABILA FITRI AULIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450222,
+            "nama": "SAHID KUN CAHYONO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450112,
+            "nama": "SALMAN AL FARISI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450239,
+            "nama": "SALSABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450235,
+            "nama": "SANDRO REVALINO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450296,
+            "nama": "SAYYIDAH FATHIMAH AZ-ZAHRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450041,
+            "nama": "SEFIRA AULIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450187,
+            "nama": "SEFTRIAWAN SYAPUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450289,
+            "nama": "SELAMAT RIADI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450008,
+            "nama": "SEPRAN HIDAYAT",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450258,
+            "nama": "SESA LIANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450280,
+            "nama": "SHOFA IRVINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450076,
+            "nama": "SHYREEN TWEEDY PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450028,
+            "nama": "SITI AISYAH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450107,
+            "nama": "SITI ZALIKHA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450102,
+            "nama": "SOPHIE ANDIANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450007,
+            "nama": "SUCI JELIANDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450220,
+            "nama": "SULTAN MASRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450109,
+            "nama": "SUPRIYANI RAMADANI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450266,
+            "nama": "SYADELIA ALIKHA PUTRI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450183,
+            "nama": "SYAFIRA PUTRI RAHMALIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450003,
+            "nama": "SYAKILAH SETYA PURWANTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450091,
+            "nama": "TANIA MARLINDA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25091450277,
+            "nama": "TARIG RASHID ABDALLA BABIKER",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450130,
+            "nama": "TATIA ARMEL LARIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450285,
+            "nama": "TIKA RIANA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450046,
+            "nama": "TINO RIZKYAN HAFIDZ",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450248,
+            "nama": "TIO MUMTAZUL AZMI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450134,
+            "nama": "TRIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450179,
+            "nama": "UMMI HUMAIROH",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450083,
+            "nama": "VAREL AGUSTINO",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450072,
+            "nama": "VARIYAN BAGAS PUTRA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450303,
+            "nama": "VISKA FEBBIYOLA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450168,
+            "nama": "VIVIEN AFIFA APRILIA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450208,
+            "nama": "WAHYU ANGGARA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450287,
+            "nama": "WARITSIN KHOIR NURAZIM",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450025,
+            "nama": "WIDIA KUMALA SARI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450124,
+            "nama": "WISHNU ARYA DIKTA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450278,
+            "nama": "YUSMA RINDI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450291,
+            "nama": "YUSRIL GUNAWAN",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450252,
+            "nama": "ZABIR AL-HINSI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450128,
+            "nama": "ZAHRA MEILINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450017,
+            "nama": "ZAHRA SALSABILA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25021450027,
+            "nama": "ZAHROTUSY SYITA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450203,
+            "nama": "ZAKI IBNU NAGIB",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450039,
+            "nama": "ZALFA NADAA CHELSEA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450044,
+            "nama": "ZALVA KURNIA JUNIARTI",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25041450084,
+            "nama": "ZASKIA MAULIDINA",
+            "prodi_id": 1
+        },
+        {
+            "nim": 25051450186,
+            "nama": "ZENIA ELSAH ZATIRA",
+            "prodi_id": 1
+        }
+    ]
+}
