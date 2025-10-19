@@ -14,7 +14,7 @@ class UjianController extends Controller
      */
     public function index()
     {
-        $ujian = Ujian::with(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'penilaian'])->get();
+        $ujian = Ujian::with(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'penilaian', 'ruangan'])->get();
 
         return UjianResource::collection($ujian);
     }
@@ -35,7 +35,7 @@ class UjianController extends Controller
      */
     public function show($id)
     {
-        $ujian = Ujian::with(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'penilaian'])->findOrFail($id);
+        $ujian = Ujian::with(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'penilaian', 'ruangan'])->findOrFail($id);
 
         return new UjianResource($ujian);
     }
@@ -48,11 +48,11 @@ class UjianController extends Controller
         // Ambil hanya field yang dikirim (bukan semua yang lolos validasi)
         $data = array_filter(
             $request->only([
-                'hari_ujian',   
+                'hari_ujian',
                 'jadwal_ujian',
                 'waktu_mulai',
                 'waktu_selesai',
-                'ruangan',
+                'ruangan_id',
                 'ketua_penguji',
                 'sekretaris_penguji',
                 'penguji_1',
@@ -74,7 +74,7 @@ class UjianController extends Controller
         }
 
         return new UjianResource(
-            $ujian->load(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa'])
+            $ujian->load(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'ruangan'])
         );
     }
 

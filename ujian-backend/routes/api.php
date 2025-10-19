@@ -1,4 +1,6 @@
 <?php
+use App\Http\Controllers\RuanganController;
+?><?php
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BimbinganController;
@@ -69,6 +71,8 @@ Route::apiResource('template', TemplateController::class);
 Route::apiResource('ujian', UjianController::class);
 
 Route::apiResource('jadwal-penguji', JadwalPengujiController::class);
+
+Route::apiResource('ruangan', RuanganController::class);
 
 // Route::apiResource('judul', JudulController::class);
 

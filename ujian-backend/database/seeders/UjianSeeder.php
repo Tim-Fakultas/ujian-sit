@@ -51,7 +51,7 @@ class UjianSeeder extends Seeder
                 'jadwal_ujian' => $tanggalUjian,
                 'waktu_mulai' => $waktuMulai,
                 'waktu_selesai' => $waktuSelesai,
-                'ruangan' => 'Ruang ' . ['A', 'B', 'C', 'D'][rand(0, 3)] . rand(1, 3),
+                'ruangan_id' => rand(1, 3),    // contoh id ruangan dummy
                 'ketua_penguji' => rand(1, 10),     // contoh id dosen dummy
                 'sekretaris_penguji' => rand(1, 10),
                 'penguji_1' => rand(1, 10),

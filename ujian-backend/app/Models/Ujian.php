@@ -104,6 +104,11 @@ class Ujian extends Model
         return $this->belongsTo(Dosen::class, 'penguji_2');
     }
 
+    public function ruangan()
+    {
+        return $this->belongsTo(Ruangan::class, 'ruangan_id');
+    }
+
     public function hitungNilaiAkhir()
 {
     $nilaiPerDosen = $this->penilaian()

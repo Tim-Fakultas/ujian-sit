@@ -20,7 +20,7 @@ return new class extends Migration
             $table->dateTime('jadwal_ujian')->nullable();
             $table->time('waktu_mulai')->nullable();
             $table->time('waktu_selesai')->nullable();
-            $table->string('ruangan')->nullable();
+            $table->foreignId('ruangan_id')->nullable()->constrained('ruangan')->nullOnDelete();
             $table->foreignId('ketua_penguji')->nullable()->constrained('dosen')->nullOnDelete();
             $table->foreignId('sekretaris_penguji')->nullable()->constrained('dosen')->nullOnDelete();
             $table->foreignId('penguji_1')->nullable()->constrained('dosen')->nullOnDelete();

@@ -78,7 +78,7 @@ class PendaftaranUjianController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePendaftaranUjianRequest $request, PendaftaranUjian $pendaftaranUjian)
+    public function update(UpdatePendaftaranUjianRequest $request, PendaftaranUjian $pendaftaran_ujian)
     {
         $validated = $request->validated();
 
@@ -87,21 +87,19 @@ class PendaftaranUjianController extends Controller
             $validated['tanggal_disetujui'] = now()->format('Y-m-d H:i:s');;
         }
 
-        $pendaftaranUjian->update($validated);
+        $pendaftaran_ujian->update($validated);
 
         // Jika admin ingin menambah berkas tambahan
         if ($request->hasFile('berkas')) {
             foreach ($request->file('berkas') as $file) {
                 $path = $file->store('uploads/berkas_ujian', 'public');
-                $pendaftaranUjian->berkas()->create([
+                $pendaftaran_ujian->berkas()->create([
                     'nama_berkas' => $file->getClientOriginalName(),
                     'file_path' => $path,
                 ]);
             }
         }
-        return new PendaftaranUjianResource(
-            $pendaftaranUjian->load(['mahasiswa', 'ranpel', 'jenisUjian', 'berkas'])
-        );
+        return new PendaftaranUjianResource($pendaftaran_ujian);
     }
 
     /**

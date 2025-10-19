@@ -11,7 +11,7 @@ class UpdateRuanganRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,16 @@ class UpdateRuanganRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'prodiId' => 'sometimes|exists:prodi,id',
+            'namaRuangan' => 'sometimes|string|max:100',
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'prodi_id' => $this->prodiId,
+            'nama_ruangan' => $this->namaRuangan,
+        ]);
     }
 }

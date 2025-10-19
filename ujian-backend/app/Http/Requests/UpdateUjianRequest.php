@@ -38,7 +38,7 @@ class UpdateUjianRequest extends FormRequest
                     }
                 }
             ],
-            'ruangan' => 'sometimes|string|max:255',
+            'ruangan' => 'sometimes|exists:ruangan,id',
 
             // Penguji
             'ketuaPenguji' => [

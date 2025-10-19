@@ -348,6 +348,8 @@ class DatabaseSeeder extends Seeder
         // Create some Pejabat (officials)
         Pejabat::factory(3)->create();
 
+        $this->call(RuanganSeeder::class);
+
 
     }
 }

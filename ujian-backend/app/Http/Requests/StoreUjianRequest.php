@@ -41,7 +41,7 @@ class StoreUjianRequest extends FormRequest
                     }
                 }
             ],
-            'ruangan' => 'required|string|max:255',
+            'ruangan' => 'required|exists:ruangan,id',
             'ketuaPenguji' => [
                 'nullable',
                 'exists:dosen,id',

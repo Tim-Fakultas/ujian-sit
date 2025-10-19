@@ -50,7 +50,14 @@ class UjianResource extends JsonResource
             'jadwalUjian' => $this->jadwal_ujian,
             'waktuMulai' => $this->waktu_mulai,
             'waktuSelesai' => $this->waktu_selesai,
-            'ruangan' => $this->ruangan,
+            'ruangan' => $this->ruangan ? [
+                'id' => $this->ruangan->id,
+                'namaRuangan' => $this->ruangan->nama_ruangan,
+                'prodi' => $this->ruangan->prodi ? [
+                    'id' => $this->ruangan->prodi->id,
+                    'namaProdi' => $this->ruangan->prodi->nama_prodi,
+                ] : null,
+            ] : null,
             'ketuaPenguji' => $this->ketuaPenguji ? [
                 'id' => $this->ketuaPenguji->id,
                 'nama' => $this->ketuaPenguji->nama,
