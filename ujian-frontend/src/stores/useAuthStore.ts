@@ -18,9 +18,9 @@ interface User {
   roles: Role[];
   prodi?: {
     id: number;
-    nama: string;
+    nama_prodi: string;
   };
-  dosenPA?: {
+  dosen_pa?: {
     id: number;
     nama: string;
   };

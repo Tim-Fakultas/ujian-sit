@@ -1,0 +1,363 @@
+[
+  {
+    "id": "RPL-2025-001",
+    "mahasiswa": {
+      "id": 101,
+      "nama": "Muhammad Abdi",
+      "nim": "2210903005",
+      "dosen_pa": {
+        "id": 201,
+        "nama": "Dr. Rudi Hartono, M.Kom",
+        "nip": "19781115 200501 1 001",
+        "nidn": "0023456789"
+      },
+      "prodi": {
+        "id": 301,
+        "nama": "Sistem Informasi",
+        "kode": "SI"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 1,
+      "judul_penelitian": "Rancang Bangun Sistem Informasi Pengajuan Skripsi Berbasis Web di Fakultas Sains dan Teknologi",
+      "masalah_dan_penyebab": "Proses pengajuan skripsi masih dilakukan secara manual menggunakan formulir fisik, menyebabkan keterlambatan verifikasi dan risiko kehilangan berkas.",
+      "alternatif_solusi": "Membangun sistem informasi berbasis web yang memungkinkan mahasiswa mengajukan proposal dan dosen memverifikasi secara online.",
+      "metode_penelitian": "Metode pengembangan sistem menggunakan model Waterfall dengan tahapan analisis, desain, implementasi, dan pengujian.",
+      "hasil_yang_diharapkan": "Sistem dapat mempercepat proses administrasi, meningkatkan akurasi data, dan efisiensi waktu.",
+      "kebutuhan_data": "Data mahasiswa, dosen pembimbing, jadwal, dan pengajuan proposal.",
+      "tanggalPengajuan": "2025-09-20",
+      "tanggalDiterima": "2025-09-25"
+    },
+    "judul": "Rancang Bangun Sistem Informasi Pengajuan Skripsi Berbasis Web",
+    "deskripsi": "Penelitian ini bertujuan untuk mengembangkan sistem pengajuan skripsi berbasis web yang memudahkan mahasiswa dan dosen dalam proses administrasi akademik.",
+    "tanggalPengajuan": "2025-09-20T09:00:00Z",
+    "status": "disetujui"
+  },
+  {
+    "id": "RPL-2025-002",
+    "mahasiswa": {
+      "id": 102,
+      "nama": "Siti Khadijah",
+      "nim": "2210903002",
+      "dosen_pa": {
+        "id": 202,
+        "nama": "Dr. Nia Rahmawati, M.Kom",
+        "nip": "19800427 200312 2 002",
+        "nidn": "0011223344"
+      },
+      "prodi": {
+        "id": 302,
+        "nama": "Teknologi Informasi",
+        "kode": "TI"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 2,
+      "judul_penelitian": "Penerapan Machine Learning untuk Prediksi Kelulusan Mahasiswa",
+      "masalah_dan_penyebab": "Fakultas belum memiliki sistem prediksi kelulusan yang akurat untuk perencanaan akademik.",
+      "alternatif_solusi": "Menggunakan algoritma Random Forest untuk memprediksi kemungkinan kelulusan mahasiswa berdasarkan data akademik historis.",
+      "metode_penelitian": "Metode kuantitatif dengan eksperimen model supervised learning dan validasi cross-validation.",
+      "hasil_yang_diharapkan": "Model prediksi dengan akurasi tinggi yang membantu pihak fakultas dalam pemantauan progres mahasiswa.",
+      "kebutuhan_data": "Data nilai mahasiswa, IPK, kehadiran, dan lama studi.",
+      "tanggalPengajuan": "2025-09-18",
+      "tanggalDiterima": "2025-09-21"
+    },
+    "judul": "Penerapan Machine Learning untuk Prediksi Kelulusan Mahasiswa",
+    "deskripsi": "Penelitian ini mengimplementasikan algoritma Random Forest untuk membantu kampus melakukan prediksi tingkat kelulusan mahasiswa.",
+    "tanggalPengajuan": "2025-09-18T13:00:00Z",
+    "status": "diverifikasi"
+  },
+  {
+    "id": "RPL-2025-003",
+    "mahasiswa": {
+      "id": 103,
+      "nama": "Luqman Hakim",
+      "nim": "2210903003",
+      "dosen_pa": {
+        "id": 203,
+        "nama": "Dr. Satria Nugraha, M.Kom",
+        "nip": "19870214 201101 1 003",
+        "nidn": "0045566778"
+      },
+      "prodi": {
+        "id": 301,
+        "nama": "Sistem Informasi",
+        "kode": "SI"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 3,
+      "judul_penelitian": "Rancang Bangun Sistem Absensi Otomatis Menggunakan Face Recognition",
+      "masalah_dan_penyebab": "Sistem absensi manual rentan terhadap manipulasi dan memerlukan waktu rekap yang lama.",
+      "alternatif_solusi": "Menggunakan teknologi Face Recognition untuk absensi otomatis berbasis kamera dan AI.",
+      "metode_penelitian": "Research and Development (R&D) dengan pendekatan prototyping dan uji coba langsung.",
+      "hasil_yang_diharapkan": "Sistem absensi yang akurat dan efisien dalam mendeteksi kehadiran mahasiswa.",
+      "kebutuhan_data": "Dataset wajah mahasiswa dan jadwal kuliah.",
+      "tanggalPengajuan": "2025-09-22"
+    },
+    "judul": "Rancang Bangun Sistem Absensi Otomatis Menggunakan Face Recognition",
+    "deskripsi": "Penelitian ini mengembangkan sistem absensi berbasis AI dengan teknologi pengenalan wajah untuk mengurangi kecurangan absensi.",
+    "tanggalPengajuan": "2025-09-22T10:00:00Z",
+    "status": "menunggu"
+  },
+  {
+    "id": "RPL-2025-004",
+    "mahasiswa": {
+      "id": 104,
+      "nama": "Nur Aisyah",
+      "nim": "2210903004",
+      "dosen_pa": {
+        "id": 204,
+        "nama": "Dr. Dewi Handayani, M.Kom",
+        "nip": "19850512 200910 2 004",
+        "nidn": "0099887766"
+      },
+      "prodi": {
+        "id": 303,
+        "nama": "Informatika",
+        "kode": "IF"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 4,
+      "judul_penelitian": "Pengembangan Aplikasi EcoMasjid untuk Monitoring Kegiatan Ramah Lingkungan",
+      "masalah_dan_penyebab": "Belum adanya sistem monitoring digital untuk kegiatan ramah lingkungan di masjid.",
+      "alternatif_solusi": "Membangun aplikasi web untuk mencatat dan menampilkan aktivitas ramah lingkungan di masjid.",
+      "metode_penelitian": "Metode Agile Development dengan iterasi pengujian fitur.",
+      "hasil_yang_diharapkan": "Aplikasi yang membantu pengurus masjid memonitor aktivitas hijau secara efisien.",
+      "kebutuhan_data": "Data masjid, kegiatan, dan kategori kegiatan ramah lingkungan.",
+      "tanggalPengajuan": "2025-09-19",
+      "tanggalDiterima": "2025-09-23"
+    },
+    "judul": "Pengembangan Aplikasi EcoMasjid untuk Monitoring Kegiatan Ramah Lingkungan",
+    "deskripsi": "Penelitian ini mendukung gerakan EcoMasjid dengan membangun aplikasi berbasis web untuk mendata kegiatan berkelanjutan.",
+    "tanggalPengajuan": "2025-09-19T08:30:00Z",
+    "status": "disetujui"
+  },
+  {
+    "id": "RPL-2025-005",
+    "mahasiswa": {
+      "id": 105,
+      "nama": "Ahmad Fadhil",
+      "nim": "2210903001",
+      "dosen_pa": {
+        "id": 205,
+        "nama": "Dr. Bambang Setiawan, M.Kom",
+        "nip": "19791230 200502 1 005"
+      },
+      "prodi": {
+        "id": 304,
+        "nama": "Rekayasa Perangkat Lunak",
+        "kode": "RPL"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 5,
+      "judul_penelitian": "Perancangan Model Supply Chain Management Digital di Perguruan Tinggi",
+      "masalah_dan_penyebab": "Proses pengadaan dan distribusi aset di kampus masih manual dan tidak efisien.",
+      "alternatif_solusi": "Merancang model digital SCM yang mengintegrasikan unit-unit kampus secara terpusat.",
+      "metode_penelitian": "Pendekatan kualitatif deskriptif melalui studi kasus dan wawancara.",
+      "hasil_yang_diharapkan": "Model SCM digital yang mempercepat distribusi aset dan meningkatkan transparansi.",
+      "kebutuhan_data": "Data pengadaan, vendor, dan inventaris fakultas.",
+      "tanggalPengajuan": "2025-09-24"
+    },
+    "judul": "Perancangan Model Supply Chain Management Digital di Perguruan Tinggi",
+    "deskripsi": "Penelitian ini mengusulkan digitalisasi proses SCM di lingkungan perguruan tinggi untuk meningkatkan efisiensi dan akuntabilitas.",
+    "tanggalPengajuan": "2025-09-24T09:30:00Z",
+    "status": "ditolak"
+  },
+  {
+    "id": "pengajuan-1760249778815",
+    "mahasiswa": {
+      "id": 101,
+      "nama": "M. Abdi Nugroho",
+      "nim": "21051450225",
+      "prodi": {
+        "id": 301,
+        "nama": "Sistem Informasi",
+        "kode": "SI"
+      },
+      "dosen_pa": {
+        "id": 201,
+        "nama": "Indah Hidayanti, M.Kom.",
+        "nip": "19801212 201001 1 001"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 1760249778813,
+      "judul_penelitian": "Pemodelan Sistem Informasi Integrasi Akademik di UIN Raden Fatah Palembang",
+      "masalah_dan_penyebab": "soisdfiobsdfbsdbfodsifb",
+      "alternatif_solusi": "osndfiosbfiosdbfiosdbf",
+      "metode_penelitian": "dsbfiobdsoifbsiodbfio",
+      "hasil_yang_diharapkan": "dbsfobsdofibdsofbsdf",
+      "kebutuhan_data": "jdsnfosdbfsofb",
+      "tanggalPengajuan": "2025-10-12T06:16:18.813Z"
+    },
+    "judul": "Pemodelan Sistem Informasi Integrasi Akademik di UIN Raden Fatah Palembang",
+    "deskripsi": "",
+    "tanggalPengajuan": "2025-10-12T06:16:18.815Z",
+    "status": "menunggu"
+  },
+  {
+    "id": "pengajuan-1760250692591",
+    "mahasiswa": {
+      "id": 1,
+      "nama": "Muhammad Luqman Al-Fauzan",
+      "nim": "23041450085",
+      "prodi": {
+        "id": 1,
+        "nama": "Sistem Informasi",
+        "kode": "SI"
+      },
+      "dosen_pa": {
+        "id": 1,
+        "nama": "Freddy Kurnia Wijaya",
+        "nip": "19801212 201001 1 001"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 1760250692584,
+      "judul_penelitian": "skjdbjkbdjfbslbdfljb",
+      "masalah_dan_penyebab": "bdlsksbklsdbf",
+      "alternatif_solusi": "nklnldknsklfnlksdnfknslk",
+      "metode_penelitian": "lknklsdnflksndfklnsdklf",
+      "hasil_yang_diharapkan": "nlkdsnfklsndfkln",
+      "kebutuhan_data": "nldsnfanfklns",
+      "tanggalPengajuan": "2025-10-12T06:31:32.584Z"
+    },
+    "judul": "skjdbjkbdjfbslbdfljb",
+    "deskripsi": "",
+    "tanggalPengajuan": "2025-10-12T06:31:32.591Z",
+    "status": "diverifikasi",
+    "keterangan": "sdfknsdf"
+  },
+  {
+    "id": "pengajuan-1760251162085",
+    "mahasiswa": {
+      "id": 1,
+      "nama": "Muhammad Luqman Al-Fauzan",
+      "nim": "23041450085",
+      "prodi": {
+        "id": 1,
+        "nama": "Sistem Informasi",
+        "kode": "SI"
+      },
+      "dosen_pa": {
+        "id": 1,
+        "nama": "Freddy Kurnia Wijaya",
+        "nip": "19801212 201001 1 001"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 1760251162084,
+      "judul_penelitian": "KAOWKOAKOAKWOKAOWKWOA",
+      "masalah_dan_penyebab": "OKOWKOAKOEKO",
+      "alternatif_solusi": "OKAWOKEOAWKEOAWKE",
+      "metode_penelitian": "OKOEKOAKOEAOEKAWO",
+      "hasil_yang_diharapkan": "OKAOWKEOAKWEOAWE",
+      "kebutuhan_data": "KAOKEOKAWOEKAWOKE",
+      "tanggalPengajuan": "2025-10-12T06:39:22.084Z"
+    },
+    "judul": "KAOWKOAKOAKWOKAOWKWOA",
+    "deskripsi": "",
+    "tanggalPengajuan": "2025-10-12T06:39:22.085Z",
+    "status": "menunggu"
+  },
+  {
+    "id": "pengajuan-1760251229667",
+    "mahasiswa": {
+      "id": 1,
+      "nama": "Muhammad Luqman Al-Fauzan",
+      "nim": "23041450085",
+      "prodi": {
+        "id": 1,
+        "nama": "Sistem Informasi",
+        "kode": "SI"
+      },
+      "dosen_pa": {
+        "id": 1,
+        "nama": "Freddy Kurnia Wijaya",
+        "nip": "19801212 201001 1 001"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 1760251229666,
+      "judul_penelitian": "askdnaklsdnlkansdkln",
+      "masalah_dan_penyebab": "dsklfsdbkf",
+      "alternatif_solusi": "ioafbadsoibfiosdbio",
+      "metode_penelitian": "biodsbfiobsdfiob",
+      "hasil_yang_diharapkan": "iobiosdbfoisdbf",
+      "kebutuhan_data": "obioasbfiodbsiof",
+      "tanggalPengajuan": "2025-10-12T06:40:29.666Z"
+    },
+    "judul": "askdnaklsdnlkansdkln",
+    "deskripsi": "",
+    "tanggalPengajuan": "2025-10-12T06:40:29.667Z",
+    "status": "menunggu"
+  },
+  {
+    "id": "pengajuan-1760251370899",
+    "mahasiswa": {
+      "id": 1,
+      "nama": "Muhammad Luqman Al-Fauzan",
+      "nim": "23041450085",
+      "prodi": {
+        "id": 1,
+        "nama": "Sistem Informasi",
+        "kode": "SI"
+      },
+      "dosen_pa": {
+        "id": 1,
+        "nama": "Freddy Kurnia Wijaya",
+        "nip": "19801212 201001 1 001"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 1760251370898,
+      "judul_penelitian": "ABOBSFOBSDOIBSDFIOB",
+      "masalah_dan_penyebab": "IDFSIOBSOIBDFOBSDOFB",
+      "alternatif_solusi": "OIBIOSDBOIFBSIODBFIOSBFOISDBFIOB",
+      "metode_penelitian": "BODSBFOBSFOBSDOIFBSODFBSDOIFB",
+      "hasil_yang_diharapkan": "BIOSBDFOBSOFBSIDOFBSOIDFBO",
+      "kebutuhan_data": "BSDOBFOASIDBFOISBDFOIABOFBAOFBSADBO",
+      "tanggalPengajuan": "2025-10-12T06:42:50.898Z"
+    },
+    "judul": "ABOBSFOBSDOIBSDFIOB",
+    "deskripsi": "",
+    "tanggalPengajuan": "2025-10-12T06:42:50.899Z",
+    "status": "menunggu"
+  },
+  {
+    "id": "pengajuan-1760255617231",
+    "mahasiswa": {
+      "id": 1,
+      "nama": "Muhammad Luqman Al-Fauzan",
+      "nim": "23041450085",
+      "prodi": {
+        "id": 1,
+        "nama": "Sistem Informasi",
+        "kode": "SI"
+      },
+      "dosen_pa": {
+        "id": 1,
+        "nama": "Freddy Kurnia Wijaya",
+        "nip": "19801212 201001 1 001"
+      }
+    },
+    "rancanganPenelitian": {
+      "id": 1760255617229,
+      "judul_penelitian": "Judul terbaru",
+      "masalah_dan_penyebab": "jbsdkjbfksjdbf",
+      "alternatif_solusi": "sdfoiskldbladfb",
+      "metode_penelitian": "oidof",
+      "hasil_yang_diharapkan": "boisbfo",
+      "kebutuhan_data": "dsofib",
+      "tanggalPengajuan": "2025-10-12T07:53:37.229Z"
+    },
+    "judul": "Judul terbaru",
+    "deskripsi": "",
+    "tanggalPengajuan": "2025-10-12T07:53:37.231Z",
+    "status": "diverifikasi",
+    "keterangan": "Bagus, lanjutkan"
+  }
+]
