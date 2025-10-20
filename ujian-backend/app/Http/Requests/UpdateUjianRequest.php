@@ -38,7 +38,7 @@ class UpdateUjianRequest extends FormRequest
                     }
                 }
             ],
-            'ruangan' => 'sometimes|exists:ruangan,id',
+            'ruanganId' => 'sometimes|exists:ruangan,id',
 
             // Penguji
             'ketuaPenguji' => [
@@ -116,7 +116,7 @@ class UpdateUjianRequest extends FormRequest
             'jadwal_ujian' => $this->input('jadwalUjian'),
             'waktu_mulai' => $this->input('waktuMulai'),
             'waktu_selesai' => $this->input('waktuSelesai'),
-            'ruangan' => $this->input('ruangan'),
+            'ruangan_id' => $this->input('ruanganId'),
             'ketua_penguji' => $this->input('ketuaPenguji'),
             'sekretaris_penguji' => $this->input('sekretarisPenguji'),
             'penguji_1' => $this->input('penguji1'),

@@ -41,7 +41,7 @@ class StoreUjianRequest extends FormRequest
                     }
                 }
             ],
-            'ruangan' => 'required|exists:ruangan,id',
+            'ruanganId' => 'required|exists:ruangan,id',
             'ketuaPenguji' => [
                 'nullable',
                 'exists:dosen,id',
@@ -140,7 +140,7 @@ class StoreUjianRequest extends FormRequest
             'jadwal_ujian' => $this->input('jadwalUjian'),
             'waktu_mulai' => $this->input('waktuMulai'),
             'waktu_selesai' => $this->input('waktuSelesai'),
-            'ruangan' => $this->input('ruangan'),
+            'ruangan_id' => $this->input('ruanganId'),
             'ketua_penguji' => $this->input('ketuaPenguji'),
             'sekretaris_penguji' => $this->input('sekretarisPenguji'),
             'penguji_1' => $this->input('penguji1'),

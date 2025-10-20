@@ -20,7 +20,7 @@ class Ujian extends Model
         'jadwal_ujian',
         'waktu_mulai',
         'waktu_selesai',
-        'ruangan',
+        'ruangan_id',
         'ketua_penguji',
         'sekretaris_penguji',
         'penguji_1',

@@ -6,57 +6,126 @@ use App\Http\Requests\StorePenilaianRequest;
 use App\Http\Requests\UpdatePenilaianRequest;
 use App\Http\Resources\PenilaianResource;
 use App\Models\Penilaian;
+use App\Models\Ujian;
 
 class PenilaianController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $penilaian = Penilaian::with(['ujian', 'dosen', 'komponenPenilaian'])->get();
-
         return PenilaianResource::collection($penilaian);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StorePenilaianRequest $request)
     {
-        $request->validated();
-        $penilaian = Penilaian::create($request->all());
+        // ✅ BATCH INSERT
+        if ($request->has('data') && is_array($request->data)) {
+            $validated = $request->validated();
+
+            // Simpan pakai loop create() supaya event model tetap jalan
+            foreach ($validated['data'] as $item) {
+                Penilaian::create($item);
+            }
+
+            // 🔹 Hitung ulang nilai akhir untuk semua ujian yang terlibat
+            $ujianIds = collect($validated['data'])->pluck('ujian_id')->unique();
+            foreach ($ujianIds as $ujianId) {
+                $ujian = Ujian::find($ujianId);
+                if ($ujian) {
+                    $ujian->hitungNilaiAkhir();
+                }
+            }
+
+            // Kembalikan data hasil input
+            $latestRecords = Penilaian::with(['ujian', 'dosen', 'komponenPenilaian'])
+                ->latest('id')
+                ->take(count($validated['data']))
+                ->get()
+                ->reverse()
+                ->values();
+
+            return PenilaianResource::collection($latestRecords);
+        }
+
+        // ✅ SINGLE INSERT
+        $penilaian = Penilaian::create($request->validated());
+
+        // 🔹 Hitung ulang nilai akhir ujian tunggal
+        if ($penilaian->ujian) {
+            $penilaian->ujian->hitungNilaiAkhir();
+        }
 
         return new PenilaianResource($penilaian);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         $penilaian = Penilaian::with(['ujian', 'dosen', 'komponenPenilaian'])->findOrFail($id);
-
         return new PenilaianResource($penilaian);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdatePenilaianRequest $request, Penilaian $penilaian)
     {
-        $request->validated();
-        $penilaian->update($request->all());
+        // ✅ BATCH UPDATE
+        if ($request->has('data') && is_array($request->data)) {
+            $validated = $request->validated();
 
-        return new PenilaianResource($penilaian);
+            // Kumpulkan ujian_id yang perlu dihitung ulang
+            $ujianIds = [];
+
+            foreach ($validated['data'] as $item) {
+                $record = Penilaian::find($item['id']);
+                if ($record) {
+                    $record->update([
+                        'nilai' => $item['nilai'],
+                        'komentar' => $item['komentar'] ?? null,
+                    ]);
+
+                    // Simpan ujian_id-nya untuk dihitung nanti
+                    $ujianIds[] = $record->ujian_id;
+                }
+            }
+
+            // 🔹 Hitung ulang nilai akhir untuk semua ujian terkait
+            foreach (array_unique($ujianIds) as $ujianId) {
+                $ujian = Ujian::find($ujianId);
+                if ($ujian) {
+                    $ujian->hitungNilaiAkhir();
+                }
+            }
+
+            $updatedRecords = Penilaian::with(['ujian', 'dosen', 'komponenPenilaian'])
+                ->whereIn('id', array_column($validated['data'], 'id'))
+                ->get();
+
+            return response()->json([
+                'message' => 'Batch update berhasil',
+                'data' => PenilaianResource::collection($updatedRecords),
+            ], 200);
+        }
+
+        // ✅ SINGLE UPDATE
+        $penilaian->update($request->validated());
+
+        // 🔹 Hitung ulang nilai akhir ujian tunggal
+        if ($penilaian->ujian) {
+            $penilaian->ujian->hitungNilaiAkhir();
+        }
+
+        return new PenilaianResource($penilaian->fresh(['ujian', 'dosen', 'komponenPenilaian']));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Penilaian $penilaian)
     {
+        $ujianId = $penilaian->ujian_id;
+
         $penilaian->delete();
+
+        // 🔹 Recalculate after delete
+        $ujian = Ujian::find($ujianId);
+        if ($ujian) {
+            $ujian->hitungNilaiAkhir();
+        }
 
         return response()->json(['message' => 'Penilaian berhasil dihapus.'], 200);
     }
