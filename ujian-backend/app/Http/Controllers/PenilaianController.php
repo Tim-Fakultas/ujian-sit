@@ -24,6 +24,7 @@ class PenilaianController extends Controller
 
             // Simpan pakai loop create() supaya event model tetap jalan
             foreach ($validated['data'] as $item) {
+                // Data sudah dikonversi ke snake_case oleh StorePenilaianRequest
                 Penilaian::create($item);
             }
 
@@ -48,7 +49,9 @@ class PenilaianController extends Controller
         }
 
         // ✅ SINGLE INSERT
-        $penilaian = Penilaian::create($request->validated());
+        $validated = $request->validated();
+        \Log::info('Validated data in controller:', $validated);
+        $penilaian = Penilaian::create($validated);
 
         // 🔹 Hitung ulang nilai akhir ujian tunggal
         if ($penilaian->ujian) {

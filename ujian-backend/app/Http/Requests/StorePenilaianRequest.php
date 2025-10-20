@@ -7,6 +7,41 @@ use Illuminate\Foundation\Http\FormRequest;
 class StorePenilaianRequest extends FormRequest
 {
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('data') && is_array($this->data)) {
+            // Convert data array from camelCase to snake_case
+            $transformedData = array_map(function ($item) {
+                return [
+                    'ujian_id' => $item['ujianId'],
+                    'dosen_id' => $item['dosenId'],
+                    'komponen_penilaian_id' => $item['komponenPenilaianId'],
+                    'nilai' => $item['nilai'],
+                    'komentar' => $item['komentar'] ?? null,
+                ];
+            }, $this->data);
+
+            $this->merge(['data' => $transformedData]);
+        } else {
+            // Untuk single insert
+            $data = [
+                'ujian_id' => $this->input('ujianId'),
+                'dosen_id' => $this->input('dosenId'),
+                'komponen_penilaian_id' => $this->input('komponenPenilaianId'),
+                'nilai' => $this->input('nilai'),
+                'komentar' => $this->input('komentar'),
+            ];
+
+            // Debug untuk melihat data yang akan dimerge
+            \Log::info('Data after conversion:', $data);
+
+            $this->merge($data);
+        }
+    }
+
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool

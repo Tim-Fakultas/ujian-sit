@@ -6,6 +6,36 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePenilaianRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('data') && is_array($this->data)) {
+            // Untuk batch update
+            $transformedData = array_map(function ($item) {
+                return [
+                    'id' => $item['id'],
+                    'nilai' => $item['nilai'],
+                    'komentar' => $item['komentar'] ?? null,
+                    // Convert camelCase ke snake_case untuk field yang dilarang
+                    'ujian_id' => $item['ujianId'] ?? null,
+                    'dosen_id' => $item['dosenId'] ?? null,
+                    'komponen_penilaian_id' => $item['komponenPenilaianId'] ?? null,
+                ];
+            }, $this->data);
+
+            $this->merge(['data' => $transformedData]);
+        } else {
+            // Untuk single update
+            $this->merge([
+                'nilai' => $this->nilai,
+                'komentar' => $this->komentar,
+                // Convert camelCase ke snake_case untuk field yang dilarang
+                'ujian_id' => $this->ujianId,
+                'dosen_id' => $this->dosenId,
+                'komponen_penilaian_id' => $this->komponenPenilaianId,
+            ]);
+        }
+    }
+
     public function authorize(): bool
     {
         return true;
@@ -21,10 +51,10 @@ class UpdatePenilaianRequest extends FormRequest
                 'data.*.nilai' => 'required|numeric|min:0|max:100',
                 'data.*.komentar' => 'nullable|string|max:255',
 
-                // field relasi tetap dilarang diubah
-                'data.*.ujian_id' => 'prohibited',
-                'data.*.dosen_id' => 'prohibited',
-                'data.*.komponen_penilaian_id' => 'prohibited',
+                // field relasi tetap dilarang diubah (dalam format camelCase)
+                'data.*.ujianId' => 'prohibited',
+                'data.*.dosenId' => 'prohibited',
+                'data.*.komponenPenilaianId' => 'prohibited',
             ];
         }
 
@@ -32,9 +62,9 @@ class UpdatePenilaianRequest extends FormRequest
         return [
             'nilai' => 'required|numeric|min:0|max:100',
             'komentar' => 'nullable|string|max:255',
-            'ujian_id' => 'prohibited',
-            'dosen_id' => 'prohibited',
-            'komponen_penilaian_id' => 'prohibited',
+            'ujianId' => 'prohibited',
+            'dosenId' => 'prohibited',
+            'komponenPenilaianId' => 'prohibited',
         ];
     }
 }
