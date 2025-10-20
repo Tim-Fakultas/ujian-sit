@@ -149,4 +149,24 @@ class StoreUjianRequest extends FormRequest
             'keputusan' => $this->input('keputusan'),
         ]);
     }
+
+        public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $penguji = collect([
+                $this->ketua_penguji,
+                $this->sekretaris_penguji,
+                $this->penguji_1,
+                $this->penguji_2,
+            ])->filter()->values();
+
+            if ($penguji->count() !== $penguji->unique()->count()) {
+                $validator->errors()->add(
+                    'penguji',
+                    'Setiap dosen penguji harus berbeda (tidak boleh ada duplikat).'
+                );
+            }
+        });
+    }
+
 }

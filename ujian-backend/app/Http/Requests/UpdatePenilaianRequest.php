@@ -57,6 +57,9 @@ class UpdatePenilaianRequest extends FormRequest
                 'data.*.komponenPenilaianId' => 'prohibited',
             ];
         }
+Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException
+The PUT method is not supported for route /. Supported methods: GET, HEAD.
+
 
         // Kalau update satu record saja
         return [

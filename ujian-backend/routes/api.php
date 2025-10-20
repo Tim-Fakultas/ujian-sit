@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\DaftarKehadiranController;
 use App\Http\Controllers\RuanganController;
 ?><?php
 
@@ -73,6 +74,8 @@ Route::apiResource('ujian', UjianController::class);
 Route::apiResource('jadwal-penguji', JadwalPengujiController::class);
 
 Route::apiResource('ruangan', RuanganController::class);
+
+Route::apiResource('daftar-kehadiran', DaftarKehadiranController::class);
 
 // Route::apiResource('judul', JudulController::class);
 

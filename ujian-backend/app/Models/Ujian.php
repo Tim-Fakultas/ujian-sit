@@ -109,6 +109,11 @@ class Ujian extends Model
         return $this->belongsTo(Ruangan::class, 'ruangan_id');
     }
 
+    public function daftarKehadiran()
+    {
+        return $this->hasMany(DaftarKehadiran::class, 'ujian_id');
+    }
+
     public function hitungNilaiAkhir()
 {
     $nilaiPerDosen = $this->penilaian()

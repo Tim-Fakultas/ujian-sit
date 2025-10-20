@@ -127,4 +127,27 @@ class UpdateUjianRequest extends FormRequest
         // Hanya merge field yang terisi untuk menghindari overwrite null
         $this->merge(array_filter($mapped, fn($v) => $v !== null));
     }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            // Ambil semua nilai penguji dari request, atau dari data ujian lama
+            $ujian = $this->route('ujian'); // dari Route Model Binding
+            $penguji = collect([
+                $this->input('ketuaPenguji') ?? $this->input('ketua_penguji') ?? $ujian->ketua_penguji,
+                $this->input('sekretarisPenguji') ?? $this->input('sekretaris_penguji') ?? $ujian->sekretaris_penguji,
+                $this->input('penguji1') ?? $this->input('penguji_1') ?? $ujian->penguji_1,
+                $this->input('penguji2') ?? $this->input('penguji_2') ?? $ujian->penguji_2,
+            ])->filter()->values();
+
+            // Jika ada duplikat antar semua penguji (lama + baru)
+            if ($penguji->count() !== $penguji->unique()->count()) {
+                $validator->errors()->add(
+                    'penguji',
+                    'Setiap dosen penguji harus berbeda (tidak boleh ada duplikat).'
+                );
+            }
+        });
+    }
+
 }
