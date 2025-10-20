@@ -1,23 +1,19 @@
-import { ruanganResponse } from "@/types/ruangan";
-
-export async function getRuangan(prodiId: number) {
+export async function getRuangan() {
   try {
-    const response = await fetch(`http://localhost:8000/api/ruangan`, {
-      next: { revalidate: 0 },
+    const res = await fetch("http://localhost:8000/api/ruangan", {
+      headers: {
+        Accept: "application/json",
+      },
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch ruangan");
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("❌ Gagal fetch ruangan:", text);
+      throw new Error(text);
     }
-
-    const data: ruanganResponse = await response.json();
-    // Filter ruangan sesuai prodi, tapi tetap return dalam bentuk ruanganResponse
-    const filteredData = {
-      data: data.data.filter((ruangan) => ruangan.prodi.id === prodiId),
-    };
-    return filteredData;
-  } catch (error) {
-    console.error("Error fetching ruangan:", error);
-    return { data: [] };
+    const result = await res.json();
+    return result;
+  } catch (err) {
+    console.error("💥 Error getRuangan:", err);
+    throw err;
   }
 }

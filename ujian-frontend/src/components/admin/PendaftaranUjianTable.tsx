@@ -25,20 +25,34 @@ import {
   DialogTitle,
   DialogDescription,
 } from "../ui/dialog";
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
+import { updateStatusPendaftaranUjian } from "@/actions/pendaftaranUjian";
 
 export default function PendaftaranUjianTable({
   pendaftaranUjian,
+  loggedInUser,
 }: {
   pendaftaranUjian: PendaftaranUjian[];
   loggedInUser: MahasiswaUser;
 }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState<PendaftaranUjian | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   function handleDetail(pendaftaran: PendaftaranUjian) {
     setSelected(pendaftaran);
     setOpenDialog(true);
+  }
+
+  async function handleBuatSKUjian(id: number) {
+    try {
+      await updateStatusPendaftaranUjian(id, "diterima");
+      setOpenDialog(false);
+      // window.location.reload(); // Atau trigger re-fetch data jika pakai SWR/React Query
+    } catch (err) {
+      alert("Gagal memperbarui status pendaftaran ujian.");
+      console.error(err);
+    }
   }
 
   return (
@@ -237,7 +251,7 @@ export default function PendaftaranUjianTable({
                   )}
                 </div>
                 {/* Actions */}
-                <div className="flex gap-2 pt-4 justify-end border-t mt-4 pt-4">
+                <div className="flex gap-2  justify-end border-t mt-4 pt-4">
                   <Button
                     variant="destructive"
                     onClick={() => {
@@ -248,11 +262,14 @@ export default function PendaftaranUjianTable({
                   </Button>
                   <Button
                     variant="default"
+                    disabled={isPending}
                     onClick={() => {
-                      // TODO: implement aksi buat SK ujian
+                      if (selected) {
+                        startTransition(() => handleBuatSKUjian(selected.id));
+                      }
                     }}
                   >
-                    Buat SK Ujian
+                    {isPending ? "Memproses..." : "Buat SK Ujian"}
                   </Button>
                 </div>
               </div>

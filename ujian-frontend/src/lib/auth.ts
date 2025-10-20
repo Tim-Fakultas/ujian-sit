@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 
 // Fungsi utama membaca cookie auth (real backend + dummy fallback)
-export function getAuthFromCookies() {
-  const cookieStore = cookies();
+export async function getAuthFromCookies() {
+  const cookieStore = await cookies();
 
   // Cookie dari backend Laravel (token + user JSON)
   const token = cookieStore.get("token")?.value || null;

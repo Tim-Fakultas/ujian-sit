@@ -18,6 +18,11 @@ import {
 import { Pencil, Eye } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { UserCheck } from "lucide-react";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Button } from "../ui/button";
+import { MoreVertical } from "lucide-react";
+import PenilaianModal from "./PenilaianModal";
 
 interface JadwalUjianTableProps {
   jadwalUjian: Ujian[];
@@ -28,48 +33,12 @@ export default function JadwalUjianTable({
 }: JadwalUjianTableProps) {
   const [selected, setSelected] = useState<Ujian | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
-  const [openPenilaian, setOpenPenilaian] = useState(false);
   const [openRekapitulasi, setOpenRekapitulasi] = useState(false);
   const [openDaftarHadir, setOpenDaftarHadir] = useState(false);
-  const [penilaian, setPenilaian] = useState({
-    efektivitas: 0,
-    motivasi: 0,
-    literatur: 0,
-    metodologi: 0,
-    sikap: 0,
-    bimbingan: 0,
-  });
-
-  // Bobot sesuai gambar
-  const bobot = {
-    efektivitas: 20,
-    motivasi: 15,
-    literatur: 15,
-    metodologi: 15,
-    sikap: 20,
-    bimbingan: 15,
-  };
-
-  // Hitung total skor akhir
-  const skorAkhir = useMemo(() => {
-    return (
-      (penilaian.efektivitas * bobot.efektivitas) / 100 +
-      (penilaian.motivasi * bobot.motivasi) / 100 +
-      (penilaian.literatur * bobot.literatur) / 100 +
-      (penilaian.metodologi * bobot.metodologi) / 100 +
-      (penilaian.sikap * bobot.sikap) / 100 +
-      (penilaian.bimbingan * bobot.bimbingan) / 100
-    );
-  }, [penilaian]);
-
-  // Helper untuk nilai huruf
-  function getNilaiHuruf(rata: number) {
-    if (rata >= 80) return "A";
-    if (rata >= 70) return "B";
-    if (rata >= 60) return "C";
-    if (rata >= 56) return "D";
-    return "E";
-  }
+  // Tambahan untuk modal penilaian
+  const [openPenilaian, setOpenPenilaian] = useState(false);
+  const [penilaian, setPenilaian] = useState<Record<string, number>>({});
+  const [skorAkhir, setSkorAkhir] = useState(0);
 
   // Modal sederhana
   function Modal({
@@ -93,12 +62,14 @@ export default function JadwalUjianTable({
           className={`bg-white rounded shadow-lg p-6 relative ${className}`}
           onClick={(e) => e.stopPropagation()}
         >
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
             onClick={onClose}
           >
             &times;
-          </button>
+          </Button>
           {children}
         </div>
       </div>
@@ -108,13 +79,12 @@ export default function JadwalUjianTable({
   return (
     <div>
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-accent">
           <TableRow>
             <TableHead>No</TableHead>
             <TableHead>Nama Mahasiswa</TableHead>
             <TableHead>Jenis Ujian</TableHead>
             <TableHead>Ruangan</TableHead>
-            <TableHead>Peran Anda</TableHead>
             <TableHead>Waktu</TableHead>
             <TableHead>Aksi</TableHead>
           </TableRow>
@@ -133,23 +103,31 @@ export default function JadwalUjianTable({
               const waktuSelesai = ujian.waktuSelesai?.slice(0, 5) ?? "-";
               // Ambil tanggal dari jadwalUjian (support "YYYY-MM-DD HH:mm:ss" atau "YYYY-MM-DDTHH:mm:ss")
               const tanggal = ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-";
-              const waktuGabung = `${
+              function capitalize(str: string) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+              }
+              const waktuGabung = `${capitalize(
                 ujian.hariUjian ?? "-"
-              }, ${tanggal} ${waktuMulai} - ${waktuSelesai}`;
+              )}, ${tanggal}, ${waktuMulai} - ${waktuSelesai}`;
+
               return (
                 <TableRow key={ujian.id}>
                   <TableCell>{idx + 1}</TableCell>
                   <TableCell>{ujian.mahasiswa?.nama ?? "-"}</TableCell>
                   <TableCell>{ujian.jenisUjian?.namaJenis ?? "-"}</TableCell>
-                  <TableCell>{ujian.ruangan ?? "-"}</TableCell>
-                  <TableCell>{ujian.peranPenguji ?? "-"}</TableCell>
-                  <TableCell>{waktuGabung}</TableCell>
+                  <TableCell>{ujian.ruangan.namaRuangan ?? "-"}</TableCell>
+                  <TableCell className="w-[20px]">{waktuGabung}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button className="px-2 py-1 rounded bg-gray-200 text-xs">
-                          Menu
-                        </button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="p-2"
+                          aria-label="Aksi"
+                        >
+                          <MoreVertical size={20} />
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
@@ -159,14 +137,6 @@ export default function JadwalUjianTable({
                           }}
                         >
                           <Eye size={16} className="mr-2" /> Detail
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelected(ujian);
-                            setOpenPenilaian(true);
-                          }}
-                        >
-                          <Pencil size={16} className="mr-2" /> Penilaian
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => {
@@ -185,6 +155,14 @@ export default function JadwalUjianTable({
                         >
                           <UserCheck size={16} className="mr-2" /> Daftar Hadir
                           Ujian
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelected(ujian);
+                            setOpenPenilaian(true);
+                          }}
+                        >
+                          <Pencil size={16} className="mr-2" /> Penilaian
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -215,7 +193,8 @@ export default function JadwalUjianTable({
                             {ujian.jenisUjian?.namaJenis}
                           </div>
                           <div>
-                            <strong>Ruangan:</strong> {ujian.ruangan}
+                            <strong>Ruangan:</strong>{" "}
+                            {ujian.ruangan.namaRuangan}
                           </div>
                           <div>
                             <strong>Waktu:</strong> {waktuGabung}
@@ -234,318 +213,11 @@ export default function JadwalUjianTable({
                           <div>
                             <strong>Penguji 2:</strong> {ujian.penguji2?.nama}
                           </div>
-                          <div>
+                          {/* <div>
                             <strong>Peran Anda:</strong>{" "}
                             {ujian.peranPenguji ?? "-"}
-                          </div>
+                          </div> */}
                         </div>
-                      </div>
-                    </Modal>
-
-                    {/* Modal Penilaian */}
-                    <Modal
-                      open={openPenilaian && selected?.id === ujian.id}
-                      onClose={() => setOpenPenilaian(false)}
-                      className="max-h-[80vh] overflow-y-auto w-full max-w-2xl"
-                    >
-                      <div>
-                        <h2 className="text-lg font-bold mb-2">
-                          Form Penilaian Ujian
-                        </h2>
-                        <form
-                          className="space-y-3"
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            // TODO: handle submit
-                          }}
-                        >
-                          {/* Identitas */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="block text-sm font-medium mb-1">
-                                Nama Mahasiswa
-                              </label>
-                              <input
-                                type="text"
-                                className="border rounded px-2 py-1 w-full"
-                                value={ujian.mahasiswa?.nama ?? ""}
-                                readOnly
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium mb-1">
-                                NIM
-                              </label>
-                              <input
-                                type="text"
-                                className="border rounded px-2 py-1 w-full"
-                                value={ujian.mahasiswa?.nim ?? ""}
-                                readOnly
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium mb-1">
-                                Prodi
-                              </label>
-                              <input
-                                type="text"
-                                className="border rounded px-2 py-1 w-full"
-                                value={ujian.mahasiswa?.prodi?.namaProdi ?? ""}
-                                readOnly
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium mb-1">
-                                Ketua Penguji
-                              </label>
-                              <input
-                                type="text"
-                                className="border rounded px-2 py-1 w-full"
-                                value={ujian.ketuaPenguji?.nama ?? ""}
-                                readOnly
-                              />
-                            </div>
-                          </div>
-                          {/* Penilaian */}
-                          <div className="mt-4">
-                            <table className="w-full text-sm border">
-                              <thead>
-                                <tr className="bg-gray-100">
-                                  <th className="border px-2 py-1">Kriteria</th>
-                                  <th className="border px-2 py-1">
-                                    Bobot (%)
-                                  </th>
-                                  <th className="border px-2 py-1">Skor</th>
-                                  <th className="border px-2 py-1">
-                                    Bobot*Skor
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr>
-                                  <td className="border px-2 py-1">
-                                    Efektivitas Pendahuluan
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {bobot.efektivitas}
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    <input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.efektivitas}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          efektivitas: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16 border rounded px-1"
-                                    />
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {(
-                                      (penilaian.efektivitas *
-                                        bobot.efektivitas) /
-                                      100
-                                    ).toFixed(2)}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td className="border px-2 py-1">
-                                    Motivasi pada Penelitian
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {bobot.motivasi}
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    <input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.motivasi}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          motivasi: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16 border rounded px-1"
-                                    />
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {(
-                                      (penilaian.motivasi * bobot.motivasi) /
-                                      100
-                                    ).toFixed(2)}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td className="border px-2 py-1">
-                                    Literatur Review
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {bobot.literatur}
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    <input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.literatur}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          literatur: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16 border rounded px-1"
-                                    />
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {(
-                                      (penilaian.literatur * bobot.literatur) /
-                                      100
-                                    ).toFixed(2)}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td className="border px-2 py-1">
-                                    Metodologi
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {bobot.metodologi}
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    <input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.metodologi}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          metodologi: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16 border rounded px-1"
-                                    />
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {(
-                                      (penilaian.metodologi *
-                                        bobot.metodologi) /
-                                      100
-                                    ).toFixed(2)}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td className="border px-2 py-1">
-                                    Sikap/Presentasi
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {bobot.sikap}
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    <input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.sikap}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          sikap: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16 border rounded px-1"
-                                    />
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {(
-                                      (penilaian.sikap * bobot.sikap) /
-                                      100
-                                    ).toFixed(2)}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td className="border px-2 py-1">
-                                    Bimbingan
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {bobot.bimbingan}
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    <input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.bimbingan}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          bimbingan: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16 border rounded px-1"
-                                    />
-                                  </td>
-                                  <td className="border px-2 py-1">
-                                    {(
-                                      (penilaian.bimbingan * bobot.bimbingan) /
-                                      100
-                                    ).toFixed(2)}
-                                  </td>
-                                </tr>
-                                <tr className="font-bold bg-gray-50">
-                                  <td className="border px-2 py-1">
-                                    Skor Akhir
-                                  </td>
-                                  <td className="border px-2 py-1">Total</td>
-                                  <td className="border px-2 py-1"></td>
-                                  <td className="border px-2 py-1">
-                                    {skorAkhir.toFixed(2)}
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                          <button
-                            type="submit"
-                            className="w-full bg-blue-500 text-white rounded py-2 mt-2"
-                          >
-                            Simpan Penilaian
-                          </button>
-                          {/* Catatan interval nilai */}
-                          <div className="mt-4 text-sm border rounded p-3 bg-gray-50">
-                            <strong>Catatan interval nilai:</strong>
-                            <table className="mt-2">
-                              <tbody>
-                                <tr>
-                                  <td className="pr-2">A</td>
-                                  <td>: 80.00 – 100</td>
-                                </tr>
-                                <tr>
-                                  <td className="pr-2">B</td>
-                                  <td>: 70.00 – 79.99</td>
-                                </tr>
-                                <tr>
-                                  <td className="pr-2">C</td>
-                                  <td>: 60.00 – 69.99</td>
-                                </tr>
-                                <tr>
-                                  <td className="pr-2">D</td>
-                                  <td>: 56.00 – 59.99</td>
-                                </tr>
-                                <tr>
-                                  <td className="pr-2">E</td>
-                                  <td>: {"<"} 55.99</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </form>
                       </div>
                     </Modal>
 
@@ -572,76 +244,96 @@ export default function JadwalUjianTable({
                           </div>
                           <div>
                             <strong>Judul Proposal:</strong>{" "}
-                            {ujian.judulPenelitian ?? "-"}
+                            <span className="break-words whitespace-normal">
+                              {ujian.judulPenelitian ?? "-"}
+                            </span>
                           </div>
                         </div>
-                        <table className="w-full text-sm border">
-                          <thead>
-                            <tr className="bg-gray-100">
-                              <th className="border px-2 py-1 w-8">No.</th>
-                              <th className="border px-2 py-1">Nama</th>
-                              <th className="border px-2 py-1">Jabatan</th>
-                              <th className="border px-2 py-1">Angka Nilai</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="border px-2 py-1">1.</td>
-                              <td className="border px-2 py-1">
-                                {ujian.ketuaPenguji?.nama ?? "-"}
-                              </td>
-                              <td className="border px-2 py-1">
-                                Ketua Penguji
-                              </td>
-                              <td className="border px-2 py-1">90</td>
-                            </tr>
-                            <tr>
-                              <td className="border px-2 py-1">2.</td>
-                              <td className="border px-2 py-1">
-                                {ujian.sekretarisPenguji?.nama ?? "-"}
-                              </td>
-                              <td className="border px-2 py-1">
-                                Sekretaris Penguji
-                              </td>
-                              <td className="border px-2 py-1">90</td>
-                            </tr>
-                            <tr>
-                              <td className="border px-2 py-1">3.</td>
-                              <td className="border px-2 py-1">
-                                {ujian.penguji1?.nama ?? "-"}
-                              </td>
-                              <td className="border px-2 py-1">Penguji I</td>
-                              <td className="border px-2 py-1">90</td>
-                            </tr>
-                            <tr>
-                              <td className="border px-2 py-1">4.</td>
-                              <td className="border px-2 py-1">
-                                {ujian.penguji2?.nama ?? "-"}
-                              </td>
-                              <td className="border px-2 py-1">Penguji II</td>
-                              <td className="border px-2 py-1">90</td>
-                            </tr>
-                            {/* Hitung total, rata-rata, huruf */}
-                            <tr>
-                              <td className="border px-2 py-1" colSpan={3}>
-                                Total Angka Nilai
-                              </td>
-                              <td className="border px-2 py-1">360</td>
-                            </tr>
-                            <tr>
-                              <td className="border px-2 py-1" colSpan={3}>
-                                Nilai Rata-rata
-                              </td>
-                              <td className="border px-2 py-1">90.00</td>
-                            </tr>
-                            <tr>
-                              <td className="border px-2 py-1" colSpan={3}>
-                                Nilai Huruf
-                              </td>
-                              <td className="border px-2 py-1">A</td>
-                            </tr>
-                          </tbody>
-                        </table>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm border border-collapse">
+                            <thead>
+                              <tr className="bg-gray-100">
+                                <th className="border px-2 py-1 w-8">No.</th>
+                                <th className="border px-2 py-1">Nama</th>
+                                <th className="border px-2 py-1">Jabatan</th>
+                                <th className="border px-2 py-1">
+                                  Angka Nilai
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td className="border px-2 py-1">1.</td>
+                                <td className="border px-2 py-1">
+                                  {ujian.ketuaPenguji?.nama ?? "-"}
+                                </td>
+                                <td className="border px-2 py-1">
+                                  Ketua Penguji
+                                </td>
+                                <td className="border px-2 py-1">90</td>
+                              </tr>
+                              <tr>
+                                <td className="border px-2 py-1">2.</td>
+                                <td className="border px-2 py-1">
+                                  {ujian.sekretarisPenguji?.nama ?? "-"}
+                                </td>
+                                <td className="border px-2 py-1">
+                                  Sekretaris Penguji
+                                </td>
+                                <td className="border px-2 py-1">90</td>
+                              </tr>
+                              <tr>
+                                <td className="border px-2 py-1">3.</td>
+                                <td className="border px-2 py-1">
+                                  {ujian.penguji1?.nama ?? "-"}
+                                </td>
+                                <td className="border px-2 py-1">Penguji I</td>
+                                <td className="border px-2 py-1">90</td>
+                              </tr>
+                              <tr>
+                                <td className="border px-2 py-1">4.</td>
+                                <td className="border px-2 py-1">
+                                  {ujian.penguji2?.nama ?? "-"}
+                                </td>
+                                <td className="border px-2 py-1">Penguji II</td>
+                                <td className="border px-2 py-1">90</td>
+                              </tr>
+                              <tr>
+                                <td
+                                  className="border px-2 py-1 font-semibold"
+                                  colSpan={3}
+                                >
+                                  Total Angka Nilai
+                                </td>
+                                <td className="border px-2 py-1 font-semibold">
+                                  360
+                                </td>
+                              </tr>
+                              <tr>
+                                <td
+                                  className="border px-2 py-1 font-semibold"
+                                  colSpan={3}
+                                >
+                                  Nilai Rata-rata
+                                </td>
+                                <td className="border px-2 py-1 font-semibold">
+                                  90.00
+                                </td>
+                              </tr>
+                              <tr>
+                                <td
+                                  className="border px-2 py-1 font-semibold"
+                                  colSpan={3}
+                                >
+                                  Nilai Huruf
+                                </td>
+                                <td className="border px-2 py-1 font-semibold">
+                                  A
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </Modal>
 
@@ -653,7 +345,7 @@ export default function JadwalUjianTable({
                     >
                       <div>
                         <h2 className="text-lg font-bold mb-2">
-                          Daftar Hadir Ujian {ujian.jenisUjian?.namaJenis}
+                          Daftar Hadir {ujian.jenisUjian?.namaJenis}
                         </h2>
                         <div className="mb-4 mt-2">
                           <div className="flex flex-col gap-1">
@@ -663,7 +355,8 @@ export default function JadwalUjianTable({
                               {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"}
                             </span>
                             <span>
-                              <strong>Ruangan:</strong> {ujian.ruangan ?? "-"}
+                              <strong>Ruangan:</strong>{" "}
+                              {ujian.ruangan.namaRuangan ?? "-"}
                             </span>
                           </div>
                         </div>
@@ -693,9 +386,12 @@ export default function JadwalUjianTable({
                               </TableCell>
                               <TableCell>Ketua Penguji</TableCell>
                               <TableCell className="text-center">
-                                <button className="px-3 py-1 rounded bg-green-500 text-white text-xs hover:bg-green-600 transition">
+                                <Button
+                                  size="sm"
+                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
+                                >
                                   Hadir
-                                </button>
+                                </Button>
                               </TableCell>
                             </TableRow>
                             <TableRow>
@@ -711,9 +407,12 @@ export default function JadwalUjianTable({
                               </TableCell>
                               <TableCell>Sekretaris Penguji</TableCell>
                               <TableCell className="text-center">
-                                <button className="px-3 py-1 rounded bg-green-500 text-white text-xs hover:bg-green-600 transition">
+                                <Button
+                                  size="sm"
+                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
+                                >
                                   Hadir
-                                </button>
+                                </Button>
                               </TableCell>
                             </TableRow>
                             <TableRow>
@@ -729,9 +428,12 @@ export default function JadwalUjianTable({
                               </TableCell>
                               <TableCell>Penguji I</TableCell>
                               <TableCell className="text-center">
-                                <button className="px-3 py-1 rounded bg-green-500 text-white text-xs hover:bg-green-600 transition">
+                                <Button
+                                  size="sm"
+                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
+                                >
                                   Hadir
-                                </button>
+                                </Button>
                               </TableCell>
                             </TableRow>
                             <TableRow>
@@ -747,15 +449,28 @@ export default function JadwalUjianTable({
                               </TableCell>
                               <TableCell>Penguji II</TableCell>
                               <TableCell className="text-center">
-                                <button className="px-3 py-1 rounded bg-green-500 text-white text-xs hover:bg-green-600 transition">
+                                <Button
+                                  size="sm"
+                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
+                                >
                                   Hadir
-                                </button>
+                                </Button>
                               </TableCell>
                             </TableRow>
                           </TableBody>
                         </Table>
                       </div>
                     </Modal>
+
+                    {/* Modal Penilaian */}
+                    <PenilaianModal
+                      open={openPenilaian && selected?.id === ujian.id}
+                      onClose={() => setOpenPenilaian(false)}
+                      ujian={ujian}
+                      penilaian={penilaian}
+                      setPenilaian={setPenilaian}
+                      skorAkhir={skorAkhir}
+                    />
                   </TableCell>
                 </TableRow>
               );

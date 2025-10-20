@@ -36,24 +36,35 @@ export interface Ujian {
   jadwalUjian: string;
   waktuMulai: string;
   waktuSelesai: string;
-  ruangan: string;
+  ruangan: {
+    id: number;
+    namaRuangan: string;
+  };
   ketuaPenguji: {
+    nidn: string | null;
+    nip: string | null;
     id: number;
     nama: string;
-  }
+  };
   peranPenguji?: string | null;
   sekretarisPenguji: {
     id: number;
+    nidn: string | null;
+    nip: string | null;
     nama: string;
-  }
+  };
   penguji1: {
     id: number;
+    nidn: string | null;
+    nip: string | null;
     nama: string;
-  }
+  };
   penguji2: {
     id: number;
+    nidn: string | null;
+    nip: string | null;
     nama: string;
-  }
+  };
   hasil: string | null;
   nilaiAkhir: number | null;
   catatan: string | null;

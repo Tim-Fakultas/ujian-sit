@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useActionState } from "react";
+import { getRuangan } from "@/actions/ruangan";
 import { useFormStatus } from "react-dom";
 import { toast } from "sonner";
 
@@ -22,7 +23,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -76,8 +76,22 @@ export default function PendaftaranUjianTable({
 
   const [mahasiswaDetail, setMahasiswaDetail] =
     useState<MahasiswaDetail | null>(null);
-  const [penguji1, setPenguji1] = useState("");
-  const [penguji2, setPenguji2] = useState("");
+  const [penguji1, setPenguji1] = useState<string>("");
+  const [penguji2, setPenguji2] = useState<string>("");
+
+  // State for ruangan
+  const [ruanganList, setRuanganList] = useState<
+    { id: number; namaRuangan: string }[]
+  >([]);
+  const [ruangan, setRuangan] = useState<string>("");
+
+  useEffect(() => {
+    getRuangan().then((res) => {
+      if (res && Array.isArray(res.data)) {
+        setRuanganList(res.data);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (selected) {
@@ -87,12 +101,23 @@ export default function PendaftaranUjianTable({
     }
   }, [selected]);
 
+  type JadwalkanUjianState = {
+    success: boolean;
+    message: string;
+  };
+
   const jadwalkanUjianReducer = async (
-    state: { success: boolean; message?: string },
+    state: JadwalkanUjianState,
     formData: FormData
-  ) => {
+  ): Promise<JadwalkanUjianState> => {
     const result = await jadwalkanUjianAction(formData);
-    return result;
+    return {
+      success: result?.success ?? false,
+      message:
+        result && "message" in result && typeof result.message === "string"
+          ? result.message
+          : "",
+    };
   };
 
   // Ganti useFormState dengan useActionState
@@ -110,7 +135,15 @@ export default function PendaftaranUjianTable({
     }
   }, [state]);
 
-  const { pending } = useFormStatus();
+  // Reset penguji jika dialog ditutup
+  useEffect(() => {
+    if (!open) {
+      setPenguji1("");
+      setPenguji2("");
+      setSelected(null);
+      setMahasiswaDetail(null);
+    }
+  }, [open]);
 
   return (
     <div className="rounded-sm overflow-x-auto">
@@ -228,12 +261,14 @@ export default function PendaftaranUjianTable({
                 value={String(mahasiswaDetail?.pembimbing2?.id ?? "")}
                 required
               />
+              {/* Hidden input for penguji1 */}
               <input
                 type="hidden"
                 name="penguji1"
                 value={penguji1 ?? ""}
                 required
               />
+              {/* Hidden input for penguji2 */}
               <input
                 type="hidden"
                 name="penguji2"
@@ -246,6 +281,7 @@ export default function PendaftaranUjianTable({
                 type="text"
                 value={mahasiswaDetail?.pembimbing1?.nama || "-"}
                 readOnly
+                name="ketuaPengujiNama"
               />
 
               <Label>Sekretaris Penguji</Label>
@@ -253,6 +289,7 @@ export default function PendaftaranUjianTable({
                 type="text"
                 value={mahasiswaDetail?.pembimbing2?.nama || "-"}
                 readOnly
+                name="sekretarisPengujiNama"
               />
 
               <Label>Tanggal Ujian</Label>
@@ -270,12 +307,23 @@ export default function PendaftaranUjianTable({
               </div>
 
               <Label>Ruangan</Label>
-              <Input
-                type="text"
+              <select
                 name="ruangan"
-                placeholder="Ruang A1"
+                value={ruangan}
+                onChange={(e) => setRuangan(e.target.value)}
                 required
-              />
+                className="w-full border rounded px-2 py-2"
+              >
+                <option value="" disabled>
+                  Pilih Ruangan
+                </option>
+                {ruanganList.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.namaRuangan}
+                  </option>
+                ))}
+              </select>
+              <input type="hidden" name="ruangan" value={ruangan} />
 
               <Label>Dosen Penguji 1</Label>
               <Select value={penguji1} onValueChange={setPenguji1}>

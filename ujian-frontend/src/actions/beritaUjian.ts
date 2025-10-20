@@ -1,4 +1,4 @@
-import { UjianResponse } from "@/types/Ujian";
+import { BeritaUjianResponse } from "@/types/beritaUjian";
 
 export async function getBeritaUjian(prodiId: number) {
   try {
@@ -10,13 +10,13 @@ export async function getBeritaUjian(prodiId: number) {
       throw new Error("Failed to fetch ujian ujian by prodi");
     }
 
-    const data: UjianResponse = await response.json();
+    const data: BeritaUjianResponse = await response.json();
     const filteredData = data.data.filter(
       (ujian) =>
         ujian.mahasiswa.prodi.id === prodiId &&
         ujian.pendaftaranUjian.status === "selesai"
     );
-    return { data: filteredData };
+    return filteredData;
   } catch (error) {
     console.error("Error fetching ujian ujian by prodi:", error);
     return [];

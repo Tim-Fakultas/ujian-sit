@@ -123,7 +123,7 @@ export function AppSidebarClient({ user }: { user: any }) {
       items: [
         { title: "Rancangan Penelitian", url: "/mahasiswa/pengajuan-ranpel" },
         { title: "Daftar Ujian", url: "/mahasiswa/pendaftaran-ujian" },
-        { title: "Penilaian", url: "/mahasiswa/penilaian" },
+        { title: "Jadwal Ujian", url: "/mahasiswa/jadwal-ujian" },
       ],
     },
   ];

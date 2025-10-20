@@ -1,14 +1,13 @@
 import { getBeritaUjian } from "@/actions/beritaUjian";
 import { getLoggedInUser } from "@/actions/pendaftaranUjian";
 import BeritaAcaraUjianTable from "@/components/sekprodi/pendaftaran-ujian/beritaAcaraTable";
-import { UjianResponse } from "@/types/Ujian";
+import { BeritaUjian } from "@/types/beritaUjian";
 
 export default async function BeritaUjianPage() {
   const loggedInUser = await getLoggedInUser();
-  const rawBeritaUjian = await getBeritaUjian(loggedInUser?.prodi.id);
-  const beritaUjian: UjianResponse = Array.isArray(rawBeritaUjian)
-    ? { data: rawBeritaUjian }
-    : rawBeritaUjian;
+  const beritaUjian: BeritaUjian[] = await getBeritaUjian(
+    loggedInUser?.prodi.id
+  );
 
   return (
     <div className="p-6">

@@ -100,7 +100,7 @@ export async function getPendaftaranUjianByProdi(prodiId: number) {
 
 export async function getLoggedInUser() {
   try {
-    const cookieStore = cookies(); // Hapus 'await'
+    const cookieStore = await cookies();
     const userCookie = cookieStore.get("user");
 
     if (!userCookie) {
@@ -170,8 +170,34 @@ export async function createPendaftaranUjian({
 
     const result = await response.json();
     return result;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Lempar error ke frontend agar bisa ditampilkan
+    throw error;
+  }
+}
+
+export async function updateStatusPendaftaranUjian(id: number, status: string) {
+  try {
+    const API_URL =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+    const response = await fetch(`${API_URL}/pendaftaran-ujian/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ status }),
+      next: { revalidate: 0 },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gagal update status: ${response.status} - ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error update status pendaftaran ujian:", error);
     throw error;
   }
 }

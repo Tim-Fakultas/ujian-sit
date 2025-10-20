@@ -14,16 +14,46 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Eye } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 export default function RekapitulasiNilaiTable() {
   const [openDetail, setOpenDetail] = useState(false);
+
+  function Modal({
+    open,
+    onClose,
+    children,
+    className = "",
+  }: {
+    open: boolean;
+    onClose: () => void;
+    children: React.ReactNode;
+    className?: string;
+  }) {
+    if (!open) return null;
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-white/80"
+        onClick={onClose}
+      >
+        <div
+          className={`bg-white rounded shadow-lg p-6 relative max-w-2xl w-full ${className}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            onClick={onClose}
+          >
+            &times;
+          </Button>
+          {children}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -48,9 +78,14 @@ export default function RekapitulasiNilaiTable() {
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="px-2 py-1 rounded bg-gray-200 text-xs flex items-center gap-1">
-                    <MoreVertical size={16} /> More
-                  </button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="p-2"
+                    aria-label="Aksi"
+                  >
+                    <MoreVertical size={20} />
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setOpenDetail(true)}>
@@ -58,11 +93,13 @@ export default function RekapitulasiNilaiTable() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Dialog open={openDetail} onOpenChange={setOpenDetail}>
-                <DialogContent className="max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Detail Rekap Nilai Skripsi</DialogTitle>
-                  </DialogHeader>
+              <Modal open={openDetail} onClose={() => setOpenDetail(false)}>
+                <div className="max-h-[90vh] overflow-y-auto">
+                  <div className="mb-4">
+                    <h2 className="text-lg font-bold mb-2">
+                      Detail Rekap Nilai Skripsi
+                    </h2>
+                  </div>
                   <div className="mb-2">
                     <div>
                       <strong>Hari/Tanggal:</strong> Senin, 1 Januari 2023
@@ -168,8 +205,8 @@ export default function RekapitulasiNilaiTable() {
                       </TableBody>
                     </Table>
                   </div>
-                </DialogContent>
-              </Dialog>
+                </div>
+              </Modal>
             </TableCell>
           </TableRow>
         </TableBody>

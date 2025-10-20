@@ -50,7 +50,9 @@ export function middleware(request: NextRequest) {
           if (!userRole || !allowedRoles.includes(userRole)) {
             // Redirect to appropriate dashboard based on user's actual role
             if (userRole === "super admin") {
-              return NextResponse.redirect(new URL("/super-admin", request.url));
+              return NextResponse.redirect(
+                new URL("/super-admin", request.url)
+              );
             } else if (userRole === "dosen") {
               return NextResponse.redirect(new URL("/dosen", request.url));
             } else if (userRole === "mahasiswa") {
@@ -65,8 +67,7 @@ export function middleware(request: NextRequest) {
           }
         }
       }
-    } catch (error) {
-      // Invalid user data, redirect to login
+    } catch {
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }

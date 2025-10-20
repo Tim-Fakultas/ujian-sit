@@ -5,7 +5,6 @@ export interface JadwalUjian {
     id: number;
     nama: string;
     nim: string;
-  
   };
 
   rancangan_penelitian: {
@@ -18,34 +17,31 @@ export interface JadwalUjian {
     nama: string;
   };
 
-  penguji_1: {
+  penguji_1?: {
     id: number;
     nama: string;
-  };
+  } | null;
 
-  penguji_2: {
+  penguji_2?: {
     id: number;
     nama: string;
-  };
+  } | null;
 
-  ruangan: {
+  ruangan?: string | null;
+
+  ketua_penguji?: {
     id: number;
     nama: string;
-  };
+  } | null;
 
-  ketua_penguji: {
+  sekretaris_penguji?: {
     id: number;
     nama: string;
-  };
+  } | null;
 
-  sekretaris_penguji: {
-    id: number;
-    nama: string;
-  };
-
-  tanggal: string;
-  hari: string;
+  tanggal?: string | null;
+  hari?: string | null;
   status: "dijadwalkan" | "sedang_berlangsung" | "selesai";
-  waktu_mulai: string;
-  waktu_selesai: string;
+  waktu_mulai?: string | null;
+  waktu_selesai?: string | null;
 }
