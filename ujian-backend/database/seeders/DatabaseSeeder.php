@@ -130,7 +130,7 @@ class DatabaseSeeder extends Seeder
         $kaprodi = User::factory()->create([
                 'id' => 9,
                 'nip_nim' => 'Kaprodi12345',
-                'nama' => 'Kaprodi Testiana, M.Kom',
+                'nama' => 'Kaprodi, M.Kom',
                 'email' => 'kaprodi@radenfatah.ac.id',
                 'password' => bcrypt('Kaprodi12345'),
                 'prodi_id' => 1,
@@ -141,7 +141,7 @@ class DatabaseSeeder extends Seeder
         $sekprodi = User::factory()->create([
                 'id' => 10,
                 'nip_nim' => 'Sekprodi12345',
-                'nama' => 'Sekprodi Testiana, M.Kom',
+                'nama' => 'Sekprodi, M.Kom',
                 'email' => 'sekprodi@radenfatah.ac.id',
                 'password' => bcrypt('Sekprodi12345'),
                 'prodi_id' => 1,
