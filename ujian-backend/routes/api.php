@@ -75,7 +75,7 @@ Route::apiResource('jadwal-penguji', JadwalPengujiController::class);
 
 Route::apiResource('ruangan', RuanganController::class);
 
-Route::apiResource('daftar-kehadiran', DaftarKehadiranController::class);
+Route::apiResource('daftar-hadir', DaftarKehadiranController::class);
 
 // Route::apiResource('judul', JudulController::class);
 

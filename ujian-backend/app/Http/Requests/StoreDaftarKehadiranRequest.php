@@ -24,7 +24,6 @@ class StoreDaftarKehadiranRequest extends FormRequest
         return [
             'ujianId' => 'required|exists:ujian,id',
             'dosenId' => 'required|exists:dosen,id',
-            'peran' => 'required|in:ketua_penguji,sekretaris_penguji,penguji_1,penguji_2',
             'statusKehadiran' => 'required|in:hadir,tidak hadir,izin',
             'keterangan' => 'nullable|string|max:255',
         ];
@@ -35,7 +34,6 @@ class StoreDaftarKehadiranRequest extends FormRequest
         $this->merge([
             'ujian_id' => $this->input('ujianId'),
             'dosen_id' => $this->input('dosenId'),
-            'peran' => $this->peran,
             'status_kehadiran' => $this->input('statusKehadiran'),
             'keterangan' => $this->keterangan,
         ]);

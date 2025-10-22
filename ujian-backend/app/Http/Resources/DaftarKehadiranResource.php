@@ -18,7 +18,7 @@ class DaftarKehadiranResource extends JsonResource
             'id' => $this->id,
             'ujianId' => $this->ujian_id,
             'dosenId' => $this->dosen_id,
-            'peran' => $this->peran,
+            // 'peran' => $this->peran,
             'statusKehadiran' => $this->status_kehadiran,
             'keterangan' => $this->keterangan,
             'createdAt' => $this->created_at,
