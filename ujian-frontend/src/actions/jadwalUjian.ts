@@ -1,4 +1,5 @@
 "use server";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { UjianResponse } from "@/types/Ujian";
 import { z } from "zod";
 
@@ -45,7 +46,7 @@ export async function getJadwalaUjianByProdi(prodiId: number) {
         ujian.mahasiswa.prodi.id === prodiId &&
         ujian.pendaftaranUjian.status === "dijadwalkan"
     );
-    return filteredData ;
+    return filteredData;
   } catch (error) {
     console.error("Error fetching ujian ujian by prodi:", error);
     return [];
@@ -110,16 +111,16 @@ export async function getJadwalUjianByProdiByDosen({
   }
 }
 
+import { cookies } from "next/headers";
+
 const JadwalUjianSchema = z.object({
-  pendaftaranUjianId: z.coerce
-    .number()
-    .min(1, "ID pendaftaran ujian tidak valid"),
+  ujianId: z.coerce.number().min(1, "ID pendaftaran ujian tidak valid"),
   mahasiswaId: z.coerce.number().min(1, "ID mahasiswa tidak valid"),
   jenisUjianId: z.coerce.number().min(1, "ID jenis ujian tidak valid"),
   tanggalUjian: z.string().nonempty("Tanggal ujian wajib diisi"),
   waktuMulai: z.string().nonempty("Waktu mulai wajib diisi"),
   waktuSelesai: z.string().nonempty("Waktu selesai wajib diisi"),
-  ruangan: z.string().min(1, "Nama ruangan minimal 3 karakter"),
+  ruangan: z.string().min(1, "Nama ruangan wajib diisi"),
   ketuaPenguji: z.coerce.number().min(1, "Ketua penguji tidak valid"),
   sekretarisPenguji: z.coerce.number().min(1, "Sekretaris penguji tidak valid"),
   penguji1: z.coerce.number().min(1, "Dosen penguji 1 wajib diisi"),
@@ -128,9 +129,7 @@ const JadwalUjianSchema = z.object({
 
 export async function jadwalkanUjianAction(formData: FormData) {
   try {
-    // Ambil data dari form
     const rawData = Object.fromEntries(formData.entries());
-    // Validasi pakai Zod
     const parsed = JadwalUjianSchema.safeParse(rawData);
     if (!parsed.success) {
       const firstError =
@@ -138,8 +137,9 @@ export async function jadwalkanUjianAction(formData: FormData) {
         "Form tidak valid";
       throw new Error(firstError);
     }
+
     const {
-      pendaftaranUjianId,
+      ujianId,
       tanggalUjian,
       ruangan,
       waktuMulai,
@@ -148,27 +148,48 @@ export async function jadwalkanUjianAction(formData: FormData) {
       penguji2,
     } = parsed.data;
 
-    // PUT ke API ujian/idujian
-    const ujianRes = await fetch(
-      `http://localhost:8000/api/ujian/${pendaftaranUjianId}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jadwalUjian: tanggalUjian,
-          ruanganId: Number(ruangan),
-          waktuMulai,
-          waktuSelesai,
-          penguji1: Number(penguji1),
-          penguji2: Number(penguji2),
-        }),
-        cache: "no-store",
-      }
-    );
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
 
-    if (!ujianRes.ok) {
-      const text = await ujianRes.text();
-      throw new Error(`Gagal menjadwalkan ujian: ${text}`);
+    if (!token) {
+      throw new Error("Token tidak ditemukan. Silakan login ulang.");
+    }
+
+    const res = await fetch(`http://localhost:8000/api/ujian/${ujianId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        jadwal_ujian: tanggalUjian,
+        ruangan_id: Number(ruangan),
+        waktu_mulai: waktuMulai,
+        waktu_selesai: waktuSelesai,
+        penguji_1: Number(penguji1),
+        penguji_2: Number(penguji2),
+      }),
+      cache: "no-store",
+    });
+
+    // 🧠 kalau gagal, baca JSON error dari Laravel
+    if (!res.ok) {
+      const text = await res.text();
+
+      try {
+        const data = JSON.parse(text);
+        if (data.errors) {
+          let combined = Object.values(data.errors).flat().join(", ");
+          combined = combined
+            .replaceAll("The ", "")
+            .replaceAll(" field and ", " dan ")
+            .replaceAll(" must be different.", " harus berbeda.");
+          throw new Error(combined);
+        }
+        throw new Error(data.message || "Gagal menjadwalkan ujian");
+      } catch {
+        throw new Error("Gagal menjadwalkan ujian: " + text);
+      }
     }
 
     return { success: true };

@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Ujian } from "@/types/Ujian";
 import {
   DropdownMenu,
@@ -15,21 +15,23 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../ui/dropdown-menu";
-import { Pencil, Eye } from "lucide-react";
+import { Pencil, Eye, X } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { UserCheck } from "lucide-react";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
 import { MoreVertical } from "lucide-react";
 import PenilaianModal from "./PenilaianModal";
+import Modal from "../Modal";
+import { Button } from "../ui/button";
+import { setHadirUjian } from "@/actions/daftarHadirUjian";
 
 interface JadwalUjianTableProps {
   jadwalUjian: Ujian[];
+  currentDosenId: number; // tambahkan ini
 }
 
 export default function JadwalUjianTable({
   jadwalUjian,
+  currentDosenId,
 }: JadwalUjianTableProps) {
   const [selected, setSelected] = useState<Ujian | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
@@ -39,41 +41,28 @@ export default function JadwalUjianTable({
   const [openPenilaian, setOpenPenilaian] = useState(false);
   const [penilaian, setPenilaian] = useState<Record<string, number>>({});
   const [skorAkhir, setSkorAkhir] = useState(0);
+  const [hadirLoading, setHadirLoading] = useState<number | null>(null);
 
-  // Modal sederhana
-  function Modal({
-    open,
-    onClose,
-    children,
-    className = "",
-  }: {
-    open: boolean;
-    onClose: () => void;
-    children: React.ReactNode;
-    className?: string;
-  }) {
-    if (!open) return null;
-    return (
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-white/80"
-        onClick={onClose}
-      >
-        <div
-          className={`bg-white rounded shadow-lg p-6 relative ${className}`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-            onClick={onClose}
-          >
-            &times;
-          </Button>
-          {children}
-        </div>
-      </div>
-    );
+  async function handleHadir(dosenId: number, ujianId: number) {
+    setHadirLoading(ujianId);
+    try {
+      await setHadirUjian(currentDosenId, ujianId);
+    } catch (err) {
+      console.error("Error setting hadir ujian:", err);
+      // Optional: tampilkan error
+    } finally {
+      setHadirLoading(null);
+    }
+  }
+
+  // Fungsi untuk menentukan peran penguji
+  function getPeranPenguji(ujian: Ujian, dosenId: number): string | null {
+    if (ujian.ketuaPenguji?.id === Number(dosenId)) return "Ketua Penguji";
+    if (ujian.sekretarisPenguji?.id === Number(dosenId))
+      return "Sekretaris Penguji";
+    if (ujian.penguji1?.id === Number(dosenId)) return "Penguji 1";
+    if (ujian.penguji2?.id === Number(dosenId)) return "Penguji 2";
+    return null;
   }
 
   return (
@@ -86,6 +75,9 @@ export default function JadwalUjianTable({
             <TableHead>Jenis Ujian</TableHead>
             <TableHead>Ruangan</TableHead>
             <TableHead>Waktu</TableHead>
+            <TableHead>Peran Anda</TableHead>
+            <TableHead>Nilai</TableHead>
+            <TableHead>Hasil</TableHead>
             <TableHead>Aksi</TableHead>
           </TableRow>
         </TableHeader>
@@ -109,6 +101,7 @@ export default function JadwalUjianTable({
               const waktuGabung = `${capitalize(
                 ujian.hariUjian ?? "-"
               )}, ${tanggal}, ${waktuMulai} - ${waktuSelesai}`;
+              const peranPenguji = getPeranPenguji(ujian, currentDosenId);
 
               return (
                 <TableRow key={ujian.id}>
@@ -116,7 +109,32 @@ export default function JadwalUjianTable({
                   <TableCell>{ujian.mahasiswa?.nama ?? "-"}</TableCell>
                   <TableCell>{ujian.jenisUjian?.namaJenis ?? "-"}</TableCell>
                   <TableCell>{ujian.ruangan.namaRuangan ?? "-"}</TableCell>
-                  <TableCell className="w-[20px]">{waktuGabung}</TableCell>
+                  <TableCell className="w-[20px]">
+                    <div className="flex flex-col">
+                      <span>
+                        {capitalize(ujian.hariUjian ?? "-")}, {tanggal}
+                      </span>
+                      <span>
+                        {waktuMulai} - {waktuSelesai}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{peranPenguji ?? "-"}</TableCell>
+                  <TableCell>{ujian.nilaiAkhir ?? "-"}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-semibold ${
+                        ujian.hasil?.toLowerCase() === "lulus"
+                          ? "bg-green-100 text-green-700"
+                          : ujian.hasil?.toLowerCase() === "tidak lulus"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {ujian.hasil ?? "-"}
+                    </span>
+                  </TableCell>
+
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -213,10 +231,9 @@ export default function JadwalUjianTable({
                           <div>
                             <strong>Penguji 2:</strong> {ujian.penguji2?.nama}
                           </div>
-                          {/* <div>
-                            <strong>Peran Anda:</strong>{" "}
-                            {ujian.peranPenguji ?? "-"}
-                          </div> */}
+                          <div>
+                            <strong>Peran Anda:</strong> {peranPenguji ?? "-"}
+                          </div>
                         </div>
                       </div>
                     </Modal>
@@ -368,7 +385,7 @@ export default function JadwalUjianTable({
                               <TableHead>NIP/NIDN</TableHead>
                               <TableHead>Jabatan</TableHead>
                               <TableHead className="text-center">
-                                Hadir
+                                Action
                               </TableHead>
                             </TableRow>
                           </TableHeader>
@@ -386,12 +403,22 @@ export default function JadwalUjianTable({
                               </TableCell>
                               <TableCell>Ketua Penguji</TableCell>
                               <TableCell className="text-center">
-                                <Button
-                                  size="sm"
-                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                >
-                                  Hadir
-                                </Button>
+                                {ujian.ketuaPenguji?.id === currentDosenId ? (
+                                  <Button
+                                    size="sm"
+                                    className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
+                                    disabled={hadirLoading === ujian.id}
+                                    onClick={() =>
+                                      handleHadir(currentDosenId, ujian.id)
+                                    }
+                                  >
+                                    {hadirLoading === ujian.id
+                                      ? "Loading..."
+                                      : "Hadir"}
+                                  </Button>
+                                ) : (
+                                  "-"
+                                )}
                               </TableCell>
                             </TableRow>
                             <TableRow>
@@ -407,12 +434,23 @@ export default function JadwalUjianTable({
                               </TableCell>
                               <TableCell>Sekretaris Penguji</TableCell>
                               <TableCell className="text-center">
-                                <Button
-                                  size="sm"
-                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                >
-                                  Hadir
-                                </Button>
+                                {ujian.sekretarisPenguji?.id ===
+                                currentDosenId ? (
+                                  <Button
+                                    size="sm"
+                                    className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
+                                    disabled={hadirLoading === ujian.id}
+                                    onClick={() =>
+                                      handleHadir(currentDosenId, ujian.id)
+                                    }
+                                  >
+                                    {hadirLoading === ujian.id
+                                      ? "Loading..."
+                                      : "Hadir"}
+                                  </Button>
+                                ) : (
+                                  "-"
+                                )}
                               </TableCell>
                             </TableRow>
                             <TableRow>
@@ -428,12 +466,22 @@ export default function JadwalUjianTable({
                               </TableCell>
                               <TableCell>Penguji I</TableCell>
                               <TableCell className="text-center">
-                                <Button
-                                  size="sm"
-                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                >
-                                  Hadir
-                                </Button>
+                                {ujian.penguji1?.id === currentDosenId ? (
+                                  <Button
+                                    size="sm"
+                                    className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
+                                    disabled={hadirLoading === ujian.id}
+                                    onClick={() =>
+                                      handleHadir(currentDosenId, ujian.id)
+                                    }
+                                  >
+                                    {hadirLoading === ujian.id
+                                      ? "Loading..."
+                                      : "Hadir"}
+                                  </Button>
+                                ) : (
+                                  "-"
+                                )}
                               </TableCell>
                             </TableRow>
                             <TableRow>
@@ -449,12 +497,22 @@ export default function JadwalUjianTable({
                               </TableCell>
                               <TableCell>Penguji II</TableCell>
                               <TableCell className="text-center">
-                                <Button
-                                  size="sm"
-                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                >
-                                  Hadir
-                                </Button>
+                                {ujian.penguji2?.id === currentDosenId ? (
+                                  <Button
+                                    size="sm"
+                                    className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
+                                    disabled={hadirLoading === ujian.id}
+                                    onClick={() =>
+                                      handleHadir(currentDosenId, ujian.id)
+                                    }
+                                  >
+                                    {hadirLoading === ujian.id
+                                      ? "Loading..."
+                                      : "Hadir"}
+                                  </Button>
+                                ) : (
+                                  "-"
+                                )}
                               </TableCell>
                             </TableRow>
                           </TableBody>

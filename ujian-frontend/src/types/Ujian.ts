@@ -23,7 +23,7 @@ export interface JenisUjian {
 
 export interface PendaftaranUjian {
   id: number;
-  status: "menunggu" | "dijadwalkan" | "selesai";
+  status: "menunggu" | "diterima" | "dijadwalkan" | "selesai";
 }
 
 export interface Ujian {
