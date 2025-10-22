@@ -40,32 +40,18 @@ import { Eye, MoreVertical } from "lucide-react";
 import { getMahasiswaById } from "@/actions/mahasiswa";
 import { getJenisUjianColor, getStatusColor, truncateTitle } from "@/lib/utils";
 import { jadwalkanUjianAction } from "@/actions/jadwalUjian";
-
-type PendaftaranUjian = {
-  id: number | string;
-  mahasiswa: {
-    id: number | string;
-    nama: string;
-  };
-  ranpel: {
-    judulPenelitian: string;
-  };
-  jenisUjian: {
-    id: number | string;
-    namaJenis: string;
-  };
-  status: string;
-};
+import { Ujian } from "@/types/Ujian";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function PendaftaranUjianTable({
-  pendaftaranUjian,
+  ujianList,
   dosen,
 }: {
-  pendaftaranUjian: PendaftaranUjian[];
+  ujianList: Ujian[];
   dosen: { data: { id: number | string; nama: string }[] };
 }) {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<PendaftaranUjian | null>(null);
+  const [selected, setSelected] = useState<Ujian | null>(null);
   type MahasiswaDetail = {
     id: number | string;
     nama: string;
@@ -73,6 +59,12 @@ export default function PendaftaranUjianTable({
     pembimbing2?: { id: number | string; nama: string };
     // Add other fields as needed
   };
+
+  const token = useAuthStore((state) => state.token);
+
+  useEffect(() => {
+    console.log("🔑 Token dari Zustand:", token);
+  }, [token]);
 
   const [mahasiswaDetail, setMahasiswaDetail] =
     useState<MahasiswaDetail | null>(null);
@@ -159,27 +151,27 @@ export default function PendaftaranUjianTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {pendaftaranUjian.map((p, i) => (
-            <TableRow key={p.id}>
+          {ujianList.map((u, i) => (
+            <TableRow key={u.id}>
               <TableCell>{i + 1}</TableCell>
-              <TableCell>{p.mahasiswa.nama}</TableCell>
-              <TableCell>{truncateTitle(p.ranpel.judulPenelitian)}</TableCell>
+              <TableCell>{u.mahasiswa.nama}</TableCell>
+              <TableCell>{truncateTitle(u.judulPenelitian)}</TableCell>
               <TableCell>
                 <span
                   className={`px-2 py-1 rounded text-xs font-semibold inline-block ${getJenisUjianColor(
-                    p.jenisUjian.namaJenis
+                    u.jenisUjian.namaJenis
                   )}`}
                 >
-                  {p.jenisUjian.namaJenis}
+                  {u.jenisUjian.namaJenis}
                 </span>
               </TableCell>
               <TableCell>
                 <span
                   className={`px-2 py-1 rounded text-xs ${getStatusColor(
-                    p.status
+                    u.pendaftaranUjian.status
                   )}`}
                 >
-                  {p.status}
+                  {u.pendaftaranUjian.status}
                 </span>
               </TableCell>
               <TableCell>
@@ -190,12 +182,12 @@ export default function PendaftaranUjianTable({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setSelected(p)}>
+                    <DropdownMenuItem onClick={() => setSelected(u)}>
                       <Eye size={16} /> Lihat Detail
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        setSelected(p);
+                        setSelected(u);
                         setOpen(true);
                       }}
                     >
@@ -222,21 +214,10 @@ export default function PendaftaranUjianTable({
           )}
 
           {selected && mahasiswaDetail && (
-            <form
-              action={formAction}
-              className="space-y-3"
-              onSubmit={() => {
-                console.log(
-                  "DEBUG: akan submit dengan penguji1 =",
-                  penguji1,
-                  "penguji2 =",
-                  penguji2
-                );
-              }}
-            >
+            <form action={formAction} className="space-y-3">
               <input
                 type="hidden"
-                name="pendaftaranUjianId"
+                name="ujianId"
                 value={String(selected?.id ?? "")}
               />
               <input

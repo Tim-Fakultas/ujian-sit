@@ -1,5 +1,6 @@
 "use server";
 
+import { Ujian } from "@/types/Ujian";
 import { cookies } from "next/headers";
 
 interface PendaftaranUjianResponse {
@@ -76,22 +77,22 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
 
 export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
   try {
-    const response = await fetch(
-      `http://localhost:8000/api/pendaftaran-ujian`,
-      {
-        next: { revalidate: 0 },
-      }
-    );
+    const response = await fetch(`http://localhost:8000/api/ujian`, {
+      next: { revalidate: 0 },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch pendaftaran ujian by prodi");
     }
 
-    const data: PendaftaranUjianResponse = await response.json();
+    const data = await response.json();
     const filteredData = data.data.filter(
-      (pendaftaran) =>
-        pendaftaran.mahasiswa.prodiId.id === prodiId &&
-        pendaftaran.status !== "menunggu"
+      (ujian: {
+        mahasiswa: { prodi: { id: number } };
+        pendaftaranUjian: { status: string };
+      }) =>
+        ujian.mahasiswa.prodi.id === prodiId 
+        // ujian.pendaftaranUjian.status === "diterima"
     );
     return filteredData;
   } catch (error) {

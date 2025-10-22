@@ -122,7 +122,6 @@ export default function JadwalUjianTable({
             <TableHead>Nama Mahasiswa</TableHead>
             <TableHead>Jenis Ujian</TableHead>
             <TableHead>Ruangan</TableHead>
-            <TableHead>Peran Anda</TableHead>
             <TableHead>Waktu</TableHead>
             <TableHead>Aksi</TableHead>
           </TableRow>
@@ -149,8 +148,7 @@ export default function JadwalUjianTable({
                   <TableCell>{idx + 1}</TableCell>
                   <TableCell>{ujian.mahasiswa?.nama ?? "-"}</TableCell>
                   <TableCell>{ujian.jenisUjian?.namaJenis ?? "-"}</TableCell>
-                  <TableCell>{ujian.ruangan ?? "-"}</TableCell>
-                  <TableCell>{ujian.peranPenguji ?? "-"}</TableCell>
+                  <TableCell>{ujian.ruangan.namaRuangan ?? "-"}</TableCell>
                   <TableCell>{waktuGabung}</TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -228,7 +226,8 @@ export default function JadwalUjianTable({
                             {ujian.jenisUjian?.namaJenis}
                           </div>
                           <div>
-                            <strong>Ruangan:</strong> {ujian.ruangan}
+                            <strong>Ruangan:</strong>{" "}
+                            {ujian.ruangan.namaRuangan}
                           </div>
                           <div>
                             <strong>Waktu:</strong> {waktuGabung}
@@ -716,7 +715,8 @@ export default function JadwalUjianTable({
                               {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"}
                             </span>
                             <span>
-                              <strong>Ruangan:</strong> {ujian.ruangan ?? "-"}
+                              <strong>Ruangan:</strong>{" "}
+                              {ujian.ruangan.namaRuangan ?? "-"}
                             </span>
                           </div>
                         </div>

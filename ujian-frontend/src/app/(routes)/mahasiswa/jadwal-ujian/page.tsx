@@ -1,6 +1,6 @@
 import { getJadwalUjianByMahasiswaId } from "@/actions/jadwalUjian";
 import { getLoggedInUser } from "@/actions/pendaftaranUjian";
-import JadwalUjianTable from "@/components/dosen/JadwalUjianTable";
+import JadwalUjianTable from "@/components/mahasiswa/jadwal-ujian/JadwalUjianTable";
 import { Dosen } from "@/types/Dosen";
 
 export default async function JadwalUjianPage() {
