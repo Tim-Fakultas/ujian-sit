@@ -14,7 +14,6 @@ class DaftarKehadiran extends Model
     protected $fillable = [
         'ujian_id',
         'dosen_id',
-        'peran',
         'status_kehadiran',
         'keterangan',
     ];

@@ -24,8 +24,15 @@ class DaftarKehadiranController extends Controller
     public function store(StoreDaftarKehadiranRequest $request)
     {
         $request->validated();
-        $daftarKehadiran = DaftarKehadiran::create($request->all());
-        return new DaftarKehadiranResource($daftarKehadiran);
+        $daftarKehadiran = request()->only([
+            'ujian_id',
+            'dosen_id',
+            'status_kehadiran',
+            'keterangan',
+        ]);
+        $daftarHadir = DaftarKehadiran::create($daftarKehadiran);
+
+        return new DaftarKehadiranResource($daftarHadir);
     }
 
     /**
@@ -39,12 +46,15 @@ class DaftarKehadiranController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDaftarKehadiranRequest $request, DaftarKehadiran $daftarKehadiran)
+    public function update(UpdateDaftarKehadiranRequest $request, DaftarKehadiran $daftar_hadir)
     {
-        $request->validated();
-        $daftarKehadiran->update($request->all());
-        return new DaftarKehadiranResource($daftarKehadiran);
+        $data = $request->validated();
+        $daftar_hadir->update($data);
+
+        return new DaftarKehadiranResource($daftar_hadir);
     }
+
+
 
     /**
      * Remove the specified resource from storage.
