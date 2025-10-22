@@ -74,6 +74,32 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
   }
 }
 
+export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/api/pendaftaran-ujian`,
+      {
+        next: { revalidate: 0 },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch pendaftaran ujian by prodi");
+    }
+
+    const data: PendaftaranUjianResponse = await response.json();
+    const filteredData = data.data.filter(
+      (pendaftaran) =>
+        pendaftaran.mahasiswa.prodiId.id === prodiId &&
+        pendaftaran.status !== "menunggu"
+    );
+    return filteredData;
+  } catch (error) {
+    console.error("Error fetching pendaftaran ujian by prodi:", error);
+    return [];
+  }
+}
+
 export async function getPendaftaranUjianByProdi(prodiId: number) {
   try {
     const response = await fetch(
