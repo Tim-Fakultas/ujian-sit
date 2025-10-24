@@ -19,6 +19,7 @@ export async function updatePembimbingMahasiswa({
           pembimbing1,
           pembimbing2,
         }),
+        next: { revalidate: 60 },
       }
     );
     if (!response.ok) {
@@ -36,7 +37,7 @@ export async function getMahasiswaById(mahasiswaId: number) {
   try {
     const response = await fetch(
       `http://localhost:8000/api/mahasiswa/${mahasiswaId}`,
-      { next: { revalidate: 0 } }
+      { next: { revalidate: 60 } }
     );
     if (!response.ok) {
       throw new Error("Gagal mengambil data mahasiswa");

@@ -293,11 +293,15 @@ export default function DosenProfilePage() {
             <div>
               <h3 className="text-lg font-semibold mb-4">Peran Aktif</h3>
               <div className="flex flex-wrap gap-2">
-                {user?.roles.map((role) => (
-                  <Badge key={role.id} variant="secondary" className="rounded">
-                    {role.name}
+                {user?.roles && (
+                  <Badge
+                    key={user.roles[0].name}
+                    variant="secondary"
+                    className="rounded"
+                  >
+                    {user.roles[0]?.name}
                   </Badge>
-                ))}
+                )}
               </div>
             </div>
           </CardContent>

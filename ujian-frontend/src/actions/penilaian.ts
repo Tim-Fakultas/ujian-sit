@@ -19,6 +19,7 @@ export async function postPenilaian(data: {
       Accept: "application/json",
     },
     body: JSON.stringify(payload),
+    next: { revalidate: 60 },
   });
   if (!response.ok) {
     let errorText = "Gagal menyimpan penilaian";

@@ -1,13 +1,13 @@
+"use client";
+
 import { create } from "zustand";
 import Cookies from "js-cookie";
 
 interface Role {
   id?: number;
   name: string;
-  guard_name?: string;
 }
 
-// Interface data user yang akan difetch
 interface User {
   id: number;
   nip_nim?: string;
@@ -15,20 +15,9 @@ interface User {
   nidn?: string;
   nama: string;
   email: string;
-  roles: Role[];
+  role?: string; 
+  roles?: { id?: number; name: string }[];
   prodi?: {
-    id: number;
-    nama_prodi: string;
-  };
-  dosen_pa?: {
-    id: number;
-    nama: string;
-  };
-  dosenPembimbing1?: {
-    id: number;
-    nama: string;
-  };
-  dosenPembimbing2?: {
     id: number;
     nama: string;
   };
@@ -37,6 +26,7 @@ interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
+  isInitialized: boolean;
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
   clearUser: () => void;
@@ -46,6 +36,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: null,
+  isInitialized: false,
 
   setUser: (user) => {
     set({ user });
@@ -72,10 +63,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (userCookie) {
         const user = JSON.parse(userCookie);
-        set({ user, token: tokenCookie || null });
+        set({ user, token: tokenCookie || null, isInitialized: true });
+      } else {
+        set({ user: null, token: null, isInitialized: true });
       }
-    } catch (error) {
-      console.error("Failed to rehydrate auth:", error);
+    } catch (err) {
+      console.error("Failed to rehydrate auth:", err);
+      set({ user: null, token: null, isInitialized: true });
     }
   },
 }));

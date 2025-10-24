@@ -31,7 +31,6 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        {/* ✅ Jalankan client logic di komponen terpisah */}
         <AuthInitializer />
 
         <Providers>{children}</Providers>

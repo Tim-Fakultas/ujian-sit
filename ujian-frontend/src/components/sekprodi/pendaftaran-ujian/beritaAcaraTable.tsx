@@ -17,29 +17,32 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../../ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../../ui/dialog";
-import { ScrollArea } from "../../ui/scroll-area";
 import { truncateTitle } from "@/lib/utils";
+import { daftarKehadiran } from "@/types/daftarKehadiran";
 
 export default function BeritaAcaraUjianTable({
   beritaUjian,
+  daftarKehadiran,
 }: {
   beritaUjian: BeritaUjian[];
+  daftarKehadiran: daftarKehadiran[];
 }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState<BeritaUjian | null>(null);
+
+  // ✅ Ambil status kehadiran dosen berdasarkan daftarKehadiran
+  function getStatusHadir(dosenId?: number) {
+    if (!dosenId) return null;
+    const kehadiran = daftarKehadiran.find((item) => item.dosenId === dosenId);
+    return kehadiran?.statusKehadiran ?? null;
+  }
 
   function handleDetail(ujian: BeritaUjian) {
     setSelected(ujian);
     setOpenDialog(true);
   }
 
-  // Tambahkan komponen Modal sederhana
+  // Modal sederhana
   function Modal({
     open,
     onClose,
@@ -75,56 +78,35 @@ export default function BeritaAcaraUjianTable({
     );
   }
 
-  // Helper untuk header berita acara
+  // Helper teks header berita acara
   function getHeaderText(selected: BeritaUjian | null) {
     if (!selected) return null;
     const jenis = selected.jenisUjian?.namaJenis?.toLowerCase();
-    if (jenis === "ujian proposal") {
-      return (
-        <>
-          Pada hari ini,{" "}
-          <span className="underline font-semibold">
-            {selected.hariUjian ?? "[hari]"}
-          </span>
-          , tanggal{" "}
-          <span className="underline font-semibold">
-            {selected.jadwalUjian ?? "[tanggal]"}
-          </span>{" "}
-          telah dilaksanakan ujian seminar proposal skripsi:
-        </>
-      );
-    }
-    if (jenis === "ujian hasil") {
-      return (
-        <>
-          Pada hari ini,{" "}
-          <span className="underline font-semibold">
-            {selected.hariUjian ?? "[hari]"}
-          </span>
-          , tanggal{" "}
-          <span className="underline font-semibold">
-            {selected.jadwalUjian ?? "[tanggal]"}
-          </span>{" "}
-          telah dilaksanakan ujian hasil skripsi:
-        </>
-      );
-    }
-    // default skripsi
+    const hari = selected.hariUjian ?? "Senin";
+    const tanggal = selected.jadwalUjian
+      ? new Date(selected.jadwalUjian).toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : "[tanggal]";
+
+    const teks = {
+      "ujian proposal": `telah dilaksanakan ujian seminar proposal skripsi:`,
+      "ujian hasil": `telah dilaksanakan ujian hasil skripsi:`,
+      default: `telah dilaksanakan ujian skripsi:`,
+    };
+
     return (
       <>
-        Pada hari ini,{" "}
-        <span className="underline font-semibold">
-          {selected.hariUjian ?? "[hari]"}
-        </span>
-        , tanggal{" "}
-        <span className="underline font-semibold">
-          {selected.jadwalUjian ?? "[tanggal]"}
-        </span>{" "}
-        telah dilaksanakan ujian skripsi:
+        Pada hari ini, <span className="underline font-semibold">{hari}</span>,
+        tanggal <span className="underline font-semibold">{tanggal}</span>{" "}
+        {teks[jenis as keyof typeof teks] ?? teks.default}
       </>
     );
   }
 
+  // Label judul
   function getJudulLabel(selected: BeritaUjian | null) {
     if (!selected) return "Judul Skripsi";
     const jenis = selected.jenisUjian?.namaJenis?.toLowerCase();
@@ -132,77 +114,18 @@ export default function BeritaAcaraUjianTable({
     return "Judul Skripsi";
   }
 
-  function getKeputusan(selected: BeritaUjian | null) {
-    if (!selected) return null;
-    const jenis = selected.jenisUjian?.namaJenis?.toLowerCase();
-    if (jenis === "ujian proposal") {
-      return (
-        <div className="mt-8 font-semibold text-base">
-          MEMUTUSKAN: Proposal saudara dinyatakan DITERIMA / DITOLAK dengan
-          catatan terlampir.
-        </div>
-      );
-    }
-    // hasil & skripsi
-    return (
-      <>
-        <div className="mt-8 font-semibold text-base">
-          MEMUTUSKAN: Skripsi yang bersangkutan:
-        </div>
-        <div className="mt-2 space-y-1">
-          <div>
-            <input
-              type="checkbox"
-              checked={selected?.hasil === "tanpa_perbaikan"}
-              readOnly
-              className="mr-2"
-            />
-            Dapat diterima tanpa perbaikan
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              checked={selected?.hasil === "perbaikan_kecil"}
-              readOnly
-              className="mr-2"
-            />
-            Dapat diterima dengan perbaikan kecil
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              checked={selected?.hasil === "perbaikan_besar"}
-              readOnly
-              className="mr-2"
-            />
-            Dapat diterima dengan perbaikan besar
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              checked={selected?.hasil === "belum_diterima"}
-              readOnly
-              className="mr-2"
-            />
-            Belum dapat diterima
-          </div>
-        </div>
-      </>
-    );
-  }
-
   return (
     <div className="rounded-sm overflow-x-auto ">
       <Table>
         <TableHeader className="bg-accent ">
           <TableRow>
-            <TableCell className=" font-semibold">No</TableCell>
-            <TableCell className=" font-semibold">Nama Mahasiswa</TableCell>
-            <TableCell className=" font-semibold">Judul</TableCell>
-            <TableCell className=" font-semibold">Jenis</TableCell>
-            <TableCell className=" font-semibold">Nilai Akhir</TableCell>
-            <TableCell className=" font-semibold">Hasil</TableCell>
-            <TableCell className=" font-semibold">Aksi</TableCell>
+            <TableCell className="font-semibold">No</TableCell>
+            <TableCell className="font-semibold">Nama Mahasiswa</TableCell>
+            <TableCell className="font-semibold">Judul</TableCell>
+            <TableCell className="font-semibold">Jenis</TableCell>
+            <TableCell className="font-semibold">Nilai Akhir</TableCell>
+            <TableCell className="font-semibold">Hasil</TableCell>
+            <TableCell className="font-semibold">Aksi</TableCell>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -230,12 +153,7 @@ export default function BeritaAcaraUjianTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setSelected(ujian);
-                          setOpenDialog(true);
-                        }}
-                      >
+                      <DropdownMenuItem onClick={() => handleDetail(ujian)}>
                         <Eye size={16} className="mr-2" /> Detail
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -256,9 +174,14 @@ export default function BeritaAcaraUjianTable({
       {/* Modal Detail Berita Acara */}
       <Modal open={openDialog} onClose={() => setOpenDialog(false)}>
         <div className="mb-6">
-          <div className="text-base leading-relaxed">
+          <h1 className="font-semibold mb-4">
+            BERITA ACARA UJIAN SEMINAR PROPOSAL
+          </h1>
+          <div className="text-base leading-relaxed mb-4 p-4 rounded-lg bg-gray-50 border border-gray-200">
             {getHeaderText(selected)}
           </div>
+
+          {/* Detail mahasiswa */}
           <div className="grid grid-cols-12 gap-y-2 gap-x-2 mt-6 text-base">
             <div className="col-span-3 font-medium">Nama</div>
             <div className="col-span-1">:</div>
@@ -280,48 +203,137 @@ export default function BeritaAcaraUjianTable({
             </div>
           </div>
         </div>
+
+        {/* Tabel Penguji */}
         <div className="mt-6 mb-3 font-semibold text-base">Tim Penguji:</div>
-        <Table>
+        <Table className="border border-gray-200 rounded-lg overflow-hidden">
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-gray-100">
               <TableHead className="w-8">No.</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Jabatan</TableHead>
-              <TableHead>Tanda Tangan</TableHead>
+              <TableHead>Kehadiran</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell>1.</TableCell>
-              <TableCell>{selected?.ketuaPenguji?.nama ?? "-"}</TableCell>
-              <TableCell>Ketua Penguji</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>2.</TableCell>
-              <TableCell>{selected?.sekretarisPenguji?.nama ?? "-"}</TableCell>
-              <TableCell>Sekretaris Penguji</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>3.</TableCell>
-              <TableCell>{selected?.penguji1?.nama ?? "-"}</TableCell>
-              <TableCell>Penguji I</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>4.</TableCell>
-              <TableCell>{selected?.penguji2?.nama ?? "-"}</TableCell>
-              <TableCell>Penguji II</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
+            {[
+              {
+                label: "Ketua Penguji",
+                dosen: selected?.ketuaPenguji,
+              },
+              {
+                label: "Sekretaris Penguji",
+                dosen: selected?.sekretarisPenguji,
+              },
+              {
+                label: "Penguji I",
+                dosen: selected?.penguji1,
+              },
+              {
+                label: "Penguji II",
+                dosen: selected?.penguji2,
+              },
+            ].map((row, i) => {
+              const status = getStatusHadir(row.dosen?.id);
+              let statusClass = "text-red-400 italic ";
+              let statusText = "Tidak hadir";
+              if (status === "hadir") {
+                statusClass = "text-green-600 font-semibold";
+                statusText = "Hadir";
+              } else if (status === "izin") {
+                statusClass = "text-yellow-600 font-semibold";
+                statusText = "Izin";
+              }
+
+              return (
+                <TableRow key={i} className="even:bg-gray-50">
+                  <TableCell>{i + 1}.</TableCell>
+                  <TableCell>{row.dosen?.nama ?? "-"}</TableCell>
+                  <TableCell>{row.label}</TableCell>
+                  <TableCell>
+                    <span className={statusClass}>{statusText}</span>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
-        {getKeputusan(selected)}
-        <div className="mt-4">
-          <span className="font-medium text-gray-800">Catatan:</span>
-          <p className="text-gray-600">{selected?.catatan ?? "-"}</p>
+
+        {/* Keputusan / Hasil Ujian */}
+        <div className="mt-8">
+          {(() => {
+            if (!selected) return null;
+            const jenis = selected.jenisUjian?.namaJenis?.toLowerCase();
+            const hasil = selected.hasil?.toLowerCase();
+
+            // ✅ Untuk ujian proposal
+            if (jenis === "ujian proposal") {
+              let keputusanText = "DITERIMA / DITOLAK";
+              let keputusanClass = "text-gray-800";
+              if (hasil === "lulus") {
+                keputusanText = "DITERIMA";
+                keputusanClass = "text-green-700 font-semibold";
+              } else if (hasil === "tidak lulus") {
+                keputusanText = "DITOLAK";
+                keputusanClass = "text-red-700 font-semibold";
+              }
+
+              return (
+                <p className="mt-4 text-base text-gray-800 leading-relaxed">
+                  <span className="font-bold">MEMUTUSKAN:</span> Proposal
+                  saudara dinyatakan{" "}
+                  <span className={`underline ${keputusanClass}`}>
+                    {keputusanText}
+                  </span>{" "}
+                  dengan catatan terlampir.
+                </p>
+              );
+            }
+
+            // ✅ Untuk ujian hasil / skripsi
+            if (
+              jenis === "ujian hasil" ||
+              jenis === "ujian skripsi" ||
+              !jenis
+            ) {
+              let keputusanText = "";
+              let keputusanClass = "";
+
+              switch (hasil) {
+                case "tanpa_perbaikan":
+                  keputusanText = "Dapat diterima tanpa perbaikan";
+                  keputusanClass = "text-green-700 font-semibold";
+                  break;
+                case "perbaikan_kecil":
+                  keputusanText = "Dapat diterima dengan perbaikan kecil";
+                  keputusanClass = "text-yellow-700 font-semibold";
+                  break;
+                case "perbaikan_besar":
+                  keputusanText = "Dapat diterima dengan perbaikan besar";
+                  keputusanClass = "text-orange-700 font-semibold";
+                  break;
+                case "belum_diterima":
+                case "tidak lulus":
+                  keputusanText = "Belum dapat diterima";
+                  keputusanClass = "text-red-700 font-semibold";
+                  break;
+                default:
+                  keputusanText = "Belum ada hasil ujian.";
+                  keputusanClass = "text-gray-600 italic";
+              }
+
+              return (
+                <p className="mt-4 text-base text-gray-800 leading-relaxed">
+                  <span className="font-bold">MEMUTUSKAN:</span>{" "}
+                  <span className={keputusanClass}>{keputusanText}</span>.
+                </p>
+              );
+            }
+
+            return null;
+          })()}
         </div>
+
         <div className="flex justify-end mt-10">
           <Button variant="outline" onClick={() => setOpenDialog(false)}>
             Tutup

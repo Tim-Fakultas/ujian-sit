@@ -60,12 +60,6 @@ export default function PendaftaranUjianTable({
     // Add other fields as needed
   };
 
-  const token = useAuthStore((state) => state.token);
-
-  useEffect(() => {
-    console.log("🔑 Token dari Zustand:", token);
-  }, [token]);
-
   const [mahasiswaDetail, setMahasiswaDetail] =
     useState<MahasiswaDetail | null>(null);
   const [penguji1, setPenguji1] = useState<string>("");
@@ -220,61 +214,9 @@ export default function PendaftaranUjianTable({
                 name="ujianId"
                 value={String(selected?.id ?? "")}
               />
-              <input
-                type="hidden"
-                name="mahasiswaId"
-                value={String(selected?.mahasiswa?.id ?? "")}
-              />
-              <input
-                type="hidden"
-                name="jenisUjianId"
-                value={String(selected?.jenisUjian?.id ?? "")}
-              />
-              <input
-                type="hidden"
-                name="ketuaPenguji"
-                value={String(mahasiswaDetail?.pembimbing1?.id ?? "")}
-                required
-              />
-              <input
-                type="hidden"
-                name="sekretarisPenguji"
-                value={String(mahasiswaDetail?.pembimbing2?.id ?? "")}
-                required
-              />
-              {/* Hidden input for penguji1 */}
-              <input
-                type="hidden"
-                name="penguji1"
-                value={penguji1 ?? ""}
-                required
-              />
-              {/* Hidden input for penguji2 */}
-              <input
-                type="hidden"
-                name="penguji2"
-                value={penguji2 ?? ""}
-                required
-              />
-
-              <Label>Ketua Penguji</Label>
-              <Input
-                type="text"
-                value={mahasiswaDetail?.pembimbing1?.nama || "-"}
-                readOnly
-                name="ketuaPengujiNama"
-              />
-
-              <Label>Sekretaris Penguji</Label>
-              <Input
-                type="text"
-                value={mahasiswaDetail?.pembimbing2?.nama || "-"}
-                readOnly
-                name="sekretarisPengujiNama"
-              />
 
               <Label>Tanggal Ujian</Label>
-              <Input type="date" name="tanggalUjian" required />
+              <Input type="date" name="jadwalUjian" required />
 
               <div className="flex gap-2">
                 <div className="w-1/2">
@@ -289,7 +231,7 @@ export default function PendaftaranUjianTable({
 
               <Label>Ruangan</Label>
               <select
-                name="ruangan"
+                name="ruanganId"
                 value={ruangan}
                 onChange={(e) => setRuangan(e.target.value)}
                 required
@@ -299,38 +241,51 @@ export default function PendaftaranUjianTable({
                   Pilih Ruangan
                 </option>
                 {ruanganList.map((r) => (
-                  <option key={r.id} value={r.id}>
+                  <option key={r.id} value={String(r.id)}>
                     {r.namaRuangan}
                   </option>
                 ))}
               </select>
-              <input type="hidden" name="ruangan" value={ruangan} />
 
               <Label>Dosen Penguji 1</Label>
-              <Select value={penguji1} onValueChange={setPenguji1}>
+              <Select
+                value={penguji1}
+                onValueChange={setPenguji1}
+                name="penguji1"
+                required
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih Dosen" />
                 </SelectTrigger>
                 <SelectContent>
-                  {dosen.data.map((d) => (
-                    <SelectItem key={d.id} value={String(d.id)}>
-                      {d.nama}
-                    </SelectItem>
-                  ))}
+                  {dosen.data
+                    .filter((d) => String(d.id) !== penguji2)
+                    .map((d) => (
+                      <SelectItem key={d.id} value={String(d.id)}>
+                        {d.nama}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
 
               <Label>Dosen Penguji 2</Label>
-              <Select value={penguji2} onValueChange={setPenguji2}>
+              <Select
+                value={penguji2}
+                onValueChange={setPenguji2}
+                name="penguji2"
+                required
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih Dosen" />
                 </SelectTrigger>
                 <SelectContent>
-                  {dosen.data.map((d) => (
-                    <SelectItem key={d.id} value={String(d.id)}>
-                      {d.nama}
-                    </SelectItem>
-                  ))}
+                  {dosen.data
+                    .filter((d) => String(d.id) !== penguji1)
+                    .map((d) => (
+                      <SelectItem key={d.id} value={String(d.id)}>
+                        {d.nama}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
 
@@ -338,10 +293,13 @@ export default function PendaftaranUjianTable({
                 type="submit"
                 className="w-full"
                 disabled={
-                  !mahasiswaDetail?.pembimbing1?.id ||
-                  !mahasiswaDetail?.pembimbing2?.id ||
                   !penguji1 ||
-                  !penguji2
+                  !penguji2 ||
+                  !ruangan ||
+                  penguji1 === "" ||
+                  penguji2 === "" ||
+                  ruangan === "" ||
+                  penguji1 === penguji2 // prevent duplicate penguji
                 }
               >
                 Simpan Jadwal

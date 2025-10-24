@@ -11,5 +11,5 @@ export default function AuthInitializer() {
     console.log("✅ Zustand rehydrated from cookies");
   }, [initializeFromCookies]);
 
-  return null; // gak render apa-apa
+  return null;
 }

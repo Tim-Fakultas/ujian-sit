@@ -38,9 +38,9 @@ class DaftarKehadiranController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(DaftarKehadiran $daftarKehadiran)
+    public function show(DaftarKehadiran $daftar_hadir)
     {
-        return new DaftarKehadiranResource($daftarKehadiran);
+        return new DaftarKehadiranResource($daftar_hadir);
     }
 
     /**
@@ -59,9 +59,9 @@ class DaftarKehadiranController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DaftarKehadiran $daftarKehadiran)
+    public function destroy(DaftarKehadiran $daftar_hadir)
     {
-        $daftarKehadiran->delete();
+        $daftar_hadir->delete();
         return response()->json(['message' => 'Daftar kehadiran deleted successfully.'], 200);
     }
 }

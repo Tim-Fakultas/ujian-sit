@@ -15,7 +15,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../ui/dropdown-menu";
-import { Pencil, Eye, X } from "lucide-react";
+import { Pencil, Eye} from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { UserCheck } from "lucide-react";
 import { MoreVertical } from "lucide-react";
@@ -23,10 +23,11 @@ import PenilaianModal from "./PenilaianModal";
 import Modal from "../Modal";
 import { Button } from "../ui/button";
 import { setHadirUjian } from "@/actions/daftarHadirUjian";
+import { toast } from "sonner";
 
 interface JadwalUjianTableProps {
   jadwalUjian: Ujian[];
-  currentDosenId: number; // tambahkan ini
+  currentDosenId: number | undefined;
 }
 
 export default function JadwalUjianTable({
@@ -42,21 +43,29 @@ export default function JadwalUjianTable({
   const [penilaian, setPenilaian] = useState<Record<string, number>>({});
   const [skorAkhir, setSkorAkhir] = useState(0);
   const [hadirLoading, setHadirLoading] = useState<number | null>(null);
+  const [hadirSukses, setHadirSukses] = useState<{
+    [ujianId: number]: boolean;
+  }>({});
 
-  async function handleHadir(dosenId: number, ujianId: number) {
+  async function handleHadir(currentDosenId: number, ujianId: number) {
     setHadirLoading(ujianId);
     try {
       await setHadirUjian(currentDosenId, ujianId);
+      setHadirSukses((prev) => ({ ...prev, [ujianId]: true }));
+      toast.success("Kehadiran Anda telah tercatat.");
     } catch (err) {
-      console.error("Error setting hadir ujian:", err);
-      // Optional: tampilkan error
+      console.error("Error mencatat kehadiran:", err);
+      toast.error("Terjadi kesalahan saat mencatat kehadiran.");
     } finally {
       setHadirLoading(null);
     }
   }
 
   // Fungsi untuk menentukan peran penguji
-  function getPeranPenguji(ujian: Ujian, dosenId: number): string | null {
+  function getPeranPenguji(
+    ujian: Ujian,
+    dosenId: number | undefined
+  ): string | null {
     if (ujian.ketuaPenguji?.id === Number(dosenId)) return "Ketua Penguji";
     if (ujian.sekretarisPenguji?.id === Number(dosenId))
       return "Sekretaris Penguji";
@@ -407,13 +416,18 @@ export default function JadwalUjianTable({
                                   <Button
                                     size="sm"
                                     className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                    disabled={hadirLoading === ujian.id}
+                                    disabled={
+                                      hadirLoading === ujian.id ||
+                                      hadirSukses[ujian.id]
+                                    }
                                     onClick={() =>
                                       handleHadir(currentDosenId, ujian.id)
                                     }
                                   >
                                     {hadirLoading === ujian.id
                                       ? "Loading..."
+                                      : hadirSukses[ujian.id]
+                                      ? "Sudah Hadir"
                                       : "Hadir"}
                                   </Button>
                                 ) : (
@@ -439,13 +453,18 @@ export default function JadwalUjianTable({
                                   <Button
                                     size="sm"
                                     className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                    disabled={hadirLoading === ujian.id}
+                                    disabled={
+                                      hadirLoading === ujian.id ||
+                                      hadirSukses[ujian.id]
+                                    }
                                     onClick={() =>
                                       handleHadir(currentDosenId, ujian.id)
                                     }
                                   >
                                     {hadirLoading === ujian.id
                                       ? "Loading..."
+                                      : hadirSukses[ujian.id]
+                                      ? "Sudah Hadir"
                                       : "Hadir"}
                                   </Button>
                                 ) : (
@@ -470,13 +489,18 @@ export default function JadwalUjianTable({
                                   <Button
                                     size="sm"
                                     className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                    disabled={hadirLoading === ujian.id}
+                                    disabled={
+                                      hadirLoading === ujian.id ||
+                                      hadirSukses[ujian.id]
+                                    }
                                     onClick={() =>
                                       handleHadir(currentDosenId, ujian.id)
                                     }
                                   >
                                     {hadirLoading === ujian.id
                                       ? "Loading..."
+                                      : hadirSukses[ujian.id]
+                                      ? "Sudah Hadir"
                                       : "Hadir"}
                                   </Button>
                                 ) : (
@@ -501,13 +525,18 @@ export default function JadwalUjianTable({
                                   <Button
                                     size="sm"
                                     className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                    disabled={hadirLoading === ujian.id}
+                                    disabled={
+                                      hadirLoading === ujian.id ||
+                                      hadirSukses[ujian.id]
+                                    }
                                     onClick={() =>
                                       handleHadir(currentDosenId, ujian.id)
                                     }
                                   >
                                     {hadirLoading === ujian.id
                                       ? "Loading..."
+                                      : hadirSukses[ujian.id]
+                                      ? "Sudah Hadir"
                                       : "Hadir"}
                                   </Button>
                                 ) : (

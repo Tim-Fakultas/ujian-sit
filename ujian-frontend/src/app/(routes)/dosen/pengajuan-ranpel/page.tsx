@@ -1,19 +1,17 @@
-import { getLoggedInUser } from "@/actions/pendaftaranUjian";
-import { getPengajuanRanpelByDosenPA } from "@/actions/pengajuanRanpel";
+import { getCurrentUserAction } from "@/actions/loginAction";
 import PengajuanTable from "@/components/dosen/PengajuanTable";
-import { DosenUser } from "@/types/Auth";
+import { Suspense } from "react";
+import Loading from "./loading";
 
 export default async function Page() {
-  const loggedInUser: DosenUser = await getLoggedInUser();
-  console.log("Logged User:", loggedInUser);
-  const pengajuanRanpel = await getPengajuanRanpelByDosenPA(loggedInUser?.id);
+  const { user } = await getCurrentUserAction();
+
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold">Pengajuan Rancangan Penelitian</h1>
-      <PengajuanTable
-        pengajuanRanpel={pengajuanRanpel}
-        loggedUser={loggedInUser}
-      />
+      <h1 className="text-2xl font-bold">Rancangan Penelitian</h1>
+      <Suspense fallback={<Loading />}>
+        <PengajuanTable userId={user?.id} />
+      </Suspense>
     </div>
   );
 }

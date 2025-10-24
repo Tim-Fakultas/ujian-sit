@@ -27,26 +27,20 @@ interface Status {
 // MAHASISWA FUNCTIONS
 export async function getPengajuanRanpelByMahasiswaId(userId?: number) {
   try {
-    const response = await fetch("http://localhost:8000/api/pengajuan-ranpel", {
-      next: { revalidate: 0 },
-    });
+    const response = await fetch(
+      `http://localhost:8000/api/mahasiswa/${userId}/pengajuan-ranpel`,
+      {
+        cache: "no-store",
+      }
+    );
 
     if (!response.ok) {
-      throw new Error("Failed to fetch pengajuan");
+      return [];
     }
 
     const data: PengajuanRanpelResponse = await response.json();
 
-    console.log(data);
-
-    let filteredData = data.data;
-
-    if (userId) {
-      filteredData = filteredData.filter(
-        (pengajuan) => pengajuan.mahasiswa.id === userId
-      );
-    }
-    return filteredData;
+    return data.data;
   } catch (error) {
     console.error("Error fetching pengajuan ranpel:", error);
     return [];
@@ -56,7 +50,7 @@ export async function getPengajuanRanpelByMahasiswaId(userId?: number) {
 export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
   try {
     const response = await fetch("http://localhost:8000/api/pengajuan-ranpel", {
-      next: { revalidate: 0 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -93,7 +87,7 @@ export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
 export async function getPengajuanRanpelByDosenPA(dosenId?: number) {
   try {
     const response = await fetch("http://localhost:8000/api/pengajuan-ranpel", {
-      next: { revalidate: 0 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -125,7 +119,7 @@ export async function getPengajuanRanpelByDosenPA(dosenId?: number) {
 export async function getPengajuanRanpelByProdi(prodiId?: number) {
   try {
     const response = await fetch("http://localhost:8000/api/pengajuan-ranpel", {
-      next: { revalidate: 0 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -136,8 +130,7 @@ export async function getPengajuanRanpelByProdi(prodiId?: number) {
 
     // Filter by diverifikasi status first
     let filteredData = data.data.filter(
-      (pengajuan) =>
-        pengajuan.status !== "menunggu" && pengajuan.status !== "ditolak"
+      (pengajuan) => pengajuan.status !== "menunggu"
     );
 
     if (prodiId) {
@@ -168,6 +161,7 @@ export async function updateStatusPengajuanRanpel(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        cache: "no-store",
       }
     );
 

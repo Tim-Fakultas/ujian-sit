@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import {
   IconDotsVertical,
   IconLogout,
@@ -27,26 +27,47 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { logoutAction } from "@/actions/logoutAction";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-export function NavUser() {
+export function NavUser({ user: serverUser }: { user?: any }) {
   const { isMobile, open } = useSidebar();
-  const { user, initializeFromCookies } = useAuthStore();
+  const { user, setUser, initializeFromCookies } = useAuthStore();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
+  // 🚀 Pastikan store langsung punya data user dari server
   useEffect(() => {
-    initializeFromCookies();
-  }, [initializeFromCookies]);
+    if (serverUser) {
+      setUser(serverUser);
+    } else {
+      initializeFromCookies();
+    }
+  }, [serverUser, setUser, initializeFromCookies]);
 
-  if (!user) return null;
+  const currentUser = user || serverUser;
+  if (!currentUser) return null;
 
   const userRole =
-    user.roles && user.roles.length > 0 ? user.roles[0].name : "user";
+    currentUser.roles && currentUser.roles.length > 0
+      ? currentUser.roles[0].name
+      : "user";
 
-  const initials = user.nama
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  const initials =
+    currentUser.nama
+      ?.split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U";
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      await logoutAction();
+      toast.success("Berhasil logout");
+      router.replace("/login");
+    });
+  };
 
   return (
     <SidebarMenu className={`${open ? "px-2" : "px-1"}`}>
@@ -65,10 +86,10 @@ export function NavUser() {
 
               <div className="grid flex-1 text-left text-xs leading-tight min-w-0 group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-medium text-slate-800 dark:text-slate-100">
-                  {user.nama}
+                  {currentUser.nama}
                 </span>
                 <span className="text-slate-500 dark:text-slate-400 truncate text-xs">
-                  {user.nim || user.nidn || user.nip_nim}
+                  {currentUser.nim || currentUser.nidn || currentUser.nip_nim}
                 </span>
               </div>
 
@@ -91,11 +112,10 @@ export function NavUser() {
                 </Avatar>
 
                 <div className="grid flex-1 text-left text-xs leading-tight">
-                  <span className="truncate font-medium">{user.nama}</span>
+                  <span className="truncate font-medium">{currentUser.nama}</span>
                   <span className="text-muted-foreground truncate text-xs">
-                    {user.email}
+                    {currentUser.email}
                   </span>
-
                   <span className="text-muted-foreground truncate text-xs capitalize">
                     Role: {userRole}
                   </span>
@@ -108,9 +128,7 @@ export function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link
-                  href={`/${userRole
-                    .replace(/\s+/g, "-")
-                    .toLowerCase()}/profile`}
+                  href={`/${userRole.replace(/\s+/g, "-").toLowerCase()}/profile`}
                 >
                   <IconUserCircle className="mr-2 h-4 w-4" />
                   Profile
@@ -125,18 +143,17 @@ export function NavUser() {
 
             <DropdownMenuSeparator />
 
-            <form action={logoutAction}>
-              <DropdownMenuItem asChild>
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  className="w-full justify-start text-red-500 hover:text-red-600"
-                >
-                  <IconLogout className="mr-2 h-4 w-4" />
-                  Log out
-                </Button>
-              </DropdownMenuItem>
-            </form>
+            <DropdownMenuItem asChild>
+              <Button
+                onClick={handleLogout}
+                disabled={isPending}
+                variant="ghost"
+                className="w-full justify-start text-red-500 hover:text-red-600"
+              >
+                <IconLogout className="mr-2 h-4 w-4" />
+                {isPending ? "Logging out..." : "Log out"}
+              </Button>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

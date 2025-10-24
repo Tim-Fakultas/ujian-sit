@@ -24,11 +24,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { daftarKehadiran } from "@/types/daftarKehadiran";
 
 export default function JadwalUjianTable({
   jadwalUjian,
+  daftarHadir,
 }: {
   jadwalUjian: Ujian[];
+  daftarHadir: daftarKehadiran[] | null;
 }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState<Ujian | null>(null);
@@ -47,6 +50,14 @@ export default function JadwalUjianTable({
   function handleDaftarHadir(ujian: Ujian) {
     setSelectedDaftarHadir(ujian);
     setOpenDaftarHadir(true);
+  }
+
+  function cekHadir(dosenId: number) {
+    if (!daftarHadir || !daftarHadir.length) return false;
+    return !!daftarHadir.find(
+      (d: daftarKehadiran) =>
+        d.dosenId === dosenId && d.statusKehadiran === "hadir"
+    );
   }
 
   return (
@@ -75,7 +86,7 @@ export default function JadwalUjianTable({
                   {ujian.judulPenelitian}
                 </TableCell>
                 <TableCell>{ujian.jenisUjian.namaJenis}</TableCell>
-                <TableCell>{ujian?.hariUjian?.toUpperCase() || "-"}</TableCell>
+                <TableCell>{ujian?.hariUjian || "-"}</TableCell>
                 <TableCell>
                   {ujian.jadwalUjian
                     ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID")
@@ -311,90 +322,84 @@ export default function JadwalUjianTable({
                       <th className="border px-2 py-1">Nama</th>
                       <th className="border px-2 py-1">NIP/NIDN</th>
                       <th className="border px-2 py-1">Jabatan</th>
-                      <th className="border px-2 py-1">Status</th>
+                      <th className="border px-2 py-1">Kehadiran</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td className="border px-2 py-1 text-center">1.</td>
                       <td className="border px-2 py-1">
-                        {selectedDaftarHadir.ketuaPenguji
-                          ? typeof selectedDaftarHadir.ketuaPenguji === "object"
-                            ? selectedDaftarHadir.ketuaPenguji.nama
-                            : selectedDaftarHadir.ketuaPenguji
-                          : "-"}
+                        {selectedDaftarHadir.ketuaPenguji?.nama ?? "-"}
                       </td>
                       <td className="border px-2 py-1">
-                        {selectedDaftarHadir.ketuaPenguji &&
-                        typeof selectedDaftarHadir.ketuaPenguji === "object"
-                          ? selectedDaftarHadir.ketuaPenguji.nip || "-"
-                          : "-"}
+                        {selectedDaftarHadir.ketuaPenguji?.nip ?? "-"}
                       </td>
                       <td className="border px-2 py-1">Ketua Penguji</td>
-                      <td className="border px-2 py-1 text-center text-green-600 font-semibold">
-                        Hadir
+                      <td className="border px-2 py-1 text-center">
+                        {cekHadir(selectedDaftarHadir.ketuaPenguji?.id) ? (
+                          <span className="text-green-600 font-semibold">
+                            Hadir
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
                     </tr>
                     <tr>
                       <td className="border px-2 py-1 text-center">2.</td>
                       <td className="border px-2 py-1">
-                        {selectedDaftarHadir.sekretarisPenguji
-                          ? typeof selectedDaftarHadir.sekretarisPenguji ===
-                            "object"
-                            ? selectedDaftarHadir.sekretarisPenguji.nama
-                            : selectedDaftarHadir.sekretarisPenguji
-                          : "-"}
+                        {selectedDaftarHadir.sekretarisPenguji?.nama ?? "-"}
                       </td>
                       <td className="border px-2 py-1">
-                        {selectedDaftarHadir.sekretarisPenguji &&
-                        typeof selectedDaftarHadir.sekretarisPenguji ===
-                          "object"
-                          ? selectedDaftarHadir.sekretarisPenguji.nip || "-"
-                          : "-"}
+                        {selectedDaftarHadir.sekretarisPenguji?.nip ?? "-"}
                       </td>
                       <td className="border px-2 py-1">Sekretaris Penguji</td>
-                      <td className="border px-2 py-1 text-center text-green-600 font-semibold">
-                        Hadir
+                      <td className="border px-2 py-1 text-center">
+                        {cekHadir(selectedDaftarHadir.sekretarisPenguji?.id) ? (
+                          <span className="text-green-600 font-semibold">
+                            Hadir
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
                     </tr>
                     <tr>
                       <td className="border px-2 py-1 text-center">3.</td>
                       <td className="border px-2 py-1">
-                        {selectedDaftarHadir.penguji1
-                          ? typeof selectedDaftarHadir.penguji1 === "object"
-                            ? selectedDaftarHadir.penguji1.nama
-                            : selectedDaftarHadir.penguji1
-                          : "-"}
+                        {selectedDaftarHadir.penguji1?.nama ?? "-"}
                       </td>
                       <td className="border px-2 py-1">
-                        {selectedDaftarHadir.penguji1 &&
-                        typeof selectedDaftarHadir.penguji1 === "object"
-                          ? selectedDaftarHadir.penguji1.nip || "-"
-                          : "-"}
+                        {selectedDaftarHadir.penguji1?.nip ?? "-"}
                       </td>
                       <td className="border px-2 py-1">Penguji I</td>
-                      <td className="border px-2 py-1 text-center text-green-600 font-semibold">
-                        Hadir
+                      <td className="border px-2 py-1 text-center">
+                        {cekHadir(selectedDaftarHadir.penguji1?.id) ? (
+                          <span className="text-green-600 font-semibold">
+                            Hadir
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
                     </tr>
                     <tr>
                       <td className="border px-2 py-1 text-center">4.</td>
                       <td className="border px-2 py-1">
-                        {selectedDaftarHadir.penguji2
-                          ? typeof selectedDaftarHadir.penguji2 === "object"
-                            ? selectedDaftarHadir.penguji2.nama
-                            : selectedDaftarHadir.penguji2
-                          : "-"}
+                        {selectedDaftarHadir.penguji2?.nama ?? "-"}
                       </td>
                       <td className="border px-2 py-1">
-                        {selectedDaftarHadir.penguji2 &&
-                        typeof selectedDaftarHadir.penguji2 === "object"
-                          ? selectedDaftarHadir.penguji2.nip || "-"
-                          : "-"}
+                        {selectedDaftarHadir.penguji2?.nip ?? "-"}
                       </td>
                       <td className="border px-2 py-1">Penguji II</td>
-                      <td className="border px-2 py-1 text-center text-green-600 font-semibold">
-                        Hadir
+                      <td className="border px-2 py-1 text-center">
+                        {cekHadir(selectedDaftarHadir.penguji2?.id) ? (
+                          <span className="text-green-600 font-semibold">
+                            Hadir
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
                     </tr>
                   </tbody>

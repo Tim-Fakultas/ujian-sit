@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { createRancanganPenelitian } from "@/actions/rancanganPenelitian";
 import { RancanganPenelitian } from "@/types/RancanganPenelitian";
 import { toast } from "sonner";
+import revalidateAction from "@/actions/revalidateAction";
 
 interface FormProps {
   mahasiswaId: number;
@@ -38,6 +39,7 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
 
     try {
       await createRancanganPenelitian(mahasiswaId, formData);
+      await revalidateAction("/mahasiswa/pengajuan-ranpel");
       toast.success("Rancangan penelitian berhasil disimpan!");
       setFormData({
         judulPenelitian: "",

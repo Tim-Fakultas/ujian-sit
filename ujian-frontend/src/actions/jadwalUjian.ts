@@ -1,12 +1,11 @@
 "use server";
-import { useAuthStore } from "@/stores/useAuthStore";
 import { UjianResponse } from "@/types/Ujian";
 import { z } from "zod";
 
 export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
   try {
     const response = await fetch(`http://localhost:8000/api/ujian`, {
-      next: { revalidate: 0 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -33,7 +32,7 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
 export async function getJadwalaUjianByProdi(prodiId: number) {
   try {
     const response = await fetch(`http://localhost:8000/api/ujian`, {
-      next: { revalidate: 0 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -57,12 +56,12 @@ export async function getJadwalUjianByProdiByDosen({
   prodiId,
   dosenId,
 }: {
-  prodiId: number;
-  dosenId: number;
+  prodiId: number | undefined;
+  dosenId: number | undefined;
 }) {
   try {
     const response = await fetch(`http://localhost:8000/api/ujian`, {
-      next: { revalidate: 0 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -114,15 +113,10 @@ export async function getJadwalUjianByProdiByDosen({
 import { cookies } from "next/headers";
 
 const JadwalUjianSchema = z.object({
-  ujianId: z.coerce.number().min(1, "ID pendaftaran ujian tidak valid"),
-  mahasiswaId: z.coerce.number().min(1, "ID mahasiswa tidak valid"),
-  jenisUjianId: z.coerce.number().min(1, "ID jenis ujian tidak valid"),
-  tanggalUjian: z.string().nonempty("Tanggal ujian wajib diisi"),
+  jadwalUjian: z.string().nonempty("Tanggal ujian wajib diisi"),
   waktuMulai: z.string().nonempty("Waktu mulai wajib diisi"),
   waktuSelesai: z.string().nonempty("Waktu selesai wajib diisi"),
-  ruangan: z.string().min(1, "Nama ruangan wajib diisi"),
-  ketuaPenguji: z.coerce.number().min(1, "Ketua penguji tidak valid"),
-  sekretarisPenguji: z.coerce.number().min(1, "Sekretaris penguji tidak valid"),
+  ruanganId: z.coerce.number().min(1, "Ruangan wajib diisi"),
   penguji1: z.coerce.number().min(1, "Dosen penguji 1 wajib diisi"),
   penguji2: z.coerce.number().min(1, "Dosen penguji 2 wajib diisi"),
 });
@@ -139,16 +133,34 @@ export async function jadwalkanUjianAction(formData: FormData) {
     }
 
     const {
-      ujianId,
-      tanggalUjian,
-      ruangan,
+      jadwalUjian,
+      ruanganId,
       waktuMulai,
       waktuSelesai,
       penguji1,
       penguji2,
     } = parsed.data;
 
-    const cookieStore = cookies();
+    // Validasi agar tidak NaN
+    const ruanganIdNum = Number(ruanganId);
+    const penguji1Num = Number(penguji1);
+    const penguji2Num = Number(penguji2);
+
+    if (
+      isNaN(ruanganIdNum) ||
+      isNaN(penguji1Num) ||
+      isNaN(penguji2Num) ||
+      ruanganIdNum < 1 ||
+      penguji1Num < 1 ||
+      penguji2Num < 1
+    ) {
+      throw new Error(
+        "Input tidak valid: pastikan ruangan dan dosen penguji dipilih."
+      );
+    }
+
+    const ujianId = formData.get("ujianId");
+    const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
     if (!token) {
@@ -159,23 +171,22 @@ export async function jadwalkanUjianAction(formData: FormData) {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        Accept: "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        jadwal_ujian: tanggalUjian,
-        ruangan_id: Number(ruangan),
-        waktu_mulai: waktuMulai,
-        waktu_selesai: waktuSelesai,
-        penguji_1: Number(penguji1),
-        penguji_2: Number(penguji2),
+        jadwalUjian,
+        ruanganId: ruanganIdNum,
+        waktuMulai,
+        waktuSelesai,
+        penguji1: penguji1Num,
+        penguji2: penguji2Num,
       }),
       cache: "no-store",
     });
 
-    // 🧠 kalau gagal, baca JSON error dari Laravel
     if (!res.ok) {
       const text = await res.text();
-
       try {
         const data = JSON.parse(text);
         if (data.errors) {

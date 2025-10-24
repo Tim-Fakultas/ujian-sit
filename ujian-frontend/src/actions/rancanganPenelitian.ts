@@ -15,6 +15,7 @@ export async function createRancanganPenelitian(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        next: { revalidate: 60 },
       }
     );
 

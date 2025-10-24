@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { MahasiswaUser } from "@/types/Auth";
+import { User } from "@/types/Auth";
 import { Eye, MoreVertical } from "lucide-react";
 import { getJenisUjianColor, getStatusColor, truncateTitle } from "@/lib/utils";
 import { PendaftaranUjian } from "@/types/PendaftaranUjian";
@@ -30,10 +30,10 @@ import { updateStatusPendaftaranUjian } from "@/actions/pendaftaranUjian";
 
 export default function PendaftaranUjianTable({
   pendaftaranUjian,
-  loggedInUser,
+  user,
 }: {
   pendaftaranUjian: PendaftaranUjian[];
-  loggedInUser: MahasiswaUser;
+  user: User;
 }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState<PendaftaranUjian | null>(null);
