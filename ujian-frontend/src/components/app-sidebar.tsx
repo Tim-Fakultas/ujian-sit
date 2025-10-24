@@ -2,8 +2,6 @@ import { getAuthFromCookies } from "@/lib/auth";
 import { AppSidebarClient } from "./app-sidebar-client";
 
 export async function AppSidebar() {
-  // ambil data user
-  
-  const { user } = getAuthFromCookies();
+  const { user } = await getAuthFromCookies();
   return <AppSidebarClient user={user} />;
 }

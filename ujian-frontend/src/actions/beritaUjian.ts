@@ -3,7 +3,7 @@ import { BeritaUjianResponse } from "@/types/beritaUjian";
 export async function getBeritaUjian(prodiId: number) {
   try {
     const response = await fetch(`http://localhost:8000/api/ujian`, {
-      next: { revalidate: 0 },
+      next: { revalidate: 60 },
     });
 
     if (!response.ok) {

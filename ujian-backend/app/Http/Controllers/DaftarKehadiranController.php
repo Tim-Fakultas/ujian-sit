@@ -61,13 +61,7 @@ class DaftarKehadiranController extends Controller
      */
     public function destroy(DaftarKehadiran $daftar_hadir)
     {
-        try{
-            $daftar_hadir->delete();
-            return response()->json(['message' => 'Daftar kehadiran deleted successfully.'], 200);
-        }
-        catch (\Exception $e) {
-            return response()->json(['message' => 'Error deleting Daftar kehadiran.'], 500);
-        }
-
+        $daftar_hadir->delete();
+        return response()->json(['message' => 'Daftar kehadiran deleted successfully.'], 200);
     }
 }

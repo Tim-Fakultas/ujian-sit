@@ -3,24 +3,21 @@ import Form from "@/components/mahasiswa/pengajuan-ranpel/Form";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import {
-  getLoggedInUser,
-  getPengajuanRanpelByMahasiswaId,
-} from "@/actions/pengajuanRanpel";
 import { Plus } from "lucide-react";
+import { Suspense } from "react";
+import Loading from "./loading";
+import { getCurrentUserAction } from "@/actions/loginAction";
 
 export default async function Page() {
-  const loggedInUser = await getLoggedInUser();
-  console.log("Logged User:", loggedInUser);
-
-  const pengajuanRanpel = await getPengajuanRanpelByMahasiswaId(
-    loggedInUser.id
-  );
+  const { user } = await getCurrentUserAction();
 
   return (
     <div className="p-6 flex flex-col gap-6">
       <div className="w-full flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Pengajuan Rancangan Penelitian</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Rancangan Penelitian</h1>
+          <p>Lihat semua pengajuan rancangan penelitian</p>
+        </div>
 
         <Dialog>
           <DialogTrigger asChild>
@@ -33,16 +30,15 @@ export default async function Page() {
             <DialogTitle className="text-lg font-medium mb-4">
               Form Rancangan Penelitian
             </DialogTitle>
-            {loggedInUser && <Form mahasiswaId={loggedInUser.id} />}
+            {user && <Form mahasiswaId={user.id} />}
           </DialogContent>
         </Dialog>
       </div>
 
       {/* Table Pengajuan Rancangan Penelitian component */}
-      <PengajuanTable
-        pengajuanRanpel={pengajuanRanpel}
-        userId={loggedInUser.id}
-      />
+      <Suspense fallback={<Loading />}>
+        <PengajuanTable userId={user?.id} />
+      </Suspense>
     </div>
   );
 }

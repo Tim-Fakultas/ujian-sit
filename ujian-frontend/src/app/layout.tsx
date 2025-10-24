@@ -3,6 +3,7 @@ import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { Providers } from "./providers";
+import AuthInitializer from "@/components/AuthInitializer";
 
 const fontSans = Inter({
   variable: "--font-sans",
@@ -30,6 +31,8 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
+        <AuthInitializer />
+
         <Providers>{children}</Providers>
         <Toaster
           position="top-right"

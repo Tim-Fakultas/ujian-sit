@@ -3,7 +3,7 @@ import { DosenResponse } from "@/types/Dosen";
 export async function getDosen(prodiId: number) {
   try {
     const response = await fetch(`http://localhost:8000/api/dosen`, {
-      next: { revalidate: 0 },
+      cache: "no-store",
     });
 
     if (!response.ok) {

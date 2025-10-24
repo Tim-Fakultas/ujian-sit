@@ -4,6 +4,7 @@ export async function getRuangan() {
       headers: {
         Accept: "application/json",
       },
+      next: { revalidate: 60 },
     });
     if (!res.ok) {
       const text = await res.text();

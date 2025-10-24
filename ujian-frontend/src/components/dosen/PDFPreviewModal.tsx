@@ -7,20 +7,20 @@ import { getDosen } from "@/actions/dosen";
 import { updatePembimbingMahasiswa } from "@/actions/mahasiswa";
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useAuthStore } from "@/stores/useAuthStore";
+import revalidateAction from "@/actions/revalidateAction";
 
 interface PDFPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   pengajuan: PengajuanRanpel;
-  loggedUser: any;
-  onUpdated?: () => void; // Tambah prop ini
+  onUpdated?: () => void;
 }
 
 export default function PDFPreviewModal({
   isOpen,
   onClose,
   pengajuan,
-  loggedUser,
   onUpdated,
 }: PDFPreviewModalProps) {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -35,18 +35,23 @@ export default function PDFPreviewModal({
     null
   );
 
+  const { user } = useAuthStore.getState();
+  useEffect(() => {
+    console.log("Logged User in Modal:", user);
+  }, [user]);
+
   // Check if user has permission to approve/reject
   const canApproveReject =
-    loggedUser.roles[0].name === "dosen" ||
-    loggedUser.roles[0].name === "kaprodi";
+    user?.roles &&
+    (user.roles[0].name === "dosen" || user.roles[0].name === "kaprodi");
 
   useEffect(() => {
-    if (showPembimbingModal && loggedUser?.prodi?.id) {
-      getDosen(loggedUser.prodi.id).then((res) => {
+    if (showPembimbingModal && user?.prodi?.id) {
+      getDosen(user.prodi.id).then((res) => {
         setDosenList(res.data);
       });
     }
-  }, [showPembimbingModal, loggedUser]);
+  }, [showPembimbingModal, user]);
 
   if (!isOpen) return null;
 
@@ -55,9 +60,9 @@ export default function PDFPreviewModal({
     try {
       const ranpelId = pengajuan.id;
       const status =
-        loggedUser.roles[0].name === "dosen" ? "diverifikasi" : "diterima";
+        user?.roles?.[0]?.name === "dosen" ? "diverifikasi" : "diterima";
 
-      if (loggedUser.roles[0].name === "kaprodi") {
+      if (user?.roles?.[0]?.name === "kaprodi") {
         setShowPembimbingModal(true);
         setIsUpdating(false);
         return;
@@ -66,6 +71,11 @@ export default function PDFPreviewModal({
       await updateStatusPengajuanRanpel(pengajuan.mahasiswa.id, ranpelId, {
         status,
       });
+
+      const role = user?.roles?.[0]?.name;
+      if (role === "dosen" || role === "kaprodi") {
+        await revalidateAction(`/${role}/pengajuan-ranpel`);
+      }
 
       onClose();
     } catch (error) {
@@ -78,11 +88,16 @@ export default function PDFPreviewModal({
   const handleReject = async () => {
     setIsUpdating(true);
     try {
-      const ranpelId = pengajuan.id; // Assuming pengajuan has an 'id' field
+      const ranpelId = pengajuan.id;
       await updateStatusPengajuanRanpel(pengajuan.mahasiswa.id, ranpelId, {
         status: "ditolak",
       });
-      // Optionally refresh the data or show success message
+
+      const role = user?.roles?.[0]?.name;
+      if (role === "dosen" || role === "kaprodi") {
+        await revalidateAction(`/${role}/pengajuan-ranpel`);
+      }
+
       onClose();
     } catch (error) {
       console.error("Error updating status:", error);
@@ -103,8 +118,9 @@ export default function PDFPreviewModal({
       await updateStatusPengajuanRanpel(pengajuan.mahasiswa.id, pengajuan.id, {
         status: "diterima",
       });
+      await revalidateAction("/kaprodi/pengajuan-ranpel"); // tambahkan ini agar kaprodi juga revalidate
       setShowPembimbingModal(false);
-      if (onUpdated) onUpdated(); // Trigger refresh
+      if (onUpdated) onUpdated();
       onClose();
     } catch (error) {
       alert("Gagal update pembimbing atau status!" + error);

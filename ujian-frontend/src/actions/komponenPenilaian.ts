@@ -9,7 +9,7 @@ export async function getKomponenPenilaianByUjianByPeran(
 ): Promise<KomponenPenilaian[]> {
   try {
     const res = await fetch("http://localhost:8000/api/komponen-penilaian", {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     if (!res.ok) throw new Error("Gagal fetch komponen penilaian");
     const json: KomponenPenilaianResponse = await res.json();

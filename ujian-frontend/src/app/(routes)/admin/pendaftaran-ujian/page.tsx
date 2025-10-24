@@ -1,23 +1,24 @@
-import {
-  getLoggedInUser,
-  getPendaftaranUjianByProdi,
-} from "@/actions/pendaftaranUjian";
+import { getCurrentUserAction } from "@/actions/loginAction";
+import { getPendaftaranUjianByProdi } from "@/actions/pendaftaranUjian";
 import PendaftaranUjianTable from "@/components/admin/PendaftaranUjianTable";
-import { MahasiswaUser } from "@/types/Auth";
 import { PendaftaranUjian } from "@/types/PendaftaranUjian";
+import { Suspense } from "react";
+import Loading from "./loading";
 
 export default async function PendaftaranUjianPage() {
-  const loggedInUser: MahasiswaUser = await getLoggedInUser();
+  const { user } = await getCurrentUserAction();
   const pendaftaranUjian: PendaftaranUjian[] = await getPendaftaranUjianByProdi(
-    loggedInUser?.prodi.id
+    user?.prodi.id
   );
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Pendaftaran Ujian</h1>
-      <PendaftaranUjianTable
-        pendaftaranUjian={pendaftaranUjian}
-        loggedInUser={loggedInUser}
-      />
+      <Suspense fallback={<Loading />}>
+        <PendaftaranUjianTable
+          pendaftaranUjian={pendaftaranUjian}
+          user={user}
+        />
+      </Suspense>
     </div>
   );
 }

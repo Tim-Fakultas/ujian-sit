@@ -1,20 +1,20 @@
-import { getLoggedInUser } from "@/actions/pendaftaranUjian";
-import { getPengajuanRanpelByProdi } from "@/actions/pengajuanRanpel";
+import { getCurrentUserAction } from "@/actions/loginAction";
 import PengajuanTable from "@/components/kaprodi/PengajuanTable";
+import { Suspense } from "react";
+import Loading from "./loading";
 
 export default async function Page() {
-  const loggedInUser = await getLoggedInUser();
-  const pengajuanRanpel = await getPengajuanRanpelByProdi(
-    loggedInUser?.prodi.id
-  );
-  console.log("Logged User:", loggedInUser);
+  const { user } = await getCurrentUserAction();
+
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold">Pengajuan Rancangan Penelitian</h1>
-      <PengajuanTable
-        pengajuanRanpel={pengajuanRanpel}
-        loggedUser={loggedInUser}
-      />
+      <div>
+        <h1 className="text-2xl font-bold">Rancangan Penelitian</h1>
+        <p>Lihat semua pengajuan rancangan penelitian di program studi Anda</p>
+      </div>
+      <Suspense fallback={<Loading />}>
+        <PengajuanTable prodiId={user?.prodi?.id} />
+      </Suspense>
     </div>
   );
 }

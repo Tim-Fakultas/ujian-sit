@@ -40,32 +40,18 @@ import { Eye, MoreVertical } from "lucide-react";
 import { getMahasiswaById } from "@/actions/mahasiswa";
 import { getJenisUjianColor, getStatusColor, truncateTitle } from "@/lib/utils";
 import { jadwalkanUjianAction } from "@/actions/jadwalUjian";
-
-type PendaftaranUjian = {
-  id: number | string;
-  mahasiswa: {
-    id: number | string;
-    nama: string;
-  };
-  ranpel: {
-    judulPenelitian: string;
-  };
-  jenisUjian: {
-    id: number | string;
-    namaJenis: string;
-  };
-  status: string;
-};
+import { Ujian } from "@/types/Ujian";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function PendaftaranUjianTable({
-  pendaftaranUjian,
+  ujianList,
   dosen,
 }: {
-  pendaftaranUjian: PendaftaranUjian[];
+  ujianList: Ujian[];
   dosen: { data: { id: number | string; nama: string }[] };
 }) {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<PendaftaranUjian | null>(null);
+  const [selected, setSelected] = useState<Ujian | null>(null);
   type MahasiswaDetail = {
     id: number | string;
     nama: string;
@@ -159,27 +145,27 @@ export default function PendaftaranUjianTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {pendaftaranUjian.map((p, i) => (
-            <TableRow key={p.id}>
+          {ujianList.map((u, i) => (
+            <TableRow key={u.id}>
               <TableCell>{i + 1}</TableCell>
-              <TableCell>{p.mahasiswa.nama}</TableCell>
-              <TableCell>{truncateTitle(p.ranpel.judulPenelitian)}</TableCell>
+              <TableCell>{u.mahasiswa.nama}</TableCell>
+              <TableCell>{truncateTitle(u.judulPenelitian)}</TableCell>
               <TableCell>
                 <span
                   className={`px-2 py-1 rounded text-xs font-semibold inline-block ${getJenisUjianColor(
-                    p.jenisUjian.namaJenis
+                    u.jenisUjian.namaJenis
                   )}`}
                 >
-                  {p.jenisUjian.namaJenis}
+                  {u.jenisUjian.namaJenis}
                 </span>
               </TableCell>
               <TableCell>
                 <span
                   className={`px-2 py-1 rounded text-xs ${getStatusColor(
-                    p.status
+                    u.pendaftaranUjian.status
                   )}`}
                 >
-                  {p.status}
+                  {u.pendaftaranUjian.status}
                 </span>
               </TableCell>
               <TableCell>
@@ -190,12 +176,12 @@ export default function PendaftaranUjianTable({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setSelected(p)}>
+                    <DropdownMenuItem onClick={() => setSelected(u)}>
                       <Eye size={16} /> Lihat Detail
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        setSelected(p);
+                        setSelected(u);
                         setOpen(true);
                       }}
                     >
@@ -222,78 +208,15 @@ export default function PendaftaranUjianTable({
           )}
 
           {selected && mahasiswaDetail && (
-            <form
-              action={formAction}
-              className="space-y-3"
-              onSubmit={() => {
-                console.log(
-                  "DEBUG: akan submit dengan penguji1 =",
-                  penguji1,
-                  "penguji2 =",
-                  penguji2
-                );
-              }}
-            >
+            <form action={formAction} className="space-y-3">
               <input
                 type="hidden"
-                name="pendaftaranUjianId"
+                name="ujianId"
                 value={String(selected?.id ?? "")}
-              />
-              <input
-                type="hidden"
-                name="mahasiswaId"
-                value={String(selected?.mahasiswa?.id ?? "")}
-              />
-              <input
-                type="hidden"
-                name="jenisUjianId"
-                value={String(selected?.jenisUjian?.id ?? "")}
-              />
-              <input
-                type="hidden"
-                name="ketuaPenguji"
-                value={String(mahasiswaDetail?.pembimbing1?.id ?? "")}
-                required
-              />
-              <input
-                type="hidden"
-                name="sekretarisPenguji"
-                value={String(mahasiswaDetail?.pembimbing2?.id ?? "")}
-                required
-              />
-              {/* Hidden input for penguji1 */}
-              <input
-                type="hidden"
-                name="penguji1"
-                value={penguji1 ?? ""}
-                required
-              />
-              {/* Hidden input for penguji2 */}
-              <input
-                type="hidden"
-                name="penguji2"
-                value={penguji2 ?? ""}
-                required
-              />
-
-              <Label>Ketua Penguji</Label>
-              <Input
-                type="text"
-                value={mahasiswaDetail?.pembimbing1?.nama || "-"}
-                readOnly
-                name="ketuaPengujiNama"
-              />
-
-              <Label>Sekretaris Penguji</Label>
-              <Input
-                type="text"
-                value={mahasiswaDetail?.pembimbing2?.nama || "-"}
-                readOnly
-                name="sekretarisPengujiNama"
               />
 
               <Label>Tanggal Ujian</Label>
-              <Input type="date" name="tanggalUjian" required />
+              <Input type="date" name="jadwalUjian" required />
 
               <div className="flex gap-2">
                 <div className="w-1/2">
@@ -308,7 +231,7 @@ export default function PendaftaranUjianTable({
 
               <Label>Ruangan</Label>
               <select
-                name="ruangan"
+                name="ruanganId"
                 value={ruangan}
                 onChange={(e) => setRuangan(e.target.value)}
                 required
@@ -318,38 +241,51 @@ export default function PendaftaranUjianTable({
                   Pilih Ruangan
                 </option>
                 {ruanganList.map((r) => (
-                  <option key={r.id} value={r.id}>
+                  <option key={r.id} value={String(r.id)}>
                     {r.namaRuangan}
                   </option>
                 ))}
               </select>
-              <input type="hidden" name="ruangan" value={ruangan} />
 
               <Label>Dosen Penguji 1</Label>
-              <Select value={penguji1} onValueChange={setPenguji1}>
+              <Select
+                value={penguji1}
+                onValueChange={setPenguji1}
+                name="penguji1"
+                required
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih Dosen" />
                 </SelectTrigger>
                 <SelectContent>
-                  {dosen.data.map((d) => (
-                    <SelectItem key={d.id} value={String(d.id)}>
-                      {d.nama}
-                    </SelectItem>
-                  ))}
+                  {dosen.data
+                    .filter((d) => String(d.id) !== penguji2)
+                    .map((d) => (
+                      <SelectItem key={d.id} value={String(d.id)}>
+                        {d.nama}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
 
               <Label>Dosen Penguji 2</Label>
-              <Select value={penguji2} onValueChange={setPenguji2}>
+              <Select
+                value={penguji2}
+                onValueChange={setPenguji2}
+                name="penguji2"
+                required
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih Dosen" />
                 </SelectTrigger>
                 <SelectContent>
-                  {dosen.data.map((d) => (
-                    <SelectItem key={d.id} value={String(d.id)}>
-                      {d.nama}
-                    </SelectItem>
-                  ))}
+                  {dosen.data
+                    .filter((d) => String(d.id) !== penguji1)
+                    .map((d) => (
+                      <SelectItem key={d.id} value={String(d.id)}>
+                        {d.nama}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
 
@@ -357,10 +293,13 @@ export default function PendaftaranUjianTable({
                 type="submit"
                 className="w-full"
                 disabled={
-                  !mahasiswaDetail?.pembimbing1?.id ||
-                  !mahasiswaDetail?.pembimbing2?.id ||
                   !penguji1 ||
-                  !penguji2
+                  !penguji2 ||
+                  !ruangan ||
+                  penguji1 === "" ||
+                  penguji2 === "" ||
+                  ruangan === "" ||
+                  penguji1 === penguji2 // prevent duplicate penguji
                 }
               >
                 Simpan Jadwal

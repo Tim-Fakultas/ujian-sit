@@ -40,7 +40,7 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
     const response = await fetch(
       `${API_URL}/mahasiswa/${mahasiswaId}/pendaftaran-ujian`,
       {
-        next: { revalidate: 0 },
+        cache: "no-store",
       }
     );
 
@@ -74,12 +74,37 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
   }
 }
 
+export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
+  try {
+    const response = await fetch(`http://localhost:8000/api/ujian`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch pendaftaran ujian by prodi");
+    }
+
+    const data = await response.json();
+    const filteredData = data.data.filter(
+      (ujian: {
+        mahasiswa: { prodi: { id: number } };
+        pendaftaranUjian: { status: string };
+      }) => ujian.mahasiswa.prodi.id === prodiId
+      // ujian.pendaftaranUjian.status === "diterima"
+    );
+    return filteredData;
+  } catch (error) {
+    console.error("Error fetching pendaftaran ujian by prodi:", error);
+    return [];
+  }
+}
+
 export async function getPendaftaranUjianByProdi(prodiId: number) {
   try {
     const response = await fetch(
       `http://localhost:8000/api/pendaftaran-ujian`,
       {
-        next: { revalidate: 0 },
+        cache: "no-store",
       }
     );
 
@@ -103,11 +128,18 @@ export async function getLoggedInUser() {
     const cookieStore = await cookies();
     const userCookie = cookieStore.get("user");
 
-    if (!userCookie) {
+    // Jika tidak ada cookie
+    if (!userCookie || !userCookie.value) {
       return null;
     }
 
-    return JSON.parse(userCookie.value);
+    // Coba parse JSON
+    try {
+      return JSON.parse(userCookie.value);
+    } catch {
+      console.warn("⚠️ Cookie 'user' rusak atau kosong, hapus dari browser");
+      return null;
+    }
   } catch (error) {
     console.error("Error getting logged in user:", error);
     return null;
@@ -187,7 +219,7 @@ export async function updateStatusPendaftaranUjian(id: number, status: string) {
         Accept: "application/json",
       },
       body: JSON.stringify({ status }),
-      next: { revalidate: 0 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
