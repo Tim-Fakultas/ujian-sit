@@ -15,6 +15,7 @@ use App\Models\Ranpel;
 use App\Models\Skripsi;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Artisan;
 use Illuminate\Database\Seeder;
 use Str;
 
@@ -350,6 +351,10 @@ class DatabaseSeeder extends Seeder
 
         $this->call(RuanganSeeder::class);
 
+        Artisan::call('import:ujian-sempro', [
+            'file' => storage_path('app/public/Data_mhs_seminar_proposal.xlsx')
+        ]);
 
+        $this->command->info('Command import:ujian-proposal telah dijalankan.');
     }
 }

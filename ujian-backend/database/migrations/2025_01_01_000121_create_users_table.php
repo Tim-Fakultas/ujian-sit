@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('nip_nim', 20)->unique();
-            $table->string('nama', 35);
+            $table->string('nama', 191);
             $table->string('email', 150)->unique();
             $table->foreignId('prodi_id')->nullable()->constrained('prodi')->onDelete('set null');
             $table->timestamp('email_verified_at')->nullable();

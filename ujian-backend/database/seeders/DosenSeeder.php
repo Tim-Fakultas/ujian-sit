@@ -21,7 +21,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2001087503',
                 'nip' => '19750801 200912 2 001',
-                'nama' => 'Gusmelia Testiana, M.Kom',
+                'nama' => 'Gusmelia Testiana, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Maninjau, 01-08-1975',
@@ -35,7 +35,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2022117502',
                 'nip' => '19751122 200604 1 003',
-                'nama' => 'Ruliansyah, M.Kom',
+                'nama' => 'Ruliansyah, S.T., M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 22-11-1975',
@@ -49,7 +49,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2007116701',
                 'nip' => '19671107 199803 2 001',
-                'nama' => 'Dr. Fenny Purwani, M.Kom',
+                'nama' => 'Dr. Fenny Purwani, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Yogyakarta, 07-11-1967',
@@ -63,7 +63,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2025117901',
                 'nip' => '19791125 201403 2 002',
-                'nama' => 'Rusmala Santi, M. Kom',
+                'nama' => 'RUSMALA SANTI, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Muba, 25-11-1979',
@@ -77,7 +77,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2003058601',
                 'nip' => '19860503 201903 1 009',
-                'nama' => 'Catur Eri Gunawan, ST., M.Cs',
+                'nama' => 'Catur Eri Gunawan, S.T., M.Cs.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 03-05-1986',
@@ -91,7 +91,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '0208018701',
                 'nip' => '19870108 202012 1 009',
-                'nama' => 'Irfan Dwi Jaya, M.Kom',
+                'nama' => 'Irfan Dwi Jaya, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 08-01-1987',
@@ -105,7 +105,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '0214118701',
                 'nip' => '19871114 202321 1 026',
-                'nama' => 'Fenando, M.Kom',
+                'nama' => 'Fenando, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 14-11-1987',
@@ -119,7 +119,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '0203118601',
                 'nip' => null,
-                'nama' => 'Freddy Kurnia Wijaya, S.Kom., M.Eng',
+                'nama' => 'Freddy Kurnia Wijaya, S.Kom., M.Eng.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Sarolangun Jambi, 03-11-1986',
@@ -133,7 +133,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '0215108502',
                 'nip' => '19851015 202521 2 005',
-                'nama' => 'Evi Fadilah, S.Kom., M.Kom',
+                'nama' => 'Evi Fadilah, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 15-10-1985',
@@ -147,7 +147,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '0223108404',
                 'nip' => '19841023 202321 1 016',
-                'nama' => 'Muhamad Kadafi, M.Kom',
+                'nama' => 'Muhamad Kadafi, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 23-10-1984',
@@ -161,7 +161,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2029128503',
                 'nip' => '19851229 202321 1 020',
-                'nama' => 'Muhamad Son Muarie, M.Kom',
+                'nama' => 'Muhamad Son Muarie, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Lumpatan, 29-12-1985',
@@ -175,7 +175,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2017118205',
                 'nip' => '19821117 202321 2 021',
-                'nama' => 'Fathiyah Nopriani, ST., M.Kom',
+                'nama' => 'Fathiyah Nopriani, S.T., M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 17-11-1982',
@@ -189,7 +189,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2021128901',
                 'nip' => '19891221 202321 1 018',
-                'nama' => 'Imamulhakim Syahid Putra, M.Kom',
+                'nama' => 'Imamulhakim Syahid Putra, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Jaksel, 21-12-1989',
@@ -203,7 +203,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2010098902',
                 'nip' => '19890910 202321 1 028',
-                'nama' => 'Aminullah Imal Alfresi, ST., M.Kom',
+                'nama' => 'Aminullah Imal Alfresi, S.T., M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Belitang, 10-09-1989',
@@ -217,7 +217,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2004049101',
                 'nip' => '19910104 202321 2 041',
-                'nama' => 'Sri Rahayu, S.Kom., M.Kom',
+                'nama' => 'Sri Rahayu, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 04-01-1991',
@@ -231,7 +231,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2030129301',
                 'nip' => '19931230 202321 1 017',
-                'nama' => 'M. Leandry Dalafranka, S.SI., M.Kom',
+                'nama' => 'M. Leandry Dalafranka, S.SI., M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 30-12-1993',
@@ -245,7 +245,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2023058902',
                 'nip' => '19890523 202521 2 020',
-                'nama' => 'Indah Hidayanti, ST., M.Kom',
+                'nama' => 'Indah Hidayanti, S.T., M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 23-05-1989',
@@ -259,7 +259,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2009048801',
                 'nip' => '19880904 202521 2 002',
-                'nama' => 'Reni Septiyanti, S.SI., M.Kom',
+                'nama' => 'Reni Septiyanti, S.SI., M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Plaju, 04-09-1988',
@@ -273,7 +273,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2030069402',
                 'nip' => '19940630 202521 2 009',
-                'nama' => 'Gina Agiyani, M.Kom',
+                'nama' => 'Gina Agiyani, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Tanjung Batu, 30-06-1994',
@@ -287,7 +287,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '2013047902',
                 'nip' => '19790403 202321 1 007',
-                'nama' => 'M. Syendi Apriko, M.Kom',
+                'nama' => 'M. Syendi Apriko, M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Palembang, 13-04-1979',
@@ -301,7 +301,7 @@ class DosenSeeder extends Seeder
             [
                 'nidn' => '0221039001',
                 'nip' => '19900321 202403 1 001',
-                'nama' => 'Deni Fikari, S.Kom., M.Kom',
+                'nama' => 'Deni Fikari, S.Kom., M.Kom.',
                 'no_hp' => null,
                 'alamat' => null,
                 'tempat_tanggal_lahir' => 'Kab. Musi Banyuasin, 21 Maret 1990',

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nidn')->unique()->nullable();
             $table->string('nip')->unique()->nullable();
-            $table->string('nama');
+            $table->string('nama', 191);
             $table->string('no_hp', 30)->nullable();
             $table->string('alamat')->nullable();
             $table->string('tempat_tanggal_lahir')->nullable();
