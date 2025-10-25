@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\DaftarKehadiranController;
+use App\Http\Controllers\ImportUjianProposalController;
 use App\Http\Controllers\RuanganController;
 ?><?php
 

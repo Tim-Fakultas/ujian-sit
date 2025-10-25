@@ -16,7 +16,7 @@ class MahasiswaSeeder extends Seeder
     {
         $roleMahasiswa = Role::firstOrCreate(['name' => 'mahasiswa']);
 
-        $this->call(MahasiswaCoba::class);
-        //$this->call(MahasiswaAll::class);
+        //$this->call(MahasiswaCoba::class);
+        $this->call(MahasiswaAll::class);
     }
 }
