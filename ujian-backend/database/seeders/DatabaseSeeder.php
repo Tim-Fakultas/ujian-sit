@@ -16,6 +16,7 @@ use App\Models\Skripsi;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Artisan;
+use Exception;
 use Illuminate\Database\Seeder;
 use Str;
 
@@ -351,10 +352,23 @@ class DatabaseSeeder extends Seeder
 
         $this->call(RuanganSeeder::class);
 
-        Artisan::call('import:ujian-sempro', [
-            'file' => storage_path('app/public/Data_mhs_seminar_proposal.xlsx')
-        ]);
 
-        $this->command->info('Command import:ujian-proposal telah dijalankan.');
+
+        // Artisan::call('import:ujian-semhas', [
+        //     'file' => storage_path('app/public/Data_mhs_ujian_hasil_skripsi.xlsx')
+        // ]);
+
+        // $this->command->info('Command import:ujian-hasil telah dijalankan.');
+
+        try {
+            Artisan::call('import:ujian-skripsi', [
+            'file' => storage_path('app/public/Data_mhs_ujian_skripsi.xlsx')
+            ]);
+            $this->command->info('Command import:ujian-skripsi telah dijalankan.');
+        } catch (Exception $ex) {
+            Logger()->error('Error during import:ujian-skripsi - ' . $ex->getMessage());
+        }
+
+
     }
 }

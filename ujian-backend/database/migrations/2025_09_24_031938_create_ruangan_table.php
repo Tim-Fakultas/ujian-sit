@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('prodi_id')->constrained('prodi')->onDelete('cascade');
             $table->string('nama_ruangan', 100);
+            $table->string('deskripsi', 255)->nullable();
             $table->timestamps();
         });
     }

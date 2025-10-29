@@ -17,7 +17,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class UjianProposalImport implements ToCollection
+class UjianHasilImport implements ToCollection
 {
     public function collection(Collection $rows)
     {
@@ -52,12 +52,12 @@ class UjianProposalImport implements ToCollection
                     $namaMahasiswa = trim($row[5]);
                     $nim = trim($row[6]);
                     $prodi = trim($row[7]);
-                    $judulExcel = trim($row[8]);
+                    $judulSkripsi = trim($row[8]);
                     $ketuaNama = trim($row[9]);
                     $sekretarisNama = trim($row[12]);
                     $penguji1Nama = trim($row[15]);
                     $penguji2Nama = trim($row[18]);
-                    $ruanganNama = trim($row[22]);
+                    $ruanganNama = trim($row[23]);
 
                     // ========== Parsing waktu ==========
                     $waktuMulai = null;
@@ -85,7 +85,7 @@ class UjianProposalImport implements ToCollection
 
                     // ========== Buat Ranpel ==========
                     $ranpel = Ranpel::firstOrCreate(
-                        ['judul_penelitian' => 'Belum diinput'],
+                        ['judul_penelitian' => $judulSkripsi],
                         ['created_at' => now(), 'updated_at' => now()]
                     );
 
@@ -100,8 +100,8 @@ class UjianProposalImport implements ToCollection
                     ]);
 
                     // ========== Jenis Ujian ==========
-                    $jenisUjian = JenisUjian::where('nama_jenis', 'Ujian Proposal')->first();
-                    $jenisUjianId = $jenisUjian ? $jenisUjian->id : 1;
+                    $jenisUjian = JenisUjian::where('nama_jenis', 'Ujian Hasil')->first();
+                    $jenisUjianId = $jenisUjian ? $jenisUjian->id : 2;
 
                     // ========== Pendaftaran Ujian ==========
                     $pendaftaran = PendaftaranUjian::create([

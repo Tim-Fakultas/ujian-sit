@@ -17,14 +17,27 @@ class RuanganSeeder extends Seeder
             [
                 'prodi_id' => 1,
                 'nama_ruangan' => 'BF202',
+                'deskripsi' => null,
             ],
             [
                 'prodi_id' => 1,
                 'nama_ruangan' => 'BF203',
+                'deskripsi' => null,
             ],
             [
                 'prodi_id' => 1,
                 'nama_ruangan' => 'BF209',
+                'deskripsi' => 'Ruang Rapat Prodi',
+            ],
+            [
+                'prodi_id' => 1,
+                'nama_ruangan' => 'BF310',
+                'deskripsi' => 'Ruang Kelas Lantai 3',
+            ],
+            [
+                'prodi_id' => 1,
+                'nama_ruangan' => 'BF216',
+                'deskripsi' => null,
             ]
         ];
 

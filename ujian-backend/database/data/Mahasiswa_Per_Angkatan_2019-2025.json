@@ -3606,7 +3606,8 @@
         {
             "nim": 23051450225,
             "nama": "M. ABDI NUGROHO",
-            "prodi_id": 1
+            "prodi_id": 1,
+            "dosen_pa": 17
         },
         {
             "nim": 23041450138,
@@ -3911,7 +3912,8 @@
         {
             "nim": 23041450085,
             "nama": "MUHAMMAD LUQMAN AL-FAUZAN",
-            "prodi_id": 1
+            "prodi_id": 1,
+            "dosen_pa": 8
         },
         {
             "nim": 23051450178,
