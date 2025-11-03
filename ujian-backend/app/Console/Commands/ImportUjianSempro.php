@@ -13,7 +13,7 @@ class ImportUjianSempro extends Command
      *
      * @var string
      */
-    protected $signature = 'import:ujian-sempro {file}';
+    protected $signature = 'import:ujian-proposal {file}';
     protected $description = 'Import data ujian seminar proposal dari file Excel';
 
 

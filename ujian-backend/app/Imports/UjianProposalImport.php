@@ -57,7 +57,7 @@ class UjianProposalImport implements ToCollection
                     $sekretarisNama = trim($row[12]);
                     $penguji1Nama = trim($row[15]);
                     $penguji2Nama = trim($row[18]);
-                    $ruanganNama = trim($row[22]);
+                    $ruanganNamaRaw = trim($row[23]);
 
                     // ========== Parsing waktu ==========
                     $waktuMulai = null;
@@ -114,7 +114,25 @@ class UjianProposalImport implements ToCollection
                     ]);
 
                     // ========== Dosen & Ruangan ==========
-                    $ruangan = $ruanganNama ? Ruangan::where('nama_ruangan', 'like', "%$ruanganNama%")->first() : null;
+                    $ruanganNama = strtoupper(preg_replace('/\s+/', '', str_replace(['RUANG', 'Ruang', 'ruangan'], '', $ruanganNamaRaw)));
+                    $ruangan = null;
+                    if ($ruanganNama) {
+                        // Cari ruangan di DB, ignore spasi & case
+                        $ruangan = Ruangan::whereRaw("REPLACE(UPPER(nama_ruangan), ' ', '') LIKE ?", ["%{$ruanganNama}%"])->first();
+
+                        if ($ruangan) {
+                            Log::info('✅ Ruangan cocok', [
+                                'excel' => $ruanganNamaRaw,
+                                'normalized' => $ruanganNama,
+                                'db' => $ruangan->nama_ruangan,
+                            ]);
+                        } else {
+                            Log::warning('⚠️ Ruangan tidak ditemukan', [
+                                'excel' => $ruanganNamaRaw,
+                                'normalized' => $ruanganNama,
+                            ]);
+                        }
+                    }
                     $ketua = $ketuaNama ? Dosen::where('nama', 'like', "%$ketuaNama%")->first() : null;
                     $sekretaris = $sekretarisNama ? Dosen::where('nama', 'like', "%$sekretarisNama%")->first() : null;
                     $penguji1 = $penguji1Nama ? Dosen::where('nama', 'like', "%$penguji1Nama%")->first() : null;

@@ -66,80 +66,96 @@ class UjianSkripsiImport implements ToCollection
                     $sekretarisNama = trim($row[14]);
                     $penguji1Nama = trim($row[17]);
                     $penguji2Nama = trim($row[20]);
-                    $ruanganNama = trim($row[25]);
+                    $ruanganNamaRaw = trim($row[25]);
 
                     // ========== Parsing tanggal ==========
                     try {
                         $bulanEn = $bulanMap[$bulan] ?? $bulan;
                         $jadwal = Carbon::createFromFormat('d F Y', "$tanggal $bulanEn $tahun");
                     } catch (Exception $e) {
-                        $jadwal = Carbon::parse("$tahun-$bulanEn-$tanggal");
+                        // fallback kalau format salah
+                        $jadwal = Carbon::parse("$tahun-$bulan-$tanggal");
                     }
 
+                    // ========== Cari Mahasiswa ==========
                     $mahasiswa = Mahasiswa::where('nim', $nim)->first();
-                    if(!$mahasiswa){
-                        Log::warning("Mahasiswa tidak ditemukan dengan:$nim, $namaMahasiswa");
+                    if (!$mahasiswa) {
+                        Log::warning("Mahasiswa tidak ditemukan: $nim - $namaMahasiswa");
                         continue;
                     }
 
-                    $ranpel = Ranpel::firstOrCreate([
-                        'judul_penelitian'=>$judulPenelitian,
-                        'created_at'=>now(),
-                        'updated_at'=>now(),
-                    ]);
+                    // ========== Buat Ranpel ==========
+                    $ranpel = Ranpel::firstOrCreate(
+                        ['judul_penelitian' => 'Belum diinput'],
+                        ['created_at' => now(), 'updated_at' => now()]
+                    );
 
-                    $pengajuanRanpel = PengajuanRanpel::firstOrCreate([
+                    // ========== Buat Pengajuan Ranpel ==========
+                    $pengajuan = PengajuanRanpel::firstOrCreate([
                         'ranpel_id' => $ranpel->id,
                         'mahasiswa_id' => $mahasiswa->id,
-                    ],[
-                        'tanggal_pengajuan'=>now(),
-                        'tanggal_disetujui'=>now(),
-                        'status'=>'diterima',
-                        'created_at'=>now(),
-                        'updated_at'=>now(),
+                    ], [
+                        'tanggal_pengajuan' => now(),
+                        'tanggal_diterima' => now(),
+                        'status' => 'diterima',
                     ]);
 
-                    $jenisUjian = JenisUjian::where('id', 3)->first();
-                    $jenisUjianId = $jenisUjian ? $jenisUjian->id : null;
+                    // ========== Jenis Ujian ==========
+                    $jenisUjian = JenisUjian::where('nama_jenis', 'Ujian Skripsi')->first();
+                    $jenisUjianId = $jenisUjian ? $jenisUjian->id : 3;
 
+                    // ========== Pendaftaran Ujian ==========
                     $pendaftaran = PendaftaranUjian::create([
-                        'mahasiswa_id'=>$mahasiswa->id,
-                        'ranpel_id'=>$ranpel->id,
-                        'jenis_ujian_id'=>$jenisUjianId,
-                        'tanggal_pengajuan'=>now(),
-                        'tanggal_disetujui'=>now(),
-                        'status'=>'selesai',
-                        'created_at'=>now(),
-                        'updated_at'=>now(),
+                        'mahasiswa_id' => $mahasiswa->id,
+                        'ranpel_id' => $ranpel->id,
+                        'jenis_ujian_id' => $jenisUjianId,
+                        'tanggal_pengajuan' => now(),
+                        'tanggal_disetujui' => now(),
+                        'status' => 'selesai',
                     ]);
 
-                    $ruangan = $ruanganNama ? Ruangan::where('nama_ruangan', 'like', "%$ruanganNama%")->first() : null;
+                    // ========== Dosen & Ruangan ==========
+                    $ruanganNama = strtoupper(preg_replace('/\s+/', '', str_replace(['RUANG', 'Ruang', 'ruangan'], '', $ruanganNamaRaw)));
+                    $ruangan = null;
+                    if ($ruanganNama) {
+                        // Cari ruangan di DB, ignore spasi & case
+                        $ruangan = Ruangan::whereRaw("REPLACE(UPPER(nama_ruangan), ' ', '') LIKE ?", ["%{$ruanganNama}%"])->first();
+
+                        if ($ruangan) {
+                            Log::info('✅ Ruangan cocok', [
+                                'excel' => $ruanganNamaRaw,
+                                'normalized' => $ruanganNama,
+                                'db' => $ruangan->nama_ruangan,
+                            ]);
+                        } else {
+                            Log::warning('⚠️ Ruangan tidak ditemukan', [
+                                'excel' => $ruanganNamaRaw,
+                                'normalized' => $ruanganNama,
+                            ]);
+                        }
+                    }
                     $ketua = $ketuaNama ? Dosen::where('nama', 'like', "%$ketuaNama%")->first() : null;
-                    $sekretaris = $sekretarisNama ? Dosen::where('nama', 'like', "%$sekretarisNama%")->first():null;
+                    $sekretaris = $sekretarisNama ? Dosen::where('nama', 'like', "%$sekretarisNama%")->first() : null;
                     $penguji1 = $penguji1Nama ? Dosen::where('nama', 'like', "%$penguji1Nama%")->first() : null;
                     $penguji2 = $penguji2Nama ? Dosen::where('nama', 'like', "%$penguji2Nama%")->first() : null;
 
-
-                    $hariNormalized = strtolower(str_replace(["'","’"], '', $hari));
+                    // ====ubah hari =====
+                    $hariNormalized = strtolower(str_replace(["'", "’"], '', $hari)); // hilangkan tanda petik
+                    // ========== Buat Ujian ==========
                     Ujian::create([
-                        'pendaftaran_ujian_id'=>$pendaftaran->id,
-                        'mahasiswa_id'=>$mahasiswa->id,
-                        'jenis_ujian_id'=>$jenisUjianId,
-                        'hari_ujian' => $hariNormalized,
+                        'pendaftaran_ujian_id' => $pendaftaran->id,
+                        'mahasiswa_id' => $mahasiswa->id,
+                        'jenis_ujian_id' => $jenisUjianId,
+                        'hari_ujian' => strtolower($hariNormalized),
                         'jadwal_ujian' => $jadwal,
                         'waktu_mulai' => $waktuMulai,
-                        'waktu_selesai'=>$waktuSelesai,
+                        'waktu_selesai' => $waktuSelesai,
                         'ruangan_id' => $ruangan?->id,
                         'ketua_penguji' => $ketua?->id,
                         'sekretaris_penguji' => $sekretaris?->id,
                         'penguji_1' => $penguji1?->id,
                         'penguji_2' => $penguji2?->id,
                     ]);
-
-                    if (!$penguji2) {
-                 Log::warning("Penguji 2 tidak ditemukan untuk NIM {$nim}: {$penguji2Nama}");
-}
-
                 } catch (Exception $e) {
                     Log::error("Gagal Import baris ke-{$index}:". $e->getMessage());
                     continue;
@@ -148,6 +164,7 @@ class UjianSkripsiImport implements ToCollection
 
             DB::commit();
             Log::info("Import Ujian Skripsi selesai tanpa error.");
+            Log::info("CREATE UJIAN", ['nim' => $nim, 'hari' => $hari, 'pendaftaran_id' => $pendaftaran->id ?? null]);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error("Gagal import Ujian Skripsi: " . $e->getMessage());
@@ -155,115 +172,3 @@ class UjianSkripsiImport implements ToCollection
     }
 }
 
-
-
-
-/*
-        try {
-            $bulanMap = [
-                'Januari' => 'January',
-                'Februari' => 'February',
-                'Maret' => 'March',
-                'April' => 'April',
-                'Mei' => 'May',
-                'Juni' => 'June',
-                'Juli' => 'July',
-                'Agustus' => 'August',
-                'September' => 'September',
-                'Oktober' => 'October',
-                'November' => 'November',
-                'Desember' => 'December',
-            ];
-
-            $hari = trim($rows[0]);
-            $tanggal = trim($rows[1]);
-            $bulan = trim($rows[2]);$bulanEN = $bulanMap[$bulan] ?? $bulan;
-            $tahun = trim($rows[3]);
-            $waktuMulai = trim($rows[5]);
-            $waktuSelesai = trim($rows[6]);
-            $namaMahasiswa = trim($rows[7]);
-            $nim = trim($rows[8]);
-            $judulPenelitian = trim($rows[10]);
-            $ketuaNama = trim($rows[11]);
-            $sekretarisNama = trim($rows[14]);
-            $penguji1Nama = trim($rows[17]);
-            $penguji2Nama = trim($rows[20]);
-            $ruanganNama = trim($rows[25]);
-
-            try {
-                $bulanEn = $bulanMap[$bulan] ?? $bulan;
-                $jadwal = Carbon::createFromFormat('d F Y', "$tanggal $bulanEn $tahun");
-            } catch (Exception $e) {
-                $jadwal = Carbon::parse("$tahun-$bulan-$tanggal");
-            }
-
-            $mahasiswa = Mahasiswa::where('nim', $nim)->first();
-            if (!$mahasiswa) {
-                Log::warning("Mahasiswa dengan NIM $nim - $namaMahasiswa tidak ditemukan");
-                return;
-            }
-
-            $ranpel = Ranpel::firstOrCreate(
-                ['judul_penelitian' => $judulPenelitian,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-            ]);
-
-            $pengajuanRanpel = PengajuanRanpel::firstOrCreate(
-                [
-                    'mahasiswa_id' => $mahasiswa->id,
-                    'ranpel_id' => $ranpel->id,
-                ],
-                [
-                    'tanggal_pengajuan' => now(),
-                    'tanggal_disetujui' => now(),
-                    'status' => 'diterima',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
-
-            $jenisUjian = JenisUjian::where('id', 3)->first();
-            $jenisUjianId = $jenisUjian ? $jenisUjian->id : null;
-
-            $pendaftaran = PendaftaranUjian::firstOrCreate(
-                [
-                    'mahasiswa_id' => $mahasiswa->id,
-                    'jenis_ujian_id' => $jenisUjianId,
-                    'ranpel_id' => $ranpel->id,
-                    'tanggal_pengajuan'=>now(),
-                    'tanggal_disetujui'=>now(),
-                ],
-                [
-                    'status' => 'selesai',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
-
-            $ruangan = $ruanganNama ? Ruangan::where('nama_ruangan', 'like', "%$ruanganNama%")->first() : null;
-            $ketua = $ketuaNama ? Dosen::where('nama', 'like', "%$ketuaNama%")->first() : null;
-            $sekretaris = $sekretarisNama ? Dosen::where('nama', 'like', "%$sekretarisNama%")->first() : null;
-            $penguji1 = $penguji1Nama ? Dosen::where('nama', 'like', "%$penguji1Nama%")->first() : null;
-            $penguji2 = $penguji2Nama ? Dosen::where('nama', 'like', "%$penguji2Nama%")->first() : null;
-
-            $hariNormalized = strtolower(str_replace(["'", "’"], '', $hari));
-
-            Ujian::create([
-                'pendaftaran_ujian_id' => $pendaftaran->id,
-                'mahasiswa_id' => $mahasiswa->id,
-                'jenis_ujian_id' => $jenisUjianId,
-                'hari_ujian' => strtolower($hariNormalized),
-                'jadwal_ujian' => $jadwal,
-                'waktu_mulai' => $waktuMulai,
-                'waktu_selesai' => $waktuSelesai,
-                'ruangan_id' => $ruangan ? $ruangan->id : null,
-                'dosen_ketua_id' => $ketua ? $ketua->id : null,
-                'dosen_sekretaris_id' => $sekretaris ? $sekretaris->id : null,
-                'dosen_penguji1_id' => $penguji1 ? $penguji1->id : null,
-                'dosen_penguji2_id' => $penguji2 ? $penguji2->id : null,
-                'status' => 'selesai',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-*/
