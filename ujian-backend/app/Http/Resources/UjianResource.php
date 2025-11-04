@@ -18,6 +18,10 @@ class UjianResource extends JsonResource
             'id' => $this->id,
             'pendaftaranUjian' => $this->pendaftaranUjian ? [
                 'id' => $this->pendaftaranUjian->id,
+                'ranpelId' => $this->pendaftaranUjian->ranpel_id,
+                'jenisUjianId' => $this->pendaftaranUjian->jenis_ujian_id,
+                'tanggalPengajuan' => $this->pendaftaranUjian->tanggal_pengajuan,
+                'tanggalDisetujui' => $this->pendaftaranUjian->tanggal_disetujui,
                 'status' => $this->pendaftaranUjian->status,
                 ] : null,
             'judulPenelitian' => $this->pendaftaranUjian->ranpel->judul_penelitian ?? null,

@@ -352,6 +352,14 @@ class DatabaseSeeder extends Seeder
 
         $this->call(RuanganSeeder::class);
 
+        try {
+            Artisan::call('import:ujian-proposal', [
+            'file' => storage_path('app/public/Data_mhs_ujian_proposal.xlsx')
+            ]);
+            $this->command->info('Command import:ujian-proposal telah dijalankan.');
+        } catch (Exception $ex) {
+            Logger()->error('Error during import:ujian-proposal - ' . $ex->getMessage());
+        }
 
         try{
             Artisan::call('import:ujian-hasil', [
@@ -363,14 +371,6 @@ class DatabaseSeeder extends Seeder
         }
 
 
-        try {
-            Artisan::call('import:ujian-proposal', [
-            'file' => storage_path('app/public/Data_mhs_ujian_proposal.xlsx')
-            ]);
-            $this->command->info('Command import:ujian-proposal telah dijalankan.');
-        } catch (Exception $ex) {
-            Logger()->error('Error during import:ujian-proposal - ' . $ex->getMessage());
-        }
 
         try {
             Artisan::call('import:ujian-skripsi', [
