@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('ruangan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('prodi_id')->constrained('prodi')->onDelete('cascade');
             $table->string('nama_ruangan', 100);
             $table->string('deskripsi', 255)->nullable();
+            $table->foreignId('prodi_id')->constrained('prodi')->onDelete('cascade')->nullable();
             $table->timestamps();
         });
     }

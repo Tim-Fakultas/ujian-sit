@@ -350,7 +350,7 @@ class DatabaseSeeder extends Seeder
         // Create some Pejabat (officials)
         Pejabat::factory(3)->create();
 
-        $this->call(RuanganSeeder::class);
+        // $this->call(RuanganSeeder::class);
 
         try {
             Artisan::call('import:ujian-proposal', [
