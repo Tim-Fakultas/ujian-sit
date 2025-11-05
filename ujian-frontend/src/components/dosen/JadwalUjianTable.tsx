@@ -15,7 +15,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../ui/dropdown-menu";
-import { Pencil, Eye} from "lucide-react";
+import { Pencil, Eye } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { UserCheck } from "lucide-react";
 import { MoreVertical } from "lucide-react";
@@ -23,7 +23,14 @@ import PenilaianModal from "./PenilaianModal";
 import Modal from "../Modal";
 import { Button } from "../ui/button";
 import { setHadirUjian } from "@/actions/daftarHadirUjian";
-import { toast } from "sonner";
+import { Input } from "../ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../ui/select";
 
 interface JadwalUjianTableProps {
   jadwalUjian: Ujian[];
@@ -38,10 +45,10 @@ export default function JadwalUjianTable({
   const [openDetail, setOpenDetail] = useState(false);
   const [openRekapitulasi, setOpenRekapitulasi] = useState(false);
   const [openDaftarHadir, setOpenDaftarHadir] = useState(false);
-  // Tambahan untuk modal penilaian
+
+  //* Penilaian Modal State
   const [openPenilaian, setOpenPenilaian] = useState(false);
   const [penilaian, setPenilaian] = useState<Record<string, number>>({});
-  const [skorAkhir, setSkorAkhir] = useState(0);
   const [hadirLoading, setHadirLoading] = useState<number | null>(null);
   const [hadirSukses, setHadirSukses] = useState<{
     [ujianId: number]: boolean;
@@ -52,16 +59,18 @@ export default function JadwalUjianTable({
     try {
       await setHadirUjian(currentDosenId, ujianId);
       setHadirSukses((prev) => ({ ...prev, [ujianId]: true }));
+      const { toast } = await import("sonner");
       toast.success("Kehadiran Anda telah tercatat.");
     } catch (err) {
       console.error("Error mencatat kehadiran:", err);
+      const { toast } = await import("sonner");
       toast.error("Terjadi kesalahan saat mencatat kehadiran.");
     } finally {
       setHadirLoading(null);
     }
   }
 
-  // Fungsi untuk menentukan peran penguji
+  //* Fungsi untuk menentukan peran penguji
   function getPeranPenguji(
     ujian: Ujian,
     dosenId: number | undefined
@@ -74,8 +83,85 @@ export default function JadwalUjianTable({
     return null;
   }
 
+  //* Filter & Pagination State
+  const [filterPeran, setFilterPeran] = useState("all");
+  const [search, setSearch] = useState("");
+
+  //* Filtered data
+  const filteredData = jadwalUjian.filter((ujian) => {
+    //* Filter by peran
+    let matchPeran = true;
+    if (filterPeran !== "all") {
+      const peran = getPeranPenguji(ujian, currentDosenId);
+      matchPeran = peran === filterPeran;
+    }
+    // Filter by search (nama mahasiswa, judul, ruangan)
+    const q = search.toLowerCase();
+    const matchSearch =
+      (ujian.mahasiswa?.nama?.toLowerCase() ?? "").includes(q) ||
+      (ujian.judulPenelitian?.toLowerCase() ?? "").includes(q) ||
+      (ujian.ruangan?.namaRuangan?.toLowerCase() ?? "").includes(q);
+    return matchPeran && matchSearch;
+  });
+
   return (
-    <div>
+    <div className="shadow p-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        {/* Filter peran (left) & search bar (right) */}
+        <div className="flex flex-1 gap-2 items-center">
+          {/* Filter peran nav */}
+          <div className="flex gap-2">
+            {[
+              { label: "Semua", value: "all" },
+              { label: "Ketua Penguji", value: "Ketua Penguji" },
+              { label: "Sekretaris Penguji", value: "Sekretaris Penguji" },
+              { label: "Penguji 1", value: "Penguji 1" },
+              { label: "Penguji 2", value: "Penguji 2" },
+            ].map((item) => (
+              <Button
+                key={item.value}
+                className={`px-6 py-2 rounded-lg text-xs font-medium transition focus:outline-none hover:bg-blue-400 hover:text-white
+                  ${
+                    filterPeran === item.value
+                      ? "bg-blue-400 text-white"
+                      : "bg-[#F5F7FF] text-blue-400"
+                  }
+                `}
+                style={{
+                  boxShadow:
+                    filterPeran === item.value
+                      ? "0 1px 4px 0 #6C7CFF22"
+                      : undefined,
+                  border: "none",
+                }}
+                onClick={() => setFilterPeran(item.value)}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+        {/* Search bar (right) */}
+        <div className="relative w-full md:w-72 mt-2 md:mt-0">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+              <path
+                d="M21 21l-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <Input
+            placeholder="Cari nama mahasiswa, judul, ruangan..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 w-full text-xs placeholder:text-xs"
+          />
+        </div>
+      </div>
       <Table>
         <TableHeader className="bg-accent">
           <TableRow>
@@ -91,18 +177,16 @@ export default function JadwalUjianTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {jadwalUjian.length === 0 ? (
+          {filteredData.length === 0 ? (
             <TableRow>
               <TableCell colSpan={7} className="text-center">
                 Tidak ada jadwal ujian
               </TableCell>
             </TableRow>
           ) : (
-            jadwalUjian.map((ujian, idx) => {
-              // Format waktu tanpa detik
+            filteredData.map((ujian, idx) => {
               const waktuMulai = ujian.waktuMulai?.slice(0, 5) ?? "-";
               const waktuSelesai = ujian.waktuSelesai?.slice(0, 5) ?? "-";
-              // Ambil tanggal dari jadwalUjian (support "YYYY-MM-DD HH:mm:ss" atau "YYYY-MM-DDTHH:mm:ss")
               const tanggal = ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-";
               function capitalize(str: string) {
                 return str.charAt(0).toUpperCase() + str.slice(1);
@@ -556,7 +640,6 @@ export default function JadwalUjianTable({
                       ujian={ujian}
                       penilaian={penilaian}
                       setPenilaian={setPenilaian}
-                      skorAkhir={skorAkhir}
                     />
                   </TableCell>
                 </TableRow>

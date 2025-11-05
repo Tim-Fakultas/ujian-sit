@@ -9,6 +9,24 @@ import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import revalidateAction from "@/actions/revalidateAction";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { CheckCircle2 } from "lucide-react";
 
 interface PDFPreviewModalProps {
   isOpen: boolean;
@@ -48,7 +66,7 @@ export default function PDFPreviewModal({
   useEffect(() => {
     if (showPembimbingModal && user?.prodi?.id) {
       getDosen(user.prodi.id).then((res) => {
-        setDosenList(res.data);
+        setDosenList(res);
       });
     }
   }, [showPembimbingModal, user]);
@@ -120,6 +138,20 @@ export default function PDFPreviewModal({
       });
       await revalidateAction("/kaprodi/pengajuan-ranpel"); // tambahkan ini agar kaprodi juga revalidate
       setShowPembimbingModal(false);
+
+      // Custom toast
+      toast(
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="text-green-500" size={20} />
+          <div>
+            <div className="font-semibold">Berhasil!</div>
+            <div className="text-xs">
+              Pembimbing berhasil disimpan dan pengajuan diterima.
+            </div>
+          </div>
+        </div>
+      );
+
       if (onUpdated) onUpdated();
       onClose();
     } catch (error) {
@@ -138,9 +170,7 @@ export default function PDFPreviewModal({
       <div className="relative bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col z-50">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-xl font-semibold">
-            Preview Rancangan Penelitian
-          </h2>
+          <h2 className="text-xl font-semibold">Rancangan Penelitian</h2>
           <div className="flex items-center gap-2">
             <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded">
               <X size={20} />
@@ -199,57 +229,60 @@ export default function PDFPreviewModal({
       </div>
 
       {/* Modal pilih pembimbing untuk kaprodi */}
-      {showPembimbingModal && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">
-              Pilih Pembimbing 1 & 2
-            </h3>
-            <form onSubmit={handlePembimbingSubmit} className="space-y-4">
-              <div>
-                <label className="block mb-1">Pembimbing 1</label>
-                <select
-                  className="w-full border rounded px-2 py-1"
-                  value={selectedPembimbing1 ?? ""}
-                  onChange={(e) =>
-                    setSelectedPembimbing1(Number(e.target.value))
-                  }
-                  required
-                >
-                  <option value="" disabled>
-                    Pilih Pembimbing 1
-                  </option>
+      <AlertDialog
+        open={showPembimbingModal}
+        onOpenChange={setShowPembimbingModal}
+      >
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Pilih Pembimbing 1 & 2</AlertDialogTitle>
+          </AlertDialogHeader>
+          <form onSubmit={handlePembimbingSubmit} className="space-y-4">
+            <div>
+              <label className="block mb-1">Pembimbing 1</label>
+              <Select
+                value={selectedPembimbing1 ? String(selectedPembimbing1) : ""}
+                onValueChange={(val) => setSelectedPembimbing1(Number(val))}
+                required
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pilih Pembimbing 1" />
+                </SelectTrigger>
+                <SelectContent>
                   {dosenList.map((dosen) => (
-                    <option key={dosen.id} value={dosen.id}>
+                    <SelectItem key={dosen.id} value={String(dosen.id)}>
                       {dosen.nama}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-              </div>
-              <div>
-                <label className="block mb-1">Pembimbing 2</label>
-                <select
-                  className="w-full border rounded px-2 py-1"
-                  value={selectedPembimbing2 ?? ""}
-                  onChange={(e) =>
-                    setSelectedPembimbing2(Number(e.target.value))
-                  }
-                  required
-                >
-                  <option value="" disabled>
-                    Pilih Pembimbing 2
-                  </option>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block mb-1">Pembimbing 2</label>
+              <Select
+                value={selectedPembimbing2 ? String(selectedPembimbing2) : ""}
+                onValueChange={(val) => setSelectedPembimbing2(Number(val))}
+                required
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pilih Pembimbing 2" />
+                </SelectTrigger>
+                <SelectContent>
                   {dosenList.map((dosen) => (
-                    <option key={dosen.id} value={dosen.id}>
+                    <SelectItem key={dosen.id} value={String(dosen.id)}>
                       {dosen.nama}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-              </div>
-              <div className="flex gap-2 pt-2 justify-end">
+                </SelectContent>
+              </Select>
+            </div>
+            <AlertDialogFooter className="pt-2 flex-row gap-2 justify-end">
+              <AlertDialogAction asChild>
                 <Button type="submit" disabled={isUpdating}>
                   {isUpdating ? "Memproses..." : "Simpan & Terima"}
                 </Button>
+              </AlertDialogAction>
+              <AlertDialogCancel asChild>
                 <Button
                   type="button"
                   variant="outline"
@@ -258,11 +291,11 @@ export default function PDFPreviewModal({
                 >
                   Batal
                 </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+              </AlertDialogCancel>
+            </AlertDialogFooter>
+          </form>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

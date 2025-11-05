@@ -90,10 +90,8 @@ export async function getCurrentUserAction() {
 
   try {
     const user: User = JSON.parse(userCookie);
-    console.log("✅ Parsed user in getCurrentUserAction:", user);
     return { user, token: tokenCookie, isAuthenticated: true };
   } catch (error) {
-    console.error("❌ Failed to parse user cookie:", error);
     return { user: null, token: null, isAuthenticated: false };
   }
 }

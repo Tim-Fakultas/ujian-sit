@@ -1,4 +1,4 @@
-export interface PengajuanUjianAdmin {
+export interface PengajuanUjian {
   id: number;
   nim: string;
   nama: string;

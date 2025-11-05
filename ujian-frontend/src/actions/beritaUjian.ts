@@ -1,9 +1,9 @@
 import { BeritaUjianResponse } from "@/types/beritaUjian";
 
-export async function getBeritaUjian(prodiId: number) {
+export async function getBeritaUjian(prodiId: number | undefined) {
   try {
     const response = await fetch(`http://localhost:8000/api/ujian`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
 
     if (!response.ok) {

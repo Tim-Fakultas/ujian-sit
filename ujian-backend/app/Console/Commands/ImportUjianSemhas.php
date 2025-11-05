@@ -14,7 +14,7 @@ class ImportUjianSemhas extends Command
      *
      * @var string
      */
-    protected $signature = 'import:ujian-semhas {file}';
+    protected $signature = 'import:ujian-hasil {file}';
 
     /**
      * The console command description.

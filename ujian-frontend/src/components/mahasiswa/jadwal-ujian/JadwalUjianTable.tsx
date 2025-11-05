@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Ujian } from "@/types/Ujian";
 
-import { Pencil, Eye } from "lucide-react";
+import { Pencil, Eye, MoreVertical, Search, Filter } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { UserCheck } from "lucide-react";
 
-import { MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -25,59 +24,40 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationLink,
+} from "@/components/ui/pagination";
+import { daftarKehadiran } from "@/types/daftarKehadiran";
+import { getPenilaianByUjianId } from "@/actions/penilaian";
 
 interface JadwalUjianTableProps {
   jadwalUjian: Ujian[];
+  daftarHadir: daftarKehadiran[];
+  userId: number | undefined;
 }
 
 export default function JadwalUjianTable({
   jadwalUjian,
+  daftarHadir,
+  userId,
 }: JadwalUjianTableProps) {
   const [selected, setSelected] = useState<Ujian | null>(null);
-  const [openDetail, setOpenDetail] = useState(false);
-  const [openPenilaian, setOpenPenilaian] = useState(false);
+
   const [openRekapitulasi, setOpenRekapitulasi] = useState(false);
   const [openDaftarHadir, setOpenDaftarHadir] = useState(false);
-  const [penilaian, setPenilaian] = useState({
-    efektivitas: 0,
-    motivasi: 0,
-    literatur: 0,
-    metodologi: 0,
-    sikap: 0,
-    bimbingan: 0,
-  });
 
-  // Bobot sesuai gambar
-  const bobot = {
-    efektivitas: 20,
-    motivasi: 15,
-    literatur: 15,
-    metodologi: 15,
-    sikap: 20,
-    bimbingan: 15,
-  };
-
-  // Hitung total skor akhir
-  const skorAkhir = useMemo(() => {
-    return (
-      (penilaian.efektivitas * bobot.efektivitas) / 100 +
-      (penilaian.motivasi * bobot.motivasi) / 100 +
-      (penilaian.literatur * bobot.literatur) / 100 +
-      (penilaian.metodologi * bobot.metodologi) / 100 +
-      (penilaian.sikap * bobot.sikap) / 100 +
-      (penilaian.bimbingan * bobot.bimbingan) / 100
-    );
-  }, [
-    penilaian,
-    bobot.efektivitas,
-    bobot.motivasi,
-    bobot.literatur,
-    bobot.metodologi,
-    bobot.sikap,
-    bobot.bimbingan,
-  ]);
-
-  // Modal sederhana
   function Modal({
     open,
     onClose,
@@ -113,587 +93,395 @@ export default function JadwalUjianTable({
     );
   }
 
+  // Filter & Pagination State
+  const [filterNama, setFilterNama] = useState("");
+  const [filterJenis, setFilterJenis] = useState("all");
+  const [filterJadwal, setFilterJadwal] = useState<"all" | "mine">("all");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  // Jenis ujian statis
+  const jenisUjianOptions = ["Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"];
+
+  // Filtered data
+  const filteredData = useMemo(() => {
+    let data = jadwalUjian;
+    if (filterJadwal === "mine" && userId) {
+      data = data.filter((ujian) => ujian.mahasiswa?.id === userId);
+    }
+    return data.filter((ujian) => {
+      const matchNama = ujian.mahasiswa?.nama
+        ?.toLowerCase()
+        .includes(filterNama.toLowerCase());
+      const matchJenis =
+        filterJenis === "all"
+          ? true
+          : ujian.jenisUjian?.namaJenis === filterJenis;
+      return matchNama && matchJenis;
+    });
+  }, [jadwalUjian, filterNama, filterJenis, filterJadwal, userId]);
+
+  // Pagination
+  const totalPage = Math.ceil(filteredData.length / pageSize);
+  const paginatedData = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredData.slice(start, start + pageSize);
+  }, [filteredData, page, pageSize]);
+
+  // Reset page ke 1 jika filter berubah
+  useEffect(() => {
+    setPage(1);
+  }, [filterNama, filterJenis]);
+
+  const [penilaianData, setPenilaianData] = useState<any[]>([]);
+  const [loadingPenilaian, setLoadingPenilaian] = useState(false);
+
+  // Ambil penilaian saat modal rekap dibuka
+  useEffect(() => {
+    if (openRekapitulasi && selected?.id) {
+      setLoadingPenilaian(true);
+      getPenilaianByUjianId(selected.id)
+        .then((data) => setPenilaianData(data))
+        .finally(() => setLoadingPenilaian(false));
+    }
+  }, [openRekapitulasi, selected?.id]);
+
   return (
-    <div>
+    <div className="max-w-5xl mx-auto bg-white rounded-xl shadow p-6">
+      {/* Filter Bar */}
+      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
+        {/* Filter Jadwal: Semua/Jadwal Saya (left) */}
+        <div className="flex gap-2 mb-0">
+          <Button
+            className={`px-4 py-2 rounded font-medium transition-colors text-xs  ${
+              filterJadwal === "all"
+                ? "bg-blue-400 text-white hover:bg-blue-500"
+                : "bg-blue-50 text-blue-500 hover:bg-blue-100"
+            }`}
+            onClick={() => setFilterJadwal("all")}
+          >
+            Semua Jadwal
+          </Button>
+          <Button
+            className={`px-4 py-2 rounded font-medium transition-colors text-xs ${
+              filterJadwal === "mine"
+                ? "bg-blue-400 text-white hover:bg-blue-500"
+                : "bg-blue-50 text-blue-500 hover:bg-blue-100"
+            }`}
+            onClick={() => setFilterJadwal("mine")}
+          >
+            Jadwal Saya
+          </Button>
+        </div>
+        {/* Search & Filter Jenis Ujian (right) */}
+        <div className="flex gap-2 w-full md:w-auto md:ml-auto justify-end">
+          <div className="relative w-full md:w-72">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <Search size={16} />
+            </span>
+            <Input
+              placeholder="Cari nama mahasiswa..."
+              value={filterNama}
+              onChange={(e) => setFilterNama(e.target.value)}
+              className="pl-9 w-full"
+            />
+          </div>
+          <div className="relative w-full md:w-[120px]">
+            <Select value={filterJenis} onValueChange={setFilterJenis}>
+              <SelectTrigger className="pl-7  w-full">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                  <Filter size={16} />
+                </span>
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua</SelectItem>
+                {jenisUjianOptions.map((jenis) => (
+                  <SelectItem key={jenis} value={jenis}>
+                    {jenis}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
       <Table>
         <TableHeader className="bg-accent">
           <TableRow>
-            <TableHead>No</TableHead>
+            <TableHead className="text-center w-10">No</TableHead>
             <TableHead>Nama Mahasiswa</TableHead>
             <TableHead>Jenis Ujian</TableHead>
             <TableHead>Ruangan</TableHead>
             <TableHead>Waktu</TableHead>
-            <TableHead>Aksi</TableHead>
+            <TableHead>Penguji</TableHead>
+            <TableHead className="text-center ">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {jadwalUjian.length === 0 ? (
+          {paginatedData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center">
+              <TableCell
+                colSpan={6}
+                className="text-center text-gray-500 italic py-6"
+              >
                 Tidak ada jadwal ujian
               </TableCell>
             </TableRow>
           ) : (
-            jadwalUjian.map((ujian, idx) => {
-              // Format waktu tanpa detik
-              const waktuMulai = ujian.waktuMulai?.slice(0, 5) ?? "-";
-              const waktuSelesai = ujian.waktuSelesai?.slice(0, 5) ?? "-";
-              // Ambil tanggal dari jadwalUjian (support "YYYY-MM-DD HH:mm:ss" atau "YYYY-MM-DDTHH:mm:ss")
-              const tanggal = ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-";
-              const waktuGabung = `${
-                ujian.hariUjian ?? "-"
-              }, ${tanggal} ${waktuMulai} - ${waktuSelesai}`;
+            paginatedData.map((ujian, idx) => {
               return (
-                <TableRow key={ujian.id}>
-                  <TableCell>{idx + 1}</TableCell>
+                <TableRow
+                  key={ujian.id}
+                  className="hover:bg-gray-50 transition"
+                >
+                  <TableCell className="text-center">
+                    {(page - 1) * pageSize + idx + 1}
+                  </TableCell>
                   <TableCell>{ujian.mahasiswa?.nama ?? "-"}</TableCell>
-                  <TableCell>{ujian.jenisUjian?.namaJenis ?? "-"}</TableCell>
-                  <TableCell>{ujian.ruangan.namaRuangan ?? "-"}</TableCell>
-                  <TableCell>{waktuGabung}</TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="p-2"
-                          aria-label="Aksi"
-                        >
-                          <MoreVertical size={20} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelected(ujian);
-                            setOpenDetail(true);
-                          }}
-                        >
-                          <Eye size={16} className="mr-2" /> Detail
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelected(ujian);
-                            setOpenPenilaian(true);
-                          }}
-                        >
-                          <Pencil size={16} className="mr-2" /> Penilaian
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelected(ujian);
-                            setOpenRekapitulasi(true);
-                          }}
-                        >
-                          <IconClipboardText size={16} className="mr-2" />{" "}
-                          Rekapitulasi Nilai
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelected(ujian);
-                            setOpenDaftarHadir(true);
-                          }}
-                        >
-                          <UserCheck size={16} className="mr-2" /> Daftar Hadir
-                          Ujian
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Modal Detail */}
-                    <Modal
-                      open={openDetail && selected?.id === ujian.id}
-                      onClose={() => setOpenDetail(false)}
-                    >
-                      <div>
-                        <h2 className="text-lg font-bold mb-2">
-                          Detail Jadwal Ujian
-                        </h2>
-                        <div className="space-y-2 mt-2">
-                          <div>
-                            <strong>Nama Mahasiswa:</strong>{" "}
-                            {ujian.mahasiswa?.nama}
-                          </div>
-                          <div>
-                            <strong>NIM:</strong> {ujian.mahasiswa?.nim}
-                          </div>
-                          <div>
-                            <strong>Judul Penelitian:</strong>{" "}
-                            {ujian.judulPenelitian}
-                          </div>
-                          <div>
-                            <strong>Jenis Ujian:</strong>{" "}
-                            {ujian.jenisUjian?.namaJenis}
-                          </div>
-                          <div>
-                            <strong>Ruangan:</strong>{" "}
-                            {ujian.ruangan.namaRuangan}
-                          </div>
-                          <div>
-                            <strong>Waktu:</strong> {waktuGabung}
-                          </div>
-                          <div>
-                            <strong>Ketua Penguji:</strong>{" "}
-                            {ujian.ketuaPenguji?.nama}
-                          </div>
-                          <div>
-                            <strong>Sekretaris Penguji:</strong>{" "}
-                            {ujian.sekretarisPenguji?.nama}
-                          </div>
-                          <div>
-                            <strong>Penguji 1:</strong> {ujian.penguji1?.nama}
-                          </div>
-                          <div>
-                            <strong>Penguji 2:</strong> {ujian.penguji2?.nama}
-                          </div>
-                          <div>
-                            <strong>Peran Anda:</strong>{" "}
-                            {ujian.peranPenguji ?? "-"}
-                          </div>
-                        </div>
+                    <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-50 text-blue-700">
+                      {ujian.jenisUjian?.namaJenis ?? "-"}
+                    </span>
+                  </TableCell>
+                  <TableCell>{ujian.ruangan.namaRuangan ?? "-"}</TableCell>
+                  <TableCell>
+                    <div className="text-sm text-gray-700">
+                      <div className="font-medium">
+                        {ujian?.hariUjian ?? "-"},{" "}
+                        {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"}
                       </div>
-                    </Modal>
-
-                    {/* Modal Penilaian */}
-                    <Modal
-                      open={openPenilaian && selected?.id === ujian.id}
-                      onClose={() => setOpenPenilaian(false)}
-                      className="max-h-[80vh] overflow-y-auto w-full max-w-2xl"
-                    >
-                      <div>
-                        <h2 className="text-lg font-bold mb-2">
-                          Form Penilaian Ujian
-                        </h2>
-                        <form
-                          className="space-y-3"
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            // TODO: handle submit
-                          }}
-                        >
-                          {/* Identitas */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <Label className="mb-1">Nama Mahasiswa</Label>
-                              <Input
-                                type="text"
-                                value={ujian.mahasiswa?.nama ?? ""}
-                                readOnly
-                              />
-                            </div>
-                            <div>
-                              <Label className="mb-1">NIM</Label>
-                              <Input
-                                type="text"
-                                value={ujian.mahasiswa?.nim ?? ""}
-                                readOnly
-                              />
-                            </div>
-                            <div>
-                              <Label className="mb-1">Prodi</Label>
-                              <Input
-                                type="text"
-                                value={ujian.mahasiswa?.prodi?.namaProdi ?? ""}
-                                readOnly
-                              />
-                            </div>
-                            <div>
-                              <Label className="mb-1">Ketua Penguji</Label>
-                              <Input
-                                type="text"
-                                value={ujian.ketuaPenguji?.nama ?? ""}
-                                readOnly
-                              />
-                            </div>
-                          </div>
-                          {/* Penilaian */}
-                          <div className="mt-4">
-                            <Table className="w-full text-sm border">
-                              <TableHeader>
-                                <TableRow className="bg-gray-100">
-                                  <TableHead className="border px-2 py-1">
-                                    Kriteria
-                                  </TableHead>
-                                  <TableHead className="border px-2 py-1">
-                                    Bobot (%)
-                                  </TableHead>
-                                  <TableHead className="border px-2 py-1">
-                                    Skor
-                                  </TableHead>
-                                  <TableHead className="border px-2 py-1">
-                                    Bobot*Skor
-                                  </TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                <TableRow>
-                                  <TableCell className="border px-2 py-1">
-                                    Efektivitas Pendahuluan
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {bobot.efektivitas}
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.efektivitas}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          efektivitas: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16"
-                                    />
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {(
-                                      (penilaian.efektivitas *
-                                        bobot.efektivitas) /
-                                      100
-                                    ).toFixed(2)}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="border px-2 py-1">
-                                    Motivasi pada Penelitian
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {bobot.motivasi}
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.motivasi}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          motivasi: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16"
-                                    />
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {(
-                                      (penilaian.motivasi * bobot.motivasi) /
-                                      100
-                                    ).toFixed(2)}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="border px-2 py-1">
-                                    Literatur Review
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {bobot.literatur}
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.literatur}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          literatur: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16"
-                                    />
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {(
-                                      (penilaian.literatur * bobot.literatur) /
-                                      100
-                                    ).toFixed(2)}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="border px-2 py-1">
-                                    Metodologi
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {bobot.metodologi}
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.metodologi}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          metodologi: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16"
-                                    />
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {(
-                                      (penilaian.metodologi *
-                                        bobot.metodologi) /
-                                      100
-                                    ).toFixed(2)}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="border px-2 py-1">
-                                    Sikap/Presentasi
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {bobot.sikap}
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.sikap}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          sikap: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16"
-                                    />
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {(
-                                      (penilaian.sikap * bobot.sikap) /
-                                      100
-                                    ).toFixed(2)}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="border px-2 py-1">
-                                    Bimbingan
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {bobot.bimbingan}
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      max={100}
-                                      value={penilaian.bimbingan}
-                                      onChange={(e) =>
-                                        setPenilaian((p) => ({
-                                          ...p,
-                                          bimbingan: Number(e.target.value),
-                                        }))
-                                      }
-                                      className="w-16"
-                                    />
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {(
-                                      (penilaian.bimbingan * bobot.bimbingan) /
-                                      100
-                                    ).toFixed(2)}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow className="font-bold bg-gray-50">
-                                  <TableCell className="border px-2 py-1">
-                                    Skor Akhir
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    Total
-                                  </TableCell>
-                                  <TableCell className="border px-2 py-1"></TableCell>
-                                  <TableCell className="border px-2 py-1">
-                                    {skorAkhir.toFixed(2)}
-                                  </TableCell>
-                                </TableRow>
-                              </TableBody>
-                            </Table>
-                          </div>
-                          <Button
-                            type="submit"
-                            className="w-full bg-blue-500 text-white rounded py-2 mt-2"
-                          >
-                            Simpan Penilaian
-                          </Button>
-                          {/* Catatan interval nilai */}
-                          <div className="mt-4 text-sm border rounded p-3 bg-gray-50">
-                            <strong>Catatan interval nilai:</strong>
-                            <Table className="mt-2">
-                              <TableBody>
-                                <TableRow>
-                                  <TableCell className="pr-2">A</TableCell>
-                                  <TableCell>: 80.00 – 100</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="pr-2">B</TableCell>
-                                  <TableCell>: 70.00 – 79.99</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="pr-2">C</TableCell>
-                                  <TableCell>: 60.00 – 69.99</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="pr-2">D</TableCell>
-                                  <TableCell>: 56.00 – 59.99</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="pr-2">E</TableCell>
-                                  <TableCell>: {"<"} 55.99</TableCell>
-                                </TableRow>
-                              </TableBody>
-                            </Table>
-                          </div>
-                        </form>
+                      <div className="text-xs text-gray-600 mt-1">
+                        {(ujian.waktuMulai?.slice(0, 5) || "-") +
+                          " - " +
+                          (ujian.waktuSelesai?.slice(0, 5) || "-")}
                       </div>
-                    </Modal>
-
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Lihat Daftar Hadir"
+                      onClick={() => {
+                        setSelected(ujian);
+                        setOpenDaftarHadir(true);
+                      }}
+                    >
+                      <Eye size={16} />
+                    </Button>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex items-center gap-2 justify-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-blue-700 border-blue-200 hover:bg-blue-50 transition-all text-xs"
+                        onClick={() => {
+                          setSelected(ujian);
+                          setOpenRekapitulasi(true);
+                        }}
+                        disabled={ujian.mahasiswa?.id !== userId}
+                        title={
+                          ujian.mahasiswa?.id !== userId
+                            ? "Hanya bisa melihat rekap nilai milik Anda"
+                            : undefined
+                        }
+                      >
+                        <IconClipboardText
+                          size={18}
+                          className="text-blue-600"
+                        />
+                        Rekapitulasi Nilai
+                      </Button>
+                    </div>
                     {/* Modal Rekapitulasi Nilai */}
                     <Modal
                       open={openRekapitulasi && selected?.id === ujian.id}
                       onClose={() => setOpenRekapitulasi(false)}
-                      className="max-h-[80vh] overflow-y-auto w-full max-w-2xl"
+                      className="max-w-2xl w-full max-h-[85vh] overflow-y-auto"
                     >
                       <div>
-                        <h2 className="text-lg font-bold mb-2">
+                        <h2 className="text-xl font-bold mb-2 text-gray-800">
                           Rekapitulasi Nilai {ujian.jenisUjian?.namaJenis}
                         </h2>
-                        <div className="mb-2">
+                        <div className="mb-4 mt-2 text-left text-sm text-gray-700">
                           <div>
-                            <strong>Hari/Tanggal:</strong>{" "}
+                            <span className="font-semibold">Hari/Tanggal:</span>{" "}
                             {ujian.hariUjian ?? "-"} /{" "}
                             {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"}
                           </div>
                           <div>
-                            <strong>Nama/NIM:</strong>{" "}
-                            {ujian.mahasiswa?.nama ?? "-"} /{" "}
-                            {ujian.mahasiswa?.nim ?? "-"}
-                          </div>
-                          <div>
-                            <strong>Judul Proposal:</strong>{" "}
-                            <span className="break-words whitespace-normal">
-                              {ujian.judulPenelitian ?? "-"}
-                            </span>
+                            <span className="font-semibold">Ruangan:</span>{" "}
+                            {ujian.ruangan.namaRuangan ?? "-"}
                           </div>
                         </div>
-                        <Table className="w-full text-sm border">
-                          <TableHeader>
-                            <TableRow className="bg-gray-100">
-                              <TableHead className="border px-2 py-1 w-8">
-                                No.
-                              </TableHead>
-                              <TableHead className="border px-2 py-1">
-                                Nama
-                              </TableHead>
-                              <TableHead className="border px-2 py-1">
-                                Jabatan
-                              </TableHead>
-                              <TableHead className="border px-2 py-1">
-                                Angka Nilai
-                              </TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            <TableRow>
-                              <TableCell className="border px-2 py-1">
-                                1.
-                              </TableCell>
-                              <TableCell className="border px-2 py-1">
-                                {ujian.ketuaPenguji?.nama ?? "-"}
-                              </TableCell>
-                              <TableCell className="border px-2 py-1">
-                                Ketua Penguji
-                              </TableCell>
-                              <TableCell className="border px-2 py-1">
-                                90
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="border px-2 py-1">
-                                2.
-                              </TableCell>
-                              <TableCell className="border px-2 py-1">
-                                {ujian.sekretarisPenguji?.nama ?? "-"}
-                              </TableCell>
-                              <TableCell className="border px-2 py-1">
-                                Sekretaris Penguji
-                              </TableCell>
-                              <TableCell className="border px-2 py-1">
-                                90
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="border px-2 py-1">
-                                3.
-                              </TableCell>
-                              <TableCell className="border px-2 py-1">
-                                {ujian.penguji1?.nama ?? "-"}
-                              </TableCell>
-                              <TableCell className="border px-2 py-1">
-                                Penguji I
-                              </TableCell>
-                              <TableCell className="border px-2 py-1">
-                                90
-                              </TableCell>
-                            </TableRow>
-                            <TableCell>
-                              <TableRow>
-                                <TableCell className="border px-2 py-1">
-                                  4.
-                                </TableCell>
-                                <TableCell className="border px-2 py-1">
-                                  {ujian.penguji2?.nama ?? "-"}
-                                </TableCell>
-                                <TableCell className="border px-2 py-1">
-                                  Penguji II
-                                </TableCell>
-                                <TableCell className="border px-2 py-1">
-                                  90
-                                </TableCell>
+                        {/* Tabel Rekap Nilai */}
+                        <div className="overflow-x-auto rounded-lg border border-muted">
+                          <Table className="min-w-[500px]">
+                            <TableHeader>
+                              <TableRow className="bg-muted">
+                                <TableHead className="w-10 text-center font-semibold text-gray-700 border-r">
+                                  No.
+                                </TableHead>
+                                <TableHead className="font-semibold text-gray-700 border-r">
+                                  Nama
+                                </TableHead>
+                                <TableHead className="font-semibold text-gray-700 border-r">
+                                  Jabatan
+                                </TableHead>
+                                <TableHead className="font-semibold text-gray-700 text-center">
+                                  Angka Nilai
+                                </TableHead>
                               </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className="border px-2 py-1"
-                                  colSpan={3}
-                                >
-                                  Total Angka Nilai
-                                </TableCell>
-                                <TableCell className="border px-2 py-1">
-                                  360
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className="border px-2 py-1"
-                                  colSpan={3}
-                                >
-                                  Nilai Rata-rata
-                                </TableCell>
-                                <TableCell className="border px-2 py-1">
-                                  90.00
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell
-                                  className="border px-2 py-1"
-                                  colSpan={3}
-                                >
-                                  Nilai Huruf
-                                </TableCell>
-                                <TableCell className="border px-2 py-1">
-                                  A
-                                </TableCell>
-                              </TableRow>
-                            </TableCell>
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {(() => {
+                                const pengujiRows = [
+                                  {
+                                    no: 1,
+                                    jabatan: "Ketua Penguji",
+                                    dosen: ujian.ketuaPenguji,
+                                  },
+                                  {
+                                    no: 2,
+                                    jabatan: "Sekretaris Penguji",
+                                    dosen: ujian.sekretarisPenguji,
+                                  },
+                                  {
+                                    no: 3,
+                                    jabatan: "Penguji I",
+                                    dosen: ujian.penguji1,
+                                  },
+                                  {
+                                    no: 4,
+                                    jabatan: "Penguji II",
+                                    dosen: ujian.penguji2,
+                                  },
+                                ];
+                                function nilaiAkhirDosen(dosenId: number) {
+                                  const penilaian = penilaianData.filter(
+                                    (p) => p.dosenId === dosenId
+                                  );
+                                  if (penilaian.length === 0) return null;
+                                  let total = 0;
+                                  penilaian.forEach((p) => {
+                                    total +=
+                                      (p.nilai *
+                                        (p.komponenPenilaian?.bobot ?? 0)) /
+                                      100;
+                                  });
+                                  return Number(total.toFixed(2));
+                                }
+                                const nilaiList: number[] = [];
+                                pengujiRows.forEach((row) => {
+                                  if (row.dosen?.id) {
+                                    const n = nilaiAkhirDosen(row.dosen.id);
+                                    if (n !== null) nilaiList.push(n);
+                                  }
+                                });
+                                const totalNilai = nilaiList.reduce(
+                                  (a, b) => a + b,
+                                  0
+                                );
+                                const rata2 =
+                                  nilaiList.length > 0
+                                    ? totalNilai / nilaiList.length
+                                    : 0;
+                                function nilaiHuruf(n: number) {
+                                  if (n >= 80) return "A";
+                                  if (n >= 70) return "B";
+                                  if (n >= 60) return "C";
+                                  if (n >= 50) return "D";
+                                  return "E";
+                                }
+                                return (
+                                  <>
+                                    {pengujiRows.map((row, idx) => (
+                                      <TableRow
+                                        key={idx}
+                                        className="border-b last:border-b-0"
+                                      >
+                                        <TableCell className="text-center border-r">
+                                          {row.no}
+                                        </TableCell>
+                                        <TableCell className="border-r">
+                                          {row.dosen?.nama ?? "-"}
+                                        </TableCell>
+                                        <TableCell className="border-r">
+                                          {row.jabatan}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                          {row.dosen?.id
+                                            ? (() => {
+                                                const n = nilaiAkhirDosen(
+                                                  row.dosen.id
+                                                );
+                                                return n !== null ? n : "-";
+                                              })()
+                                            : "-"}
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
+                                    {/* Total Angka Nilai */}
+                                    <TableRow className="bg-muted/70 font-semibold">
+                                      <TableCell
+                                        colSpan={3}
+                                        className="text-right border-r"
+                                      >
+                                        Total Angka Nilai
+                                      </TableCell>
+                                      <TableCell className="text-center">
+                                        {nilaiList.length > 0
+                                          ? totalNilai.toFixed(2)
+                                          : "-"}
+                                      </TableCell>
+                                    </TableRow>
+                                    {/* Nilai Rata-rata */}
+                                    <TableRow className="bg-muted/70 font-semibold">
+                                      <TableCell
+                                        colSpan={3}
+                                        className="text-right border-r"
+                                      >
+                                        Nilai Rata-rata
+                                      </TableCell>
+                                      <TableCell className="text-center">
+                                        {nilaiList.length > 0
+                                          ? rata2.toFixed(2)
+                                          : "-"}
+                                      </TableCell>
+                                    </TableRow>
+                                    {/* Nilai Huruf */}
+                                    <TableRow className="bg-muted/70 font-semibold">
+                                      <TableCell
+                                        colSpan={3}
+                                        className="text-right border-r"
+                                      >
+                                        Nilai Huruf
+                                      </TableCell>
+                                      <TableCell className="text-center">
+                                        {nilaiList.length > 0
+                                          ? nilaiHuruf(rata2)
+                                          : "-"}
+                                      </TableCell>
+                                    </TableRow>
+                                  </>
+                                );
+                              })()}
+                            </TableBody>
+                          </Table>
+                          {loadingPenilaian && (
+                            <div className="text-center py-4 text-gray-500">
+                              Memuat data nilai...
+                            </div>
+                          )}
+                          {!loadingPenilaian && penilaianData.length === 0 && (
+                            <div className="text-center py-4 text-gray-500">
+                              Belum ada data penilaian
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </Modal>
 
@@ -701,25 +489,9 @@ export default function JadwalUjianTable({
                     <Modal
                       open={openDaftarHadir && selected?.id === ujian.id}
                       onClose={() => setOpenDaftarHadir(false)}
-                      className="max-w-4xl w-full max-h-[85vh] overflow-y-auto "
+                      className="max-w-4xl w-full max-h-[85vh] overflow-y-auto"
                     >
-                      <div>
-                        <h2 className="text-lg font-bold mb-2">
-                          Daftar Hadir {ujian.jenisUjian?.namaJenis}
-                        </h2>
-                        <div className="mb-4 mt-2">
-                          <div className="flex flex-col gap-1">
-                            <span>
-                              <strong>Hari/Tanggal:</strong>{" "}
-                              {ujian.hariUjian ?? "-"} /{" "}
-                              {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"}
-                            </span>
-                            <span>
-                              <strong>Ruangan:</strong>{" "}
-                              {ujian.ruangan.namaRuangan ?? "-"}
-                            </span>
-                          </div>
-                        </div>
+                      <div className="mt-8">
                         <Table className="w-full text-sm border">
                           <TableHeader>
                             <TableRow className="bg-gray-100">
@@ -733,90 +505,81 @@ export default function JadwalUjianTable({
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            <TableRow>
-                              <TableCell>1</TableCell>
-                              <TableCell>
-                                {ujian.ketuaPenguji?.nama ?? "-"}
-                              </TableCell>
-                              <TableCell>
-                                {ujian.ketuaPenguji?.nip ?? "-"}
-                                {ujian.ketuaPenguji?.nidn
-                                  ? ` / ${ujian.ketuaPenguji.nidn}`
-                                  : ""}
-                              </TableCell>
-                              <TableCell>Ketua Penguji</TableCell>
-                              <TableCell className="text-center">
-                                <Button
-                                  size="sm"
-                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                >
-                                  Hadir
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>2</TableCell>
-                              <TableCell>
-                                {ujian.sekretarisPenguji?.nama ?? "-"}
-                              </TableCell>
-                              <TableCell>
-                                {ujian.sekretarisPenguji?.nip ?? "-"}
-                                {ujian.sekretarisPenguji?.nidn
-                                  ? ` / ${ujian.sekretarisPenguji.nidn}`
-                                  : ""}
-                              </TableCell>
-                              <TableCell>Sekretaris Penguji</TableCell>
-                              <TableCell className="text-center">
-                                <Button
-                                  size="sm"
-                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                >
-                                  Hadir
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>3</TableCell>
-                              <TableCell>
-                                {ujian.penguji1?.nama ?? "-"}
-                              </TableCell>
-                              <TableCell>
-                                {ujian.penguji1?.nip ?? "-"}
-                                {ujian.penguji1?.nidn
-                                  ? ` / ${ujian.penguji1.nidn}`
-                                  : ""}
-                              </TableCell>
-                              <TableCell>Penguji I</TableCell>
-                              <TableCell className="text-center">
-                                <Button
-                                  size="sm"
-                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                >
-                                  Hadir
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>4</TableCell>
-                              <TableCell>
-                                {ujian.penguji2?.nama ?? "-"}
-                              </TableCell>
-                              <TableCell>
-                                {ujian.penguji2?.nip ?? "-"}
-                                {ujian.penguji2?.nidn
-                                  ? ` / ${ujian.penguji2.nidn}`
-                                  : ""}
-                              </TableCell>
-                              <TableCell>Penguji II</TableCell>
-                              <TableCell className="text-center">
-                                <Button
-                                  size="sm"
-                                  className="bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                >
-                                  Hadir
-                                </Button>
-                              </TableCell>
-                            </TableRow>
+                            {(() => {
+                              function getHadirStatus(dosenId?: number) {
+                                if (!dosenId) return false;
+                                return (
+                                  daftarHadir.find(
+                                    (d) =>
+                                      d.dosenId === dosenId &&
+                                      d.ujianId === ujian.id &&
+                                      d.statusKehadiran === "hadir"
+                                  ) !== undefined
+                                );
+                              }
+                              const pengujiRows = [
+                                {
+                                  no: 1,
+                                  nama: ujian.ketuaPenguji?.nama ?? "-",
+                                  nip: ujian.ketuaPenguji?.nip,
+                                  nidn: ujian.ketuaPenguji?.nidn,
+                                  jabatan: "Ketua Penguji",
+                                  dosenId: ujian.ketuaPenguji?.id,
+                                },
+                                {
+                                  no: 2,
+                                  nama: ujian.sekretarisPenguji?.nama ?? "-",
+                                  nip: ujian.sekretarisPenguji?.nip,
+                                  nidn: ujian.sekretarisPenguji?.nidn,
+                                  jabatan: "Sekretaris Penguji",
+                                  dosenId: ujian.sekretarisPenguji?.id,
+                                },
+                                {
+                                  no: 3,
+                                  nama: ujian.penguji1?.nama ?? "-",
+                                  nip: ujian.penguji1?.nip,
+                                  nidn: ujian.penguji1?.nidn,
+                                  jabatan: "Penguji I",
+                                  dosenId: ujian.penguji1?.id,
+                                },
+                                {
+                                  no: 4,
+                                  nama: ujian.penguji2?.nama ?? "-",
+                                  nip: ujian.penguji2?.nip,
+                                  nidn: ujian.penguji2?.nidn,
+                                  jabatan: "Penguji II",
+                                  dosenId: ujian.penguji2?.id,
+                                },
+                              ];
+                              return pengujiRows.map((row, idx) => (
+                                <TableRow key={idx}>
+                                  <TableCell className="text-left">
+                                    {row.no}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    {row.nama}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    {row.nip ?? "-"}
+                                    {row.nidn ? ` / ${row.nidn}` : ""}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    {row.jabatan}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {getHadirStatus(row.dosenId) ? (
+                                      <span className="px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-semibold">
+                                        Hadir
+                                      </span>
+                                    ) : (
+                                      <span className="px-2 py-1 rounded bg-red-100 text-red-700 text-xs font-semibold">
+                                        Tidak Hadir
+                                      </span>
+                                    )}
+                                  </TableCell>
+                                </TableRow>
+                              ));
+                            })()}
                           </TableBody>
                         </Table>
                       </div>
@@ -828,6 +591,41 @@ export default function JadwalUjianTable({
           )}
         </TableBody>
       </Table>
+      {/* Pagination */}
+      {totalPage > 1 && (
+        <div className="mt-4 flex justify-end">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  aria-disabled={page === 1}
+                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+              {Array.from({ length: totalPage }).map((_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    isActive={page === i + 1}
+                    onClick={() => setPage(i + 1)}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage((p) => Math.min(totalPage, p + 1))}
+                  aria-disabled={page === totalPage}
+                  className={
+                    page === totalPage ? "pointer-events-none opacity-50" : ""
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   );
 }

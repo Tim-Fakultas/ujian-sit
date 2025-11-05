@@ -1,9 +1,9 @@
-import { DosenResponse } from "@/types/Dosen";
+import { Dosen, DosenResponse } from "@/types/Dosen";
 
-export async function getDosen(prodiId: number) {
+export async function getDosen(prodiId: number | undefined) {
   try {
     const response = await fetch(`http://localhost:8000/api/dosen`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
 
     if (!response.ok) {
@@ -11,13 +11,12 @@ export async function getDosen(prodiId: number) {
     }
 
     const data: DosenResponse = await response.json();
-    // Filter dosen sesuai prodi, tapi tetap return dalam bentuk DosenResponse
-    const filteredData = {
-      data: data.data.filter((dosen) => dosen.prodi.id === prodiId),
-    };
+    const filteredData: Dosen[] = data.data.filter(
+      (dosen) => dosen.prodi.id === prodiId
+    );
     return filteredData;
   } catch (error) {
     console.error("Error fetching dosen:", error);
-    return { data: [] };
+    return [];
   }
 }

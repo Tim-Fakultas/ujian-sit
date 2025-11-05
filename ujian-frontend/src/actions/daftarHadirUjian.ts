@@ -32,5 +32,5 @@ export async function getHadirUjian() {
   if (!res.ok) throw new Error("Failed to get hadir ujian");
 
   const { data } = await res.json();
-  return data; // 
+  return data; //
 }

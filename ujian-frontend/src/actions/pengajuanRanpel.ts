@@ -1,23 +1,6 @@
 "use server";
 
 import { PengajuanRanpelResponse } from "@/types/RancanganPenelitian";
-import { cookies } from "next/headers";
-
-export async function getLoggedInUser() {
-  try {
-    const cookieStore = await cookies();
-    const userCookie = cookieStore.get("user");
-
-    if (!userCookie) {
-      return null;
-    }
-
-    return JSON.parse(userCookie.value);
-  } catch (error) {
-    console.error("Error getting logged in user:", error);
-    return null;
-  }
-}
 
 // Add Status type definition
 interface Status {
@@ -50,7 +33,7 @@ export async function getPengajuanRanpelByMahasiswaId(userId?: number) {
 export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
   try {
     const response = await fetch("http://localhost:8000/api/pengajuan-ranpel", {
-      cache: "no-store",
+      next: { tags: ["PengajuanRanpel"], revalidate: 30 },
     });
 
     if (!response.ok) {
@@ -58,8 +41,6 @@ export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
     }
 
     const data: PengajuanRanpelResponse = await response.json();
-
-    console.log("RAW pengajuanRanpel:", data.data);
 
     let filteredData = data.data;
 
@@ -73,8 +54,6 @@ export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
         (pengajuan) => pengajuan.status === "diterima"
       );
     }
-
-    console.log("Filtered pengajuanRanpel (diterima/disetujui):", filteredData);
 
     return filteredData;
   } catch (error) {
@@ -96,10 +75,6 @@ export async function getPengajuanRanpelByDosenPA(dosenId?: number) {
 
     const data: PengajuanRanpelResponse = await response.json();
 
-    // // Filter by diverifikasi status first
-    // let filteredData = data.data.filter(
-    //   (pengajuan) => pengajuan.status === "diverifikasi"
-    // );
     let filteredData = data.data;
 
     if (dosenId) {

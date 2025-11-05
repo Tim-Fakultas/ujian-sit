@@ -8,7 +8,6 @@ export default function AuthInitializer() {
 
   useEffect(() => {
     initializeFromCookies();
-    console.log("✅ Zustand rehydrated from cookies");
   }, [initializeFromCookies]);
 
   return null;

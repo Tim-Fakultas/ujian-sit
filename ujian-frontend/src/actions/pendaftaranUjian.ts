@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { revalidateTag } from "next/cache";
 
 interface PendaftaranUjianResponse {
   data: Array<{
@@ -70,14 +70,14 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
     return data.data;
   } catch (error) {
     console.error("Error fetching pendaftaran ujian:", error);
-    return []; // tetap kembalikan [] agar frontend aman
+    return [];
   }
 }
 
 export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
   try {
     const response = await fetch(`http://localhost:8000/api/ujian`, {
-      cache: "no-store",
+      next: { tags: ["pendaftaranUjian"], revalidate: 60 }, // cache 1 menit, tag untuk invalidation
     });
 
     if (!response.ok) {
@@ -85,19 +85,28 @@ export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
     }
 
     const data = await response.json();
+    // Sesuaikan filter agar hanya data dengan prodiId yang cocok dikembalikan
+    // dan struktur return sesuai dengan API terbaru
+    interface Ujian {
+      mahasiswa?: {
+        prodi?: {
+          id: number;
+        };
+      };
+    }
+
     const filteredData = data.data.filter(
-      (ujian: {
-        mahasiswa: { prodi: { id: number } };
-        pendaftaranUjian: { status: string };
-      }) => ujian.mahasiswa.prodi.id === prodiId
-      // ujian.pendaftaranUjian.status === "diterima"
+      (ujian: Ujian) => ujian.mahasiswa?.prodi?.id === prodiId // prodiId dari mahasiswa
     );
+
     return filteredData;
   } catch (error) {
     console.error("Error fetching pendaftaran ujian by prodi:", error);
     return [];
   }
 }
+
+// actions/pendaftaranUjian.ts
 
 export async function getPendaftaranUjianByProdi(prodiId: number) {
   try {
@@ -108,41 +117,39 @@ export async function getPendaftaranUjianByProdi(prodiId: number) {
       }
     );
 
-    if (!response.ok) {
+    if (!response.ok)
       throw new Error("Failed to fetch pendaftaran ujian by prodi");
-    }
 
     const data: PendaftaranUjianResponse = await response.json();
-    const filteredData = data.data.filter(
-      (pendaftaran) => pendaftaran.mahasiswa.prodiId.id === prodiId
-    );
+
+    // Filter dan map sesuai tipe, lalu urutkan dari tanggal pengajuan terbaru
+    const filteredData = data.data
+      .filter((p) => p.mahasiswa?.prodiId?.id === prodiId)
+      .filter((p) => p.status !== "selesai")
+      .map((pendaftaran) => ({
+        ...pendaftaran,
+        berkas: Array.isArray(pendaftaran.berkas)
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            pendaftaran.berkas.map((b: any) => ({
+              id: b.id,
+              namaBerkas: b.namaBerkas,
+              filePath: b.filePath,
+              uploadedAt: b.uploadedAt,
+              createdAt: b.createdAt,
+              updatedAt: b.updatedAt,
+            }))
+          : [],
+      }))
+      .sort(
+        (a, b) =>
+          new Date(b.tanggalPengajuan.replace(" ", "T")).getTime() -
+          new Date(a.tanggalPengajuan.replace(" ", "T")).getTime()
+      );
+
     return filteredData;
   } catch (error) {
     console.error("Error fetching pendaftaran ujian by prodi:", error);
     return [];
-  }
-}
-
-export async function getLoggedInUser() {
-  try {
-    const cookieStore = await cookies();
-    const userCookie = cookieStore.get("user");
-
-    // Jika tidak ada cookie
-    if (!userCookie || !userCookie.value) {
-      return null;
-    }
-
-    // Coba parse JSON
-    try {
-      return JSON.parse(userCookie.value);
-    } catch {
-      console.warn("⚠️ Cookie 'user' rusak atau kosong, hapus dari browser");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error getting logged in user:", error);
-    return null;
   }
 }
 
@@ -201,6 +208,7 @@ export async function createPendaftaranUjian({
     }
 
     const result = await response.json();
+    revalidateTag("pendaftaranUjian");
     return result;
   } catch (error: unknown) {
     // Lempar error ke frontend agar bisa ditampilkan

@@ -35,3 +35,25 @@ export async function postPenilaian(data: {
   }
   return response.json();
 }
+
+export async function getPenilaianByUjianId(ujianId: number) {
+  try {
+    const response = await fetch(`http://localhost:8000/api/penilaian`, {
+      next: { tags: ["penilaian"], revalidate: 60 },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch penilaian by ujianId");
+    }
+
+    const data = await response.json();
+
+    const filteredData = data.data.filter(
+      (penilaian: { ujianId: number }) => penilaian.ujianId === ujianId
+    );
+    return filteredData;
+  } catch (error) {
+    console.error("Error fetching penilaian by ujianId:", error);
+    return [];
+  }
+}

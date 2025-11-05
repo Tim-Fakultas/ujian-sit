@@ -112,7 +112,9 @@ export function NavUser({ user: serverUser }: { user?: any }) {
                 </Avatar>
 
                 <div className="grid flex-1 text-left text-xs leading-tight">
-                  <span className="truncate font-medium">{currentUser.nama}</span>
+                  <span className="truncate font-medium">
+                    {currentUser.nama}
+                  </span>
                   <span className="text-muted-foreground truncate text-xs">
                     {currentUser.email}
                   </span>
@@ -128,7 +130,9 @@ export function NavUser({ user: serverUser }: { user?: any }) {
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link
-                  href={`/${userRole.replace(/\s+/g, "-").toLowerCase()}/profile`}
+                  href={`/${userRole
+                    .replace(/\s+/g, "-")
+                    .toLowerCase()}/profile`}
                 >
                   <IconUserCircle className="mr-2 h-4 w-4" />
                   Profile

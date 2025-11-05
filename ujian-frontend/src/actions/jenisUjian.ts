@@ -11,7 +11,7 @@ export async function getJenisUjian() {
     }
 
     const data: JenisUjianResponse = await response.json();
-    return data;
+    return data.data;
   } catch (error) {
     console.error("Error fetching jenis ujian:", error);
     return { data: [] };

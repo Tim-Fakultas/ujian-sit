@@ -232,6 +232,7 @@ import NavMain, { NavItem } from "./nav-main";
 export const AppSidebarClient = memo(function AppSidebarClient({
   user,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any;
 }) {
   const pathname = usePathname();
@@ -265,22 +266,22 @@ export const AppSidebarClient = memo(function AppSidebarClient({
 
   const navAdmin: NavItem[] = [
     { title: "Dashboard", url: "/admin/dashboard", icon: IconHome },
-    {
-      title: "Pendaftaran Ujian",
-      url: "/admin/pendaftaran-ujian",
-      icon: IconClipboardList,
-    },
-    {
-      title: "Nilai",
-      url: "/admin/nilai-ujian",
-      icon: IconClipboardList,
-    },
+
     {
       title: "Data Master",
       icon: IconUsers,
       items: [
         { title: "Dosen", url: "/admin/dosen" },
         { title: "Mahasiswa", url: "/admin/mahasiswa" },
+      ],
+    },
+    {
+      title: "Skripsi",
+      url: "/admin/pendaftaran-ujian",
+      icon: IconClipboardList,
+      items: [
+        { title: "Daftar Ujian", url: "/admin/pendaftaran-ujian" },
+        { title: "Jadwal Ujian", url: "/admin/jadwal-ujian" },
       ],
     },
   ];
@@ -318,7 +319,6 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       items: [
         { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
         { title: "Jadwal Ujian", url: "/dosen/jadwal-ujian" },
-        { title: "Penilaian", url: "/dosen/penilaian" },
       ],
     },
   ];
@@ -379,7 +379,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
                   </div>
                 </div>
                 <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
-                  <h1 className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
+                  <h1 className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">
                     Integration System
                   </h1>
                   <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
