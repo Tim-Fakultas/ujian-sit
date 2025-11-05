@@ -350,15 +350,27 @@ class DatabaseSeeder extends Seeder
         // Create some Pejabat (officials)
         Pejabat::factory(3)->create();
 
-        $this->call(RuanganSeeder::class);
+        // $this->call(RuanganSeeder::class);
+
+        try {
+            Artisan::call('import:ujian-proposal', [
+            'file' => storage_path('app/public/Data_mhs_ujian_proposal.xlsx')
+            ]);
+            $this->command->info('Command import:ujian-proposal telah dijalankan.');
+        } catch (Exception $ex) {
+            Logger()->error('Error during import:ujian-proposal - ' . $ex->getMessage());
+        }
+
+        try{
+            Artisan::call('import:ujian-hasil', [
+            'file' => storage_path('app/public/Data_mhs_ujian_hasil_skripsi.xlsx')
+            ]);
+            $this->command->info('Command import:ujian-hasil telah dijalankan.');
+        } catch (Exception $ex) {
+            Logger()->error('Error during import:ujian-hasil - ' . $ex->getMessage());
+        }
 
 
-
-        // Artisan::call('import:ujian-semhas', [
-        //     'file' => storage_path('app/public/Data_mhs_ujian_hasil_skripsi.xlsx')
-        // ]);
-
-        // $this->command->info('Command import:ujian-hasil telah dijalankan.');
 
         try {
             Artisan::call('import:ujian-proposal', [
@@ -367,8 +379,7 @@ class DatabaseSeeder extends Seeder
             $this->command->info('Command import:ujian-skripsi telah dijalankan.');
         } catch (Exception $ex) {
             Logger()->error('Error during import:ujian-skripsi - ' . $ex->getMessage());
+            $this->command->error('Command import:ujian-skripsi gagal dijalankan.');
         }
-
-
     }
 }
