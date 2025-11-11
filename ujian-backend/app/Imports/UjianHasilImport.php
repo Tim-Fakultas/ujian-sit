@@ -113,11 +113,11 @@ class UjianHasilImport implements ToCollection
                         'status' => 'selesai',
                     ]);
 
-                    // ========== Dosen & Ruangan ==========
+                    
                     $ruanganNama = strtoupper(preg_replace('/\s+/', '', str_replace(['RUANG', 'Ruang', 'ruangan'], '', $ruanganNamaRaw)));
                     $ruangan = null;
                     if ($ruanganNama) {
-                        // Cari ruangan di DB, ignore spasi & case
+
                         $ruangan = Ruangan::whereRaw("REPLACE(UPPER(nama_ruangan), ' ', '') LIKE ?", ["%{$ruanganNama}%"])->first();
 
                         if ($ruangan) {

@@ -312,6 +312,20 @@ class DosenSeeder extends Seeder
                 'prodi_id' => 1,
                 'foto' => null,
             ],
+            [
+                'nidn' => '2031029501',
+                'nip' => '19950103 202403 1 002',
+                'nama' => 'Dr. Muhammad Isnaini, M.Pd',
+                'no_hp' => null,
+                'alamat' => null,
+                'tempat_tanggal_lahir' => 'Palembang, 03 Januari 1995',
+                'pangkat' => 'CPNS',
+                'golongan' => 'III.b',
+                'tmt_fst' => Carbon::createFromFormat('d/m/Y', '3/1/2024'),
+                'jabatan' => 'Dekan',
+                'prodi_id' => 1,
+                'foto' => null,
+            ]
         ];
 
         foreach ($initialData as $data) {
