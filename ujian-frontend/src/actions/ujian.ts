@@ -13,7 +13,6 @@ export async function getJadwalUjianByMahasiswaIdByHasil(mahasiswaId: number) {
     const data: UjianResponse = await response.json();
     if (!data?.data?.length) return [];
 
-    // Filter ujian berdasarkan mahasiswaId dan status dijadwalkan
     const filteredData = data.data.filter(
       (ujian) =>
         Number(ujian.mahasiswa?.id) === Number(mahasiswaId) &&

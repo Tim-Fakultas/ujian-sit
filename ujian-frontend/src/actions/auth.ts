@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import type { User } from "@/types/Auth";
 
-// ?LOGIN ACTION
 export async function loginAction(formData: FormData) {
   const nip_nim = String(formData.get("nip_nim") || "");
   const password = String(formData.get("password") || "");
@@ -76,9 +75,6 @@ export async function loginAction(formData: FormData) {
   return redirect(routes[role] || "/login");
 }
 
-// ===============================
-//? GET CURRENT USER ACTION
-// ===============================
 export async function getCurrentUserAction() {
   const cookieStore = await cookies();
   const userCookie = cookieStore.get("user")?.value;
@@ -91,7 +87,15 @@ export async function getCurrentUserAction() {
   try {
     const user: User = JSON.parse(userCookie);
     return { user, token: tokenCookie, isAuthenticated: true };
-  } catch (error) {
+  } catch {
     return { user: null, token: null, isAuthenticated: false };
   }
+}
+
+export async function logoutAction() {
+  const cookieStore = await cookies();
+  cookieStore.delete("user");
+  cookieStore.delete("token");
+
+  redirect("/login");
 }

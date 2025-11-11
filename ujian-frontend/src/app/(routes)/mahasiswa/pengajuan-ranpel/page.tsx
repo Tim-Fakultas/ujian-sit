@@ -2,7 +2,7 @@ import PengajuanTable from "@/components/mahasiswa/pengajuan-ranpel/PengajuanTab
 
 import { Suspense } from "react";
 import Loading from "./loading";
-import { getCurrentUserAction } from "@/actions/loginAction";
+import { getCurrentUserAction } from "@/actions/auth";
 
 export default async function Page() {
   const { user } = await getCurrentUserAction();

@@ -12,12 +12,11 @@ import { Ujian } from "@/types/Ujian";
 import { Button } from "@/components/ui/button";
 import {
   Eye,
-  Filter,
   Search,
   ChevronDown,
-  ChevronUp,
   ChevronDown as ArrowDown,
   ChevronUp as ArrowUp,
+  ListFilter,
 } from "lucide-react";
 import {
   Dialog,
@@ -26,15 +25,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { daftarKehadiran } from "@/types/daftarKehadiran";
+import { daftarKehadiran } from "@/types/DaftarKehadiran";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Pagination,
   PaginationContent,
@@ -198,7 +191,7 @@ export default function JadwalUjianTable({
               variant="outline"
               className="flex items-center border border-gray-200 rounded-lg px-4 py-1 bg-white text-gray-700 hover:bg-gray-50 text-xs font-medium shadow-sm"
             >
-              <Filter size={16} className="mr-2" />
+              <ListFilter size={16} className="mr-2" />
               Filters
               <ChevronDown size={16} className="ml-2" />
             </Button>
@@ -259,157 +252,159 @@ export default function JadwalUjianTable({
         </Popover>
       </div>
 
-      <Table className="text-xs border-collapse border border-gray-100">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-center w-10">No</TableHead>
-            <TableHead>
-              <div className="flex items-center gap-1 select-none">
-                Nama Mahasiswa
-                <button
-                  type="button"
-                  className="ml-1 p-0.5"
-                  onClick={() => handleSort("nama")}
-                  aria-label="Urutkan Nama Mahasiswa"
-                >
-                  {sortField === "nama" ? (
-                    sortOrder === "asc" ? (
-                      <ArrowUp size={14} className="inline" />
-                    ) : (
-                      <ArrowDown size={14} className="inline" />
-                    )
-                  ) : (
-                    <ChevronDown size={14} className="inline text-gray-400" />
-                  )}
-                </button>
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="flex items-center gap-1 select-none">
-                Judul Penelitian
-                <button
-                  type="button"
-                  className="ml-1 p-0.5"
-                  onClick={() => handleSort("judul")}
-                  aria-label="Urutkan Judul Penelitian"
-                >
-                  {sortField === "judul" ? (
-                    sortOrder === "asc" ? (
-                      <ArrowUp size={14} className="inline" />
-                    ) : (
-                      <ArrowDown size={14} className="inline" />
-                    )
-                  ) : (
-                    <ChevronDown size={14} className="inline text-gray-400" />
-                  )}
-                </button>
-              </div>
-            </TableHead>
-            <TableHead>Jenis Ujian</TableHead>
-            <TableHead>
-              <div className="flex items-center gap-1 select-none">
-                Waktu
-                <button
-                  type="button"
-                  className="ml-1 p-0.5"
-                  onClick={() => handleSort("waktu")}
-                  aria-label="Urutkan Waktu"
-                >
-                  {sortField === "waktu" ? (
-                    sortOrder === "asc" ? (
-                      <ArrowUp size={14} className="inline" />
-                    ) : (
-                      <ArrowDown size={14} className="inline" />
-                    )
-                  ) : (
-                    <ChevronDown size={14} className="inline text-gray-400" />
-                  )}
-                </button>
-              </div>
-            </TableHead>
-            <TableHead>Ruangan</TableHead>
-            <TableHead className="text-center">Penguji</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginatedData.length > 0 ? (
-            paginatedData.map((ujian, index) => (
-              <TableRow
-                key={ujian.id}
-                className="hover:bg-gray-50 transition text-xs"
-              >
-                <TableCell className="text-center text-xs">
-                  {(page - 1) * pageSize + index + 1}
-                </TableCell>
-                <TableCell className="text-xs">
-                  {ujian.mahasiswa.nama}
-                </TableCell>
-                <TableCell className="whitespace-normal break-words max-w-xs text-xs">
-                  {ujian.judulPenelitian}
-                </TableCell>
-                <TableCell className="text-xs">
-                  <span
-                    className={`px-2 py-1 rounded text-[10px] font-medium inline-block ${getJenisUjianColor(
-                      ujian.jenisUjian.namaJenis
-                    )}`}
+      <div className="border overflow-auto rounded-sm">
+        <Table className="text-xs ">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-center w-10">No</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1 select-none">
+                  Nama Mahasiswa
+                  <button
+                    type="button"
+                    className="ml-1 p-0.5"
+                    onClick={() => handleSort("nama")}
+                    aria-label="Urutkan Nama Mahasiswa"
                   >
-                    {ujian.jenisUjian.namaJenis}
-                  </span>
-                </TableCell>
-                <TableCell className="max-w-xs text-xs">
-                  <div className="text-xs text-gray-700">
-                    <div className="font-medium text-xs">
-                      {ujian?.hariUjian
-                        ? ujian.hariUjian.charAt(0).toUpperCase() +
-                          ujian.hariUjian.slice(1)
-                        : "-"}
-                      <span>, </span>
-                      {ujian.jadwalUjian
-                        ? new Date(ujian.jadwalUjian).toLocaleDateString(
-                            "id-ID",
-                            {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                            }
-                          )
-                        : "-"}
-                    </div>
-                    <div className="text-xs text-gray-600 mt-1">
-                      {(ujian.waktuMulai?.slice(0, 5) || "-") +
-                        " - " +
-                        (ujian.waktuSelesai?.slice(0, 5) || "-")}
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs">
-                  {ujian.ruangan?.namaRuangan || "-"}
-                </TableCell>
-                <TableCell className="text-center text-xs">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hover:bg-gray-200 text-xs"
-                    aria-label="Lihat Detail"
-                    onClick={() => handleDetail(ujian)}
+                    {sortField === "nama" ? (
+                      sortOrder === "asc" ? (
+                        <ArrowUp size={14} className="inline" />
+                      ) : (
+                        <ArrowDown size={14} className="inline" />
+                      )
+                    ) : (
+                      <ChevronDown size={14} className="inline text-gray-400" />
+                    )}
+                  </button>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1 select-none">
+                  Judul Penelitian
+                  <button
+                    type="button"
+                    className="ml-1 p-0.5"
+                    onClick={() => handleSort("judul")}
+                    aria-label="Urutkan Judul Penelitian"
                   >
-                    <Eye size={16} />
-                  </Button>
+                    {sortField === "judul" ? (
+                      sortOrder === "asc" ? (
+                        <ArrowUp size={14} className="inline" />
+                      ) : (
+                        <ArrowDown size={14} className="inline" />
+                      )
+                    ) : (
+                      <ChevronDown size={14} className="inline text-gray-400" />
+                    )}
+                  </button>
+                </div>
+              </TableHead>
+              <TableHead>Jenis Ujian</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1 select-none">
+                  Waktu
+                  <button
+                    type="button"
+                    className="ml-1 p-0.5"
+                    onClick={() => handleSort("waktu")}
+                    aria-label="Urutkan Waktu"
+                  >
+                    {sortField === "waktu" ? (
+                      sortOrder === "asc" ? (
+                        <ArrowUp size={14} className="inline" />
+                      ) : (
+                        <ArrowDown size={14} className="inline" />
+                      )
+                    ) : (
+                      <ChevronDown size={14} className="inline text-gray-400" />
+                    )}
+                  </button>
+                </div>
+              </TableHead>
+              <TableHead>Ruangan</TableHead>
+              <TableHead className="text-center">Penguji</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.length > 0 ? (
+              paginatedData.map((ujian, index) => (
+                <TableRow
+                  key={ujian.id}
+                  className="hover:bg-gray-50 transition text-xs"
+                >
+                  <TableCell className="text-center text-xs">
+                    {(page - 1) * pageSize + index + 1}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {ujian.mahasiswa.nama}
+                  </TableCell>
+                  <TableCell className="whitespace-normal break-words max-w-xs text-xs">
+                    {ujian.judulPenelitian}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    <span
+                      className={`px-2 py-1 rounded text-[10px] font-medium inline-block ${getJenisUjianColor(
+                        ujian.jenisUjian.namaJenis
+                      )}`}
+                    >
+                      {ujian.jenisUjian.namaJenis}
+                    </span>
+                  </TableCell>
+                  <TableCell className="max-w-xs text-xs">
+                    <div className="text-xs text-gray-700">
+                      <div className="font-medium text-xs">
+                        {ujian?.hariUjian
+                          ? ujian.hariUjian.charAt(0).toUpperCase() +
+                            ujian.hariUjian.slice(1)
+                          : "-"}
+                        <span>, </span>
+                        {ujian.jadwalUjian
+                          ? new Date(ujian.jadwalUjian).toLocaleDateString(
+                              "id-ID",
+                              {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              }
+                            )
+                          : "-"}
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">
+                        {(ujian.waktuMulai?.slice(0, 5) || "-") +
+                          " - " +
+                          (ujian.waktuSelesai?.slice(0, 5) || "-")}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {ujian.ruangan?.namaRuangan || "-"}
+                  </TableCell>
+                  <TableCell className="text-center text-xs">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="hover:bg-gray-200 text-xs"
+                      aria-label="Lihat Detail"
+                      onClick={() => handleDetail(ujian)}
+                    >
+                      <Eye size={16} />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="text-center text-gray-500 italic py-6"
+                >
+                  Tidak ada jadwal ujian tersedia.
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={7}
-                className="text-center text-gray-500 italic py-6"
-              >
-                Tidak ada jadwal ujian tersedia.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       {/* Pagination */}
       <div className="mt-4 flex justify-end text-xs">

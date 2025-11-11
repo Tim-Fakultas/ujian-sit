@@ -12,12 +12,13 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import { getKomponenPenilaianByUjianByPeran } from "@/actions/komponenPenilaian";
+import { getKomponenPenilaianByUjianByPeran } from "@/actions/data-master/komponenPenilaian";
 import { postPenilaian } from "@/actions/penilaian";
+import { getPenilaianByUjianId } from "@/actions/penilaian";
 import { KomponenPenilaian } from "@/types/KomponenPenilaian";
 import { Ujian } from "@/types/Ujian";
 import { useActionState } from "react";
-import revalidateAction from "@/actions/revalidateAction";
+import revalidateAction from "@/actions/revalidate";
 
 interface PenilaianModalProps {
   open: boolean;
@@ -33,8 +34,10 @@ export default function PenilaianModal({
   ujian,
 }: PenilaianModalProps) {
   const [komponen, setKomponen] = useState<KomponenPenilaian[]>([]);
-  const [nilai, setNilai] = useState<Record<number, number>>({}); // nilai per komponen id
+  const [nilai, setNilai] = useState<Record<number, number>>({});
+  const [isSudahNilai, setIsSudahNilai] = useState(false);
 
+  // Fetch komponen penilaian saat modal dibuka
   useEffect(() => {
     if (ujian?.jenisUjian?.id && ujian?.peranPenguji) {
       getKomponenPenilaianByUjianByPeran(
@@ -48,6 +51,43 @@ export default function PenilaianModal({
       });
     }
   }, [ujian?.jenisUjian?.id, ujian?.peranPenguji]);
+
+  // Cek apakah dosen sudah memberikan nilai
+  useEffect(() => {
+    async function cekSudahNilai() {
+      if (ujian?.id && ujian?.peranPenguji) {
+        const penilaian = await getPenilaianByUjianId(ujian.id);
+        let dosenId: number | undefined = undefined;
+        if (ujian.peranPenguji === "Ketua Penguji")
+          dosenId = ujian.ketuaPenguji?.id;
+        else if (ujian.peranPenguji === "Sekretaris Penguji")
+          dosenId = ujian.sekretarisPenguji?.id;
+        else if (ujian.peranPenguji === "Penguji 1")
+          dosenId = ujian.penguji1?.id;
+        else if (ujian.peranPenguji === "Penguji 2")
+          dosenId = ujian.penguji2?.id;
+
+        if (dosenId) {
+          const sudah = penilaian.some(
+            (p: { dosenId: number }) => p.dosenId === dosenId
+          );
+          setIsSudahNilai(sudah);
+        } else {
+          setIsSudahNilai(false);
+        }
+      } else {
+        setIsSudahNilai(false);
+      }
+    }
+    cekSudahNilai();
+  }, [
+    ujian?.id,
+    ujian?.peranPenguji,
+    ujian?.ketuaPenguji,
+    ujian?.sekretarisPenguji,
+    ujian?.penguji1,
+    ujian?.penguji2,
+  ]);
 
   // ✅ update skor secara dinamis
   const handleNilaiChange = (id: number, val: number) => {
@@ -104,10 +144,21 @@ export default function PenilaianModal({
   // Tutup modal jika sukses
   useEffect(() => {
     if (state && state.success) {
-      onClose();
-      revalidateAction("/dosen/jadwal-ujian");
+      // Cegah toast muncul terus-menerus dengan flag
+      let shown = false;
+      if (!shown) {
+        shown = true;
+        import("sonner").then(({ toast }) => {
+          toast.success("Penilaian berhasil disimpan!", {
+            description: "Data penilaian Anda telah berhasil disimpan.",
+          });
+        });
+        onClose();
+        revalidateAction("/dosen/jadwal-ujian");
+      }
     }
-  }, [onClose, state, state.success]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.success]);
 
   if (!open || !ujian) return null;
 
@@ -128,27 +179,46 @@ export default function PenilaianModal({
         >
           &times;
         </Button>
-        <h2 className="text-lg font-bold  mb-3">Form Penilaian Ujian</h2>
+        <h2 className="text-lg font-bold  mb-3 text-left">
+          Form Penilaian Ujian
+        </h2>
 
         {/* Identitas Mahasiswa */}
-        <div className="grid grid-cols-2 gap-2 mb-4 text-sm">
+        <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
           <div>
-            <Label className="mb-1">Nama Mahasiswa</Label>
-            <Input value={ujian.mahasiswa?.nama ?? ""} readOnly />
+            <Label className="mb-1 text-xs">Nama Mahasiswa</Label>
+            <Input
+              value={ujian.mahasiswa?.nama ?? ""}
+              className="text-xs"
+              readOnly
+            />
           </div>
           <div>
-            <Label className="mb-1">NIM</Label>
-            <Input value={ujian.mahasiswa?.nim ?? ""} readOnly />
+            <Label className="mb-1 text-xs">NIM</Label>
+            <Input
+              value={ujian.mahasiswa?.nim ?? ""}
+              className="text-xs"
+              readOnly
+            />
           </div>
           <div>
-            <Label className="mb-1">Prodi</Label>
-            <Input value={ujian.mahasiswa?.prodi?.namaProdi ?? ""} readOnly />
+            <Label className="mb-1 text-xs">Prodi</Label>
+            <Input
+              value={ujian.mahasiswa?.prodi?.namaProdi ?? ""}
+              className="text-xs"
+              readOnly
+            />
           </div>
           <div>
-            <Label className="mb-1">Peran Penguji</Label>
-            <Input value={ujian.peranPenguji ?? ""} readOnly />
+            <Label className="mb-1 text-xs">Peran Penguji</Label>
+            <Input
+              value={ujian.peranPenguji ?? ""}
+              className="text-xs"
+              readOnly
+            />
           </div>
         </div>
+        {/* Pastikan seluruh text di dalam grid ini sudah text-xs */}
 
         <form action={formAction}>
           <Table className="w-full text-sm border">
@@ -197,7 +267,7 @@ export default function PenilaianModal({
                 <TableCell className="border px-2 py-1">Skor Akhir</TableCell>
                 <TableCell className="border px-2 py-1">Total</TableCell>
                 <TableCell className="border px-2 py-1"></TableCell>
-                <TableCell className="border px-2 py-1 text-right text-[#636AE8]">
+                <TableCell className="border px-2 py-1 text-right text-blue-400">
                   {totalSkor.toFixed(2)}
                 </TableCell>
               </TableRow>
@@ -206,10 +276,17 @@ export default function PenilaianModal({
 
           <Button
             type="submit"
-            className="w-full mt-4 bg-[#636AE8] hover:bg-[#4b53c5] text-white"
+            className="w-full mt-4 bg-blue-400 hover:bg-blue-500 text-white"
+            disabled={isSudahNilai}
           >
             Simpan Penilaian
           </Button>
+
+          {isSudahNilai && (
+            <p className="text-xs text-red-600 mt-2 text-center">
+              Anda sudah memberikan penilaian untuk ujian ini.
+            </p>
+          )}
 
           {state?.error && (
             <p className="text-red-600 text-sm mt-2">{state.error}</p>
@@ -217,28 +294,30 @@ export default function PenilaianModal({
 
           {/* Catatan interval nilai */}
           <div className="mt-5 text-sm border rounded p-3 bg-gray-50">
-            <strong>Catatan Interval Nilai:</strong>
-            <Table className="mt-2">
+            <strong className="block text-center mb-2">
+              Catatan Interval Nilai:
+            </strong>
+            <Table className="mt-2 w-full">
               <TableBody>
                 <TableRow>
-                  <TableCell className="pr-2">A</TableCell>
-                  <TableCell>: 80.00 – 100</TableCell>
+                  <TableCell className="pr-2 text-left w-1/4">A</TableCell>
+                  <TableCell className="text-left">: 80.00 – 100</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="pr-2">B</TableCell>
-                  <TableCell>: 70.00 – 79.99</TableCell>
+                  <TableCell className="pr-2 text-left w-1/4">B</TableCell>
+                  <TableCell className="text-left">: 70.00 – 79.99</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="pr-2">C</TableCell>
-                  <TableCell>: 60.00 – 69.99</TableCell>
+                  <TableCell className="pr-2 text-left w-1/4">C</TableCell>
+                  <TableCell className="text-left">: 60.00 – 69.99</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="pr-2">D</TableCell>
-                  <TableCell>: 56.00 – 59.99</TableCell>
+                  <TableCell className="pr-2 text-left w-1/4">D</TableCell>
+                  <TableCell className="text-left">: 56.00 – 59.99</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="pr-2">E</TableCell>
-                  <TableCell>: {"<"} 55.99</TableCell>
+                  <TableCell className="pr-2 text-left w-1/4">E</TableCell>
+                  <TableCell className="text-left">: {"<"} 55.99</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

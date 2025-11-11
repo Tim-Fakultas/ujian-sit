@@ -1,4 +1,4 @@
-import { getCurrentUserAction } from "@/actions/loginAction";
+import { getCurrentUserAction } from "@/actions/auth";
 import { getPendaftaranUjianByProdi } from "@/actions/pendaftaranUjian";
 import PendaftaranUjianTable from "@/components/admin/PendaftaranUjianTable";
 import { Suspense } from "react";

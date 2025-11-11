@@ -26,7 +26,7 @@ export async function getHadirUjian() {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
-    next: { revalidate: 60 },
+    cache: "no-store",
   });
 
   if (!res.ok) throw new Error("Failed to get hadir ujian");

@@ -282,6 +282,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       items: [
         { title: "Daftar Ujian", url: "/admin/pendaftaran-ujian" },
         { title: "Jadwal Ujian", url: "/admin/jadwal-ujian" },
+        { title: "Rekapitulasi Nilai", url: "/admin/rekapitulasi-nilai" },
       ],
     },
   ];
@@ -336,7 +337,6 @@ export const AppSidebarClient = memo(function AppSidebarClient({
     },
   ];
 
-  // 🔍 Tentukan menu berdasarkan prefix route
   const routeMap: Record<string, NavItem[]> = {
     "/super-admin": navSuperAdmin,
     "/admin": navAdmin,
@@ -351,9 +351,6 @@ export const AppSidebarClient = memo(function AppSidebarClient({
   );
   const navItems = routeKey ? routeMap[routeKey] : navMahasiswa;
 
-  // ========================
-  // ⚙️ Render Sidebar
-  // ========================
   return (
     <Sidebar collapsible="icon">
       {/* Header */}
@@ -380,10 +377,10 @@ export const AppSidebarClient = memo(function AppSidebarClient({
                 </div>
                 <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
                   <h1 className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">
-                    Integration System
+                    E-Skripsi
                   </h1>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                    E-Skripsi Platform
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    Faculty of Science & Technology
                   </p>
                 </div>
               </div>

@@ -200,8 +200,8 @@ export default function PengajuanTableClient({
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-sm">
-        <Table className="border border-gray-200 rounded-lg bg-white shadow-none text-xs">
+      <div className="mt-6 overflow-x-auto rounded-sm border">
+        <Table className=" text-xs">
           <TableHeader className="bg-white border-b border-gray-200 text-xs">
             <TableRow>
               <TableHead className="text-left font-semibold px-4 py-3 whitespace-nowrap text-xs text-gray-700 border-0">

@@ -3,12 +3,12 @@ import { PDFDocument } from "@/components/PDFDocument";
 import { Button } from "@/components/ui/button";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { updateStatusPengajuanRanpel } from "@/actions/pengajuanRanpel";
-import { getDosen } from "@/actions/dosen";
-import { updatePembimbingMahasiswa } from "@/actions/mahasiswa";
+import { getDosen } from "@/actions/data-master/dosen";
+import { updatePembimbingMahasiswa } from "@/actions/data-master/mahasiswa";
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
-import revalidateAction from "@/actions/revalidateAction";
+import revalidateAction from "@/actions/revalidate";
 import {
   AlertDialog,
   AlertDialogContent,

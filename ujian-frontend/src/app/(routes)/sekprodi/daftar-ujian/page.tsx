@@ -1,11 +1,11 @@
-import { getDosen } from "@/actions/dosen";
-import { getPendaftaranUjianDiterimaByProdi} from "@/actions/pendaftaranUjian";
+import { getDosen } from "@/actions/data-master/dosen";
+import { getPendaftaranUjianDiterimaByProdi } from "@/actions/pendaftaranUjian";
 import PendaftaranUjianTable from "@/components/sekprodi/pendaftaran-ujian/PendaftaranTable";
-import { Dosen} from "@/types/Dosen";
+import { Dosen } from "@/types/Dosen";
 import { Ujian } from "@/types/Ujian";
 import { Suspense } from "react";
 import Loading from "./loading";
-import { getCurrentUserAction } from "@/actions/loginAction";
+import { getCurrentUserAction } from "@/actions/auth";
 
 export default async function PendaftaranUjianPage() {
   const { user } = await getCurrentUserAction();

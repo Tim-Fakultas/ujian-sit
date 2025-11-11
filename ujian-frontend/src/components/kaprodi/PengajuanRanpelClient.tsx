@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, Search } from "lucide-react";
+import { Eye, Search, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDate, truncateTitle } from "@/lib/utils";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { useEffect, useState } from "react";
@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { ListFilter, ChevronDown } from "lucide-react";
+import { ListFilter } from "lucide-react";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Semua" },
@@ -35,10 +35,14 @@ export default function PengajuanTableClient({
   const pageSize = 10;
   const [filterStatus, setFilterStatus] = useState("all");
   const [search, setSearch] = useState("");
-  const [sortAsc, setSortAsc] = useState(true);
+  const [sortAsc, setSortAsc] = useState(false); // default: terbaru (desc)
   const [selectedPengajuan, setSelectedPengajuan] =
     useState<PengajuanRanpel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortField, setSortField] = useState<
+    "nama" | "judul" | "tanggal" | null
+  >("tanggal");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // default: terbaru
 
   // Filter & sort
   const filteredData = pengajuanRanpel
@@ -50,9 +54,24 @@ export default function PengajuanTableClient({
     );
 
   const sortedData = [...filteredData].sort((a, b) => {
+    if (sortField === "nama") {
+      const namaA = a.mahasiswa.nama.toLowerCase();
+      const namaB = b.mahasiswa.nama.toLowerCase();
+      if (namaA < namaB) return sortOrder === "asc" ? -1 : 1;
+      if (namaA > namaB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    }
+    if (sortField === "judul") {
+      const judulA = (a.ranpel.judulPenelitian || "").toLowerCase();
+      const judulB = (b.ranpel.judulPenelitian || "").toLowerCase();
+      if (judulA < judulB) return sortOrder === "asc" ? -1 : 1;
+      if (judulA > judulB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    }
+    // tanggal
     const dateA = new Date(a.tanggalPengajuan).getTime();
     const dateB = new Date(b.tanggalPengajuan).getTime();
-    return sortAsc ? dateA - dateB : dateB - dateA;
+    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
   });
 
   // Pagination
@@ -90,7 +109,18 @@ export default function PengajuanTableClient({
     }
     return [1, "...", current - 1, current, current + 1, "...", total];
   }
+
   const paginationItems = getPaginationItems(page, totalPages);
+
+  // Sort handler
+  function handleSort(field: "nama" | "judul" | "tanggal") {
+    if (sortField === field) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortOrder(field === "tanggal" ? "desc" : "asc");
+    }
+  }
 
   return (
     <>
@@ -159,29 +189,72 @@ export default function PengajuanTableClient({
         </div>
       </div>
 
-      <div className="overflow-x-auto border rounded">
-        <Table className="text-xs">
+      <div className="overflow-x-auto border rounded-sm">
+        <Table >
           <TableHeader>
             <TableRow>
               <TableHead className="text-center w-12">No</TableHead>
-              <TableHead>Nama Mahasiswa</TableHead>
-              <TableHead>Judul Rancangan Penelitian</TableHead>
               <TableHead>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 select-none">
+                  Nama Mahasiswa
+                  <button
+                    type="button"
+                    className="ml-1 p-0.5"
+                    onClick={() => handleSort("nama")}
+                    aria-label="Urutkan Nama"
+                  >
+                    {sortField === "nama" ? (
+                      sortOrder === "asc" ? (
+                        <ChevronUp size={13} />
+                      ) : (
+                        <ChevronDown size={13} />
+                      )
+                    ) : (
+                      <ChevronDown size={13} className="text-gray-400" />
+                    )}
+                  </button>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1 select-none">
+                  Judul Rancangan Penelitian
+                  <button
+                    type="button"
+                    className="ml-1 p-0.5"
+                    onClick={() => handleSort("judul")}
+                    aria-label="Urutkan Judul"
+                  >
+                    {sortField === "judul" ? (
+                      sortOrder === "asc" ? (
+                        <ChevronUp size={13} />
+                      ) : (
+                        <ChevronDown size={13} />
+                      )
+                    ) : (
+                      <ChevronDown size={13} className="text-gray-400" />
+                    )}
+                  </button>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1 select-none">
                   <span>Tanggal Pengajuan</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="p-1"
-                    onClick={() => setSortAsc((v) => !v)}
+                  <button
+                    type="button"
+                    className="ml-1 p-0.5"
+                    onClick={() => handleSort("tanggal")}
                     aria-label="Urutkan Tanggal"
                   >
-                    {sortAsc ? (
-                      <span className="text-xs">↑</span>
+                    {sortField === "tanggal" ? (
+                      sortOrder === "asc" ? (
+                        <ChevronUp size={13} />
+                      ) : (
+                        <ChevronDown size={13} />
+                      )
                     ) : (
-                      <span className="text-xs">↓</span>
+                      <ChevronDown size={13} className="text-gray-400" />
                     )}
-                  </Button>
+                  </button>
                 </div>
               </TableHead>
               <TableHead>Status</TableHead>

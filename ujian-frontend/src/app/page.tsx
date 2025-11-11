@@ -1,7 +1,7 @@
 // src/app/page.tsx
 // app/page.tsx (misal halaman root atau login)
 import { redirect } from "next/navigation";
-import { getCurrentUserAction } from "@/actions/loginAction";
+import { getCurrentUserAction } from "@/actions/auth";
 
 export default async function Home() {
   const { token, user } = await getCurrentUserAction();

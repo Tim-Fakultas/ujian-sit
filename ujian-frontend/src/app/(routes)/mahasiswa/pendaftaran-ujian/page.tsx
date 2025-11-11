@@ -1,11 +1,11 @@
-import { getJenisUjian } from "@/actions/jenisUjian";
+import { getJenisUjian } from "@/actions/data-master/jenisUjian";
 import { getPendaftaranUjianByMahasiswaId } from "@/actions/pendaftaranUjian";
 import { getPengajuanRanpelByMahasiswaIdByStatus } from "@/actions/pengajuanRanpel";
 import PendaftaranTable from "@/components/mahasiswa/pengajuan-ujian/PendaftaranTable";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { Suspense } from "react";
 import Loading from "./loading";
-import { getCurrentUserAction } from "@/actions/loginAction";
+import { getCurrentUserAction } from "@/actions/auth";
 import { getJadwalUjianByMahasiswaIdByHasil } from "@/actions/ujian";
 import { Ujian } from "@/types/Ujian";
 import { PendaftaranUjian } from "@/types/PendaftaranUjian";

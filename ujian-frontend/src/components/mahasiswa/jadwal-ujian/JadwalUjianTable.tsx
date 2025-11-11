@@ -1,12 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { Ujian } from "@/types/Ujian";
-
-import { Pencil, Eye, MoreVertical, Search, Filter } from "lucide-react";
+import {
+  Eye,
+  Search,
+  ChevronDown,
+  ListFilter,
+  MoreHorizontal,
+} from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
-import { UserCheck } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -17,21 +21,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import {
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -39,8 +28,20 @@ import {
   PaginationPrevious,
   PaginationLink,
 } from "@/components/ui/pagination";
-import { daftarKehadiran } from "@/types/daftarKehadiran";
+import { daftarKehadiran } from "@/types/DaftarKehadiran";
 import { getPenilaianByUjianId } from "@/actions/penilaian";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 interface JadwalUjianTableProps {
   jadwalUjian: Ujian[];
@@ -97,6 +98,8 @@ export default function JadwalUjianTable({
   const [filterNama, setFilterNama] = useState("");
   const [filterJenis, setFilterJenis] = useState("all");
   const [filterJadwal, setFilterJadwal] = useState<"all" | "mine">("all");
+  const [openFilter, setOpenFilter] = useState(false);
+  const [openJadwalFilter, setOpenJadwalFilter] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -147,110 +150,162 @@ export default function JadwalUjianTable({
   }, [openRekapitulasi, selected?.id]);
 
   return (
-    <div className="max-w-5xl mx-auto bg-white rounded-xl shadow p-6">
+    <div>
       {/* Filter Bar */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
-        {/* Filter Jadwal: Semua/Jadwal Saya (left) */}
-        <div className="flex gap-2 mb-0">
-          <Button
-            className={`px-4 py-2 rounded font-medium transition-colors text-xs  ${
-              filterJadwal === "all"
-                ? "bg-blue-400 text-white hover:bg-blue-500"
-                : "bg-blue-50 text-blue-500 hover:bg-blue-100"
-            }`}
-            onClick={() => setFilterJadwal("all")}
-          >
-            Semua Jadwal
-          </Button>
-          <Button
-            className={`px-4 py-2 rounded font-medium transition-colors text-xs ${
-              filterJadwal === "mine"
-                ? "bg-blue-400 text-white hover:bg-blue-500"
-                : "bg-blue-50 text-blue-500 hover:bg-blue-100"
-            }`}
-            onClick={() => setFilterJadwal("mine")}
-          >
-            Jadwal Saya
-          </Button>
-        </div>
-        {/* Search & Filter Jenis Ujian (right) */}
+      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
+        {/* Jadwal Filter: Popover */}
+        <Popover open={openJadwalFilter} onOpenChange={setOpenJadwalFilter}>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex items-center  rounded-lg px-4 py-1 bg-white text-gray-700 hover:bg-gray-50 text-xs font-medium "
+            >
+              {filterJadwal === "all" ? "Semua Jadwal" : "Jadwal Saya"}
+              <ChevronDown size={16} className="ml-2" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-40 p-2 text-xs" align="start">
+            <div className="flex flex-col gap-1">
+              <Button
+                variant={filterJadwal === "all" ? "secondary" : "ghost"}
+                size="sm"
+                className="justify-start text-xs"
+                onClick={() => {
+                  setFilterJadwal("all");
+                  setOpenJadwalFilter(false);
+                }}
+              >
+                Semua Jadwal
+              </Button>
+              <Button
+                variant={filterJadwal === "mine" ? "secondary" : "ghost"}
+                size="sm"
+                className="justify-start text-xs"
+                onClick={() => {
+                  setFilterJadwal("mine");
+                  setOpenJadwalFilter(false);
+                }}
+              >
+                Jadwal Saya
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+
         <div className="flex gap-2 w-full md:w-auto md:ml-auto justify-end">
-          <div className="relative w-full md:w-72">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <div className="relative w-full max-w-xs">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <Search size={16} />
             </span>
             <Input
-              placeholder="Cari nama mahasiswa..."
+              placeholder="Search"
               value={filterNama}
               onChange={(e) => setFilterNama(e.target.value)}
-              className="pl-9 w-full"
+              className="pl-10 w-full text-xs placeholder:text-xs"
+              inputMode="text"
+              style={{ fontSize: "0.75rem" }}
             />
           </div>
-          <div className="relative w-full md:w-[120px]">
-            <Select value={filterJenis} onValueChange={setFilterJenis}>
-              <SelectTrigger className="pl-7  w-full">
-                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                  <Filter size={16} />
-                </span>
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua</SelectItem>
+          <Popover open={openFilter} onOpenChange={setOpenFilter}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex items-center border  rounded-lg px-4 py-1 bg-white text-gray-700 hover:bg-gray-50 text-xs font-medium "
+              >
+                <ListFilter size={16} className="mr-2" />
+                Filters
+                <ChevronDown size={16} className="ml-2" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-2 text-xs" align="end">
+              <div className="font-semibold mb-2">Jenis Ujian</div>
+              <div className="flex flex-col gap-1">
+                <Button
+                  variant={filterJenis === "all" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="justify-start text-xs"
+                  onClick={() => {
+                    setFilterJenis("all");
+                    setOpenFilter(false);
+                  }}
+                >
+                  Semua
+                </Button>
                 {jenisUjianOptions.map((jenis) => (
-                  <SelectItem key={jenis} value={jenis}>
+                  <Button
+                    key={jenis}
+                    variant={filterJenis === jenis ? "secondary" : "ghost"}
+                    size="sm"
+                    className="justify-start text-xs"
+                    onClick={() => {
+                      setFilterJenis(jenis);
+                      setOpenFilter(false);
+                    }}
+                  >
                     {jenis}
-                  </SelectItem>
+                  </Button>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
-      <Table>
-        <TableHeader className="bg-accent">
-          <TableRow>
-            <TableHead className="text-center w-10">No</TableHead>
-            <TableHead>Nama Mahasiswa</TableHead>
-            <TableHead>Jenis Ujian</TableHead>
-            <TableHead>Ruangan</TableHead>
-            <TableHead>Waktu</TableHead>
-            <TableHead>Penguji</TableHead>
-            <TableHead className="text-center ">Aksi</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginatedData.length === 0 ? (
+      <div className="border overflow-auto rounded-sm">
+        <Table className="text-xs ">
+          <TableHeader>
             <TableRow>
-              <TableCell
-                colSpan={6}
-                className="text-center text-gray-500 italic py-6"
-              >
-                Tidak ada jadwal ujian
-              </TableCell>
+              <TableHead className="text-center w-10">No</TableHead>
+              <TableHead>Nama Mahasiswa</TableHead>
+              <TableHead>Jenis Ujian</TableHead>
+              <TableHead>Ruangan</TableHead>
+              <TableHead>Waktu</TableHead>
+              <TableHead className="text-center">Aksi</TableHead>
             </TableRow>
-          ) : (
-            paginatedData.map((ujian, idx) => {
-              return (
+          </TableHeader>
+          <TableBody>
+            {paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="text-center text-gray-500 italic py-6"
+                >
+                  Tidak ada jadwal ujian
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedData.map((ujian, idx) => (
                 <TableRow
                   key={ujian.id}
-                  className="hover:bg-gray-50 transition"
+                  className="hover:bg-gray-50 transition text-xs"
                 >
-                  <TableCell className="text-center">
+                  <TableCell className="text-center text-xs">
                     {(page - 1) * pageSize + idx + 1}
                   </TableCell>
-                  <TableCell>{ujian.mahasiswa?.nama ?? "-"}</TableCell>
-                  <TableCell>
-                    <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-50 text-blue-700">
+                  <TableCell className="text-xs">
+                    {ujian.mahasiswa?.nama ?? "-"}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    <span className="px-2 py-1 rounded text-[10px] font-medium inline-block bg-blue-50 text-blue-700">
                       {ujian.jenisUjian?.namaJenis ?? "-"}
                     </span>
                   </TableCell>
-                  <TableCell>{ujian.ruangan.namaRuangan ?? "-"}</TableCell>
-                  <TableCell>
-                    <div className="text-sm text-gray-700">
-                      <div className="font-medium">
-                        {ujian?.hariUjian ?? "-"},{" "}
-                        {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"}
+                  <TableCell className="text-xs">
+                    {ujian.ruangan.namaRuangan ?? "-"}
+                  </TableCell>
+                  <TableCell className="max-w-xs text-xs">
+                    <div className="text-xs text-gray-700">
+                      <div className="font-medium text-xs">
+                        {ujian?.hariUjian
+                          ? ujian.hariUjian.charAt(0).toUpperCase() +
+                            ujian.hariUjian.slice(1)
+                          : "-"}
+                        <span>, </span>
+                        {ujian.jadwalUjian
+                          ? ujian.jadwalUjian.split(/[ T]/)[0]
+                          : "-"}
                       </div>
                       <div className="text-xs text-gray-600 mt-1">
                         {(ujian.waktuMulai?.slice(0, 5) || "-") +
@@ -259,43 +314,44 @@ export default function JadwalUjianTable({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="Lihat Daftar Hadir"
-                      onClick={() => {
-                        setSelected(ujian);
-                        setOpenDaftarHadir(true);
-                      }}
-                    >
-                      <Eye size={16} />
-                    </Button>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex items-center gap-2 justify-center">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-blue-700 border-blue-200 hover:bg-blue-50 transition-all text-xs"
-                        onClick={() => {
-                          setSelected(ujian);
-                          setOpenRekapitulasi(true);
-                        }}
-                        disabled={ujian.mahasiswa?.id !== userId}
-                        title={
-                          ujian.mahasiswa?.id !== userId
-                            ? "Hanya bisa melihat rekap nilai milik Anda"
-                            : undefined
-                        }
-                      >
-                        <IconClipboardText
-                          size={18}
-                          className="text-blue-600"
-                        />
-                        Rekapitulasi Nilai
-                      </Button>
-                    </div>
+
+                  <TableCell className="text-center text-xs">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Aksi"
+                          className="mx-auto"
+                        >
+                          <MoreHorizontal size={18} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" side="top">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelected(ujian);
+                            setOpenDaftarHadir(true);
+                          }}
+                          className="text-xs"
+                        >
+                          <Eye size={16} className="mr-2" />
+                          Lihat Penguji
+                        </DropdownMenuItem>
+                        {ujian.mahasiswa?.id === userId && (
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelected(ujian);
+                              setOpenRekapitulasi(true);
+                            }}
+                            className="text-xs"
+                          >
+                            <IconClipboardText size={16} className="mr-2" />
+                            Rekapitulasi Nilai
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     {/* Modal Rekapitulasi Nilai */}
                     <Modal
                       open={openRekapitulasi && selected?.id === ujian.id}
@@ -586,21 +642,25 @@ export default function JadwalUjianTable({
                     </Modal>
                   </TableCell>
                 </TableRow>
-              );
-            })
-          )}
-        </TableBody>
-      </Table>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
       {/* Pagination */}
       {totalPage > 1 && (
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex justify-end text-xs">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   aria-disabled={page === 1}
-                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
+                  className={
+                    page === 1
+                      ? "pointer-events-none opacity-50 text-xs"
+                      : "text-xs"
+                  }
                 />
               </PaginationItem>
               {Array.from({ length: totalPage }).map((_, i) => (
@@ -608,6 +668,7 @@ export default function JadwalUjianTable({
                   <PaginationLink
                     isActive={page === i + 1}
                     onClick={() => setPage(i + 1)}
+                    className="text-xs"
                   >
                     {i + 1}
                   </PaginationLink>
@@ -618,7 +679,9 @@ export default function JadwalUjianTable({
                   onClick={() => setPage((p) => Math.min(totalPage, p + 1))}
                   aria-disabled={page === totalPage}
                   className={
-                    page === totalPage ? "pointer-events-none opacity-50" : ""
+                    page === totalPage
+                      ? "pointer-events-none opacity-50 text-xs"
+                      : "text-xs"
                   }
                 />
               </PaginationItem>

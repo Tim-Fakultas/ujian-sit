@@ -2,7 +2,6 @@
 
 import { PengajuanRanpelResponse } from "@/types/RancanganPenelitian";
 
-// Add Status type definition
 interface Status {
   status: "diverifikasi" | "ditolak" | "menunggu" | "diterima";
 }
@@ -33,7 +32,7 @@ export async function getPengajuanRanpelByMahasiswaId(userId?: number) {
 export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
   try {
     const response = await fetch("http://localhost:8000/api/pengajuan-ranpel", {
-      next: { tags: ["PengajuanRanpel"], revalidate: 30 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -83,6 +82,13 @@ export async function getPengajuanRanpelByDosenPA(dosenId?: number) {
       );
     }
 
+    // Urutkan berdasarkan tanggalPengajuan (terbaru di atas)
+    filteredData = filteredData.sort((a, b) => {
+      const tglA = new Date(a.tanggalPengajuan).getTime();
+      const tglB = new Date(b.tanggalPengajuan).getTime();
+      return tglB - tglA;
+    });
+
     return filteredData;
   } catch (error) {
     console.error("Error fetching pengajuan ranpel by dosen PA:", error);
@@ -113,6 +119,13 @@ export async function getPengajuanRanpelByProdi(prodiId?: number) {
         (pengajuan) => pengajuan.mahasiswa?.prodi?.id === prodiId
       );
     }
+
+    // Sort by tanggalPengajuan (terbaru di atas)
+    filteredData = filteredData.sort((a, b) => {
+      const tglA = new Date(a.tanggalPengajuan).getTime();
+      const tglB = new Date(b.tanggalPengajuan).getTime();
+      return tglB - tglA;
+    });
 
     return filteredData;
   } catch (error) {

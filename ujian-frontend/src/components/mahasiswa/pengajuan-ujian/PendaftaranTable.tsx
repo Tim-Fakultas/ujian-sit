@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, ChevronDown, ChevronUp } from "lucide-react";
 import { getJenisUjianColor, getStatusColor, truncateTitle } from "@/lib/utils";
 import { PendaftaranUjian } from "@/types/PendaftaranUjian";
 import { User } from "@/types/Auth";
@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { ListFilter, ChevronDown } from "lucide-react";
+import { ListFilter } from "lucide-react";
 import { Ujian } from "@/types/Ujian";
 import {
   Dialog,
@@ -49,7 +49,7 @@ export default function PendaftaranTable({
   pendaftaranUjian: PendaftaranUjian[];
   user: User | null;
   jenisUjianList: JenisUjian[];
-pengajuanRanpel: PengajuanRanpel[];
+  pengajuanRanpel: PengajuanRanpel[];
   ujian: Ujian[];
 }) {
   //* Filter & Pagination State
@@ -69,9 +69,23 @@ pengajuanRanpel: PengajuanRanpel[];
     { value: "selesai", label: "Selesai" },
   ];
 
-  //* Filtered data
+  // SORT STATE
+  const [sortField, setSortField] = useState<"judul" | "tanggal" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  // SORT HANDLER
+  function handleSort(field: "judul" | "tanggal") {
+    if (sortField === field) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  }
+
+  // FILTERED & SORTED DATA
   const filteredData = useMemo(() => {
-    return (pendaftaranUjian || []).filter((pendaftaran) => {
+    let data = (pendaftaranUjian || []).filter((pendaftaran) => {
       const matchJudul = pendaftaran.ranpel.judulPenelitian
         .toLowerCase()
         .includes(filterJudul.toLowerCase());
@@ -83,7 +97,37 @@ pengajuanRanpel: PengajuanRanpel[];
           : String(pendaftaran.jenisUjian.id) === filterJenisUjian;
       return matchJudul && matchStatus && matchJenis;
     });
-  }, [pendaftaranUjian, filterJudul, filterStatus, filterJenisUjian]);
+
+    // SORTING
+    if (sortField) {
+      data = [...data].sort((a, b) => {
+        if (sortField === "judul") {
+          const judulA = a.ranpel.judulPenelitian.toLowerCase();
+          const judulB = b.ranpel.judulPenelitian.toLowerCase();
+          if (judulA < judulB) return sortOrder === "asc" ? -1 : 1;
+          if (judulA > judulB) return sortOrder === "asc" ? 1 : -1;
+          return 0;
+        }
+        if (sortField === "tanggal") {
+          const tglA = new Date(a.tanggalPengajuan).getTime();
+          const tglB = new Date(b.tanggalPengajuan).getTime();
+          if (tglA < tglB) return sortOrder === "asc" ? -1 : 1;
+          if (tglA > tglB) return sortOrder === "asc" ? 1 : -1;
+          return 0;
+        }
+        return 0;
+      });
+    }
+
+    return data;
+  }, [
+    pendaftaranUjian,
+    filterJudul,
+    filterStatus,
+    filterJenisUjian,
+    sortField,
+    sortOrder,
+  ]);
 
   //* Pagination
   const totalPage = Math.ceil(filteredData.length / pageSize);
@@ -148,7 +192,7 @@ pengajuanRanpel: PengajuanRanpel[];
                       size="sm"
                       className={`justify-start w-full text-xs rounded-md ${
                         filterStatus === opt.value
-                          ? "bg-blue-100 text-blue-700 border-blue-400"
+                          ? "bg-blue-100 text-blue-400 border-blue-400"
                           : ""
                       }`}
                       onClick={() => setFilterStatus(opt.value)}
@@ -191,7 +235,7 @@ pengajuanRanpel: PengajuanRanpel[];
                     size="sm"
                     className={`justify-start w-full text-xs rounded-md ${
                       filterJenisUjian === "all"
-                        ? "bg-blue-100 text-blue-700 border-blue-400"
+                        ? "bg-blue-100 text-blue-400 border-blue-400"
                         : ""
                     }`}
                     onClick={() => setFilterJenisUjian("all")}
@@ -209,7 +253,7 @@ pengajuanRanpel: PengajuanRanpel[];
                       size="sm"
                       className={`justify-start w-full text-xs rounded-md ${
                         filterJenisUjian === String(jenis.id)
-                          ? "bg-blue-100 text-blue-700 border-blue-400"
+                          ? "bg-blue-100 text-blue-400 border-blue-400"
                           : ""
                       }`}
                       onClick={() => setFilterJenisUjian(String(jenis.id))}
@@ -224,7 +268,7 @@ pengajuanRanpel: PengajuanRanpel[];
           {/* Tambah Pengajuan Ujian */}
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white text-xs h-8 px-4 flex items-center gap-2 rounded-md min-w-[90px] shadow-none">
+              <Button className="bg-blue-400 hover:bg-blue-500 text-white text-xs h-8 px-4 flex items-center gap-2 rounded-md min-w-[90px] shadow-none">
                 <Plus size={13} />
                 Pengajuan Ujian
               </Button>
@@ -245,14 +289,54 @@ pengajuanRanpel: PengajuanRanpel[];
           </Dialog>
         </div>
       </div>
-      <div className="border overflow-auto rounded">
+      <div className="border overflow-auto rounded-sm">
         <Table className="text-xs">
-          <TableHeader className="bg-accent">
+          <TableHeader>
             <TableRow>
               <TableHead className="text-center w-10">No</TableHead>
-              <TableHead>Judul</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1 select-none">
+                  Judul
+                  <button
+                    type="button"
+                    className="ml-1 p-0.5"
+                    onClick={() => handleSort("judul")}
+                    aria-label="Urutkan Judul"
+                  >
+                    {sortField === "judul" ? (
+                      sortOrder === "asc" ? (
+                        <ChevronUp size={13} className="inline" />
+                      ) : (
+                        <ChevronDown size={13} className="inline" />
+                      )
+                    ) : (
+                      <ChevronDown size={13} className="inline text-gray-400" />
+                    )}
+                  </button>
+                </div>
+              </TableHead>
               <TableHead>Jenis Ujian</TableHead>
-              <TableHead>Tanggal Pengajuan</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1 select-none">
+                  Tanggal Pengajuan
+                  <button
+                    type="button"
+                    className="ml-1 p-0.5"
+                    onClick={() => handleSort("tanggal")}
+                    aria-label="Urutkan Tanggal Pengajuan"
+                  >
+                    {sortField === "tanggal" ? (
+                      sortOrder === "asc" ? (
+                        <ChevronUp size={13} className="inline" />
+                      ) : (
+                        <ChevronDown size={13} className="inline" />
+                      )
+                    ) : (
+                      <ChevronDown size={13} className="inline text-gray-400" />
+                    )}
+                  </button>
+                </div>
+              </TableHead>
               <TableHead className="text-center">Status</TableHead>
             </TableRow>
           </TableHeader>

@@ -8,13 +8,7 @@ import {
   TableHeader,
 } from "@/components/ui/table";
 import { Dosen } from "@/types/Dosen";
-import {
-  MoreHorizontal,
-  ArrowUp,
-  ArrowDown,
-  MoveUp,
-  MoveDown,
-} from "lucide-react";
+import { MoreHorizontal, Search } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -30,46 +24,21 @@ interface DosenTableProps {
   dosen: Dosen[];
 }
 
-type SortKey = "nama" | "nidn" | "nip" | "prodi";
-type SortDirection = "asc" | "desc";
-
 export default function DosenTable({ dosen }: DosenTableProps) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("nama");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const pageSize = 10;
 
-  // Sorting logic
-  const sortedData = useMemo(() => {
-    const sorted = [...dosen].sort((a, b) => {
-      let aValue = "";
-      let bValue = "";
-      if (sortKey === "prodi") {
-        aValue = a.prodi?.nama?.toLowerCase() || "";
-        bValue = b.prodi?.nama?.toLowerCase() || "";
-      } else {
-        aValue = (a[sortKey] as string)?.toLowerCase?.() || "";
-        bValue = (b[sortKey] as string)?.toLowerCase?.() || "";
-      }
-      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [dosen, sortKey, sortDirection]);
-
-  // Filtered data by search
   const filteredData = useMemo(() => {
     const q = search.toLowerCase();
-    return sortedData.filter(
+    return dosen.filter(
       (d) =>
         d.nama.toLowerCase().includes(q) ||
         d.nidn?.toLowerCase().includes(q) ||
         d.nip?.toLowerCase().includes(q) ||
         d.prodi?.nama?.toLowerCase().includes(q)
     );
-  }, [sortedData, search]);
+  }, [dosen, search]);
 
   const totalPage = Math.ceil(filteredData.length / pageSize);
 
@@ -144,110 +113,37 @@ export default function DosenTable({ dosen }: DosenTableProps) {
     return items;
   }
 
-  // Sorting handler
-  function handleSort(key: SortKey) {
-    if (sortKey === key) {
-      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDirection("asc");
-    }
-    setPage(1);
-  }
-
-  function renderSortIcon(key: SortKey) {
-    return (
-      <span className="flex flex-row items-center ml-1 font-bold ">
-        <MoveUp
-          size={13}
-          className={
-            sortKey === key && sortDirection === "asc"
-              ? "text-gray-500 "
-              : "text-gray-300"
-          }
-        />
-        <MoveDown
-          size={13}
-          className={
-            sortKey === key && sortDirection === "desc"
-              ? "text-gray-500 -pl-2"
-              : "text-gray-300"
-          }
-        />
-      </span>
-    );
-  }
-
   return (
-    <div className="bg-white rounded-xl border-neutral-200 shadow p-4 w-full text-xs">
-      {/* Search bar */}
+    <div className="rounded-lg overflow-x-auto text-xs">
+      {/* Search bar kanan atas */}
       <div className="flex justify-end mb-3 text-xs">
         <div className="relative w-full max-w-xs">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-              <path
-                d="M21 21l-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <Search size={16} />
           </span>
           <Input
-            placeholder="Cari nama, NIDN, NIP, atau prodi..."
+            placeholder="Search"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="pl-9 text-xs"
+            className="pl-9 text-xs placeholder:text-xs"
           />
         </div>
       </div>
-      <div className="overflow-x-auto">
-        <Table className="min-w-[700px] text-xs">
+
+      <div className="border overflow-auto rounded-sm">
+        <Table>
           <TableHeader>
-            <TableRow className="bg-[#F5F7FF]">
-              <TableHead className="text-center w-16 font-semibold">
+            <TableRow>
+              <TableHead className="text-center w-10 font-semibold">
                 No
               </TableHead>
-              <TableHead
-                className="font-semibold cursor-pointer select-none"
-                onClick={() => handleSort("nama")}
-              >
-                <span className="flex items-center gap-1">
-                  Nama
-                  {renderSortIcon("nama")}
-                </span>
-              </TableHead>
-              <TableHead
-                className="font-semibold cursor-pointer select-none"
-                onClick={() => handleSort("nidn")}
-              >
-                <span className="flex items-center gap-1">
-                  NIDN
-                  {renderSortIcon("nidn")}
-                </span>
-              </TableHead>
-              <TableHead
-                className="font-semibold cursor-pointer select-none"
-                onClick={() => handleSort("nip")}
-              >
-                <span className="flex items-center gap-1">
-                  NIP
-                  {renderSortIcon("nip")}
-                </span>
-              </TableHead>
-              <TableHead
-                className="font-semibold cursor-pointer select-none"
-                onClick={() => handleSort("prodi")}
-              >
-                <span className="flex items-center gap-1">
-                  Program Studi
-                  {renderSortIcon("prodi")}
-                </span>
-              </TableHead>
+              <TableHead className="font-semibold">Nama</TableHead>
+              <TableHead className="font-semibold">NIDN</TableHead>
+              <TableHead className="font-semibold">NIP</TableHead>
+              <TableHead className="font-semibold">Program Studi</TableHead>
               <TableHead className="text-center w-12 font-semibold">
                 Aksi
               </TableHead>
@@ -267,7 +163,7 @@ export default function DosenTable({ dosen }: DosenTableProps) {
               paginatedData.map((dosenItem, index) => (
                 <TableRow
                   key={dosenItem.id}
-                  className={`transition text-xs hover:bg-[#FAFAFC] border-b last:border-b-0 font-normal `}
+                  className="hover:bg-gray-50 transition text-xs border-b last:border-b-0 font-normal"
                 >
                   <TableCell className="text-center align-middle text-xs">
                     {(page - 1) * pageSize + index + 1}
@@ -286,7 +182,7 @@ export default function DosenTable({ dosen }: DosenTableProps) {
                   </TableCell>
                   <TableCell className="text-center align-middle text-xs">
                     <button
-                      className="rounded-full p-1 hover:bg-gray-100 transition text-xs"
+                      className="rounded-full p-1 hover:bg-gray-200 transition text-xs"
                       title="Aksi"
                     >
                       <MoreHorizontal size={16} />
@@ -298,8 +194,9 @@ export default function DosenTable({ dosen }: DosenTableProps) {
           </TableBody>
         </Table>
       </div>
+
       {totalPage > 1 && (
-        <div className="flex justify-end pt-4 text-xs">
+        <div className="mt-4 flex justify-end text-xs">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

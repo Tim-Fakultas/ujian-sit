@@ -11,7 +11,6 @@ import {
 import {
   Eye,
   MoreVertical,
-  X,
   Search,
   ChevronDown,
   ChevronUp,
@@ -25,7 +24,7 @@ import {
   DropdownMenuItem,
 } from "../ui/dropdown-menu";
 import { getJenisUjianColor, getStatusColor } from "@/lib/utils";
-import React, { useState, useTransition, useMemo } from "react";
+import React, { useState, useTransition, useMemo, useEffect } from "react";
 import { updateStatusPendaftaranUjian } from "@/actions/pendaftaranUjian";
 import {
   Pagination,
@@ -36,7 +35,7 @@ import {
   PaginationPrevious,
 } from "../ui/pagination";
 import { Input } from "../ui/input";
-import revalidateAction from "@/actions/revalidateAction";
+import revalidateAction from "@/actions/revalidate";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
@@ -100,7 +99,7 @@ export default function PendaftaranUjianTable({
   }, [filteredData, page, pageSize]);
 
   // Reset page ke 1 jika filter berubah
-  React.useEffect(() => {
+  useEffect(() => {
     setPage(1);
   }, [search, filterJenis]);
 
@@ -123,21 +122,23 @@ export default function PendaftaranUjianTable({
   }
 
   return (
-    <div className="rounded-lg overflow-x-auto bg-white shadow-sm p-4">
+    <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4">
         <div className="flex gap-2 w-full sm:w-auto items-center">
+          {/* Search bar */}
           <div className="relative w-full sm:w-72">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              <Search size={18} />
+              <Search size={16} />
             </span>
             <Input
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 w-full"
+              className="pl-10 w-full text-xs placeholder:text-xs"
             />
           </div>
-          {/* Filter jenis ujian pakai Popover */}
+
+          {/* Filter jenis ujian  */}
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -180,118 +181,120 @@ export default function PendaftaranUjianTable({
             </PopoverContent>
           </Popover>
         </div>
-        {/* ...existing code for sort dropdown if any... */}
       </div>
 
-      <Table>
-        <TableHeader className="bg-accent">
-          <TableRow>
-            <TableHead className="text-center w-10">No</TableHead>
-            <TableHead>Nama Mahasiswa</TableHead>
-            <TableHead>Judul</TableHead>
-            <TableHead>
-              <div className="flex items-center gap-1">
-                Tanggal Pengajuan
-                <button
-                  type="button"
-                  className="ml-1 p-0.5 rounded hover:bg-gray-100"
-                  onClick={() =>
-                    setSortTanggal((prev) => (prev === "asc" ? "desc" : "asc"))
-                  }
-                  aria-label="Urutkan tanggal"
+      <div className="overflow-auto rounded border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-center w-10">No</TableHead>
+              <TableHead>Nama Mahasiswa</TableHead>
+              <TableHead>Judul</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  Tanggal Pengajuan
+                  <button
+                    type="button"
+                    className="ml-1 p-0.5 rounded hover:bg-gray-100"
+                    onClick={() =>
+                      setSortTanggal((prev) =>
+                        prev === "asc" ? "desc" : "asc"
+                      )
+                    }
+                    aria-label="Urutkan tanggal"
+                  >
+                    {sortTanggal === "asc" ? (
+                      <ChevronUp size={10} className="text-gray-500" />
+                    ) : (
+                      <ChevronDown size={10} className="text-gray-500" />
+                    )}
+                  </button>
+                </div>
+              </TableHead>
+              <TableHead>Jenis</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-center">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.length > 0 ? (
+              paginatedData.map((pendaftaran, index) => (
+                <TableRow
+                  key={pendaftaran.id}
+                  className="hover:bg-gray-50 transition"
                 >
-                  {sortTanggal === "asc" ? (
-                    <ChevronUp size={10} className="text-gray-500" />
-                  ) : (
-                    <ChevronDown size={10} className="text-gray-500" />
-                  )}
-                </button>
-              </div>
-            </TableHead>
-            <TableHead>Jenis</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-center">Aksi</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginatedData.length > 0 ? (
-            paginatedData.map((pendaftaran, index) => (
-              <TableRow
-                key={pendaftaran.id}
-                className="hover:bg-gray-50 transition"
-              >
-                <TableCell className="text-center">
-                  {(page - 1) * pageSize + index + 1}
-                </TableCell>
-                <TableCell>{pendaftaran.mahasiswa.nama}</TableCell>
+                  <TableCell className="text-center">
+                    {(page - 1) * pageSize + index + 1}
+                  </TableCell>
+                  <TableCell>{pendaftaran.mahasiswa.nama}</TableCell>
+                  <TableCell
+                    className="whitespace-normal break-words max-w-xs"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {pendaftaran.ranpel.judulPenelitian}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(pendaftaran.tanggalPengajuan).toLocaleDateString(
+                      "id-ID"
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-semibold inline-block ${getJenisUjianColor(
+                        pendaftaran.jenisUjian.namaJenis
+                      )}`}
+                    >
+                      {pendaftaran.jenisUjian.namaJenis}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${getStatusColor(
+                        pendaftaran.status
+                      )}`}
+                    >
+                      {pendaftaran.status}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon" className="p-2">
+                          <MoreVertical size={18} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          className="flex items-center gap-2"
+                          onClick={() => handleDetail(pendaftaran)}
+                        >
+                          <Eye size={16} />
+                          Lihat Detail
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
                 <TableCell
-                  className="whitespace-normal break-words max-w-xs"
-                  style={{
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
+                  colSpan={7}
+                  className="text-center text-gray-500 italic py-6"
                 >
-                  {pendaftaran.ranpel.judulPenelitian}
-                </TableCell>
-                <TableCell>
-                  {new Date(pendaftaran.tanggalPengajuan).toLocaleDateString(
-                    "id-ID"
-                  )}
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-semibold inline-block ${getJenisUjianColor(
-                      pendaftaran.jenisUjian.namaJenis
-                    )}`}
-                  >
-                    {pendaftaran.jenisUjian.namaJenis}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded text-xs ${getStatusColor(
-                      pendaftaran.status
-                    )}`}
-                  >
-                    {pendaftaran.status}
-                  </span>
-                </TableCell>
-                <TableCell className="text-center">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon" className="p-2">
-                        <MoreVertical size={18} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        className="flex items-center gap-2"
-                        onClick={() => handleDetail(pendaftaran)}
-                      >
-                        <Eye size={16} />
-                        Lihat Detail
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  Tidak ada data pendaftaran ujian
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={7}
-                className="text-center text-gray-500 italic py-6"
-              >
-                Tidak ada data pendaftaran ujian
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-
+            )}
+          </TableBody>
+        </Table>
+      </div>
       {/* Pagination */}
       {totalPage > 1 && (
         <div className="mt-4 flex justify-end">

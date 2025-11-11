@@ -3,11 +3,6 @@
 import { create } from "zustand";
 import Cookies from "js-cookie";
 
-interface Role {
-  id?: number;
-  name: string;
-}
-
 interface User {
   id: number;
   nip_nim?: string;
@@ -15,7 +10,7 @@ interface User {
   nidn?: string;
   nama: string;
   email: string;
-  role?: string; 
+  role?: string;
   roles?: { id?: number; name: string }[];
   prodi?: {
     id: number;

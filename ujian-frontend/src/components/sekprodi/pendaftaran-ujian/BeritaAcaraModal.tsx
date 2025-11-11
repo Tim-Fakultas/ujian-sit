@@ -7,7 +7,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { BeritaUjian } from "@/types/beritaUjian";
+import { BeritaUjian } from "@/types/BeritaUjian";
 
 export function BeritaAcaraModal({
   open,

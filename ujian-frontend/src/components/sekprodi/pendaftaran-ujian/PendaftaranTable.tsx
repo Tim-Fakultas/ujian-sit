@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useActionState, useMemo } from "react";
-import { getRuangan } from "@/actions/ruangan";
+import { getRuangan } from "@/actions/data-master/ruangan";
 
 import {
   Table,
@@ -28,8 +28,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Search, Filter, CalendarPlus } from "lucide-react";
-import { getMahasiswaById } from "@/actions/mahasiswa";
+import {
+  Search,
+  CalendarPlus,
+  Filter,
+  ListFilter,
+  ChevronDown,
+  MoreHorizontal,
+} from "lucide-react";
+import { getMahasiswaById } from "@/actions/data-master/mahasiswa";
 import { getJenisUjianColor, getStatusColor, truncateTitle } from "@/lib/utils";
 import { jadwalkanUjianAction } from "@/actions/jadwalUjian";
 import { Ujian } from "@/types/Ujian";
@@ -41,8 +48,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import revalidateAction from "@/actions/revalidateAction";
+import revalidateAction from "@/actions/revalidate";
 import { Dosen } from "@/types/Dosen";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export default function PendaftaranUjianTable({
   ujianList,
@@ -67,7 +85,6 @@ export default function PendaftaranUjianTable({
   const [penguji1, setPenguji1] = useState<string>("");
   const [penguji2, setPenguji2] = useState<string>("");
 
-  
   // State for ruangan
   const [ruanganList, setRuanganList] = useState<
     { id: number; namaRuangan: string }[]
@@ -197,16 +214,8 @@ export default function PendaftaranUjianTable({
         filterJenis === "all" ? true : u.jenisUjian.namaJenis === filterJenis;
       return matchNama && matchJenis;
     });
-    // Urutkan berdasarkan tanggal pengajuan terbaru
-    return data.slice().sort((a, b) => {
-      const tglA = new Date(
-        (a.pendaftaranUjian?.tanggalPengajuan || a.createdAt || "").replace(" ", "T")
-      ).getTime();
-      const tglB = new Date(
-        (b.pendaftaranUjian?.tanggalPengajuan || b.createdAt || "").replace(" ", "T")
-      ).getTime();
-      return tglB - tglA;
-    });
+
+    return data;
   }, [ujianList, filterNama, filterJenis]);
 
   // Pagination
@@ -222,134 +231,182 @@ export default function PendaftaranUjianTable({
   }, [filterNama, filterJenis /*, sortTanggal*/]);
 
   return (
-    <div className="rounded-lg overflow-x-auto bg-white shadow-sm p-4">
+    <div>
       {/* Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        {/* Filter jenis ujian */}
-        <div className="flex gap-2">
-          <button
-            className={`px-4 py-1 rounded-lg text-xs font-medium border transition ${
-              filterJenis === "all"
-                ? "bg-blue-50 text-blue-700 border-blue-200"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-            }`}
-            onClick={() => setFilterJenis("all")}
-          >
-            Semua
-          </button>
-          <button
-            className={`px-4 py-1 rounded-lg text-xs font-medium border transition ${
-              filterJenis === "Ujian Proposal"
-                ? "bg-blue-100 text-blue-700 border-blue-200"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-            }`}
-            onClick={() => setFilterJenis("Ujian Proposal")}
-          >
-            Proposal
-          </button>
-          <button
-            className={`px-4 py-1 rounded-lg text-xs font-medium border transition ${
-              filterJenis === "Ujian Hasil"
-                ? "bg-yellow-100 text-yellow-700 border-yellow-200"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-            }`}
-            onClick={() => setFilterJenis("Ujian Hasil")}
-          >
-            Hasil
-          </button>
-          <button
-            className={`px-4 py-1 rounded-lg text-xs font-medium border transition ${
-              filterJenis === "Ujian Skripsi"
-                ? "bg-green-100 text-green-700 border-green-200"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-            }`}
-            onClick={() => setFilterJenis("Ujian Skripsi")}
-          >
-            Skripsi
-          </button>
-        </div>
-        {/* Search */}
-        <div className="relative w-full sm:w-72">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            <Search size={18} />
-          </span>
-          <Input
-            placeholder="Cari nama mahasiswa..."
-            value={filterNama}
-            onChange={(e) => setFilterNama(e.target.value)}
-            className="pl-10 w-full"
-          />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4">
+        <div className="flex w-full sm:w-auto items-center gap-3">
+          {/* Search */}
+          <div className="relative w-64">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <Search size={16} />
+            </span>
+            <Input
+              placeholder="Search"
+              value={filterNama}
+              onChange={(e) => setFilterNama(e.target.value)}
+              className="pl-10 w-full placeholder:text-xs text-xs h-8"
+            />
+          </div>
+          {/* Filter jenis ujian dengan Popover, ukuran sama dengan search */}
+          <div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 text-xs font-medium w-full justify-between"
+                >
+                  <ListFilter size={16} className="mr-1" />
+                  <span className="flex items-center">Filter</span>
+                  <ChevronDown size={16} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-0" align="end">
+                <div className="py-2 px-3 border-b font-semibold text-xs text-muted-foreground">
+                  Jenis Ujian
+                </div>
+                <div className="flex flex-col">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      filterJenis === "all" ? "bg-accent font-semibold" : ""
+                    }`}
+                    onClick={() => setFilterJenis("all")}
+                  >
+                    Semua
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      filterJenis === "Ujian Proposal"
+                        ? "bg-accent font-semibold"
+                        : ""
+                    }`}
+                    onClick={() => setFilterJenis("Ujian Proposal")}
+                  >
+                    Ujian Proposal
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      filterJenis === "Ujian Hasil"
+                        ? "bg-accent font-semibold"
+                        : ""
+                    }`}
+                    onClick={() => setFilterJenis("Ujian Hasil")}
+                  >
+                    Ujian Hasil
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      filterJenis === "Ujian Skripsi"
+                        ? "bg-accent font-semibold"
+                        : ""
+                    }`}
+                    onClick={() => setFilterJenis("Ujian Skripsi")}
+                  >
+                    Ujian Skripsi
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
-      <Table className="text-xs">
-        <TableHeader className="bg-accent">
-          <TableRow>
-            <TableHead className="text-center w-10">No</TableHead>
-            <TableHead>Nama Mahasiswa</TableHead>
-            <TableHead>Judul</TableHead>
-            <TableHead>Jenis Ujian</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-center w-40">Aksi</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginatedData.length > 0 ? (
-            paginatedData.map((u, i) => (
-              <TableRow key={u.id} className="hover:bg-gray-50 transition">
-                <TableCell className="text-center">
-                  {(page - 1) * pageSize + i + 1}
-                </TableCell>
-                <TableCell>{u.mahasiswa.nama}</TableCell>
-                <TableCell>{truncateTitle(u.judulPenelitian, 40)}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-semibold inline-block ${getJenisUjianColor(
-                      u.jenisUjian.namaJenis
-                    )}`}
-                  >
-                    {u.jenisUjian.namaJenis}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded text-xs ${getStatusColor(
-                      u.pendaftaranUjian.status
-                    )}`}
-                  >
-                    {u.pendaftaranUjian.status}
-                  </span>
-                </TableCell>
-                <TableCell className="text-center">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelected(u);
-                      setOpen(true);
-                    }}
-                    className="text-xs flex items-center justify-center mx-auto transition hover:bg-primary/10"
-                    disabled={
-                      u.pendaftaranUjian.status.toLowerCase() === "selesai"
-                    }
-                  >
-                    <CalendarPlus className="mr-2" />
-                    Jadwalkan
-                  </Button>
+      <div className="border rounded-sm overflow-auto">
+        <Table className="text-xs">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-center w-10">No</TableHead>
+              <TableHead>Nama Mahasiswa</TableHead>
+              <TableHead>Judul</TableHead>
+              <TableHead>Jenis Ujian</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-center w-16">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.length > 0 ? (
+              paginatedData.map((u, i) => (
+                <TableRow key={u.id} className="hover:bg-gray-50 transition">
+                  <TableCell className="text-center">
+                    {(page - 1) * pageSize + i + 1}
+                  </TableCell>
+                  <TableCell>{u.mahasiswa.nama}</TableCell>
+                  <TableCell>{truncateTitle(u.judulPenelitian, 40)}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-semibold inline-block ${getJenisUjianColor(
+                        u.jenisUjian.namaJenis
+                      )}`}
+                    >
+                      {u.jenisUjian.namaJenis}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${getStatusColor(
+                        u.pendaftaranUjian.status
+                      )}`}
+                    >
+                      {u.pendaftaranUjian.status}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="mx-auto"
+                          aria-label="Aksi"
+                        >
+                          <MoreHorizontal size={18} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelected(u);
+                            setOpen(true);
+                          }}
+                          disabled={
+                            u.pendaftaranUjian.status.toLowerCase() ===
+                            "selesai"
+                          }
+                          className="text-xs"
+                        >
+                          <CalendarPlus className="mr-2" size={16} />
+                          Jadwalkan
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="text-center text-gray-500 italic py-6"
+                >
+                  Tidak ada data pendaftaran ujian.
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={6}
-                className="text-center text-gray-500 italic py-6"
-              >
-                Tidak ada data pendaftaran ujian.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
       {/* Pagination */}
       {totalPage > 1 && (
         <div className="mt-4 flex justify-end">

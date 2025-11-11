@@ -97,7 +97,7 @@ export async function getJadwalUjianByProdiByDosen({
       })
       // 🚀 tampilkan hanya ujian yang memang relevan dengan dosen tsb
       .filter((ujian) => ujian.peranPenguji !== null);
-   
+
     return filteredData;
   } catch (error) {
     console.error("Error fetching ujian by prodi and dosen:", error);

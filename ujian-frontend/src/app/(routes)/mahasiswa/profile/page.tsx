@@ -1,17 +1,15 @@
-import { getCurrentUserAction } from "@/actions/loginAction";
+import { getCurrentUserAction } from "@/actions/auth";
 import ProfileCard from "./ProfileCard";
+import { Suspense } from "react";
+import Loading from "./loading";
 
 export default async function ProfilePage() {
   const { user } = await getCurrentUserAction();
   return (
-    <main className="p-6 max-w-4xl mx-auto">
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-          Profil Mahasiswa
-        </h1>
-      </header>
-
-      <ProfileCard user={user} />
+    <main className="p-6 max-w-full">
+      <Suspense fallback={<Loading />}>
+        <ProfileCard user={user} />
+      </Suspense>
     </main>
   );
 }

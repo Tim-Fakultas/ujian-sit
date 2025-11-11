@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
+import { Ujian } from "@/types/Ujian";
 
 interface PendaftaranUjianResponse {
   data: Array<{
@@ -76,28 +76,30 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
 
 export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
   try {
-    const response = await fetch(`http://localhost:8000/api/ujian`, {
-      next: { tags: ["pendaftaranUjian"], revalidate: 60 }, // cache 1 menit, tag untuk invalidation
-    });
+    const response = await fetch(`http://localhost:8000/api/ujian`, {});
 
     if (!response.ok) {
       throw new Error("Failed to fetch pendaftaran ujian by prodi");
     }
 
     const data = await response.json();
-    // Sesuaikan filter agar hanya data dengan prodiId yang cocok dikembalikan
-    // dan struktur return sesuai dengan API terbaru
-    interface Ujian {
-      mahasiswa?: {
-        prodi?: {
-          id: number;
-        };
-      };
-    }
 
-    const filteredData = data.data.filter(
-      (ujian: Ujian) => ujian.mahasiswa?.prodi?.id === prodiId // prodiId dari mahasiswa
-    );
+    const filteredData = data.data
+      .filter(
+        (ujian: Ujian) =>
+          ujian.mahasiswa?.prodi?.id === prodiId &&
+          ujian.pendaftaranUjian.status === "diterima"
+      )
+
+      .sort(
+        (a: Ujian, b: Ujian) =>
+          new Date(
+            b.pendaftaranUjian.tanggalDisetujui?.replace(" ", "T") || 0
+          ).getTime() -
+          new Date(
+            a.pendaftaranUjian.tanggalDisetujui?.replace(" ", "T") || 0
+          ).getTime()
+      );
 
     return filteredData;
   } catch (error) {
@@ -106,7 +108,6 @@ export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
   }
 }
 
-// actions/pendaftaranUjian.ts
 
 export async function getPendaftaranUjianByProdi(prodiId: number) {
   try {
@@ -208,7 +209,6 @@ export async function createPendaftaranUjian({
     }
 
     const result = await response.json();
-    revalidateTag("pendaftaranUjian");
     return result;
   } catch (error: unknown) {
     // Lempar error ke frontend agar bisa ditampilkan

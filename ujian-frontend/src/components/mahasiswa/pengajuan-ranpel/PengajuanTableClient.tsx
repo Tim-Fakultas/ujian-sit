@@ -228,7 +228,7 @@ export default function PengajuanTableClient({
             {/* Add Button */}
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="bg-[#6C47FF] hover:bg-[#5a38e6] text-white text-xs h-9 px-5 flex items-center gap-2 rounded-lg min-w-[160px] shadow-none font-medium">
+                <Button className="bg-blue-400 hover:bg-blue-500 text-white text-xs h-9 px-5 flex items-center gap-2 rounded-lg min-w-[160px] shadow-none font-medium">
                   <Plus size={16} />
                   Pengajuan Ujian
                 </Button>
@@ -243,9 +243,9 @@ export default function PengajuanTableClient({
           </div>
         </div>
 
-        <div className="rounded border overflow-auto ">
+        <div className="rounded-sm border overflow-auto">
           {/* Table */}
-          <Table className="text-sm  rounded">
+          <Table>
             <TableHeader className="bg-white border-b border-gray-200">
               <TableRow>
                 <TableHead
@@ -257,12 +257,12 @@ export default function PengajuanTableClient({
                     <span>
                       {sortKey === "no" ? (
                         sortOrder === "asc" ? (
-                          <ChevronUp size={16} className="text-gray-500" />
+                          <ChevronUp size={10} className="text-gray-500" />
                         ) : (
-                          <ChevronDown size={16} className="text-gray-500" />
+                          <ChevronDown size={10} className="text-gray-500" />
                         )
                       ) : (
-                        <ChevronDown size={16} className="opacity-30" />
+                        <ChevronDown size={10} className="opacity-30" />
                       )}
                     </span>
                   </div>
@@ -276,12 +276,12 @@ export default function PengajuanTableClient({
                     <span>
                       {sortKey === "nama" ? (
                         sortOrder === "asc" ? (
-                          <ChevronUp size={16} className="text-gray-500" />
+                          <ChevronUp size={10} className="text-gray-500" />
                         ) : (
-                          <ChevronDown size={16} className="text-gray-500" />
+                          <ChevronDown size={10} className="text-gray-500" />
                         )
                       ) : (
-                        <ChevronDown size={16} className="opacity-30" />
+                        <ChevronDown size={10} className="opacity-30" />
                       )}
                     </span>
                   </div>
@@ -295,12 +295,12 @@ export default function PengajuanTableClient({
                     <span>
                       {sortKey === "judul" ? (
                         sortOrder === "asc" ? (
-                          <ChevronUp size={16} className="text-gray-500" />
+                          <ChevronUp size={10} className="text-gray-500" />
                         ) : (
-                          <ChevronDown size={16} className="text-gray-500" />
+                          <ChevronDown size={10} className="text-gray-500" />
                         )
                       ) : (
-                        <ChevronDown size={16} className="opacity-30" />
+                        <ChevronDown size={10} className="opacity-30" />
                       )}
                     </span>
                   </div>
@@ -314,12 +314,12 @@ export default function PengajuanTableClient({
                     <span>
                       {sortKey === "tanggal" ? (
                         sortOrder === "asc" ? (
-                          <ChevronUp size={16} className="text-gray-500" />
+                          <ChevronUp size={10} className="text-gray-500" />
                         ) : (
-                          <ChevronDown size={16} className="text-gray-500" />
+                          <ChevronDown size={10} className="text-gray-500" />
                         )
                       ) : (
-                        <ChevronDown size={16} className="opacity-30" />
+                        <ChevronDown size={10} className="opacity-30" />
                       )}
                     </span>
                   </div>

@@ -1,3 +1,4 @@
+"use server";
 export async function postPenilaian(data: {
   ujianId: number;
   dosenId: number;
@@ -27,7 +28,7 @@ export async function postPenilaian(data: {
       const errorData = await response.json();
       if (errorData?.message) errorText += ": " + errorData.message;
       else if (typeof errorData === "string") errorText += ": " + errorData;
-    } catch (e) {
+    } catch {
       // fallback jika bukan json
       errorText += ": " + response.statusText;
     }
@@ -39,7 +40,7 @@ export async function postPenilaian(data: {
 export async function getPenilaianByUjianId(ujianId: number) {
   try {
     const response = await fetch(`http://localhost:8000/api/penilaian`, {
-      next: { tags: ["penilaian"], revalidate: 60 },
+      cache: "no-store",
     });
 
     if (!response.ok) {

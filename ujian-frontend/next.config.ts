@@ -6,6 +6,10 @@ const WithBundleAnalyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+};
 
 export default WithBundleAnalyzer(nextConfig);

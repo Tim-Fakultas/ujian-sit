@@ -15,7 +15,7 @@ import {
   SelectItem,
   SelectGroup,
 } from "@/components/ui/select";
-import revalidateAction from "@/actions/revalidateAction";
+import revalidateAction from "@/actions/revalidate";
 import { CheckCircle2 } from "lucide-react";
 
 export default function PengajuanUjianForm({
@@ -427,7 +427,11 @@ export default function PengajuanUjianForm({
         </div>
       )}
       <div className="flex gap-2 pt-2 justify-end">
-        <Button type="submit" variant="default" className="px-6">
+        <Button
+          type="submit"
+          variant="default"
+          className="px-6 bg-blue-400 hover:bg-blue-500"
+        >
           Ajukan
         </Button>
       </div>

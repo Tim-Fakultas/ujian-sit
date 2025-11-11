@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../ui/table";
-import { BeritaUjian } from "@/types/beritaUjian";
+import { BeritaUjian } from "@/types/BeritaUjian";
 import { Button } from "../../ui/button";
 import {
   Eye,
@@ -17,9 +17,11 @@ import {
   ArrowLeft,
   Search,
   MoreHorizontal,
+  ListFilter,
+  ChevronDown,
 } from "lucide-react";
 import { truncateTitle } from "@/lib/utils";
-import { daftarKehadiran } from "@/types/daftarKehadiran";
+import { daftarKehadiran } from "@/types/DaftarKehadiran";
 import {
   Pagination,
   PaginationContent,
@@ -28,6 +30,7 @@ import {
   PaginationPrevious,
   PaginationLink,
 } from "../../ui/pagination";
+import { Popover, PopoverTrigger, PopoverContent } from "../../ui/popover";
 
 export default function BeritaAcaraUjianTable({
   beritaUjian,
@@ -45,8 +48,12 @@ export default function BeritaAcaraUjianTable({
   const [jenisFilter, setJenisFilter] = useState<
     "all" | "proposal" | "hasil" | "skripsi"
   >("all");
+  // Tambah state untuk filter hasil
+  const [hasilFilter, setHasilFilter] = useState<
+    "all" | "lulus" | "tidak lulus"
+  >("all");
 
-  // Filter data berdasarkan search dan jenis ujian
+  // Filter data berdasarkan search, jenis ujian, dan hasil
   const filteredData = beritaUjian.filter((item) => {
     const nama = item.mahasiswa?.nama?.toLowerCase() ?? "";
     const judul = item.judulPenelitian?.toLowerCase() ?? "";
@@ -58,7 +65,13 @@ export default function BeritaAcaraUjianTable({
       const jenis = item.jenisUjian?.namaJenis?.toLowerCase() ?? "";
       matchJenis = jenis.includes(jenisFilter);
     }
-    return matchSearch && matchJenis;
+
+    let matchHasil = true;
+    if (hasilFilter !== "all") {
+      matchHasil = (item.hasil?.toLowerCase() ?? "") === hasilFilter;
+    }
+
+    return matchSearch && matchJenis && matchHasil;
   });
 
   // Pagination state
@@ -73,7 +86,7 @@ export default function BeritaAcaraUjianTable({
   // Reset page ke 1 saat search atau filter berubah
   React.useEffect(() => {
     setPage(1);
-  }, [search, jenisFilter]);
+  }, [search, jenisFilter, hasilFilter]);
 
   const handleDetail = (ujian: BeritaUjian) => {
     setSelected(ujian);
@@ -128,99 +141,175 @@ export default function BeritaAcaraUjianTable({
   };
 
   return (
-    <div className="rounded-lg overflow-x-auto bg-white shadow-sm p-4">
+    <div>
       {/* Filter nav & Search input in one row */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        <div className="flex gap-2">
-          <button
-            className={`px-4 py-1 rounded-lg text-xs font-medium border transition ${
-              jenisFilter === "all"
-                ? "bg-blue-50 text-blue-700 border-blue-200"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-            }`}
-            onClick={() => setJenisFilter("all")}
-          >
-            Semua
-          </button>
-          <button
-            className={`px-4 py-1 rounded-lg text-xs font-medium border transition ${
-              jenisFilter === "proposal"
-                ? "bg-blue-100 text-blue-700 border-blue-200"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-            }`}
-            onClick={() => setJenisFilter("proposal")}
-          >
-            Proposal
-          </button>
-          <button
-            className={`px-4 py-1 rounded-lg text-xs font-medium border transition ${
-              jenisFilter === "hasil"
-                ? "bg-yellow-100 text-yellow-700 border-yellow-200"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-            }`}
-            onClick={() => setJenisFilter("hasil")}
-          >
-            Hasil
-          </button>
-          <button
-            className={`px-4 py-1 rounded-lg text-xs font-medium border transition ${
-              jenisFilter === "skripsi"
-                ? "bg-green-100 text-green-700 border-green-200"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-            }`}
-            onClick={() => setJenisFilter("skripsi")}
-          >
-            Skripsi
-          </button>
-        </div>
-        <div className="relative w-full sm:w-72">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            <Search size={18} />
-          </span>
-          <input
-            type="text"
-            placeholder="Cari nama mahasiswa atau judul..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border rounded-lg pl-10 pr-3 py-2 w-full text-xs focus:outline-none focus:ring-2 focus:ring-blue-200"
-          />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4">
+        <div className="flex w-full sm:w-auto items-center gap-3">
+          {/* Search */}
+          <div className="relative w-64">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <Search size={18} />
+            </span>
+            <input
+              type="text"
+              placeholder="Cari nama mahasiswa atau judul..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border rounded-lg pl-10 pr-3 py-2 w-full text-xs focus:outline-none focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+          {/* Filter jenis ujian dan hasil dengan Popover */}
+          <div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 text-xs font-medium w-full justify-between"
+                >
+                  <span className="flex items-center">
+                    <ListFilter size={16} className="mr-1" />
+                    Filter
+                  </span>
+                  <ChevronDown size={16} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-0" align="end">
+                <div className="py-2 px-3 border-b font-semibold text-xs text-muted-foreground">
+                  Jenis Ujian
+                </div>
+                <div className="flex flex-col">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      jenisFilter === "all" ? "bg-accent font-semibold" : ""
+                    }`}
+                    onClick={() => setJenisFilter("all")}
+                  >
+                    Semua
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      jenisFilter === "proposal"
+                        ? "bg-accent font-semibold"
+                        : ""
+                    }`}
+                    onClick={() => setJenisFilter("proposal")}
+                  >
+                    Proposal
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      jenisFilter === "hasil" ? "bg-accent font-semibold" : ""
+                    }`}
+                    onClick={() => setJenisFilter("hasil")}
+                  >
+                    Hasil
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      jenisFilter === "skripsi" ? "bg-accent font-semibold" : ""
+                    }`}
+                    onClick={() => setJenisFilter("skripsi")}
+                  >
+                    Skripsi
+                  </Button>
+                </div>
+                <div className="py-2 px-3 border-b font-semibold text-xs text-muted-foreground mt-2">
+                  Hasil
+                </div>
+                <div className="flex flex-col">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      hasilFilter === "all" ? "bg-accent font-semibold" : ""
+                    }`}
+                    onClick={() => setHasilFilter("all")}
+                  >
+                    Semua
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      hasilFilter === "lulus" ? "bg-accent font-semibold" : ""
+                    }`}
+                    onClick={() => setHasilFilter("lulus")}
+                  >
+                    Lulus
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                      hasilFilter === "tidak lulus"
+                        ? "bg-accent font-semibold"
+                        : ""
+                    }`}
+                    onClick={() => setHasilFilter("tidak lulus")}
+                  >
+                    Tidak Lulus
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
 
-      <Table>
-        <TableHeader className="bg-gray-50 border-b">
-          <TableRow>
-            <TableHead className="w-10 text-center">No</TableHead>
-            <TableHead>Mahasiswa</TableHead>
-            <TableHead>Judul</TableHead>
-            <TableHead>Jenis</TableHead>
-            <TableHead className="text-center">Nilai Akhir</TableHead>
-            <TableHead className="text-center">Hasil</TableHead>
-            <TableHead className="text-center">Aksi</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginatedData.length > 0 ? (
-            paginatedData.map((ujian, idx) => (
-              <TableRow key={ujian.id} className="hover:bg-gray-50 transition">
-                <TableCell className="text-center">
-                  {(page - 1) * pageSize + idx + 1}
-                </TableCell>
-                <TableCell>
-                  <span className="text-xs">
-                    {ujian.mahasiswa?.nama ?? "-"} <br />
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {ujian.mahasiswa.nim ?? "-"}
-                  </span>
-                </TableCell>
-                <TableCell className="max-w-xs truncate">
-                  {truncateTitle(ujian.judulPenelitian ?? "-", 50)}
-                </TableCell>
-                <TableCell>
-                  {/* Badge style for jenis ujian */}
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium
+      <div className="border rounded-sm overflow-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-10 text-center">No</TableHead>
+              <TableHead>Mahasiswa</TableHead>
+              <TableHead>Judul</TableHead>
+              <TableHead>Jenis</TableHead>
+              <TableHead className="text-center">Nilai Akhir</TableHead>
+              <TableHead className="text-center">Hasil</TableHead>
+              <TableHead className="text-center">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.length > 0 ? (
+              paginatedData.map((ujian, idx) => (
+                <TableRow
+                  key={ujian.id}
+                  className="hover:bg-gray-50 transition"
+                >
+                  <TableCell className="text-center">
+                    {(page - 1) * pageSize + idx + 1}
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-xs">
+                      {ujian.mahasiswa?.nama ?? "-"} <br />
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {ujian.mahasiswa.nim ?? "-"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {truncateTitle(ujian.judulPenelitian ?? "-", 50)}
+                  </TableCell>
+                  <TableCell>
+                    {/* Badge style for jenis ujian */}
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium
                       ${
                         ujian.jenisUjian?.namaJenis
                           ?.toLowerCase()
@@ -237,55 +326,56 @@ export default function BeritaAcaraUjianTable({
                           : "bg-gray-100 text-gray-700"
                       }
                     `}
-                  >
-                    {ujian.jenisUjian?.namaJenis ?? "-"}
-                  </span>
-                </TableCell>
-                <TableCell className="text-center">
-                  {ujian.nilaiAkhir ?? "-"}
-                </TableCell>
-                <TableCell className="text-center">
-                  {/* Status style for hasil */}
-                  {ujian.hasil ? (
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
-                        ujian.hasil.toLowerCase() === "lulus"
-                          ? "bg-green-100 text-green-700"
-                          : ujian.hasil.toLowerCase() === "tidak lulus"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
                     >
-                      {ujian.hasil}
+                      {ujian.jenisUjian?.namaJenis ?? "-"}
                     </span>
-                  ) : (
-                    "-"
-                  )}
-                </TableCell>
-                <TableCell className="text-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDetail(ujian)}
-                    className="hover:bg-gray-200"
-                  >
-                    <MoreHorizontal size={16} />
-                  </Button>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {ujian.nilaiAkhir ?? "-"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {/* Status style for hasil */}
+                    {ujian.hasil ? (
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                          ujian.hasil.toLowerCase() === "lulus"
+                            ? "bg-green-100 text-green-700"
+                            : ujian.hasil.toLowerCase() === "tidak lulus"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {ujian.hasil}
+                      </span>
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDetail(ujian)}
+                      className="hover:bg-gray-200"
+                    >
+                      <MoreHorizontal size={16} />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="text-center text-gray-500 italic py-6"
+                >
+                  Tidak ada berita acara ujian
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={7}
-                className="text-center text-gray-500 italic py-6"
-              >
-                Tidak ada berita acara ujian
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            )}
+          </TableBody>
+        </Table>
+      </div>
       {/* Pagination */}
       {totalPage > 1 && (
         <div className="mt-4 flex justify-end">
