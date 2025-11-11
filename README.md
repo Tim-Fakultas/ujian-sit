@@ -32,3 +32,61 @@ Empowering Seamless Exams, Elevating Education Excellence
 ![React Hook Form](https://img.shields.io/badge/-React_Hook_Form-EC5990?style=for-the-badge&logo=reacthookform&logoColor=white)
 ![Laravel](https://img.shields.io/badge/-Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![MySQL](https://img.shields.io/badge/-MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Testing](#testing)
+
+---
+
+## Overview
+
+## Why ujian-sit?
+
+This project aims to streamline the development of exam and research management systems.  
+The core features include:
+
+- 🧩 **Modular Architecture:** Seamless integration of backend and frontend components for flexible development.
+- 🛡️ **Role-Based Access Control:** Fine-grained permissions ensuring secure user interactions.
+- 🧾 **Standardized API Resources:** Consistent data serialization for efficient frontend consumption.
+- 🚀 **Data Import & Export:** Bulk import/export tools for exam schedules, research proposals, and more.
+- 🎯 **Developer-Friendly Tools:** Factories, seeders, and validation requests to accelerate development and testing.
+- 🧰 **Extensible Design:** Easily add new features or customize existing workflows to fit your institution’s needs.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+This project requires the following dependencies:
+
+Programming Languange:PHP, Laravel, NextJS
+Package Manager: Composer, NPM
+
+### Installation
+
+Langkah-langkah instalasi backend & frontend.
+
+### Usage
+
+Cara menjalankan proyek di lokal.
+
+### Testing
+
+Cara menjalankan unit test atau feature test.
+
+
+ujian-sit is an open-source platform designed to facilitate exam management and assessment workflows within educational institutions.  
+It combines a Laravel backend with a Next.js frontend, offering a modular, scalable architecture for secure data handling and user management.
+
+---
+
+
+
+
