@@ -50,16 +50,32 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                     href={item.url || "#"}
                     prefetch={true}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors group-data-[collapsible=icon]:justify-center",
+                      // Perbaiki alignment agar rapi di kedua mode
+                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-medium transition-colors",
+                      open ? "justify-start" : "justify-center",
+                      "group-data-[collapsible=icon]:justify-center",
                       isActive
-                        ? "bg-blue-50 text-blue-500 dark:bg-blue-900/20 dark:text-blue-300"
-                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                        ? "bg-blue-50 text-blue-500  dark:text-blue-300"
+                        : "text-slate-700  hover:bg-slate-50 "
                     )}
                   >
                     {item.icon && (
-                      <item.icon size={18} className="flex-shrink-0" />
+                      <item.icon
+                        size={18}
+                        className={cn(
+                          "flex-shrink-0",
+                          open ? "" : "mx-auto",
+                          "group-data-[collapsible=icon]:mx-auto"
+                        )}
+                      />
                     )}
-                    <span className="truncate group-data-[collapsible=icon]:hidden">
+                    <span
+                      className={cn(
+                        "truncate",
+                        open ? "inline" : "hidden",
+                        "group-data-[collapsible=icon]:hidden"
+                      )}
+                    >
                       {item.title}
                     </span>
                   </Link>
@@ -81,24 +97,39 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium w-full transition-colors group-data-[collapsible=icon]:justify-center",
+                      // Perbaiki alignment agar rapi di kedua mode
+                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-medium w-full transition-colors",
+                      open ? "justify-start" : "justify-center",
+                      "group-data-[collapsible=icon]:justify-center",
                       isGroupActive
                         ? "bg-slate-50 text-slate-900 dark:bg-slate-800/50 dark:text-slate-100"
                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                     )}
                   >
                     {item.icon && (
-                      <item.icon size={18} className="flex-shrink-0" />
+                      <item.icon
+                        size={18}
+                        className={cn(
+                          "flex-shrink-0",
+                          open ? "" : "mx-auto",
+                          "group-data-[collapsible=icon]:mx-auto"
+                        )}
+                      />
                     )}
-                    <span className="truncate group-data-[collapsible=icon]:hidden">
+                    <span
+                      className={cn(
+                        "truncate",
+                        open ? "inline" : "hidden",
+                        "group-data-[collapsible=icon]:hidden"
+                      )}
+                    >
                       {item.title}
                     </span>
                     <ChevronRight
                       className={cn(
                         "ml-auto h-3.5 w-3.5 transition-transform group-data-[state=open]/collapsible:rotate-90",
-                        isGroupActive
-                          ? "text-slate-600 dark:text-slate-400"
-                          : "text-slate-400 dark:text-slate-500"
+                        open ? "inline" : "hidden",
+                        "group-data-[collapsible=icon]:hidden"
                       )}
                     />
                   </SidebarMenuButton>
@@ -118,9 +149,9 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                                 href={sub.url}
                                 prefetch={true}
                                 className={cn(
-                                  "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
+                                  "flex items-center gap-2.5 px-3 py-2 rounded-md text-xs transition-colors",
                                   isActive
-                                    ? "bg-blue-50 text-blue-500 dark:bg-blue-900/20 dark:text-blue-300 font-medium"
+                                    ? "bg-blue-50 text-blue-400 font-medium"
                                     : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                                 )}
                               >
@@ -128,7 +159,7 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                                   className={cn(
                                     "w-1.5 h-1.5 rounded-full flex-shrink-0",
                                     isActive
-                                      ? "bg-blue-500 dark:bg-blue-400"
+                                      ? "bg-blue-400 "
                                       : "bg-slate-300 dark:bg-slate-600"
                                   )}
                                 />

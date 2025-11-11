@@ -1,3 +1,4 @@
+"use server";
 export async function postPenilaian(data: {
   ujianId: number;
   dosenId: number;
@@ -27,11 +28,33 @@ export async function postPenilaian(data: {
       const errorData = await response.json();
       if (errorData?.message) errorText += ": " + errorData.message;
       else if (typeof errorData === "string") errorText += ": " + errorData;
-    } catch (e) {
+    } catch {
       // fallback jika bukan json
       errorText += ": " + response.statusText;
     }
     throw new Error(errorText);
   }
   return response.json();
+}
+
+export async function getPenilaianByUjianId(ujianId: number) {
+  try {
+    const response = await fetch(`http://localhost:8000/api/penilaian`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch penilaian by ujianId");
+    }
+
+    const data = await response.json();
+
+    const filteredData = data.data.filter(
+      (penilaian: { ujianId: number }) => penilaian.ujianId === ujianId
+    );
+    return filteredData;
+  } catch (error) {
+    console.error("Error fetching penilaian by ujianId:", error);
+    return [];
+  }
 }

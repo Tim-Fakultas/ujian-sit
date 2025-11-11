@@ -31,7 +31,7 @@ export async function getKomponenPenilaianByUjianByPeran(
     }
     return komponen;
   } catch (err) {
-    // Pastikan return array kosong jika error
+    console.error("Error fetching komponen penilaian:", err);
     return [];
   }
 }

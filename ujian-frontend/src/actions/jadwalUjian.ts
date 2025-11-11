@@ -2,10 +2,13 @@
 import { UjianResponse } from "@/types/Ujian";
 import { z } from "zod";
 
+import { cookies } from "next/headers";
+import { revalidateTag } from "next/cache";
+
 export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
   try {
     const response = await fetch(`http://localhost:8000/api/ujian`, {
-      cache: "no-store",
+      next: { tags: ["jadwalUjian"], revalidate: 60 },
     });
 
     if (!response.ok) {
@@ -19,7 +22,7 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
     const filteredData = data.data.filter(
       (ujian) =>
         Number(ujian.mahasiswa?.id) === Number(mahasiswaId) &&
-        ujian.pendaftaranUjian?.status === "dijadwalkan"
+        ujian.pendaftaranUjian?.status !== "menunggu"
     );
 
     return filteredData;
@@ -29,10 +32,10 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
   }
 }
 
-export async function getJadwalaUjianByProdi(prodiId: number) {
+export async function getJadwalUjianByProdi(prodiId: number) {
   try {
     const response = await fetch(`http://localhost:8000/api/ujian`, {
-      cache: "no-store",
+      next: { tags: ["jadwalUjian"], revalidate: 60 }, // cache 1 menit, tag untuk invalidation
     });
 
     if (!response.ok) {
@@ -94,14 +97,6 @@ export async function getJadwalUjianByProdiByDosen({
       })
       // 🚀 tampilkan hanya ujian yang memang relevan dengan dosen tsb
       .filter((ujian) => ujian.peranPenguji !== null);
-    console.log(
-      "🔎 Filter result:",
-      filteredData.map((u) => ({
-        id: u.id,
-        nama: u.mahasiswa?.nama,
-        peran: u.peranPenguji,
-      }))
-    );
 
     return filteredData;
   } catch (error) {
@@ -109,8 +104,6 @@ export async function getJadwalUjianByProdiByDosen({
     return [];
   }
 }
-
-import { cookies } from "next/headers";
 
 const JadwalUjianSchema = z.object({
   jadwalUjian: z.string().nonempty("Tanggal ujian wajib diisi"),
@@ -182,7 +175,6 @@ export async function jadwalkanUjianAction(formData: FormData) {
         penguji1: penguji1Num,
         penguji2: penguji2Num,
       }),
-      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -202,6 +194,7 @@ export async function jadwalkanUjianAction(formData: FormData) {
         throw new Error("Gagal menjadwalkan ujian: " + text);
       }
     }
+    revalidateTag("jadwalUjian");
 
     return { success: true };
   } catch (err: unknown) {

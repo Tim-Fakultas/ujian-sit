@@ -2,215 +2,380 @@
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
+  TableCell,
 } from "@/components/ui/table";
+import { BeritaUjian } from "@/types/BeritaUjian";
+import React, { useState, useMemo } from "react";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical, Eye } from "lucide-react";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Search,
+  ListFilter,
+  ChevronDown,
+  Eye,
+  MoreHorizontal,
+} from "lucide-react";
 
-export default function RekapitulasiNilaiTable() {
-  const [openDetail, setOpenDetail] = useState(false);
+type Props = {
+  ujian: BeritaUjian[];
+};
 
-  function Modal({
-    open,
-    onClose,
-    children,
-    className = "",
-  }: {
-    open: boolean;
-    onClose: () => void;
-    children: React.ReactNode;
-    className?: string;
-  }) {
-    if (!open) return null;
-    return (
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-white/80"
-        onClick={onClose}
-      >
-        <div
-          className={`bg-white rounded shadow-lg p-6 relative max-w-2xl w-full ${className}`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-            onClick={onClose}
-          >
-            &times;
-          </Button>
-          {children}
-        </div>
-      </div>
-    );
-  }
+const bobot: Record<"proposal" | "hasil" | "skripsi", number> = {
+  proposal: 0.2,
+  hasil: 0.5,
+  skripsi: 0.3,
+};
+
+const jenisList: Array<keyof typeof bobot> = ["proposal", "hasil", "skripsi"];
+
+const jenisUjianOptions = ["Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"];
+const nilaiOrderOptions = [
+  { label: "Nilai Tertinggi", value: "desc" },
+  { label: "Nilai Terendah", value: "asc" },
+];
+
+function getJenisUjian(ujian: BeritaUjian): keyof typeof bobot | "" {
+  if (ujian.jenisUjian.namaJenis === "Ujian Proposal") return "proposal";
+  if (ujian.jenisUjian.namaJenis === "Ujian Hasil") return "hasil";
+  if (ujian.jenisUjian.namaJenis === "Ujian Skripsi") return "skripsi";
+  return "";
+}
+
+function groupByMahasiswa(ujian: BeritaUjian[]) {
+  const map: Record<number, BeritaUjian[]> = {};
+  ujian.forEach((item) => {
+    const mhsId = item.mahasiswa.id;
+    if (!map[mhsId]) map[mhsId] = [];
+    map[mhsId].push(item);
+  });
+  return Object.values(map);
+}
+
+function hitungNilaiAkhir(ujianMhs: BeritaUjian[]) {
+  let total = 0;
+  const detail: {
+    jenis: keyof typeof bobot;
+    skor: number;
+    bobot: number;
+    nilai: number;
+  }[] = [];
+
+  jenisList.forEach((jenis) => {
+    const ujian = ujianMhs.find((u) => getJenisUjian(u) === jenis);
+    const skor = ujian?.nilaiAkhir ?? 0;
+    const bbt = bobot[jenis] ?? 0;
+    const nilai = skor * bbt;
+
+    detail.push({ jenis, skor, bobot: bbt, nilai });
+    total += nilai;
+  });
+
+  return { total, detail };
+}
+
+export default function RekapitulasiNilaiTable({ ujian }: Props) {
+  const [selected, setSelected] = useState<{
+    mhs: BeritaUjian["mahasiswa"];
+    judul: string;
+    detail: {
+      jenis: keyof typeof bobot;
+      skor: number;
+      bobot: number;
+      nilai: number;
+    }[];
+    total: number;
+  } | null>(null);
+
+  const [open, setOpen] = useState(false);
+
+  // Search & filter state
+  const [filterNama, setFilterNama] = useState("");
+  const [filterJenis, setFilterJenis] = useState("all");
+  const [openFilter, setOpenFilter] = useState(false);
+  const [nilaiOrder, setNilaiOrder] = useState<"asc" | "desc">("desc");
+
+  // Per-row popover state
+  const [aksiOpenArr, setAksiOpenArr] = useState<boolean[]>([]);
+
+  // Filtered & sorted data
+  const grouped = useMemo(() => groupByMahasiswa(ujian), [ujian]);
+  const filteredData = useMemo(() => {
+    let data = grouped.filter((ujianMhs) => {
+      const nama = ujianMhs[0].mahasiswa.nama.toLowerCase();
+      const matchNama = nama.includes(filterNama.toLowerCase());
+      let matchJenis = true;
+      if (filterJenis !== "all") {
+        matchJenis = ujianMhs.some(
+          (u) => u.jenisUjian.namaJenis === filterJenis
+        );
+      }
+      return matchNama && matchJenis;
+    });
+
+    // Sort by total nilai akhir
+    data = [...data].sort((a, b) => {
+      const totalA = hitungNilaiAkhir(a).total;
+      const totalB = hitungNilaiAkhir(b).total;
+      return nilaiOrder === "desc" ? totalB - totalA : totalA - totalB;
+    });
+    return data;
+  }, [grouped, filterNama, filterJenis, nilaiOrder]);
+
+  // Sync aksiOpenArr with filteredData length
+  React.useEffect(() => {
+    setAksiOpenArr(Array(filteredData.length).fill(false));
+  }, [filteredData.length]);
 
   return (
     <div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">No</TableHead>
-            <TableHead>Nama Mahasiswa</TableHead>
-            <TableHead>Judul Penelitian</TableHead>
-            <TableHead>Hari / Tanggal</TableHead>
-            <TableHead>Nilai</TableHead>
-            <TableHead>Aksi</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow>
-            <TableCell className="w-[100px]">1</TableCell>
-            <TableCell>Contoh Mahasiswa</TableCell>
-            <TableCell>Contoh Judul Penelitian</TableCell>
-            <TableCell>Senin, 1 Januari 2023</TableCell>
-            <TableCell>85</TableCell>
-            <TableCell>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="p-2"
-                    aria-label="Aksi"
-                  >
-                    <MoreVertical size={20} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setOpenDetail(true)}>
-                    <Eye size={16} className="mr-2" /> Detail
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Modal open={openDetail} onClose={() => setOpenDetail(false)}>
-                <div className="max-h-[90vh] overflow-y-auto">
-                  <div className="mb-4">
-                    <h2 className="text-lg font-bold mb-2">
-                      Detail Rekap Nilai Skripsi
-                    </h2>
-                  </div>
-                  <div className="mb-2">
+      {/* Search & Filter Bar */}
+      <div className="flex items-center justify-end gap-2 mb-4">
+        <div className="relative w-full max-w-xs">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <Search size={16} />
+          </span>
+          <Input
+            placeholder="Search nama mahasiswa"
+            value={filterNama}
+            onChange={(e) => setFilterNama(e.target.value)}
+            className="pl-10 w-full text-xs placeholder:text-xs"
+            inputMode="text"
+            style={{ fontSize: "0.75rem" }}
+          />
+        </div>
+        <Popover open={openFilter} onOpenChange={setOpenFilter}>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex items-center border border-gray-200 rounded-lg px-4 py-1 bg-white text-gray-700 hover:bg-gray-50 text-xs font-medium shadow-sm"
+            >
+              <ListFilter size={16} className="mr-2" />
+              Filter
+              <ChevronDown size={16} className="ml-2" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 p-2 text-xs" align="end">
+            <div className="font-semibold mb-2">Jenis Ujian</div>
+            <div className="flex flex-col gap-1 mb-2">
+              <Button
+                variant={filterJenis === "all" ? "secondary" : "ghost"}
+                size="sm"
+                className="justify-start text-xs"
+                onClick={() => {
+                  setFilterJenis("all");
+                  setOpenFilter(false);
+                }}
+              >
+                Semua
+              </Button>
+              {jenisUjianOptions.map((jenis) => (
+                <Button
+                  key={jenis}
+                  variant={filterJenis === jenis ? "secondary" : "ghost"}
+                  size="sm"
+                  className="justify-start text-xs"
+                  onClick={() => {
+                    setFilterJenis(jenis);
+                    setOpenFilter(false);
+                  }}
+                >
+                  {jenis}
+                </Button>
+              ))}
+            </div>
+            <div className="font-semibold mb-2">Urutkan Nilai Akhir</div>
+            <div className="flex flex-col gap-1">
+              {nilaiOrderOptions.map((opt) => (
+                <Button
+                  key={opt.value}
+                  variant={nilaiOrder === opt.value ? "secondary" : "ghost"}
+                  size="sm"
+                  className="justify-start text-xs"
+                  onClick={() => {
+                    setNilaiOrder(opt.value as "asc" | "desc");
+                    setOpenFilter(false);
+                  }}
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      {/* Table */}
+      <div className="border overflow-auto rounded-sm">
+        <Table className="text-xs">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-center w-10">No</TableHead>
+              <TableHead>Nama Mahasiswa</TableHead>
+              <TableHead>Judul Skripsi</TableHead>
+              <TableHead>Hasil Akhir</TableHead>
+              <TableHead className="text-center">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredData.map((ujianMhs, idx) => {
+              const mhs = ujianMhs[0].mahasiswa;
+              const judul = ujianMhs[0].judulPenelitian;
+              const { total, detail } = hitungNilaiAkhir(ujianMhs);
+
+              return (
+                <TableRow
+                  key={mhs.id}
+                  className="hover:bg-gray-50 transition text-xs"
+                >
+                  <TableCell className="text-center">{idx + 1}</TableCell>
+                  <TableCell>
                     <div>
-                      <strong>Hari/Tanggal:</strong> Senin, 1 Januari 2023
+                      {mhs.nama}
+                      <div className="text-xs text-gray-500">{mhs.nim}</div>
                     </div>
-                    <div>
-                      <strong>Nama/NIM:</strong> Contoh Mahasiswa / 123456789
-                    </div>
-                    <div>
-                      <strong>Judul Skripsi:</strong> Contoh Judul Penelitian
-                    </div>
-                  </div>
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-gray-100">
-                        <TableHead className="w-8">No.</TableHead>
-                        <TableHead>Komponen</TableHead>
-                        <TableHead>Bobot %</TableHead>
-                        <TableHead>Skor</TableHead>
-                        <TableHead>Bobot * Skor</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell>1</TableCell>
-                        <TableCell>Seminar Proposal</TableCell>
-                        <TableCell>20</TableCell>
-                        <TableCell>85</TableCell>
-                        <TableCell>{(85 * 20) / 100}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>2</TableCell>
-                        <TableCell>Ujian Hasil</TableCell>
-                        <TableCell>50</TableCell>
-                        <TableCell>90</TableCell>
-                        <TableCell>{(90 * 50) / 100}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>3</TableCell>
-                        <TableCell>Ujian Skripsi</TableCell>
-                        <TableCell>30</TableCell>
-                        <TableCell>88</TableCell>
-                        <TableCell>{(88 * 30) / 100}</TableCell>
-                      </TableRow>
-                      <TableRow className="font-bold bg-gray-50">
-                        <TableCell colSpan={4}>Total Angka Nilai</TableCell>
-                        <TableCell>
-                          {(85 * 20) / 100 + (90 * 50) / 100 + (88 * 30) / 100}
-                        </TableCell>
-                      </TableRow>
-                      <TableRow className="font-bold bg-gray-50">
-                        <TableCell colSpan={4}>Nilai Huruf</TableCell>
-                        <TableCell>
-                          {(() => {
-                            const total =
-                              (85 * 20) / 100 +
-                              (90 * 50) / 100 +
-                              (88 * 30) / 100;
-                            if (total >= 80) return "A";
-                            if (total >= 70) return "B";
-                            if (total >= 60) return "C";
-                            if (total >= 56) return "D";
-                            return "E";
-                          })()}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                  {/* Catatan interval nilai */}
-                  <div className="mt-4 border rounded p-3 bg-gray-50">
-                    <strong className="text-xs">Catatan interval nilai:</strong>
-                    <Table>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell className="pr-2 text-xs">A</TableCell>
-                          <TableCell className="text-xs">
-                            : 80.00 – 100
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="pr-2 text-xs">B</TableCell>
-                          <TableCell className="text-xs">
-                            : 70.00 – 79.99
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="pr-2 text-xs">C</TableCell>
-                          <TableCell className="text-xs">
-                            : 60.00 – 69.99
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="pr-2 text-xs">D</TableCell>
-                          <TableCell className="text-xs">
-                            : 56.00 – 59.99
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="pr-2 text-xs">E</TableCell>
-                          <TableCell className="text-xs">
-                            : {"<"} 55.99
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-              </Modal>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+                  </TableCell>
+                  <TableCell>
+                    <div className="whitespace-pre-line break-all">{judul}</div>
+                  </TableCell>
+                  <TableCell>{total.toFixed(2)}</TableCell>
+                  <TableCell className="text-center">
+                    <Popover
+                      open={aksiOpenArr[idx]}
+                      onOpenChange={(open) => {
+                        setAksiOpenArr((prev) =>
+                          prev.map((v, i) => (i === idx ? open : false))
+                        );
+                      }}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="p-1"
+                          aria-label="Aksi"
+                        >
+                          <MoreHorizontal size={16} />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-36 p-2 text-xs" align="end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full flex items-center gap-2 justify-start text-xs"
+                          onClick={() => {
+                            setSelected({ mhs, judul, detail, total });
+                            setOpen(true);
+                            setAksiOpenArr((prev) =>
+                              prev.map((v, i) => (i === idx ? false : v))
+                            );
+                          }}
+                        >
+                          <Eye size={14} />
+                          Lihat Detail
+                        </Button>
+                      </PopoverContent>
+                    </Popover>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Dialog Detail Nilai */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rekapitulasi Nilai Skripsi</DialogTitle>
+          </DialogHeader>
+          {selected && (
+            <>
+              <h3 className="mb-2 text-sm">Nama: {selected.mhs.nama}</h3>
+              <h3 className="mb-2 whitespace-pre-line break-all text-sm">
+                Judul Skripsi: <br />
+                {selected.judul}
+              </h3>
+              <Table className="w-full mt-2 border">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-center">No.</TableHead>
+                    <TableHead>Komponen</TableHead>
+                    <TableHead>Bobot %</TableHead>
+                    <TableHead>Skor</TableHead>
+                    <TableHead>Bobot * Skor</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {selected.detail.map((d, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="text-center">{i + 1}</TableCell>
+                      <TableCell>
+                        {d.jenis === "proposal"
+                          ? "Seminar Proposal"
+                          : d.jenis === "hasil"
+                          ? "Ujian Hasil"
+                          : "Ujian Skripsi"}
+                      </TableCell>
+                      <TableCell>{d.bobot * 100}</TableCell>
+                      <TableCell>{d.skor}</TableCell>
+                      <TableCell>{d.nilai.toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell colSpan={4} className="font-bold text-right">
+                      Total Angka Nilai
+                    </TableCell>
+                    <TableCell className="font-bold">
+                      {selected.total.toFixed(2)}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={4} className="font-bold text-right">
+                      Nilai Huruf
+                    </TableCell>
+                    <TableCell className="font-bold">
+                      {selected.total >= 85
+                        ? "A"
+                        : selected.total >= 75
+                        ? "B"
+                        : selected.total >= 65
+                        ? "C"
+                        : selected.total >= 55
+                        ? "D"
+                        : "E"}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+              <DialogFooter>
+                <button
+                  className="mt-2 px-3 py-1 bg-gray-200 rounded"
+                  onClick={() => setOpen(false)}
+                >
+                  Tutup
+                </button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

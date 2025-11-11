@@ -1,12 +1,14 @@
+import { getBeritaUjianByLulus } from "@/actions/beritaUjian";
+import { getCurrentUserAction } from "@/actions/auth";
 import RekapitulasiNilaiTable from "@/components/sekprodi/rekapitulasi-nilai/rekapitulasiNilailTable";
 
 export default async function RekapitulasiNilaiPage() {
+  const { user } = await getCurrentUserAction();
+  const ujian = await getBeritaUjianByLulus(user?.prodi?.id);
+  console.log("Rekapitulasi Nilai Ujian Lulus:", ujian);
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Rekapitulasi Nilai</h1>
-      <p>Halaman rekapitulasi nilai akan segera hadir.</p>
-
-      <RekapitulasiNilaiTable />
+      <RekapitulasiNilaiTable ujian={ujian} />
     </div>
   );
 }

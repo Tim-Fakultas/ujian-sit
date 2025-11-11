@@ -1,23 +1,17 @@
 // src/app/page.tsx
-"use client";
+// app/page.tsx (misal halaman root atau login)
+import { redirect } from "next/navigation";
+import { getCurrentUserAction } from "@/actions/auth";
 
-import { useEffect, useState } from "react";
-import MahasiswaPage from "./(routes)/mahasiswa/dashboard/page";
-import LoginPage from "./login/page";
+export default async function Home() {
+  const { token, user } = await getCurrentUserAction();
 
-export default function Home() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token"); // atau cookie
-    if (token) {
-      setIsLoggedIn(true);
-    }
-  }, []);
-
-  if (!isLoggedIn) {
-    return <LoginPage />;
+  // Jika user sudah login (ada token di cookies)
+  if (token && user) {
+    // Redirect sesuai role
+    redirect(`/${user.role || "mahasiswa"}/dashboard`);
   }
 
-  return <MahasiswaPage />;
+  // Jika belum login, tetap render halaman login
+  redirect("/login");
 }

@@ -25,12 +25,27 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { logoutAction } from "@/actions/logoutAction";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { logoutAction } from "@/actions/auth";
 
-export function NavUser({ user: serverUser }: { user?: any }) {
+export type UserRole = {
+  id: number;
+  name: string;
+};
+
+export type User = {
+  id: number;
+  nama: string;
+  email: string;
+  nim?: string;
+  nidn?: string;
+  nip_nim?: string;
+  roles?: UserRole[];
+};
+
+export function NavUser({ user: serverUser }: { user?: User }) {
   const { isMobile, open } = useSidebar();
   const { user, setUser, initializeFromCookies } = useAuthStore();
   const router = useRouter();
@@ -56,7 +71,7 @@ export function NavUser({ user: serverUser }: { user?: any }) {
   const initials =
     currentUser.nama
       ?.split(" ")
-      .map((n: string) => n[0])
+      .map((n) => n[0])
       .join("")
       .toUpperCase()
       .slice(0, 2) || "U";
@@ -112,7 +127,9 @@ export function NavUser({ user: serverUser }: { user?: any }) {
                 </Avatar>
 
                 <div className="grid flex-1 text-left text-xs leading-tight">
-                  <span className="truncate font-medium">{currentUser.nama}</span>
+                  <span className="truncate font-medium">
+                    {currentUser.nama}
+                  </span>
                   <span className="text-muted-foreground truncate text-xs">
                     {currentUser.email}
                   </span>
@@ -128,7 +145,9 @@ export function NavUser({ user: serverUser }: { user?: any }) {
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link
-                  href={`/${userRole.replace(/\s+/g, "-").toLowerCase()}/profile`}
+                  href={`/${userRole
+                    .replace(/\s+/g, "-")
+                    .toLowerCase()}/profile`}
                 >
                   <IconUserCircle className="mr-2 h-4 w-4" />
                   Profile

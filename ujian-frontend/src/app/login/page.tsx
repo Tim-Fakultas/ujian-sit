@@ -7,22 +7,19 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen">
       <div className="relative min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <div className="text-center mb-6  justify-center flex items-center">
-            <Image
-              src="/images/uin-raden-fatah.webp"
-              alt="UIN Logo"
-              width={100}
-              height={100}
-              priority
-            />
-          </div>
-        </div>
-
-        <div className="mt-2 sm:mx-auto sm:w-full sm:max-w-sm px-4">
-          <Card className="shadow-md border-0 backdrop-blur-xs">
+        <div className=" sm:mx-auto sm:w-full sm:max-w-[350px] px-4">
+          <Card className="border-0 ">
             <CardHeader className="text-center pb-2">
-              <h2 className="text-2xl font-semibold text-gray-900">Login</h2>
+              <div className="text-center justify-center flex items-center">
+                <Image
+                  src="/images/uin-raden-fatah.webp"
+                  alt="UIN Logo"
+                  width={80}
+                  height={80}
+                  priority
+                />
+              </div>
+              {/* <h2 className="text-xl font-semibold text-gray-900">Login</h2> */}
               <p className="text-xs text-gray-600 mt-1">
                 Masuk dengan akun SIMAK Anda
               </p>

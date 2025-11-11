@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { createRancanganPenelitian } from "@/actions/rancanganPenelitian";
 import { RancanganPenelitian } from "@/types/RancanganPenelitian";
 import { toast } from "sonner";
-import revalidateAction from "@/actions/revalidateAction";
+import revalidateAction from "@/actions/revalidate";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 interface FormProps {
   mahasiswaId: number;
@@ -40,7 +41,17 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
     try {
       await createRancanganPenelitian(mahasiswaId, formData);
       await revalidateAction("/mahasiswa/pengajuan-ranpel");
-      toast.success("Rancangan penelitian berhasil disimpan!");
+      toast(
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="text-green-500" size={20} />
+          <div>
+            <div className="font-semibold">Berhasil!</div>
+            <div className="text-xs">
+              Rancangan penelitian berhasil disimpan.
+            </div>
+          </div>
+        </div>
+      );
       setFormData({
         judulPenelitian: "",
         masalahDanPenyebab: "",
@@ -50,8 +61,18 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
         kebutuhanData: "",
       });
       onSuccess?.();
-    } catch (error) {
-      toast.error("Gagal menyimpan rancangan penelitian. Silakan coba lagi.");
+    } catch {
+      toast(
+        <div className="flex items-center gap-2">
+          <XCircle className="text-red-500" size={20} />
+          <div>
+            <div className="font-semibold">Gagal!</div>
+            <div className="text-xs">
+              Gagal menyimpan rancangan penelitian. Silakan coba lagi.
+            </div>
+          </div>
+        </div>
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -136,7 +157,11 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
       </div>
 
       <div className="flex gap-4">
-        <Button type="submit" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-blue-400 hover:bg-blue-500"
+        >
           {isSubmitting ? "Menyimpan..." : "Simpan Rancangan"}
         </Button>
         <Button

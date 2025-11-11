@@ -23,6 +23,9 @@ export interface JenisUjian {
 
 export interface PendaftaranUjian {
   id: number;
+  jenisUjianId: number;
+  tanggalPengajuan: string;
+  tanggalDisetujui: string | null;
   status: "menunggu" | "diterima" | "dijadwalkan" | "selesai";
 }
 

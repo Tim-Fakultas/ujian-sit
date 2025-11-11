@@ -1,25 +1,7 @@
 "use server";
 
 import { PengajuanRanpelResponse } from "@/types/RancanganPenelitian";
-import { cookies } from "next/headers";
 
-export async function getLoggedInUser() {
-  try {
-    const cookieStore = await cookies();
-    const userCookie = cookieStore.get("user");
-
-    if (!userCookie) {
-      return null;
-    }
-
-    return JSON.parse(userCookie.value);
-  } catch (error) {
-    console.error("Error getting logged in user:", error);
-    return null;
-  }
-}
-
-// Add Status type definition
 interface Status {
   status: "diverifikasi" | "ditolak" | "menunggu" | "diterima";
 }
@@ -59,8 +41,6 @@ export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
 
     const data: PengajuanRanpelResponse = await response.json();
 
-    console.log("RAW pengajuanRanpel:", data.data);
-
     let filteredData = data.data;
 
     if (userId) {
@@ -73,8 +53,6 @@ export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
         (pengajuan) => pengajuan.status === "diterima"
       );
     }
-
-    console.log("Filtered pengajuanRanpel (diterima/disetujui):", filteredData);
 
     return filteredData;
   } catch (error) {
@@ -96,10 +74,6 @@ export async function getPengajuanRanpelByDosenPA(dosenId?: number) {
 
     const data: PengajuanRanpelResponse = await response.json();
 
-    // // Filter by diverifikasi status first
-    // let filteredData = data.data.filter(
-    //   (pengajuan) => pengajuan.status === "diverifikasi"
-    // );
     let filteredData = data.data;
 
     if (dosenId) {
@@ -107,6 +81,13 @@ export async function getPengajuanRanpelByDosenPA(dosenId?: number) {
         (pengajuan) => pengajuan.mahasiswa?.dosenPa?.id === dosenId
       );
     }
+
+    // Urutkan berdasarkan tanggalPengajuan (terbaru di atas)
+    filteredData = filteredData.sort((a, b) => {
+      const tglA = new Date(a.tanggalPengajuan).getTime();
+      const tglB = new Date(b.tanggalPengajuan).getTime();
+      return tglB - tglA;
+    });
 
     return filteredData;
   } catch (error) {
@@ -138,6 +119,13 @@ export async function getPengajuanRanpelByProdi(prodiId?: number) {
         (pengajuan) => pengajuan.mahasiswa?.prodi?.id === prodiId
       );
     }
+
+    // Sort by tanggalPengajuan (terbaru di atas)
+    filteredData = filteredData.sort((a, b) => {
+      const tglA = new Date(a.tanggalPengajuan).getTime();
+      const tglB = new Date(b.tanggalPengajuan).getTime();
+      return tglB - tglA;
+    });
 
     return filteredData;
   } catch (error) {

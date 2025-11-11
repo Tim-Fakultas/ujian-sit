@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { loginAction } from "@/actions/loginAction";
+import { loginAction } from "@/actions/auth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -17,9 +17,8 @@ export default function LoginForm() {
     startTransition(async () => {
       const result = await loginAction(formData);
       if (!result?.success) {
-        setError(result?.message || "Login gagal");
+        setError(result?.message || "Failed to login. Please try again.");
       }
-      // Kalau sukses → redirect dilakukan otomatis dari server
     });
   }
 
@@ -34,9 +33,9 @@ export default function LoginForm() {
           <Input
             id="nip_nim"
             name="nip_nim"
-            placeholder="NIM / NIDN / NIP"
+            placeholder="Username"
             required
-            className="pl-9 h-10 text-sm border-gray-200 focus:border-blue-600 focus:ring-blue-600 rounded-lg"
+            className="pl-9 h-10 text-xs   rounded-lg placeholder:text-xs"
           />
         </div>
       </div>
@@ -53,7 +52,7 @@ export default function LoginForm() {
             type={showPassword ? "text" : "password"}
             placeholder="Masukkan password"
             required
-            className="pl-9 pr-10 h-10 text-sm border-gray-200 focus:border-blue-600 focus:ring-blue-600 rounded-lg"
+            className="pl-9 pr-10 h-10 text-xs placeholder:text-xs border-gray-200  rounded-lg"
           />
           <button
             type="button"
@@ -73,16 +72,16 @@ export default function LoginForm() {
 
       <Button
         type="submit"
-        className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 rounded-lg"
+        className="w-full h-10 bg-blue-400  hover:bg-blue-500 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 rounded-lg"
         disabled={isPending}
       >
         {isPending ? (
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-            <span className="text-sm">Sedang masuk...</span>
+            <span className="text-sm">Logging in...</span>
           </div>
         ) : (
-          <span className="text-sm">Masuk</span>
+          <span className="text-sm">Login</span>
         )}
       </Button>
     </form>
