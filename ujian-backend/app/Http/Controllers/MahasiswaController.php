@@ -6,6 +6,7 @@ use App\Http\Requests\StoreMahasiswaRequest;
 use App\Http\Requests\UpdateMahasiswaRequest;
 use App\Http\Resources\MahasiswaResource;
 use App\Models\Mahasiswa;
+use Illuminate\Support\Facades\Cache;
 
 class MahasiswaController extends Controller
 {
@@ -14,7 +15,9 @@ class MahasiswaController extends Controller
      */
     public function index()
     {
-        $mahasiswa = Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik', 'pembimbing1', 'pembimbing2'])->get();
+        $mahasiswa = Cache::remember('mahasiswa_all', 600, function () {
+            return Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik', 'pembimbing1', 'pembimbing2'])->get();
+        });
 
         return MahasiswaResource::collection($mahasiswa);
     }
@@ -27,6 +30,8 @@ class MahasiswaController extends Controller
         $request->validated();
         $mahasiswa = Mahasiswa::create($request->all());
 
+        Cache::forget('mahasiswa_all');
+
         return new MahasiswaResource($mahasiswa);
     }
 
@@ -35,7 +40,9 @@ class MahasiswaController extends Controller
      */
     public function show($id)
     {
-        $mahasiswa = Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik', 'pembimbing1', 'pembimbing2'])->findOrFail($id);
+        $mahasiswa = Cache::remember("mahasiswa_{$id}", 600, function () use ($id) {
+            return Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik', 'pembimbing1', 'pembimbing2'])->findOrFail($id);
+        });
 
         return new MahasiswaResource($mahasiswa);
     }
@@ -66,6 +73,8 @@ class MahasiswaController extends Controller
         $mahasiswa->update($merged);
         $mahasiswa->load(['prodi', 'peminatan', 'dosenPembimbingAkademik']);
 
+        Cache::forget('mahasiswa_all');
+
         return new MahasiswaResource($mahasiswa);
     }
 
@@ -77,6 +86,8 @@ class MahasiswaController extends Controller
     public function destroy(Mahasiswa $mahasiswa)
     {
         $mahasiswa->delete();
+
+        Cache::forget('mahasiswa_all');
 
         return response()->json(['message' => 'Mahasiswa berhasil dihapus.'], 200);
     }

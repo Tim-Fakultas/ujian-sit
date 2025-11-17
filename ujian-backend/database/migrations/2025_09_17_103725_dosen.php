@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('golongan')->nullable();
             $table->dateTime('tmt_fst')->nullable();
             $table->string('jabatan')->nullable();
+            $table->enum('status', ['aktif', 'tidak aktif'])->default('aktif');
             $table->foreignId('prodi_id')->constrained('prodi')->onDelete('cascade');
             $table->string('foto')->nullable();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
