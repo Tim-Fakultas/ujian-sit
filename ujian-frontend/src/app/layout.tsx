@@ -3,6 +3,7 @@ import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import AuthInitializer from "@/components/AuthInitializer";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const fontSans = Inter({
   variable: "--font-sans",
@@ -25,13 +26,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <body
         className={`${fontSans.variable} ${fontMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
         <AuthInitializer />
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
         <Toaster
           position="top-right"
           richColors

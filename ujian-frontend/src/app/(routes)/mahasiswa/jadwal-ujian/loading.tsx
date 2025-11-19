@@ -5,7 +5,7 @@ export default function JadwalUjianLoading() {
   return (
     <div className="p-6">
       <Skeleton className="h-8 w-48 mb-4" />
-      <div className="border rounded-md bg-white">
+      <div className="border rounded-md ">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="flex gap-2 p-4 border-b last:border-b-0">
             <Skeleton className="h-4 w-8" />

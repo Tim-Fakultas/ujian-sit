@@ -9,8 +9,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, ChevronDown, ChevronUp } from "lucide-react";
-import { getJenisUjianColor, getStatusColor, truncateTitle } from "@/lib/utils";
+import {
+  Plus,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  MoreHorizontal,
+  ArrowRight,
+  X,
+} from "lucide-react";
+import { getJenisUjianColor, getStatusColor } from "@/lib/utils";
 import { PendaftaranUjian } from "@/types/PendaftaranUjian";
 import { User } from "@/types/Auth";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
@@ -30,14 +38,9 @@ import {
 } from "@/components/ui/popover";
 import { ListFilter } from "lucide-react";
 import { Ujian } from "@/types/Ujian";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import PengajuanUjianForm from "./PengajuanUjianForm";
 import { JenisUjian } from "@/types/JenisUjian";
+import Link from "next/link";
 
 export default function PendaftaranTable({
   pendaftaranUjian,
@@ -141,142 +144,147 @@ export default function PendaftaranTable({
     setPage(1);
   }, [filterJudul, filterStatus, filterJenisUjian]);
 
+  const [showForm, setShowForm] = useState(false);
+
   return (
-    <div className="">
+    <div className="bg-white dark:bg-[#1f1f1f] p-6 rounded-lg shadow-sm">
       {/* Filter Bar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 mb-4">
-        <div className="flex gap-2 w-full md:w-auto">
-          {/* Search */}
-          <div className="relative w-full md:w-56">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-              <Search size={14} />
-            </span>
-            <Input
-              placeholder="Search"
-              value={filterJudul}
-              onChange={(e) => setFilterJudul(e.target.value)}
-              className="pl-9 w-full h-8 text-xs placeholder:text-xs"
-            />
-          </div>
+        <div className="flex gap-2 w-full justify-between">
+          <h1 className="font-semibold text-lg">Pendaftaran Ujian</h1>
 
-          {/* Filter status */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-3 flex items-center gap-2 border border-gray-200 rounded-md text-xs font-normal shadow-none min-w-[90px] justify-between"
-                style={{ boxShadow: "0 1px 2px 0 rgba(16,24,40,.05)" }}
+          <div className="flex gap-2">
+            {/* Search */}
+            <div className="relative w-full md:w-56">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                <Search size={16} />
+              </span>
+              <Input
+                placeholder="Search"
+                value={filterJudul}
+                onChange={(e) => setFilterJudul(e.target.value)}
+                className="pl-9 w-full text-sm bg-white"
+              />
+            </div>
+
+            {/* Filter status */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 flex items-center gap-2  rounded-md text-sm font-normal shadow-none min-w-[90px] justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <ListFilter size={16} />
+                    Status
+                  </span>
+                  <ChevronDown size={16} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                className="w-44 p-0 rounded-md  shadow"
+                sideOffset={8}
               >
-                <span className="flex items-center gap-2">
-                  <ListFilter size={13} />
-                  Status
-                </span>
-                <ChevronDown size={13} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="w-44 p-0 rounded-md border border-gray-200 shadow"
-              sideOffset={8}
-            >
-              <div className="p-3">
-                <div className="font-semibold text-xs mb-2 text-gray-700">
-                  Status
+                <div className="p-3">
+                  <div className="font-semibold text-sm mb-2 ">Status</div>
+                  <div className="flex flex-col gap-1">
+                    {statusOptions.map((opt) => (
+                      <Button
+                        key={opt.value}
+                        variant={
+                          filterStatus === opt.value ? "secondary" : "ghost"
+                        }
+                        size="sm"
+                        className={`justify-start w-full text-sm rounded-md`}
+                        onClick={() => setFilterStatus(opt.value)}
+                      >
+                        {opt.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1">
-                  {statusOptions.map((opt) => (
-                    <Button
-                      key={opt.value}
-                      variant={filterStatus === opt.value ? "default" : "ghost"}
-                      size="sm"
-                      className={`justify-start w-full text-xs rounded-md ${
-                        filterStatus === opt.value
-                          ? "bg-blue-100 text-blue-400 border-blue-400"
-                          : ""
-                      }`}
-                      onClick={() => setFilterStatus(opt.value)}
-                    >
-                      {opt.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-          {/* Filter jenis ujian */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-3 flex items-center gap-2 border border-gray-200 rounded-md text-xs font-normal shadow-none min-w-[90px] justify-between"
-                style={{ boxShadow: "0 1px 2px 0 rgba(16,24,40,.05)" }}
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 flex items-center gap-2  rounded-md text-sm font-normal shadow-none min-w-[90px] justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <ListFilter size={13} />
+                    Ujian
+                  </span>
+                  <ChevronDown size={13} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                className="w-44 p-0 rounded-md  shadow"
+                sideOffset={8}
               >
-                <span className="flex items-center gap-2">
-                  <ListFilter size={13} />
-                  Ujian
-                </span>
-                <ChevronDown size={13} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="w-44 p-0 rounded-md border border-gray-200 shadow"
-              sideOffset={8}
-            >
-              <div className="p-3">
-                <div className="font-semibold text-xs mb-2 text-gray-700">
-                  Jenis Ujian
-                </div>
-                <div className="flex flex-col gap-1">
-                  <Button
-                    variant={filterJenisUjian === "all" ? "default" : "ghost"}
-                    size="sm"
-                    className={`justify-start w-full text-xs rounded-md ${
-                      filterJenisUjian === "all"
-                        ? "bg-blue-100 text-blue-400 border-blue-400"
-                        : ""
-                    }`}
-                    onClick={() => setFilterJenisUjian("all")}
-                  >
-                    Semua
-                  </Button>
-                  {jenisUjianList.map((jenis) => (
+                <div className="p-3">
+                  <div className="font-semibold text-sm mb-2 ">Jenis Ujian</div>
+                  <div className="flex flex-col gap-1">
                     <Button
-                      key={jenis.id}
                       variant={
-                        filterJenisUjian === String(jenis.id)
-                          ? "default"
-                          : "ghost"
+                        filterJenisUjian === "all" ? "secondary" : "ghost"
                       }
                       size="sm"
-                      className={`justify-start w-full text-xs rounded-md ${
-                        filterJenisUjian === String(jenis.id)
-                          ? "bg-blue-100 text-blue-400 border-blue-400"
-                          : ""
-                      }`}
-                      onClick={() => setFilterJenisUjian(String(jenis.id))}
+                      className={`justify-start w-full text-sm rounded-md`}
+                      onClick={() => setFilterJenisUjian("all")}
                     >
-                      {jenis.namaJenis}
+                      Semua
                     </Button>
-                  ))}
+                    {jenisUjianList.map((jenis) => (
+                      <Button
+                        key={jenis.id}
+                        variant={
+                          filterJenisUjian === String(jenis.id)
+                            ? "secondary"
+                            : "ghost"
+                        }
+                        size="sm"
+                        className={`justify-start w-full text-sm rounded-md `}
+                        onClick={() => setFilterJenisUjian(String(jenis.id))}
+                      >
+                        {jenis.namaJenis}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-          {/* Tambah Pengajuan Ujian */}
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="bg-blue-400 hover:bg-blue-500 text-white text-xs h-8 px-4 flex items-center gap-2 rounded-md min-w-[90px] shadow-none">
-                <Plus size={13} />
-                Pengajuan Ujian
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
-              <DialogTitle className="text-lg font-medium mb-4">
+              </PopoverContent>
+            </Popover>
+
+            <Button
+              className="bg-blue-500 hover:bg-blue-600 text-white text-sm  px-4 flex items-center gap-2 rounded-md min-w-[90px] shadow-none"
+              onClick={() => setShowForm(true)}
+            >
+              <Plus size={16} />
+              Ajukan Ujian
+            </Button>
+          </div>
+        </div>
+      </div>
+      {/* Popup Modal Form Pengajuan Ujian */}
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="relative max-w-2xl w-full bg-white dark:bg-[#232323] rounded-xl shadow-2xl overflow-auto">
+            <button
+              type="button"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              onClick={() => setShowForm(false)}
+              aria-label="Tutup Form"
+            >
+              <X size={16} />
+            </button>
+            <div className="p-6">
+              <div className="text-lg font-medium mb-4">
                 Form Pengajuan Ujian
-              </DialogTitle>
+              </div>
               {user && (
                 <PengajuanUjianForm
                   user={user}
@@ -285,13 +293,13 @@ export default function PendaftaranTable({
                   ujian={ujian}
                 />
               )}
-            </DialogContent>
-          </Dialog>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="border overflow-auto rounded-sm">
-        <Table className="text-xs">
-          <TableHeader>
+      )}
+      <div className="border  overflow-auto rounded-lg bg-white dark:bg-[#1f1f1f]">
+        <Table className="text-sm">
+          <TableHeader className="bg-sidebar-accent">
             <TableRow>
               <TableHead className="text-center w-10">No</TableHead>
               <TableHead>
@@ -338,6 +346,7 @@ export default function PendaftaranTable({
                 </div>
               </TableHead>
               <TableHead className="text-center">Status</TableHead>
+              <TableHead className="text-center">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -357,9 +366,16 @@ export default function PendaftaranTable({
                   </TableCell>
                   <TableCell>
                     <span
-                      className={`px-2 py-1 rounded text-xs font-semibold inline-block ${getJenisUjianColor(
-                        pendaftaran.jenisUjian.namaJenis
-                      )}`}
+                      className={`px-2 py-1 rounded text-sm font-semibold inline-block
+                        ${getJenisUjianColor(pendaftaran.jenisUjian.namaJenis)}
+                        ${
+                          pendaftaran.jenisUjian.namaJenis === "Ujian Proposal"
+                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
+                            : pendaftaran.jenisUjian.namaJenis === "Ujian Hasil"
+                            ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
+                            : "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-200"
+                        }
+                      `}
                     >
                       {pendaftaran.jenisUjian.namaJenis}
                     </span>
@@ -371,18 +387,64 @@ export default function PendaftaranTable({
                   </TableCell>
                   <TableCell className="text-center">
                     <span
-                      className={`px-2 py-1 rounded text-xs ${getStatusColor(
-                        pendaftaran.status
-                      )}`}
+                      className={`px-2 py-1 rounded text-sm
+                        ${getStatusColor(pendaftaran.status)}
+                        ${
+                          pendaftaran.status === "menunggu"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                            : pendaftaran.status === "diterima"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                            : pendaftaran.status === "ditolak"
+                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                            : pendaftaran.status === "dijadwalkan"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                            : pendaftaran.status === "selesai"
+                            ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                            : ""
+                        }
+                      `}
                     >
                       {pendaftaran.status}
                     </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {/* MoreHorizontal popover aksi */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="p-1 h-7 w-7"
+                          aria-label="Aksi"
+                        >
+                          <MoreHorizontal size={18} />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="end"
+                        className="w-48 p-3 rounded-lg border border-blue-100 shadow-lg"
+                        sideOffset={8}
+                      >
+                        <Link href={`/mahasiswa/jadwal-ujian`} passHref>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full flex items-center justify-between gap-2 text-sm px-3 py-2 rounded-lg  font-medium transition"
+                          >
+                            <span className="flex items-center gap-2">
+                              Lihat Jadwal Ujian
+                            </span>
+                            <ArrowRight size={16} />
+                          </Button>
+                        </Link>
+                      </PopoverContent>
+                    </Popover>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-gray-500">
+                <TableCell colSpan={6} className="text-center text-gray-500">
                   Tidak ada data pendaftaran ujian
                 </TableCell>
               </TableRow>

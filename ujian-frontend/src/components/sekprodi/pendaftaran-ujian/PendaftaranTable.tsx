@@ -27,11 +27,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import {
   Search,
   CalendarPlus,
-  Filter,
   ListFilter,
   ChevronDown,
   MoreHorizontal,
@@ -61,6 +62,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 export default function PendaftaranUjianTable({
   ujianList,
@@ -89,6 +91,7 @@ export default function PendaftaranUjianTable({
   const [ruanganList, setRuanganList] = useState<
     { id: number; namaRuangan: string }[]
   >([]);
+
   const [ruangan, setRuangan] = useState<string>("");
   // State untuk waktu mulai dan selesai
   const [waktuMulai, setWaktuMulai] = useState("");
@@ -138,7 +141,6 @@ export default function PendaftaranUjianTable({
   useEffect(() => {
     if (!state) return;
     (async () => {
-      const { toast } = await import("sonner");
       if (state.success) {
         toast.success("Ujian berhasil dijadwalkan!");
         setOpen(false);
@@ -159,7 +161,6 @@ export default function PendaftaranUjianTable({
     })();
   }, [state]);
 
-  // Reset penguji jika dialog ditutup
   useEffect(() => {
     if (!open) {
       setPenguji1("");
@@ -231,12 +232,13 @@ export default function PendaftaranUjianTable({
   }, [filterNama, filterJenis /*, sortTanggal*/]);
 
   return (
-    <div>
+    <div className="bg-white dark:bg-[#1f1f1f] p-6 rounded-lg shadow">
       {/* Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <span className="font-semibold text-lg">Pendaftaran Ujian</span>
         <div className="flex w-full sm:w-auto items-center gap-3">
           {/* Search */}
-          <div className="relative w-64">
+          <div className="relative w-56">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <Search size={16} />
             </span>
@@ -244,87 +246,84 @@ export default function PendaftaranUjianTable({
               placeholder="Search"
               value={filterNama}
               onChange={(e) => setFilterNama(e.target.value)}
-              className="pl-10 w-full placeholder:text-xs text-xs h-8"
+              className="pl-10 w-full   bg-white dark:bg-[#1f1f1f] "
             />
           </div>
           {/* Filter jenis ujian dengan Popover, ukuran sama dengan search */}
-          <div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2 text-xs font-medium w-full justify-between"
-                >
-                  <ListFilter size={16} className="mr-1" />
-                  <span className="flex items-center">Filter</span>
-                  <ChevronDown size={16} />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-0" align="end">
-                <div className="py-2 px-3 border-b font-semibold text-xs text-muted-foreground">
-                  Jenis Ujian
-                </div>
-                <div className="flex flex-col">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 flex items-center gap-2 border border-gray-200 rounded-lg text-sm font-normal shadow-none min-w-[110px] justify-between"
+              >
+                <span className="flex items-center gap-2">
+                  <ListFilter size={16} />
+                  Filter
+                </span>
+                <ChevronDown size={16} />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="w-52 p-0 rounded-lg border border-gray-200 shadow"
+              sideOffset={8}
+            >
+              <div className="p-4">
+                <div className="font-semibold text-xs mb-2 ">Jenis Ujian</div>
+                <div className="flex flex-col gap-1">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={filterJenis === "all" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
-                      filterJenis === "all" ? "bg-accent font-semibold" : ""
-                    }`}
+                    className={`justify-start w-full text-xs rounded-lg `}
                     onClick={() => setFilterJenis("all")}
                   >
                     Semua
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={
+                      filterJenis === "Ujian Proposal" ? "default" : "ghost"
+                    }
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
-                      filterJenis === "Ujian Proposal"
-                        ? "bg-accent font-semibold"
-                        : ""
-                    }`}
+                    className={`justify-start w-full text-xs rounded-lg `}
                     onClick={() => setFilterJenis("Ujian Proposal")}
                   >
                     Ujian Proposal
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={
+                      filterJenis === "Ujian Hasil" ? "default" : "ghost"
+                    }
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
-                      filterJenis === "Ujian Hasil"
-                        ? "bg-accent font-semibold"
-                        : ""
-                    }`}
+                    className={`justify-start w-full text-xs rounded-lg`}
                     onClick={() => setFilterJenis("Ujian Hasil")}
                   >
                     Ujian Hasil
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={
+                      filterJenis === "Ujian Skripsi" ? "default" : "ghost"
+                    }
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
-                      filterJenis === "Ujian Skripsi"
-                        ? "bg-accent font-semibold"
-                        : ""
-                    }`}
+                    className={`justify-start w-full text-xs rounded-lg}`}
                     onClick={() => setFilterJenis("Ujian Skripsi")}
                   >
                     Ujian Skripsi
                   </Button>
                 </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
-      <div className="border rounded-sm overflow-auto">
-        <Table className="text-xs">
-          <TableHeader>
+
+      <div className="border rounded-lg overflow-auto ">
+        <Table>
+          <TableHeader className="bg-sidebar-accent">
             <TableRow>
               <TableHead className="text-center w-10">No</TableHead>
               <TableHead>Nama Mahasiswa</TableHead>
@@ -344,22 +343,22 @@ export default function PendaftaranUjianTable({
                   <TableCell>{u.mahasiswa.nama}</TableCell>
                   <TableCell>{truncateTitle(u.judulPenelitian, 40)}</TableCell>
                   <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-semibold inline-block ${getJenisUjianColor(
+                    <Badge
+                      className={`px-2 py-1 text-xs font-semibold ${getJenisUjianColor(
                         u.jenisUjian.namaJenis
                       )}`}
                     >
                       {u.jenisUjian.namaJenis}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded text-xs ${getStatusColor(
+                    <Badge
+                      className={`px-2 py-1 text-xs ${getStatusColor(
                         u.pendaftaranUjian.status
                       )}`}
                     >
                       {u.pendaftaranUjian.status}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-center">
                     <DropdownMenu>
@@ -383,7 +382,6 @@ export default function PendaftaranUjianTable({
                             u.pendaftaranUjian.status.toLowerCase() ===
                             "selesai"
                           }
-                          className="text-xs"
                         >
                           <CalendarPlus className="mr-2" size={16} />
                           Jadwalkan
@@ -524,7 +522,31 @@ export default function PendaftaranUjianTable({
           </DialogHeader>
           <div className="border-b my-2" />
           {selected && mahasiswaDetail && (
-            <form action={formAction} className="space-y-4">
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                // Validasi client-side: penguji harus berbeda dan field wajib terisi
+                if (!penguji1 || !penguji2 || !ruangan) {
+                  toast.error("Lengkapi semua field penguji dan ruangan.");
+                  return;
+                }
+                if (penguji1 === penguji2) {
+                  toast.error("Pilih penguji yang berbeda.");
+                  return;
+                }
+
+                // Ambil form data dari form element dan append nilai controlled fields
+                const formElem = e.currentTarget as HTMLFormElement;
+                const fd = new FormData(formElem);
+                fd.set("penguji1", penguji1);
+                fd.set("penguji2", penguji2);
+                fd.set("ruanganId", ruangan);
+
+                // Panggil action
+                await formAction(fd);
+              }}
+              className="space-y-4"
+            >
               <input
                 type="hidden"
                 name="ujianId"
@@ -532,27 +554,27 @@ export default function PendaftaranUjianTable({
               />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-1 block">Ketua Penguji</Label>
+                  <Label className="mb-2 block">Ketua Penguji</Label>
                   <Input
                     type="text"
                     value={mahasiswaDetail.pembimbing1?.nama || ""}
                     disabled
-                    className="bg-muted"
+                    className=""
                   />
                 </div>
                 <div>
-                  <Label className="mb-1 block">Sekretaris Penguji</Label>
+                  <Label className="mb-2 block">Sekretaris Penguji</Label>
                   <Input
                     type="text"
                     value={mahasiswaDetail.pembimbing2?.nama || ""}
                     disabled
-                    className="bg-muted"
+                    className=""
                   />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-1 block">Tanggal Ujian</Label>
+                  <Label className="mb-2 block">Tanggal Ujian</Label>
                   <Input
                     type="date"
                     name="jadwalUjian"
@@ -562,7 +584,7 @@ export default function PendaftaranUjianTable({
                 </div>
                 <div className="flex gap-2">
                   <div className="w-1/2">
-                    <Label className="mb-1 block">Waktu Mulai</Label>
+                    <Label className="mb-2 block">Waktu Mulai</Label>
                     <Input
                       type="time"
                       name="waktuMulai"
@@ -573,7 +595,7 @@ export default function PendaftaranUjianTable({
                     />
                   </div>
                   <div className="w-1/2">
-                    <Label className="mb-1 block">Waktu Selesai</Label>
+                    <Label className="mb-2 block">Waktu Selesai</Label>
                     <Input
                       type="time"
                       name="waktuSelesai"
@@ -590,27 +612,28 @@ export default function PendaftaranUjianTable({
                 </div>
               </div>
               <div>
-                <Label className="mb-1 block">Ruangan</Label>
-                <select
-                  name="ruanganId"
+                <Label className="mb-2 block">Ruangan</Label>
+                <Select
                   value={ruangan}
-                  onChange={(e) => setRuangan(e.target.value)}
+                  onValueChange={(val) => setRuangan(val)}
+                  name="ruanganId"
                   required
-                  className="w-full border rounded px-2 py-2 bg-background"
                 >
-                  <option value="" disabled>
-                    Pilih Ruangan
-                  </option>
-                  {ruanganList.map((r) => (
-                    <option key={r.id} value={String(r.id)}>
-                      {r.namaRuangan}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Pilih Ruangan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ruanganList.map((r) => (
+                      <SelectItem key={r.id} value={String(r.id)}>
+                        {r.namaRuangan}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-1 block">Dosen Penguji 1</Label>
+                  <Label className="mb-2 block">Dosen Penguji 1</Label>
                   <Select
                     value={penguji1}
                     onValueChange={setPenguji1}
@@ -632,7 +655,7 @@ export default function PendaftaranUjianTable({
                   </Select>
                 </div>
                 <div>
-                  <Label className="mb-1 block">Dosen Penguji 2</Label>
+                  <Label className="mb-2 block">Dosen Penguji 2</Label>
                   <Select
                     value={penguji2}
                     onValueChange={setPenguji2}
@@ -654,21 +677,30 @@ export default function PendaftaranUjianTable({
                   </Select>
                 </div>
               </div>
-              <Button
-                type="submit"
-                className="w-full mt-2 transition hover:bg-primary/90"
-                disabled={
-                  !penguji1 ||
-                  !penguji2 ||
-                  !ruangan ||
-                  penguji1 === "" ||
-                  penguji2 === "" ||
-                  ruangan === "" ||
-                  penguji1 === penguji2 // prevent duplicate penguji
-                }
-              >
-                Simpan Jadwal
-              </Button>
+              <DialogFooter className="p-0">
+                <div className="w-full">
+                  {penguji1 === penguji2 && penguji1 !== "" && (
+                    <div className="text-sm text-red-600 mb-2">
+                      Pilih penguji yang berbeda.
+                    </div>
+                  )}
+                  <Button
+                    type="submit"
+                    className="w-full mt-1"
+                    disabled={
+                      !penguji1 ||
+                      !penguji2 ||
+                      !ruangan ||
+                      penguji1 === "" ||
+                      penguji2 === "" ||
+                      ruangan === "" ||
+                      penguji1 === penguji2
+                    }
+                  >
+                    Simpan Jadwal
+                  </Button>
+                </div>
+              </DialogFooter>
             </form>
           )}
         </DialogContent>

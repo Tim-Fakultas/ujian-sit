@@ -14,7 +14,7 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
   return (
     <div
       id={id}
-      className="max-w-2xl mx-auto bg-white rounded-xl"
+      className="max-w-2xl mx-auto bg-white dark:bg-[#1f1f1f] rounded-xl"
       style={{
         fontFamily: '"Inter", Arial, sans-serif',
         color: "#222",
@@ -22,10 +22,10 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
     >
       {/* Header */}
       <div className="mb-8 text-center">
-        <div className="text-lg font-semibold text-gray-700 mb-1">
+        <div className="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-1 pt-10">
           {pengajuan?.ranpel?.judulPenelitian}
         </div>
-        <div className="text-base text-gray-500">
+        <div className="text-base text-gray-500 dark:text-gray-300">
           {pengajuan?.mahasiswa.nama} ({pengajuan?.mahasiswa?.nim})
         </div>
       </div>
@@ -56,19 +56,19 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
         ].map((item, idx, arr) => (
           <div key={item.label}>
             <div className="flex flex-col gap-2 py-2">
-              <span className="font-semibold text-gray-700 border-l-4 border-primary pl-3 mb-1">
+              <span className="font-semibold text-gray-700 dark:text-gray-100 border-l-4 border-primary pl-3 mb-1">
                 {item.label}
               </span>
-              <div className="bg-gray-50 rounded-lg px-4 py-3 border border-gray-200 text-gray-800 min-h-[40px] whitespace-pre-line">
+              <div className="bg-gray-50 dark:bg-[#23272f] rounded-lg px-4 py-3 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 min-h-[40px] whitespace-pre-line">
                 {item.value ? (
                   item.value
                 ) : (
-                  <span className="text-gray-400">-</span>
+                  <span className="text-gray-400 dark:text-gray-500">-</span>
                 )}
               </div>
             </div>
             {idx < arr.length - 1 && (
-              <div className="border-b border-dashed border-gray-200 my-4" />
+              <div className="border-b border-dashed border-gray-200 dark:border-gray-700 my-4" />
             )}
           </div>
         ))}

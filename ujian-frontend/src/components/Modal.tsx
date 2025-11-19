@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { Button } from "./ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Modal({
   open,
@@ -15,11 +16,11 @@ export default function Modal({
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white/80"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-black/60 backdrop-blur-sm"
       onClick={onClose}
     >
-      <div
-        className={`bg-white rounded shadow-lg p-6 relative ${className}`}
+      <Card
+        className={`relative ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         <Button
@@ -30,8 +31,9 @@ export default function Modal({
         >
           <X />
         </Button>
-        {children}
-      </div>
+
+        <CardContent className="p-6">{children}</CardContent>
+      </Card>
     </div>
   );
 }

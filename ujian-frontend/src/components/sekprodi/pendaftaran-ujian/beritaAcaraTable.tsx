@@ -11,7 +11,6 @@ import {
 import { BeritaUjian } from "@/types/BeritaUjian";
 import { Button } from "../../ui/button";
 import {
-  Eye,
   X,
   FileText,
   ArrowLeft,
@@ -48,7 +47,7 @@ export default function BeritaAcaraUjianTable({
   const [jenisFilter, setJenisFilter] = useState<
     "all" | "proposal" | "hasil" | "skripsi"
   >("all");
-  // Tambah state untuk filter hasil
+
   const [hasilFilter, setHasilFilter] = useState<
     "all" | "lulus" | "tidak lulus"
   >("all");
@@ -128,7 +127,7 @@ export default function BeritaAcaraUjianTable({
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:"
               onClick={onClose}
             >
               <X size={20} />
@@ -141,50 +140,58 @@ export default function BeritaAcaraUjianTable({
   };
 
   return (
-    <div>
+    <div className="p-6 bg-white dark:bg-[#1f1f1f] rounded-lg">
       {/* Filter nav & Search input in one row */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <div>
+          <h1 className="font-semibold text-lg">Berita Ujian</h1>
+        </div>
         <div className="flex w-full sm:w-auto items-center gap-3">
           {/* Search */}
-          <div className="relative w-64">
+          <div className="relative w-56">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <Search size={18} />
             </span>
             <input
               type="text"
-              placeholder="Cari nama mahasiswa atau judul..."
+              placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border rounded-lg pl-10 pr-3 py-2 w-full text-xs focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="border rounded-lg pl-10 pr-3 py-2 w-full bg-white dark:bg-[#1f1f1f] text-sm"
             />
           </div>
           {/* Filter jenis ujian dan hasil dengan Popover */}
-          <div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2 text-xs font-medium w-full justify-between"
-                >
-                  <span className="flex items-center">
-                    <ListFilter size={16} className="mr-1" />
-                    Filter
-                  </span>
-                  <ChevronDown size={16} />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-0" align="end">
-                <div className="py-2 px-3 border-b font-semibold text-xs text-muted-foreground">
-                  Jenis Ujian
-                </div>
-                <div className="flex flex-col">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className={`h-9 px-4 flex items-center gap-2 border border-gray-200 rounded-lg  font-normal shadow-none min-w-[110px] justify-between `}
+                style={{ boxShadow: "0 1px 2px 0 rgba(16,24,40,.05)" }}
+              >
+                <span className="flex items-center gap-2">
+                  <ListFilter size={16} />
+                  Filter
+                </span>
+                <ChevronDown size={16} />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="w-52 p-0 rounded-lg border border-gray-200 shadow"
+              sideOffset={8}
+            >
+              <div className="p-4">
+                <div className="font-semibold  mb-2 ">Jenis Ujian</div>
+                <div className="flex flex-col gap-1 mb-3">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={jenisFilter === "all" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
-                      jenisFilter === "all" ? "bg-accent font-semibold" : ""
+                    className={`justify-start w-full  rounded-lg ${
+                      jenisFilter === "all"
+                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
+                        : ""
                     }`}
                     onClick={() => setJenisFilter("all")}
                   >
@@ -192,11 +199,11 @@ export default function BeritaAcaraUjianTable({
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={jenisFilter === "proposal" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                    className={`justify-start w-full  rounded-lg ${
                       jenisFilter === "proposal"
-                        ? "bg-accent font-semibold"
+                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
                         : ""
                     }`}
                     onClick={() => setJenisFilter("proposal")}
@@ -205,10 +212,12 @@ export default function BeritaAcaraUjianTable({
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={jenisFilter === "hasil" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
-                      jenisFilter === "hasil" ? "bg-accent font-semibold" : ""
+                    className={`justify-start w-full  rounded-lg ${
+                      jenisFilter === "hasil"
+                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
+                        : ""
                     }`}
                     onClick={() => setJenisFilter("hasil")}
                   >
@@ -216,26 +225,28 @@ export default function BeritaAcaraUjianTable({
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={jenisFilter === "skripsi" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
-                      jenisFilter === "skripsi" ? "bg-accent font-semibold" : ""
+                    className={`justify-start w-full  rounded-lg ${
+                      jenisFilter === "skripsi"
+                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
+                        : ""
                     }`}
                     onClick={() => setJenisFilter("skripsi")}
                   >
                     Skripsi
                   </Button>
                 </div>
-                <div className="py-2 px-3 border-b font-semibold text-xs text-muted-foreground mt-2">
-                  Hasil
-                </div>
-                <div className="flex flex-col">
+                <div className="font-semibold  mb-2 ">Hasil</div>
+                <div className="flex flex-col gap-1">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={hasilFilter === "all" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
-                      hasilFilter === "all" ? "bg-accent font-semibold" : ""
+                    className={`justify-start w-full  rounded-lg ${
+                      hasilFilter === "all"
+                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
+                        : ""
                     }`}
                     onClick={() => setHasilFilter("all")}
                   >
@@ -243,10 +254,12 @@ export default function BeritaAcaraUjianTable({
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={hasilFilter === "lulus" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
-                      hasilFilter === "lulus" ? "bg-accent font-semibold" : ""
+                    className={`justify-start w-full  rounded-lg ${
+                      hasilFilter === "lulus"
+                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
+                        : ""
                     }`}
                     onClick={() => setHasilFilter("lulus")}
                   >
@@ -254,11 +267,13 @@ export default function BeritaAcaraUjianTable({
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={
+                      hasilFilter === "tidak lulus" ? "default" : "ghost"
+                    }
                     size="sm"
-                    className={`justify-start text-left px-3 py-2 text-xs rounded-none ${
+                    className={`justify-start w-full  rounded-lg ${
                       hasilFilter === "tidak lulus"
-                        ? "bg-accent font-semibold"
+                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
                         : ""
                     }`}
                     onClick={() => setHasilFilter("tidak lulus")}
@@ -266,15 +281,15 @@ export default function BeritaAcaraUjianTable({
                     Tidak Lulus
                   </Button>
                 </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
-      <div className="border rounded-sm overflow-auto">
+      <div className="border rounded-lg overflow-auto bg-white dark:bg-[#1f1f1f]">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-sidebar-accent">
             <TableRow>
               <TableHead className="w-10 text-center">No</TableHead>
               <TableHead>Mahasiswa</TableHead>
@@ -296,10 +311,10 @@ export default function BeritaAcaraUjianTable({
                     {(page - 1) * pageSize + idx + 1}
                   </TableCell>
                   <TableCell>
-                    <span className="text-xs">
+                    <span className="">
                       {ujian.mahasiswa?.nama ?? "-"} <br />
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className=" text-gray-500">
                       {ujian.mahasiswa.nim ?? "-"}
                     </span>
                   </TableCell>
@@ -309,7 +324,7 @@ export default function BeritaAcaraUjianTable({
                   <TableCell>
                     {/* Badge style for jenis ujian */}
                     <span
-                      className={`px-2 py-1 rounded text-xs font-medium
+                      className={`px-2 py-1 rounded  font-medium
                       ${
                         ujian.jenisUjian?.namaJenis
                           ?.toLowerCase()
@@ -323,7 +338,7 @@ export default function BeritaAcaraUjianTable({
                               ?.toLowerCase()
                               .includes("skripsi")
                           ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-700"
+                          : "bg-gray-100 "
                       }
                     `}
                     >
@@ -337,12 +352,12 @@ export default function BeritaAcaraUjianTable({
                     {/* Status style for hasil */}
                     {ujian.hasil ? (
                       <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                        className={`px-2 py-1 rounded  font-semibold ${
                           ujian.hasil.toLowerCase() === "lulus"
                             ? "bg-green-100 text-green-700"
                             : ujian.hasil.toLowerCase() === "tidak lulus"
                             ? "bg-red-100 text-red-700"
-                            : "bg-gray-100 text-gray-700"
+                            : "bg-gray-100 "
                         }`}
                       >
                         {ujian.hasil}
@@ -482,7 +497,7 @@ export default function BeritaAcaraUjianTable({
       >
         {selected && (
           <div className="space-y-6">
-            <div className="bg-gray-50 border rounded-lg p-4 text-xs text-gray-800">
+            <div className="bg-gray-50 border rounded-lg p-4  text-gray-800">
               Pada hari{" "}
               <span className="font-semibold underline">
                 {selected.hariUjian ?? "Senin"}
@@ -505,13 +520,13 @@ export default function BeritaAcaraUjianTable({
             {/* Info Mahasiswa */}
             <div className="border rounded-lg p-4 space-y-2 bg-white">
               <div>
-                <span className="text-xs text-gray-600">Nama Mahasiswa</span>
+                <span className=" text-gray-600">Nama Mahasiswa</span>
                 <p className="font-medium text-gray-900">
                   {selected.mahasiswa?.nama ?? "-"}
                 </p>
               </div>
               <div className="mt-2">
-                <span className="text-xs text-gray-600">Judul Penelitian</span>
+                <span className=" text-gray-600">Judul Penelitian</span>
                 <p className="font-medium text-gray-900 leading-relaxed">
                   {selected.judulPenelitian ?? "-"}
                 </p>
@@ -540,7 +555,7 @@ export default function BeritaAcaraUjianTable({
                     { label: "Penguji II", dosen: selected.penguji2 },
                   ].map((row, i) => {
                     const status = getStatusHadir(row.dosen?.id);
-                    let color = "bg-gray-100 text-gray-700";
+                    let color = "bg-gray-100 ";
                     let text = "Tidak Hadir";
                     if (status === "hadir") {
                       color = "bg-green-100 text-green-700";
@@ -556,7 +571,7 @@ export default function BeritaAcaraUjianTable({
                         <TableCell>{row.label}</TableCell>
                         <TableCell className="text-center">
                           <span
-                            className={`px-3 py-1 text-xs rounded-full font-medium ${color}`}
+                            className={`px-3 py-1  rounded-full font-medium ${color}`}
                           >
                             {text}
                           </span>
@@ -573,12 +588,12 @@ export default function BeritaAcaraUjianTable({
               <span className="font-bold">MEMUTUSKAN:</span> Proposal saudara
               dinyatakan{" "}
               <span
-                className={`font-semibold underline px-2 py-1 rounded text-xs ml-1 ${
+                className={`font-semibold underline px-2 py-1 rounded  ml-1 ${
                   selected?.hasil?.toLowerCase() === "lulus"
                     ? "bg-green-100 text-green-700"
                     : selected?.hasil?.toLowerCase() === "tidak lulus"
                     ? "bg-red-100 text-red-700"
-                    : "bg-gray-100 text-gray-700"
+                    : "bg-gray-100 "
                 }`}
               >
                 {selected?.hasil?.toUpperCase() || "DITERIMA / DITOLAK"}
@@ -616,7 +631,7 @@ export default function BeritaAcaraUjianTable({
       >
         {selected && (
           <div className="space-y-4 text-gray-800">
-            <div className="mt-2 space-y-1 text-xs">
+            <div className="mt-2 space-y-1 ">
               <p>
                 <span className="text-gray-600">Nama Mahasiswa :</span>{" "}
                 <span className="font-medium">
@@ -631,9 +646,7 @@ export default function BeritaAcaraUjianTable({
               </p>
             </div>
 
-            <p className="text-xs font-medium mt-4">
-              Catatan/Daftar Revisi Penguji:
-            </p>
+            <p className=" font-medium mt-4">Catatan/Daftar Revisi Penguji:</p>
 
             <div className="overflow-x-auto border rounded-lg bg-white">
               <Table className="min-w-full">

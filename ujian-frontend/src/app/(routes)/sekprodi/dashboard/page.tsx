@@ -4,6 +4,8 @@ import {
   getTotalPendaftaranUjianMenunggu,
 } from "@/actions/dashboard";
 import { getCurrentUserAction } from "@/actions/auth";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, Hourglass, Newspaper } from "lucide-react";
 
 export default async function DashboardSekprodiPage() {
   const { user } = await getCurrentUserAction();
@@ -16,35 +18,69 @@ export default async function DashboardSekprodiPage() {
   const totalBeritaUjian = await getTotalBeritaUjian(prodiId);
 
   return (
-    <div className="p-6  flex flex-col min-h-[60vh]">
-      <div className="max-w-full">
-        <div className="font-semibold text-gray-700 mb-2 text-sm">
-          Statistik Sekprodi
+    <div className="p-6 flex flex-col min-h-[60vh]">
+      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+            Statistik Sekprodi
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Ringkasan jadwal, pendaftaran menunggu, dan berita ujian
+          </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 min-w-[160px] max-w-[220px] flex flex-col items-start justify-center shadow-sm">
-            <span className="text-xs text-gray-500 mb-1">
-              Total Jadwal Ujian
-            </span>
-            <span className="text-2xl font-bold text-yellow-700">
-              {totalJadwalUjian}
-            </span>
+        <div className="hidden sm:flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            Total Jadwal Ujian
           </div>
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 min-w-[160px] max-w-[220px] flex flex-col items-start justify-center shadow-sm">
-            <span className="text-xs text-gray-500 mb-1">
-              Pendaftaran Ujian Menunggu
-            </span>
-            <span className="text-2xl font-bold text-blue-700">
-              {totalPendaftaranMenunggu}
-            </span>
-          </div>
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 min-w-[160px] max-w-[220px] flex flex-col items-start justify-center shadow-sm">
-            <span className="text-xs text-gray-500 mb-1">Berita Ujian</span>
-            <span className="text-2xl font-bold text-green-700">
-              {totalBeritaUjian}
-            </span>
+          <div className="text-lg font-semibold text-blue-600">
+            {totalJadwalUjian}
           </div>
         </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="min-h-[88px] rounded-xl p-4 flex flex-col justify-between shadow-sm bg-white/60 dark:bg-slate-900/40 backdrop-blur-sm border border-blue-500/10">
+          <CardContent className="p-0">
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-muted-foreground">
+                Total Jadwal Ujian
+              </div>
+              <Calendar className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="mt-3">
+              <div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
+                {totalJadwalUjian}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="min-h-[88px] rounded-xl p-4 flex flex-col justify-between shadow-sm bg-white/60 dark:bg-slate-900/40 backdrop-blur-sm border border-blue-500/10">
+          <CardContent className="p-0">
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-muted-foreground">
+                Pendaftaran Ujian Menunggu
+              </div>
+              <Hourglass className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="mt-3">
+              <div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
+                {totalPendaftaranMenunggu}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="min-h-[88px] rounded-xl p-4 flex flex-col justify-between shadow-sm bg-white/60 dark:bg-slate-900/40 backdrop-blur-sm border border-blue-500/10">
+          <CardContent className="p-0">
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-muted-foreground">Berita Ujian</div>
+              <Newspaper className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="mt-3">
+              <div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
+                {totalBeritaUjian}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

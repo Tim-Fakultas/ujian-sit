@@ -89,6 +89,7 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
           onChange={handleChange}
           placeholder="Masukkan judul penelitian"
           required
+          className="h-12 text-base"
         />
       </div>
 
@@ -100,8 +101,9 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
           value={formData.masalahDanPenyebab}
           onChange={handleChange}
           placeholder="Jelaskan masalah dan penyebabnya"
-          rows={4}
+          rows={6}
           required
+          className="min-h-[90px] text-base"
         />
       </div>
 
@@ -113,8 +115,9 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
           value={formData.alternatifSolusi}
           onChange={handleChange}
           placeholder="Jelaskan alternatif solusi yang diusulkan"
-          rows={4}
+          rows={6}
           required
+          className="min-h-[90px] text-base"
         />
       </div>
 
@@ -127,6 +130,7 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
           onChange={handleChange}
           placeholder="Contoh: Waterfall, Agile, dll."
           required
+          className="h-12 text-base"
         />
       </div>
 
@@ -138,8 +142,9 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
           value={formData.hasilYangDiharapkan}
           onChange={handleChange}
           placeholder="Jelaskan hasil yang diharapkan dari penelitian"
-          rows={4}
+          rows={6}
           required
+          className="min-h-[90px] text-base"
         />
       </div>
 
@@ -151,8 +156,9 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
           value={formData.kebutuhanData}
           onChange={handleChange}
           placeholder="Jelaskan data apa saja yang dibutuhkan"
-          rows={4}
+          rows={6}
           required
+          className="min-h-[90px] text-base"
         />
       </div>
 
@@ -160,7 +166,7 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-blue-400 hover:bg-blue-500"
+          className="bg-blue-500 hover:bg-blue-600 text-white"
         >
           {isSubmitting ? "Menyimpan..." : "Simpan Rancangan"}
         </Button>

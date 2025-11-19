@@ -9,7 +9,13 @@ import {
 } from "@/components/ui/table";
 import PDFPreviewModal from "./PDFPreviewModal";
 import { Button } from "../ui/button";
-import { Eye, Search } from "lucide-react";
+import {
+  Eye,
+  Search,
+  ListFilter,
+  ChevronDown,
+  MoreHorizontal,
+} from "lucide-react";
 import { formatDate, truncateTitle } from "@/lib/utils";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { useState, useMemo, useEffect } from "react";
@@ -27,7 +33,12 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { ListFilter, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export default function PengajuanTableClient({
   pengajuanRanpel,
@@ -89,20 +100,20 @@ export default function PengajuanTableClient({
   };
 
   return (
-    <div className="">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4">
+    <div className="bg-white dark:bg-[#1f1f1f] p-6 rounded-lg shadow">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <h1 className="text-lg font-semibold">Rancangan Penelitian</h1>
         {/* Search & Filter in one row, smaller size */}
         <div className="flex w-full sm:w-auto gap-2 sm:justify-end">
           <div className="relative w-full sm:w-56">
             <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">
-              <Search size={13} />
+              <Search size={16} />
             </span>
             <Input
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 w-full h-8 text-xs placeholder:text-xs rounded-md border border-gray-200 shadow-none focus:ring-0 focus:border-primary"
-              style={{ boxShadow: "0 1px 2px 0 rgba(16,24,40,.05)" }}
+              className="pl-8 w-full  placeholder: rounded-md border  shadow-none focus:ring-0 focus:border-primary bg-white"
             />
           </div>
           {/* Filter status */}
@@ -111,8 +122,7 @@ export default function PengajuanTableClient({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 px-3 flex items-center gap-2 border border-gray-200 rounded-md text-xs font-normal shadow-none min-w-[90px] justify-between"
-                style={{ boxShadow: "0 1px 2px 0 rgba(16,24,40,.05)" }}
+                className="px-3 h-9 flex items-center gap-2 border  rounded-md  font-normal shadow-none min-w-[90px] justify-between"
               >
                 <span className="flex items-center gap-2">
                   <ListFilter size={13} />
@@ -123,20 +133,18 @@ export default function PengajuanTableClient({
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="w-44 p-0 rounded-md border border-gray-200 shadow"
+              className="w-44 p-0 rounded-md border  shadow"
               sideOffset={8}
             >
               <div className="p-3">
-                <div className="font-semibold text-xs mb-2 text-gray-700">
-                  Status
-                </div>
+                <div className="font-semibold mb-2 ">Status</div>
                 <div className="flex flex-col gap-1">
                   <Button
                     variant={filterStatus === "all" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start w-full text-xs rounded-md ${
+                    className={`justify-start w-full  rounded-md ${
                       filterStatus === "all"
-                        ? "bg-blue-100 text-blue-700 border-blue-400"
+                        ? ""
                         : ""
                     }`}
                     onClick={() => setFilterStatus("all")}
@@ -146,9 +154,9 @@ export default function PengajuanTableClient({
                   <Button
                     variant={filterStatus === "menunggu" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start w-full text-xs rounded-md ${
+                    className={`justify-start w-full  rounded-md ${
                       filterStatus === "menunggu"
-                        ? "bg-blue-100 text-blue-700 border-blue-400"
+                        ? ""
                         : ""
                     }`}
                     onClick={() => setFilterStatus("menunggu")}
@@ -158,9 +166,9 @@ export default function PengajuanTableClient({
                   <Button
                     variant={filterStatus === "diterima" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start w-full text-xs rounded-md ${
+                    className={`justify-start w-full  rounded-md ${
                       filterStatus === "diterima"
-                        ? "bg-blue-100 text-blue-700 border-blue-400"
+                        ? ""
                         : ""
                     }`}
                     onClick={() => setFilterStatus("diterima")}
@@ -172,9 +180,9 @@ export default function PengajuanTableClient({
                       filterStatus === "diverifikasi" ? "default" : "ghost"
                     }
                     size="sm"
-                    className={`justify-start w-full text-xs rounded-md ${
+                    className={`justify-start w-full  rounded-md ${
                       filterStatus === "diverifikasi"
-                        ? "bg-blue-100 text-blue-700 border-blue-400"
+                        ? ""
                         : ""
                     }`}
                     onClick={() => setFilterStatus("diverifikasi")}
@@ -184,9 +192,9 @@ export default function PengajuanTableClient({
                   <Button
                     variant={filterStatus === "ditolak" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start w-full text-xs rounded-md ${
+                    className={`justify-start w-full  rounded-md ${
                       filterStatus === "ditolak"
-                        ? "bg-blue-100 text-blue-700 border-blue-400"
+                        ? ""
                         : ""
                     }`}
                     onClick={() => setFilterStatus("ditolak")}
@@ -200,28 +208,18 @@ export default function PengajuanTableClient({
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-sm border">
-        <Table className=" text-xs">
-          <TableHeader className="bg-white border-b border-gray-200 text-xs">
+      <div className="mt-6 overflow-x-auto rounded-lg border bg-white dark:bg-[#1f1f1f]">
+        <Table>
+          <TableHeader className="bg-sidebar-accent">
             <TableRow>
-              <TableHead className="text-left font-semibold px-4 py-3 whitespace-nowrap text-xs text-gray-700 border-0">
-                No
-              </TableHead>
-              <TableHead className="font-semibold px-4 py-3 whitespace-nowrap text-xs text-gray-700 border-0">
-                Nama Mahasiswa
-              </TableHead>
-              <TableHead className="font-semibold px-4 py-3 whitespace-nowrap text-xs text-gray-700 border-0">
-                Judul Penelitian
-              </TableHead>
-              <TableHead className="font-semibold px-4 py-3 whitespace-nowrap text-xs text-gray-700 border-0">
+              <TableHead className="text-center font-semibold ">No</TableHead>
+              <TableHead className="font-semibold ">Nama Mahasiswa</TableHead>
+              <TableHead className="font-semibold ">Judul Penelitian</TableHead>
+              <TableHead className="font-semibold ">
                 Tanggal Pengajuan
               </TableHead>
-              <TableHead className="font-semibold px-4 py-3 whitespace-nowrap text-xs text-gray-700 border-0">
-                Status
-              </TableHead>
-              <TableHead className="text-center font-semibold px-4 py-3 whitespace-nowrap text-xs text-gray-700 border-0">
-                Aksi
-              </TableHead>
+              <TableHead className="font-semibold ">Status</TableHead>
+              <TableHead className=" font-semibold ">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -229,23 +227,23 @@ export default function PengajuanTableClient({
               paginatedData.map((pengajuan: PengajuanRanpel, index: number) => (
                 <TableRow
                   key={pengajuan.id}
-                  className="hover:bg-gray-50 transition border-0 text-xs"
+                  className="hover:bg-gray-50 transition   "
                 >
-                  <TableCell className="text-left px-4 py-3 text-xs border-0">
+                  <TableCell className="text-center   ">
                     {(page - 1) * pageSize + index + 1}
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-xs border-0">
+                  <TableCell className="  ">
                     {pengajuan.mahasiswa.nama}
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-xs border-0">
+                  <TableCell className="  ">
                     {truncateTitle(pengajuan.ranpel.judulPenelitian)}
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-xs border-0">
+                  <TableCell className="  ">
                     {formatDate(pengajuan.tanggalPengajuan)}
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-xs border-0">
+                  <TableCell className="">
                     <span
-                      className={`px-2 py-1 rounded text-xs ${
+                      className={` rounded px-2 py-1 ${
                         pengajuan.status === "menunggu"
                           ? "bg-yellow-100 text-yellow-800"
                           : pengajuan.status === "diterima"
@@ -258,15 +256,32 @@ export default function PengajuanTableClient({
                       {pengajuan.status}
                     </span>
                   </TableCell>
-                  <TableCell className="text-center px-4 py-3 text-xs border-0">
-                    <Button
-                      onClick={() => handleLihatClick(pengajuan)}
-                      className="text-xs"
-                      variant="outline"
-                    >
-                      <Eye size={16} />
-                      Preview
-                    </Button>
+                  <TableCell className="text-center ">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-8 p-0 flex items-center justify-center"
+                          aria-label="Aksi"
+                        >
+                          <MoreHorizontal size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        sideOffset={6}
+                        className="w-40"
+                      >
+                        <DropdownMenuItem
+                          onClick={() => handleLihatClick(pengajuan)}
+                          className="flex items-center gap-2 "
+                        >
+                          <Eye size={14} />
+                          Preview
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
@@ -274,7 +289,7 @@ export default function PengajuanTableClient({
               <TableRow>
                 <TableCell
                   colSpan={6}
-                  className="text-center py-8 text-gray-400 italic border-0 text-xs"
+                  className="text-center py-8 text-gray-400 italic  "
                 >
                   Tidak ada data pengajuan rancangan penelitian.
                 </TableCell>

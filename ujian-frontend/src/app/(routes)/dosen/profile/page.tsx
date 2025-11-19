@@ -84,7 +84,7 @@ export default function DosenProfilePage() {
       setIsEditing(false);
 
       // You could also show a success toast here
-      console.log("Profile updated successfully");
+      // ...existing code...
     } catch (error) {
       console.error("Failed to update profile:", error);
       // You could show an error toast here

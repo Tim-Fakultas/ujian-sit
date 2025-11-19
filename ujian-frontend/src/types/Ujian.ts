@@ -43,30 +43,9 @@ export interface Ujian {
     id: number;
     namaRuangan: string;
   };
-  ketuaPenguji: {
-    nidn: string | null;
-    nip: string | null;
-    id: number;
-    nama: string;
-  };
-  peranPenguji?: string | null;
-  sekretarisPenguji: {
-    id: number;
-    nidn: string | null;
-    nip: string | null;
-    nama: string;
-  };
-  penguji1: {
-    id: number;
-    nidn: string | null;
-    nip: string | null;
-    nama: string;
-  };
-  penguji2: {
-    id: number;
-    nidn: string | null;
-    nip: string | null;
-    nama: string;
+  penguji: {
+    dosenId: number;
+    peran: "ketuaPenguji" | "sekretarisPenguji" | "penguji1" | "penguji2";
   };
   hasil: string | null;
   nilaiAkhir: number | null;

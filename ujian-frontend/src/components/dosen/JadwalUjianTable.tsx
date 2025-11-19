@@ -40,6 +40,32 @@ interface JadwalUjianTableProps {
   currentDosenId: number | undefined;
 }
 
+interface Dosen {
+  id: number;
+  nama: string;
+  nip?: string;
+  nidn?: string;
+}
+
+interface PenilaianItem {
+  // id optional karena rekap yang dihimpun mungkin tidak menyertakan dosenId eksplisit
+  dosenId?: number;
+  dosen: Dosen;
+  // jabatan (Ketua/Sekretaris/Penguji) ditampilkan di rekapitulasi
+  jabatan: string;
+  // total angka nilai yang sudah dihitung (bobot * nilai)
+  total: number;
+  komponenPenilaian?: { bobot?: number };
+  nilai?: number;
+}
+
+interface HadirUjian {
+  id: number;
+  ujianId: number;
+  dosenId: number;
+  statusKehadiran: string;
+}
+
 export default function JadwalUjianTable({
   jadwalUjian,
   currentDosenId,
@@ -56,9 +82,9 @@ export default function JadwalUjianTable({
   const [hadirSukses, setHadirSukses] = useState<{
     [ujianId: number]: boolean;
   }>({});
-  const [rekapPenilaian, setRekapPenilaian] = useState<any[]>([]);
+  const [rekapPenilaian, setRekapPenilaian] = useState<PenilaianItem[]>([]);
   const [rekapLoading, setRekapLoading] = useState(false);
-  const [hadirData, setHadirData] = useState<any[]>([]);
+  const [hadirData, setHadirData] = useState<HadirUjian[]>([]);
 
   // Ambil data hadir ujian sekali saat komponen mount
   useEffect(() => {
@@ -108,29 +134,29 @@ export default function JadwalUjianTable({
   //* Filter & Pagination State
   const [filterPeran, setFilterPeran] = useState("all");
   const [search, setSearch] = useState("");
-  // State untuk popover filter
+  //* State untuk popover filter
   const [openFilter, setOpenFilter] = useState(false);
-  // State untuk filter jenis ujian
+  //* State untuk filter jenis ujian
   const [filterJenisUjian, setFilterJenisUjian] = useState("all");
   const [openFilterJenis, setOpenFilterJenis] = useState(false);
 
-  // Jenis ujian statis
+  //* Jenis ujian statis
   const jenisUjianList = ["Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"];
 
   //* Filtered data
   const filteredData = jadwalUjian.filter((ujian) => {
-    // Filter by peran
+    //* Filter by peran
     let matchPeran = true;
     if (filterPeran !== "all") {
       const peran = getPeranPenguji(ujian, currentDosenId);
       matchPeran = peran === filterPeran;
     }
-    // Filter by jenis ujian
+    //* Filter by jenis ujian
     let matchJenis = true;
     if (filterJenisUjian !== "all") {
       matchJenis = ujian.jenisUjian?.namaJenis === filterJenisUjian;
     }
-    // Filter by search (nama mahasiswa, judul, ruangan)
+    //* Filter by search (nama mahasiswa, judul, ruangan)
     const q = search.toLowerCase();
     const matchSearch =
       (ujian.mahasiswa?.nama?.toLowerCase() ?? "").includes(q) ||
@@ -148,11 +174,7 @@ export default function JadwalUjianTable({
           // Group by dosenId
           const group: Record<
             number,
-            {
-              dosen: any;
-              jabatan: string;
-              total: number;
-            }
+            { dosen: Dosen; jabatan: string; total: number }
           > = {};
 
           data.forEach((item: any) => {
@@ -199,7 +221,6 @@ export default function JadwalUjianTable({
     }
   }, [openRekapitulasi, selected]);
 
-  // Fungsi nilai huruf
   function getNilaiHuruf(rata: number) {
     if (rata >= 80) return "A";
     if (rata >= 70) return "B";
@@ -209,18 +230,19 @@ export default function JadwalUjianTable({
   }
 
   return (
-    <div className="">
+    <div className="bg-white p-6 rounded-lg shadow-sm dark:bg-[#1f1f1f]">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <span className="text-lg font-semibold">Jadwal Ujian</span>
         {/* Search bar & filter (right) */}
         <div className="flex w-full md:w-auto gap-2 md:justify-end md:ml-auto">
-          <div className="relative w-full md:w-72 mt-0">
+          <div className="relative w-full md:w-56 mt-0">
             <Input
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full text-xs placeholder:text-xs h-8 px-8 rounded-md border border-gray-200 shadow-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition"
+              className="w-full text-sm   px-8 rounded-lg  shadow-none bg-white"
             />
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none ">
               <SearchIcon size={16} />
             </span>
           </div>
@@ -230,8 +252,7 @@ export default function JadwalUjianTable({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 px-3 flex items-center gap-2 border border-gray-200 rounded-md text-xs font-normal shadow-none min-w-[90px] justify-between"
-                style={{ boxShadow: "0 1px 2px 0 rgba(16,24,40,.05)" }}
+                className="h-9 px-3 flex items-center gap-2  rounded-md  font-normal shadow-none min-w-[90px] justify-between"
               >
                 <span className="flex items-center gap-2">
                   <ListFilter size={13} />
@@ -242,13 +263,11 @@ export default function JadwalUjianTable({
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="w-44 p-0 rounded-md border border-gray-200 shadow"
+              className="w-44 p-0 rounded-md  shadow"
               sideOffset={8}
             >
               <div className="p-3">
-                <div className="font-semibold text-xs mb-2 text-gray-700">
-                  Peran
-                </div>
+                <div className="font-semibold mb-2">Peran</div>
                 <div className="flex flex-col gap-1">
                   {[
                     { label: "Semua", value: "all" },
@@ -264,11 +283,7 @@ export default function JadwalUjianTable({
                       key={item.value}
                       variant={filterPeran === item.value ? "default" : "ghost"}
                       size="sm"
-                      className={`justify-start w-full text-xs rounded-md ${
-                        filterPeran === item.value
-                          ? "bg-blue-100 text-blue-700 border-blue-400"
-                          : ""
-                      }`}
+                      className={`justify-start w-full  rounded-md `}
                       onClick={() => {
                         setFilterPeran(item.value);
                         setOpenFilter(false);
@@ -287,34 +302,27 @@ export default function JadwalUjianTable({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 px-3 flex items-center gap-2 border border-gray-200 rounded-md text-xs font-normal shadow-none min-w-[90px] justify-between"
-                style={{ boxShadow: "0 1px 2px 0 rgba(16,24,40,.05)" }}
+                className="h-9 px-3 flex items-center gap-2  rounded-lg  font-normal shadow-none min-w-[90px] justify-between"
               >
                 <span className="flex items-center gap-2">
-                  <ListFilter size={13} />
+                  <ListFilter size={16} />
                   Jenis
                 </span>
-                <ChevronDown size={13} />
+                <ChevronDown size={16} />
               </Button>
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="w-44 p-0 rounded-md border border-gray-200 shadow"
+              className=" w-44 p-0 rounded-md   shadow"
               sideOffset={8}
             >
               <div className="p-3">
-                <div className="font-semibold text-xs mb-2 text-gray-700">
-                  Jenis Ujian
-                </div>
+                <div className="font-semibold  mb-2 ">Jenis Ujian</div>
                 <div className="flex flex-col gap-1">
                   <Button
                     variant={filterJenisUjian === "all" ? "default" : "ghost"}
                     size="sm"
-                    className={`justify-start w-full text-xs rounded-md ${
-                      filterJenisUjian === "all"
-                        ? "bg-blue-100 text-blue-700 border-blue-400"
-                        : ""
-                    }`}
+                    className={`justify-start w-full rounded-md `}
                     onClick={() => {
                       setFilterJenisUjian("all");
                       setOpenFilterJenis(false);
@@ -327,11 +335,7 @@ export default function JadwalUjianTable({
                       key={jenis}
                       variant={filterJenisUjian === jenis ? "default" : "ghost"}
                       size="sm"
-                      className={`justify-start w-full text-xs rounded-md ${
-                        filterJenisUjian === jenis
-                          ? "bg-blue-100 text-blue-700 border-blue-400"
-                          : ""
-                      }`}
+                      className={`justify-start w-full  rounded-md`}
                       onClick={() => {
                         setFilterJenisUjian(jenis);
                         setOpenFilterJenis(false);
@@ -346,11 +350,11 @@ export default function JadwalUjianTable({
           </Popover>
         </div>
       </div>
-      <div className="border overflow-auto rounded-sm">
+      <div className="border overflow-auto rounded-lg bg-white dark:bg-[#1f1f1f]">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-sidebar-accent">
             <TableRow>
-              <TableHead>No</TableHead>
+              <TableHead className="text-center">No</TableHead>
               <TableHead>Nama Mahasiswa</TableHead>
               <TableHead>Jenis Ujian</TableHead>
               <TableHead>Ruangan</TableHead>
@@ -383,9 +387,23 @@ export default function JadwalUjianTable({
 
                 return (
                   <TableRow key={ujian.id}>
-                    <TableCell>{idx + 1}</TableCell>
+                    <TableCell className="text-center">{idx + 1}</TableCell>
                     <TableCell>{ujian.mahasiswa?.nama ?? "-"}</TableCell>
-                    <TableCell>{ujian.jenisUjian?.namaJenis ?? "-"}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded  font-semibold ${
+                          ujian.jenisUjian?.namaJenis === "Ujian Proposal"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : ujian.jenisUjian?.namaJenis === "Ujian Hasil"
+                            ? "bg-blue-100 text-blue-800"
+                            : ujian.jenisUjian?.namaJenis === "Ujian Skripsi"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {ujian.jenisUjian?.namaJenis ?? "-"}
+                      </span>
+                    </TableCell>
                     <TableCell>{ujian.ruangan.namaRuangan ?? "-"}</TableCell>
                     <TableCell className="w-[20px]">
                       <div className="flex flex-col">
@@ -397,11 +415,33 @@ export default function JadwalUjianTable({
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>{peranPenguji ?? "-"}</TableCell>
+                    <TableCell>
+                      {peranPenguji ? (
+                        <span
+                          className={`px-2 py-1 rounded font-semibold ${
+                            peranPenguji === "Ketua Penguji"
+                              ? "bg-purple-100 text-purple-800"
+                              : peranPenguji === "Sekretaris Penguji"
+                              ? "bg-pink-100 text-pink-800"
+                              : peranPenguji === "Penguji 1"
+                              ? "bg-cyan-100 text-cyan-800"
+                              : peranPenguji === "Penguji 2"
+                              ? "bg-orange-100 text-orange-800"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {peranPenguji}
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 rounded  font-semibold bg-gray-100 text-gray-600">
+                          -
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell>{ujian.nilaiAkhir ?? "-"}</TableCell>
                     <TableCell>
                       <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                        className={`px-2 py-1 rounded  font-semibold ${
                           ujian.hasil?.toLowerCase() === "lulus"
                             ? "bg-green-100 text-green-700"
                             : ujian.hasil?.toLowerCase() === "tidak lulus"
@@ -425,7 +465,7 @@ export default function JadwalUjianTable({
                               setSelected(ujian);
                               setOpenDetail(true);
                             }}
-                            className="text-xs"
+                            className=""
                           >
                             <Eye size={16} className="mr-2" /> Detail
                           </DropdownMenuItem>
@@ -434,7 +474,7 @@ export default function JadwalUjianTable({
                               setSelected(ujian);
                               setOpenRekapitulasi(true);
                             }}
-                            className="text-xs"
+                            className=""
                           >
                             <IconClipboardText size={16} className="mr-2" />{" "}
                             Rekapitulasi Nilai
@@ -444,17 +484,16 @@ export default function JadwalUjianTable({
                               setSelected(ujian);
                               setOpenDaftarHadir(true);
                             }}
-                            className="text-xs"
+                            className=""
                           >
-                            <UserCheck size={16} className="mr-2" /> Daftar
-                            Hadir Ujian
+                            <UserCheck size={16} className="mr-2" /> Daftar Hadir
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
                               setSelected(ujian);
                               setOpenPenilaian(true);
                             }}
-                            className="text-xs"
+                            className=""
                           >
                             <Pencil size={16} className="mr-2" /> Penilaian
                           </DropdownMenuItem>
@@ -520,135 +559,141 @@ export default function JadwalUjianTable({
                         onClose={() => setOpenRekapitulasi(false)}
                         className="max-h-[80vh] overflow-y-auto w-full max-w-2xl"
                       >
-                        <div>
-                          <h2 className="text-lg font-bold mb-2 text-center">
-                            Rekapitulasi Nilai {ujian.jenisUjian?.namaJenis}
-                          </h2>
-                          <div className="mb-2 text-center text-sm">
-                            <div>
-                              <strong>Hari/Tanggal:</strong>{" "}
+                        <div className="space-y-4">
+                          <div className="text-center">
+                            <h2 className="text-xl font-semibold mb-1 text-gray-900 dark:text-gray-100">
+                              Rekapitulasi Nilai {ujian.jenisUjian?.namaJenis}
+                            </h2>
+                            <div className="text-sm text-muted-foreground">
                               {ujian.hariUjian ?? "-"} /{" "}
                               {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"}
                             </div>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                             <div>
-                              <strong>Nama/NIM:</strong>{" "}
-                              {ujian.mahasiswa?.nama ?? "-"} /{" "}
-                              {ujian.mahasiswa?.nim ?? "-"}
+                              <div className="text-xs text-muted-foreground font-medium">
+                                Mahasiswa
+                              </div>
+                              <div className="font-semibold">
+                                {ujian.mahasiswa?.nama ?? "-"}
+                              </div>
                             </div>
                             <div>
-                              <strong>Judul Proposal:</strong>{" "}
-                              <span className="break-words whitespace-normal">
+                              <div className="text-xs text-muted-foreground font-medium">
+                                NIM
+                              </div>
+                              <div className="font-semibold">
+                                {ujian.mahasiswa?.nim ?? "-"}
+                              </div>
+                            </div>
+                            <div className="sm:col-span-2">
+                              <div className="text-xs text-muted-foreground font-medium mb-2">
+                                Judul Penelitian
+                              </div>
+                              <div className="font-medium border rounded px-3 py-2 bg-gray-900/80 text-white dark:bg-sidebar-accent dark:text-white whitespace-normal break-words">
                                 {ujian.judulPenelitian ?? "-"}
-                              </span>
+                              </div>
                             </div>
                           </div>
-                          {/* Ganti table html dengan Table shadcnui */}
-                          <Table className="w-full text-sm border border-collapse">
-                            <TableHeader>
-                              <TableRow className="bg-gray-100">
-                                <TableHead className="border px-2 py-1 w-8">
-                                  No.
-                                </TableHead>
-                                <TableHead className="border px-2 py-1">
-                                  Nama
-                                </TableHead>
-                                <TableHead className="border px-2 py-1">
-                                  Jabatan
-                                </TableHead>
-                                <TableHead className="border px-2 py-1">
-                                  Angka Nilai
-                                </TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {rekapLoading ? (
+                          <div className="overflow-x-auto rounded-lg border border-muted">
+                            <Table className="min-w-[500px]">
+                              <TableHeader>
                                 <TableRow>
-                                  <TableCell
-                                    colSpan={4}
-                                    className="text-center py-4"
-                                  >
-                                    Loading...
-                                  </TableCell>
+                                  <TableHead className="w-8 text-center font-semibold border-r">
+                                    No.
+                                  </TableHead>
+                                  <TableHead className="font-semibold border-r">
+                                    Nama
+                                  </TableHead>
+                                  <TableHead className="font-semibold border-r">
+                                    Jabatan
+                                  </TableHead>
+                                  <TableHead className="font-semibold text-center">
+                                    Angka Nilai
+                                  </TableHead>
                                 </TableRow>
-                              ) : rekapPenilaian.length === 0 ? (
-                                <TableRow>
-                                  <TableCell
-                                    colSpan={4}
-                                    className="text-center py-4"
-                                  >
-                                    Tidak ada data penilaian
-                                  </TableCell>
-                                </TableRow>
-                              ) : (
-                                rekapPenilaian.map((d, i) => (
-                                  <TableRow key={d.dosen?.id || i}>
-                                    <TableCell className="border px-2 py-1">
-                                      {i + 1}.
-                                    </TableCell>
-                                    <TableCell className="border px-2 py-1">
-                                      {d.dosen?.nama ?? "-"}
-                                    </TableCell>
-                                    <TableCell className="border px-2 py-1">
-                                      {d.jabatan}
-                                    </TableCell>
-                                    <TableCell className="border px-2 py-1">
-                                      {d.total.toFixed(2)}
-                                    </TableCell>
-                                  </TableRow>
-                                ))
-                              )}
-                              {/* Total, rata-rata, huruf */}
-                              {rekapPenilaian.length > 0 && (
-                                <>
+                              </TableHeader>
+                              <TableBody>
+                                {rekapLoading ? (
                                   <TableRow>
                                     <TableCell
-                                      className="border px-2 py-1 font-semibold"
-                                      colSpan={3}
+                                      colSpan={4}
+                                      className="text-center py-4"
                                     >
-                                      Total Angka Nilai
-                                    </TableCell>
-                                    <TableCell className="border px-2 py-1 font-semibold">
-                                      {rekapPenilaian
-                                        .reduce((sum, d) => sum + d.total, 0)
-                                        .toFixed(2)}
+                                      Loading...
                                     </TableCell>
                                   </TableRow>
+                                ) : rekapPenilaian.length === 0 ? (
                                   <TableRow>
                                     <TableCell
-                                      className="border px-2 py-1 font-semibold"
-                                      colSpan={3}
+                                      colSpan={4}
+                                      className="text-center py-4"
                                     >
-                                      Nilai Rata-rata
-                                    </TableCell>
-                                    <TableCell className="border px-2 py-1 font-semibold">
-                                      {(
-                                        rekapPenilaian.reduce(
-                                          (sum, d) => sum + d.total,
-                                          0
-                                        ) / rekapPenilaian.length
-                                      ).toFixed(2)}
+                                      Tidak ada data penilaian
                                     </TableCell>
                                   </TableRow>
-                                  <TableRow>
-                                    <TableCell
-                                      className="border px-2 py-1 font-semibold"
-                                      colSpan={3}
-                                    >
-                                      Nilai Huruf
-                                    </TableCell>
-                                    <TableCell className="border px-2 py-1 font-semibold">
-                                      {getNilaiHuruf(
-                                        rekapPenilaian.reduce(
-                                          (sum, d) => sum + d.total,
-                                          0
-                                        ) / rekapPenilaian.length
-                                      )}
-                                    </TableCell>
-                                  </TableRow>
-                                </>
-                              )}
-                            </TableBody>
-                          </Table>
+                                ) : (
+                                  rekapPenilaian.map((d, i) => (
+                                    <TableRow key={d.dosen?.id || i}>
+                                      <TableCell className="border-r text-center">
+                                        {i + 1}
+                                      </TableCell>
+                                      <TableCell className="border-r">
+                                        {d.dosen?.nama ?? "-"}
+                                      </TableCell>
+                                      <TableCell className="border-r">
+                                        {d.jabatan}
+                                      </TableCell>
+                                      <TableCell className="text-center">
+                                        {d.total.toFixed(2)}
+                                      </TableCell>
+                                    </TableRow>
+                                  ))
+                                )}
+                              </TableBody>
+                            </Table>
+                          </div>
+                          {/* Ringkasan nilai */}
+                          {rekapPenilaian.length > 0 && (
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 pt-2">
+                              <div className="flex items-center gap-4">
+                                <span className="text-sm text-muted-foreground">
+                                  Total
+                                </span>
+                                <span className="text-lg font-semibold">
+                                  {rekapPenilaian
+                                    .reduce((sum, d) => sum + d.total, 0)
+                                    .toFixed(2)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <span className="text-sm text-muted-foreground">
+                                  Rata-rata
+                                </span>
+                                <span className="text-lg font-semibold">
+                                  {(
+                                    rekapPenilaian.reduce(
+                                      (sum, d) => sum + d.total,
+                                      0
+                                    ) / rekapPenilaian.length
+                                  ).toFixed(2)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">
+                                  Nilai Huruf
+                                </span>
+                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-600 text-white font-semibold">
+                                  {getNilaiHuruf(
+                                    rekapPenilaian.reduce(
+                                      (sum, d) => sum + d.total,
+                                      0
+                                    ) / rekapPenilaian.length
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </Modal>
 
@@ -675,254 +720,264 @@ export default function JadwalUjianTable({
                               </span>
                             </div>
                           </div>
-                          <Table className="w-full text-sm border">
-                            <TableHeader>
-                              <TableRow className="bg-gray-100">
-                                <TableHead className="w-8">No.</TableHead>
-                                <TableHead>Nama</TableHead>
-                                <TableHead>NIP/NIDN</TableHead>
-                                <TableHead>Jabatan</TableHead>
-                                <TableHead className="text-center">
-                                  Kehadiran
-                                </TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {/* Ketua Penguji */}
-                              <TableRow>
-                                <TableCell>1</TableCell>
-                                <TableCell>
-                                  {ujian.ketuaPenguji?.nama ?? "-"}
-                                </TableCell>
-                                <TableCell>
-                                  {ujian.ketuaPenguji?.nip ?? "-"}
-                                  {ujian.ketuaPenguji?.nidn
-                                    ? ` / ${ujian.ketuaPenguji.nidn}`
-                                    : ""}
-                                </TableCell>
-                                <TableCell>Ketua Penguji</TableCell>
-                                <TableCell className="text-center">
-                                  {(() => {
-                                    const hadir = sudahHadir(
-                                      ujian.id,
-                                      ujian.ketuaPenguji?.id
-                                    );
-                                    if (
-                                      ujian.ketuaPenguji?.id === currentDosenId
-                                    ) {
-                                      return (
-                                        <Button
-                                          size="sm"
-                                          className={
-                                            hadir
-                                              ? "bg-green-200 text-green-700 text-xs font-semibold px-3 py-1 rounded cursor-default"
-                                              : "bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                          }
-                                          disabled={
-                                            hadirLoading === ujian.id || hadir
-                                          }
-                                          onClick={() =>
-                                            handleHadir(
-                                              currentDosenId,
-                                              ujian.id
-                                            )
-                                          }
-                                        >
-                                          {hadirLoading === ujian.id
-                                            ? "Loading..."
-                                            : hadir
-                                            ? "Sudah Hadir"
-                                            : "Hadir"}
-                                        </Button>
+                          <div className="rounded-lg overflow-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Nama</TableHead>
+                                  <TableHead>NIP/NIDN</TableHead>
+                                  <TableHead>Jabatan</TableHead>
+                                  <TableHead className="text-center">
+                                    Kehadiran
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {/* Ketua Penguji */}
+                                <TableRow>
+                                  <TableCell className="text-left">
+                                    {ujian.ketuaPenguji?.nama ?? "-"}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    {ujian.ketuaPenguji?.nip ?? "-"}
+                                    {ujian.ketuaPenguji?.nidn
+                                      ? ` / ${ujian.ketuaPenguji.nidn}`
+                                      : ""}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    Ketua Penguji
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {(() => {
+                                      const hadir = sudahHadir(
+                                        ujian.id,
+                                        ujian.ketuaPenguji?.id
                                       );
-                                    } else {
-                                      return hadir ? (
-                                        <span className="bg-green-200 text-green-700 text-xs font-semibold px-3 py-1 rounded">
-                                          Sudah Hadir
-                                        </span>
-                                      ) : (
-                                        "-"
+                                      if (
+                                        ujian.ketuaPenguji?.id ===
+                                        currentDosenId
+                                      ) {
+                                        return (
+                                          <Button
+                                            size="sm"
+                                            className={
+                                              hadir
+                                                ? "bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg cursor-default"
+                                                : "bg-green-500 text-white  hover:bg-green-600 transition px-3 py-1 rounded-lg"
+                                            }
+                                            disabled={
+                                              hadirLoading === ujian.id || hadir
+                                            }
+                                            onClick={() =>
+                                              handleHadir(
+                                                currentDosenId,
+                                                ujian.id
+                                              )
+                                            }
+                                          >
+                                            {hadirLoading === ujian.id
+                                              ? "Loading..."
+                                              : hadir
+                                              ? "Sudah Hadir"
+                                              : "Hadir"}
+                                          </Button>
+                                        );
+                                      } else {
+                                        return hadir ? (
+                                          <span className="bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg">
+                                            Sudah Hadir
+                                          </span>
+                                        ) : (
+                                          "-"
+                                        );
+                                      }
+                                    })()}
+                                  </TableCell>
+                                </TableRow>
+                                {/* Sekretaris Penguji */}
+                                <TableRow>
+                                  <TableCell className="text-left">
+                                    {ujian.sekretarisPenguji?.nama ?? "-"}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    {ujian.sekretarisPenguji?.nip ?? "-"}
+                                    {ujian.sekretarisPenguji?.nidn
+                                      ? ` / ${ujian.sekretarisPenguji.nidn}`
+                                      : ""}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    Sekretaris Penguji
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {(() => {
+                                      const hadir = sudahHadir(
+                                        ujian.id,
+                                        ujian.sekretarisPenguji?.id
                                       );
-                                    }
-                                  })()}
-                                </TableCell>
-                              </TableRow>
-                              {/* Sekretaris Penguji */}
-                              <TableRow>
-                                <TableCell>2</TableCell>
-                                <TableCell>
-                                  {ujian.sekretarisPenguji?.nama ?? "-"}
-                                </TableCell>
-                                <TableCell>
-                                  {ujian.sekretarisPenguji?.nip ?? "-"}
-                                  {ujian.sekretarisPenguji?.nidn
-                                    ? ` / ${ujian.sekretarisPenguji.nidn}`
-                                    : ""}
-                                </TableCell>
-                                <TableCell>Sekretaris Penguji</TableCell>
-                                <TableCell className="text-center">
-                                  {(() => {
-                                    const hadir = sudahHadir(
-                                      ujian.id,
-                                      ujian.sekretarisPenguji?.id
-                                    );
-                                    if (
-                                      ujian.sekretarisPenguji?.id ===
-                                      currentDosenId
-                                    ) {
-                                      return (
-                                        <Button
-                                          size="sm"
-                                          className={
-                                            hadir
-                                              ? "bg-green-200 text-green-700 text-xs font-semibold px-3 py-1 rounded cursor-default"
-                                              : "bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                          }
-                                          disabled={
-                                            hadirLoading === ujian.id || hadir
-                                          }
-                                          onClick={() =>
-                                            handleHadir(
-                                              currentDosenId,
-                                              ujian.id
-                                            )
-                                          }
-                                        >
-                                          {hadirLoading === ujian.id
-                                            ? "Loading..."
-                                            : hadir
-                                            ? "Sudah Hadir"
-                                            : "Hadir"}
-                                        </Button>
+                                      if (
+                                        ujian.sekretarisPenguji?.id ===
+                                        currentDosenId
+                                      ) {
+                                        return (
+                                          <Button
+                                            size="sm"
+                                            className={
+                                              hadir
+                                                ? "bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg cursor-default"
+                                                : "bg-green-500 text-white  hover:bg-green-600 transition px-3 py-1 rounded-lg"
+                                            }
+                                            disabled={
+                                              hadirLoading === ujian.id || hadir
+                                            }
+                                            onClick={() =>
+                                              handleHadir(
+                                                currentDosenId,
+                                                ujian.id
+                                              )
+                                            }
+                                          >
+                                            {hadirLoading === ujian.id
+                                              ? "Loading..."
+                                              : hadir
+                                              ? "Sudah Hadir"
+                                              : "Hadir"}
+                                          </Button>
+                                        );
+                                      } else {
+                                        return hadir ? (
+                                          <span className="bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg">
+                                            Sudah Hadir
+                                          </span>
+                                        ) : (
+                                          "-"
+                                        );
+                                      }
+                                    })()}
+                                  </TableCell>
+                                </TableRow>
+                                {/* Penguji I */}
+                                <TableRow>
+                                  <TableCell className="text-left">
+                                    {ujian.penguji1?.nama ?? "-"}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    {ujian.penguji1?.nip ?? "-"}
+                                    {ujian.penguji1?.nidn
+                                      ? ` / ${ujian.penguji1.nidn}`
+                                      : ""}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    Penguji I
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {(() => {
+                                      const hadir = sudahHadir(
+                                        ujian.id,
+                                        ujian.penguji1?.id
                                       );
-                                    } else {
-                                      return hadir ? (
-                                        <span className="bg-green-200 text-green-700 text-xs font-semibold px-3 py-1 rounded">
-                                          Sudah Hadir
-                                        </span>
-                                      ) : (
-                                        "-"
+                                      if (
+                                        ujian.penguji1?.id === currentDosenId
+                                      ) {
+                                        return (
+                                          <Button
+                                            size="sm"
+                                            className={
+                                              hadir
+                                                ? "bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg cursor-default"
+                                                : "bg-green-500 text-white  hover:bg-green-600 transition px-3 py-1 rounded-lg"
+                                            }
+                                            disabled={
+                                              hadirLoading === ujian.id || hadir
+                                            }
+                                            onClick={() =>
+                                              handleHadir(
+                                                currentDosenId,
+                                                ujian.id
+                                              )
+                                            }
+                                          >
+                                            {hadirLoading === ujian.id
+                                              ? "Loading..."
+                                              : hadir
+                                              ? "Sudah Hadir"
+                                              : "Hadir"}
+                                          </Button>
+                                        );
+                                      } else {
+                                        return hadir ? (
+                                          <span className="bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg">
+                                            Sudah Hadir
+                                          </span>
+                                        ) : (
+                                          "-"
+                                        );
+                                      }
+                                    })()}
+                                  </TableCell>
+                                </TableRow>
+                                {/* Penguji II */}
+                                <TableRow>
+                                  <TableCell className="text-left">
+                                    {ujian.penguji2?.nama ?? "-"}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    {ujian.penguji2?.nip ?? "-"}
+                                    {ujian.penguji2?.nidn
+                                      ? ` / ${ujian.penguji2.nidn}`
+                                      : ""}
+                                  </TableCell>
+                                  <TableCell className="text-left">
+                                    Penguji II
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {(() => {
+                                      const hadir = sudahHadir(
+                                        ujian.id,
+                                        ujian.penguji2?.id
                                       );
-                                    }
-                                  })()}
-                                </TableCell>
-                              </TableRow>
-                              {/* Penguji I */}
-                              <TableRow>
-                                <TableCell>3</TableCell>
-                                <TableCell>
-                                  {ujian.penguji1?.nama ?? "-"}
-                                </TableCell>
-                                <TableCell>
-                                  {ujian.penguji1?.nip ?? "-"}
-                                  {ujian.penguji1?.nidn
-                                    ? ` / ${ujian.penguji1.nidn}`
-                                    : ""}
-                                </TableCell>
-                                <TableCell>Penguji I</TableCell>
-                                <TableCell className="text-center">
-                                  {(() => {
-                                    const hadir = sudahHadir(
-                                      ujian.id,
-                                      ujian.penguji1?.id
-                                    );
-                                    if (ujian.penguji1?.id === currentDosenId) {
-                                      return (
-                                        <Button
-                                          size="sm"
-                                          className={
-                                            hadir
-                                              ? "bg-green-200 text-green-700 text-xs font-semibold px-3 py-1 rounded cursor-default"
-                                              : "bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                          }
-                                          disabled={
-                                            hadirLoading === ujian.id || hadir
-                                          }
-                                          onClick={() =>
-                                            handleHadir(
-                                              currentDosenId,
-                                              ujian.id
-                                            )
-                                          }
-                                        >
-                                          {hadirLoading === ujian.id
-                                            ? "Loading..."
-                                            : hadir
-                                            ? "Sudah Hadir"
-                                            : "Hadir"}
-                                        </Button>
-                                      );
-                                    } else {
-                                      return hadir ? (
-                                        <span className="bg-green-200 text-green-700 text-xs font-semibold px-3 py-1 rounded">
-                                          Sudah Hadir
-                                        </span>
-                                      ) : (
-                                        "-"
-                                      );
-                                    }
-                                  })()}
-                                </TableCell>
-                              </TableRow>
-                              {/* Penguji II */}
-                              <TableRow>
-                                <TableCell>4</TableCell>
-                                <TableCell>
-                                  {ujian.penguji2?.nama ?? "-"}
-                                </TableCell>
-                                <TableCell>
-                                  {ujian.penguji2?.nip ?? "-"}
-                                  {ujian.penguji2?.nidn
-                                    ? ` / ${ujian.penguji2.nidn}`
-                                    : ""}
-                                </TableCell>
-                                <TableCell>Penguji II</TableCell>
-                                <TableCell className="text-center">
-                                  {(() => {
-                                    const hadir = sudahHadir(
-                                      ujian.id,
-                                      ujian.penguji2?.id
-                                    );
-                                    if (ujian.penguji2?.id === currentDosenId) {
-                                      return (
-                                        <Button
-                                          size="sm"
-                                          className={
-                                            hadir
-                                              ? "bg-green-200 text-green-700 text-xs font-semibold px-3 py-1 rounded cursor-default"
-                                              : "bg-green-500 text-white text-xs hover:bg-green-600 transition px-3 py-1 rounded"
-                                          }
-                                          disabled={
-                                            hadirLoading === ujian.id || hadir
-                                          }
-                                          onClick={() =>
-                                            handleHadir(
-                                              currentDosenId,
-                                              ujian.id
-                                            )
-                                          }
-                                        >
-                                          {hadirLoading === ujian.id
-                                            ? "Loading..."
-                                            : hadir
-                                            ? "Sudah Hadir"
-                                            : "Hadir"}
-                                        </Button>
-                                      );
-                                    } else {
-                                      return hadir ? (
-                                        <span className="bg-green-200 text-green-700 text-xs font-semibold px-3 py-1 rounded">
-                                          Sudah Hadir
-                                        </span>
-                                      ) : (
-                                        "-"
-                                      );
-                                    }
-                                  })()}
-                                </TableCell>
-                              </TableRow>
-                            </TableBody>
-                          </Table>
+                                      if (
+                                        ujian.penguji2?.id === currentDosenId
+                                      ) {
+                                        return (
+                                          <Button
+                                            size="sm"
+                                            className={
+                                              hadir
+                                                ? "bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg cursor-default"
+                                                : "bg-green-500 text-white  hover:bg-green-600 transition px-3 py-1 rounded-lg"
+                                            }
+                                            disabled={
+                                              hadirLoading === ujian.id || hadir
+                                            }
+                                            onClick={() =>
+                                              handleHadir(
+                                                currentDosenId,
+                                                ujian.id
+                                              )
+                                            }
+                                          >
+                                            {hadirLoading === ujian.id
+                                              ? "Loading..."
+                                              : hadir
+                                              ? "Sudah Hadir"
+                                              : "Hadir"}
+                                          </Button>
+                                        );
+                                      } else {
+                                        return hadir ? (
+                                          <span className="bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg">
+                                            Sudah Hadir
+                                          </span>
+                                        ) : (
+                                          "-"
+                                        );
+                                      }
+                                    })()}
+                                  </TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </div>
                         </div>
                       </Modal>
 
