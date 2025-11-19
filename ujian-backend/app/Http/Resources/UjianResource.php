@@ -62,30 +62,17 @@ class UjianResource extends JsonResource
                     'namaProdi' => $this->ruangan->prodi->nama_prodi,
                 ] : null,
             ] : null,
-            'ketuaPenguji' => $this->ketuaPenguji ? [
-                'id' => $this->ketuaPenguji->id,
-                'nama' => $this->ketuaPenguji->nama,
-                'nip' => $this->ketuaPenguji->nip,
-                'nidn' => $this->ketuaPenguji->nidn,
-            ] : null,
-            'sekretarisPenguji' => $this->sekretarisPenguji ? [
-                'id' => $this->sekretarisPenguji->id,
-                'nama' => $this->sekretarisPenguji->nama,
-                'nip' => $this->sekretarisPenguji->nip,
-                'nidn' => $this->sekretarisPenguji->nidn,
-            ] : null,
-            'penguji1' => $this->penguji1 ? [
-                'id' => $this->penguji1->id,
-                'nama' => $this->penguji1->nama,
-                'nip' => $this->penguji1->nip,
-                'nidn' => $this->penguji1->nidn,
-            ] : null,
-            'penguji2' => $this->penguji2 ? [
-                'id' => $this->penguji2->id,
-                'nama' => $this->penguji2->nama,
-                'nip' => $this->penguji2->nip,
-                'nidn' => $this->penguji2->nidn,
-            ] : null,
+            'penguji' => $this->whenLoaded('penguji', function(){
+                return $this->penguji->map(function($dosen){
+                    return [
+                        'id' => $dosen->id,
+                        'nama' => $dosen->nama,
+                        'nip' => $dosen->nip,
+                        'nidn' => $dosen->nidn,
+                        'peran' => $dosen->pivot->peran,
+                    ];
+                });
+            }),
             'hasil' => $this->hasil,
             'nilaiAkhir' => $this->nilai_akhir,
             'keputusan' => in_array(strtolower($this->jenisUjian?->nama_jenis), ['ujian hasil', 'ujian skripsi']) ? $this->keputusan : null,

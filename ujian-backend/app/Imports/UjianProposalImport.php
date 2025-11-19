@@ -141,7 +141,7 @@ class UjianProposalImport implements ToCollection
                     // ====ubah hari =====
                     $hariNormalized = strtolower(str_replace(["'", "’"], '', $hari)); // hilangkan tanda petik
                     // ========== Buat Ujian ==========
-                    Ujian::create([
+                    $ujian = Ujian::create([
                         'pendaftaran_ujian_id' => $pendaftaran->id,
                         'mahasiswa_id' => $mahasiswa->id,
                         'jenis_ujian_id' => $jenisUjianId,
@@ -150,11 +150,18 @@ class UjianProposalImport implements ToCollection
                         'waktu_mulai' => $waktuMulai,
                         'waktu_selesai' => $waktuSelesai,
                         'ruangan_id' => $ruangan?->id,
-                        'ketua_penguji' => $ketua?->id,
-                        'sekretaris_penguji' => $sekretaris?->id,
-                        'penguji_1' => $penguji1?->id,
-                        'penguji_2' => $penguji2?->id,
                     ]);
+
+                    $pengujiData = collect([
+                        ['dosen' => $ketua, 'peran' => 'ketua_penguji'],
+                        ['dosen' => $sekretaris, 'peran' => 'sekretaris_penguji'],
+                        ['dosen' => $penguji1, 'peran' => 'penguji_1'],
+                        ['dosen' => $penguji2, 'peran' => 'penguji_2'],
+                    ])->filter(fn($p) => $p['dosen']);
+
+                    foreach ($pengujiData as $p) {
+                        $ujian->penguji()->attach($p['dosen']->id, ['peran' => $p['peran']]);
+                    }
                 } catch (Exception $e) {
                     Log::error("Gagal import baris ke-{$index}: " . $e->getMessage());
                     continue;

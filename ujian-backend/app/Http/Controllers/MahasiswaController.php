@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateMahasiswaRequest;
 use App\Http\Resources\MahasiswaResource;
 use App\Models\Mahasiswa;
 use Illuminate\Support\Facades\Cache;
+use Log;
 
 class MahasiswaController extends Controller
 {
@@ -65,7 +66,7 @@ class MahasiswaController extends Controller
             'user_id',
         ]), fn($v) => !is_null($v));
 
-        \Log::info('DEBUG UPDATE MAHASISWA', [
+        Log::info('DEBUG UPDATE MAHASISWA', [
             'validated' => $validated,
             'merged' => $merged,
         ]);

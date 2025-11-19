@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class JadwalPenguji extends Model
+class PengujiUjian extends Model
 {
-    /** @use HasFactory<\Database\Factories\JadwalPengujiFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -16,7 +15,7 @@ class JadwalPenguji extends Model
         'peran',
     ];
 
-    protected $table = 'jadwal_penguji';
+    protected $table = 'penguji_ujian';
 
     public function ujian()
     {

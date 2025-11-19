@@ -17,7 +17,12 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Daftar permission
         $permissions = [
-            ''
+            'view-dashboard',
+            'manage-users',
+            'manage-courses',
+            'approve-course',
+            'grade-assignment',
+            'submit-assignment',
         ];
 
         // Buat permission

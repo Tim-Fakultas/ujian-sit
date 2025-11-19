@@ -184,7 +184,14 @@ class KomponenPenilaianSeeder extends Seeder
 
         $allkomponen = array_merge($komponenProposal, $komponenHasil, $komponenSkripsi);
 
-        KomponenPenilaian::factory()->createMany($allkomponen);
+        KomponenPenilaian::insert(
+            collect($allkomponen)->map(function ($item) {
+                return array_merge($item, [
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            })->toArray()
+        );
 
     }
 }

@@ -47,11 +47,6 @@ class Dosen extends Model
     //     return $this->hasMany(Skripsi::class, 'pembimbing_2');
     // }
 
-    public function jadwalPenguji()
-    {
-        return $this->hasMany(JadwalPenguji::class, 'dosen_id');
-    }
-
     public function penilaian()
     {
         return $this->hasMany(Penilaian::class, 'dosen_id');
@@ -78,26 +73,23 @@ class Dosen extends Model
     }
 
     //ujian dosen
-    public function ujianKetua()
+    public function ujian()
     {
-        return $this->hasMany(Ujian::class, 'ketua_penguji');
+        return $this->belongsToMany(Ujian::class, 'penguji_ujian', 'dosen_id', 'ujian_id')
+                    ->withPivot('peran')
+                    ->withTimestamps();
     }
-    public function ujianSekretaris()
+
+    public function pengujiUjian()
     {
-        return $this->hasMany(Ujian::class, 'sekretaris_penguji');
-    }
-    public function ujianPenguji1()
-    {
-        return $this->hasMany(Ujian::class, 'penguji_1');
-    }
-    public function ujianPenguji2()
-    {
-        return $this->hasMany(Ujian::class, 'penguji_2');
+        return $this->hasMany(PengujiUjian::class, 'dosen_id');
     }
 
     public function daftarKehadiran()
     {
         return $this->hasMany(DaftarKehadiran::class, 'dosen_id');
     }
+
+
 
 }

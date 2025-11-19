@@ -6,6 +6,8 @@ use App\Http\Requests\StoreDosenRequest;
 use App\Http\Requests\UpdateDosenRequest;
 use App\Http\Resources\DosenResource;
 use App\Models\Dosen;
+use Illuminate\Support\Facades\Cache;
+
 
 class DosenController extends Controller
 {
@@ -14,7 +16,9 @@ class DosenController extends Controller
      */
     public function index()
     {
-        $dosen = Dosen::with('prodi')->get();
+        $dosen = Cache::remember('dosen_all', 600, function () {
+            return Dosen::with('prodi')->get();
+        });
 
         return DosenResource::collection($dosen);
     }
@@ -27,6 +31,8 @@ class DosenController extends Controller
         $request->validated();
         $dosen = Dosen::create($request->all());
 
+        Cache::forget('dosen_all');
+
         return new DosenResource($dosen);
     }
 
@@ -35,7 +41,9 @@ class DosenController extends Controller
      */
     public function show($id)
     {
-        $dosen = Dosen::findOrFail($id);
+        $dosen = Cache::remember("dosen_{$id}", 600, function () use ($id) {
+            return Dosen::with('prodi')->findOrFail($id);
+        });
 
         return new DosenResource($dosen);
     }
@@ -48,6 +56,8 @@ class DosenController extends Controller
         $request->validated();
         $dosen->update($request->all());
 
+        Cache::forget('dosen_all');
+
         return new DosenResource($dosen);
     }
 
@@ -57,6 +67,8 @@ class DosenController extends Controller
     public function destroy(Dosen $dosen)
     {
         $dosen->delete();
+
+        Cache::forget('dosen_all');
 
         return response()->json(['message' => 'Dosen berhasil dihapus.'], 200);
     }

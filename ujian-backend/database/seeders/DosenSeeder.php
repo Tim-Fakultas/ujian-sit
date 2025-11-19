@@ -362,6 +362,21 @@ class DosenSeeder extends Seeder
                 'status' => 'tidak aktif',
                 'prodi_id' => 1,
                 'foto' => null,
+            ],
+            [
+                'nidn' => '2015128801',
+                'nip' => '19881215 202321 1 005',
+                'nama' => 'DIAN HAFIDH ZULFIKAR, S.Kom., M.Cs.',
+                'no_hp' => null,
+                'alamat' => null,
+                'tempat_tanggal_lahir' => 'Palembang, 15-12-1988',
+                'pangkat' => 'PPPK',
+                'golongan' => 'III.b',
+                'tmt_fst' => Carbon::createFromFormat('d/m/Y', '2/1/2017'),
+                'jabatan' => 'Dosen / Asisten Ahli',
+                'status' => 'aktif',
+                'prodi_id' => 1,
+                'foto' => null,
             ]
         ];
 

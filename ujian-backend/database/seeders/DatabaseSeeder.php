@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
         // Step 1: Create 1 Fakultas
-        $fakultas = Fakultas::factory()->create([
+        $fakultas = Fakultas::create([
             'nama_fakultas' => 'Fakultas Sains dan Teknologi'
         ]);
 
@@ -37,17 +37,17 @@ class DatabaseSeeder extends Seeder
 
 
 
-        $prodi1 = Prodi::factory()->create([
+        $prodi1 = Prodi::create([
             'nama_prodi' => 'Sistem Informasi',
             'fakultas_id' => $fakultas->id
         ]);
 
-        $prodi2 = Prodi::factory()->create([
+        $prodi2 = Prodi::create([
             'nama_prodi' => 'Biologi',
             'fakultas_id' => $fakultas->id
         ]);
 
-        $prodi3 = Prodi::factory()->create([
+        $prodi3 = Prodi::create([
             'nama_prodi' => 'Kimia',
             'fakultas_id' => $fakultas->id
         ]);
@@ -55,7 +55,7 @@ class DatabaseSeeder extends Seeder
         // Step 0: Create roles and permissions first
         $this->call(RolesAndPermissionsSeeder::class);
 
-        $adminUser = User::factory()->create([
+        $adminUser = User::create([
                 'id' => 1,
                 'nip_nim' => '1',
                 'nama' => 'Muhammad Adib Saputra',
@@ -66,7 +66,7 @@ class DatabaseSeeder extends Seeder
                 'remember_token' => Str::random(10),
         ]);
 
-        // $dosenSI = User::factory()->create([
+        // $dosenSI = User::create([
         //         'id' => 2,
         //         'nip_nim' => 'Freddy1987654321',
         //         'nama' => 'Freddy Kurnia Wijaya',
@@ -77,7 +77,7 @@ class DatabaseSeeder extends Seeder
         //         'remember_token' => Str::random(10),
         // ]);
 
-        // $dosenBiologi = User::factory()->create([
+        // $dosenBiologi = User::create([
         //         'id' => 3,
         //         'nip_nim' => 'Dimas12345',
         //         'nama' => 'Dimas Prasetyo',
@@ -87,7 +87,7 @@ class DatabaseSeeder extends Seeder
         //         'email_verified_at' => now(),
         //         'remember_token' => Str::random(10),
         // ]);
-        // $dosenKimia = User::factory()->create([
+        // $dosenKimia = User::create([
         //         'id' => 4,
         //         'nip_nim' => 'Farhan12345',
         //         'nama' => 'Farahan Pratama',
@@ -98,7 +98,7 @@ class DatabaseSeeder extends Seeder
         //         'remember_token' => Str::random(10),
         // ]);
 
-        // $mahasiswaSI = User::factory()->create([
+        // $mahasiswaSI = User::create([
         //         'id' => 5,
         //         'nip_nim' => '23041450085',
         //         'nama' => 'Muhammad Luqman Al-Fauzan',
@@ -108,7 +108,7 @@ class DatabaseSeeder extends Seeder
         //         'email_verified_at' => now(),
         //         'remember_token' => Str::random(10),
         // ]);
-        // $mahasiswaBiologi = User::factory()->create([
+        // $mahasiswaBiologi = User::create([
         //         'id' => 6,
         //         'nip_nim' => '23041450086',
         //         'nama' => 'Farah Hasywaza Audremayna',
@@ -118,7 +118,7 @@ class DatabaseSeeder extends Seeder
         //         'email_verified_at' => now(),
         //         'remember_token' => Str::random(10),
         // ]);
-        // $mahasiswaKimia = User::factory()->create([
+        // $mahasiswaKimia = User::create([
         //         'id' => 7,
         //         'nip_nim' => '23041450087',
         //         'nama' => 'Rizki Faruli',
@@ -129,7 +129,7 @@ class DatabaseSeeder extends Seeder
         //         'remember_token' => Str::random(10),
         // ]);
 
-        $kaprodi = User::factory()->create([
+        $kaprodi = User::create([
                 'id' => 9,
                 'nip_nim' => 'Kaprodi12345',
                 'nama' => 'Kaprodi, M.Kom',
@@ -140,7 +140,7 @@ class DatabaseSeeder extends Seeder
                 'remember_token' => Str::random(10),
         ]);
 
-        $sekprodi = User::factory()->create([
+        $sekprodi = User::create([
                 'id' => 10,
                 'nip_nim' => 'Sekprodi12345',
                 'nama' => 'Sekprodi, M.Kom',
@@ -151,7 +151,7 @@ class DatabaseSeeder extends Seeder
                 'remember_token' => Str::random(10),
         ]);
 
-        $adminProdiSI = User::factory()->create([
+        $adminProdiSI = User::create([
                 'id' => 11,
                 'nip_nim' => 'AdminSI',
                 'nama' => 'Admin Prodi Sistem Informasi',
@@ -162,7 +162,7 @@ class DatabaseSeeder extends Seeder
                 'remember_token' => Str::random(10),
         ]);
 
-        $adminProdiBiologi = User::factory()->create([
+        $adminProdiBiologi = User::create([
                 'id' => 12,
                 'nip_nim' => 'AdminBio12345',
                 'nama' => 'Admin Prodi Biologi',
@@ -173,7 +173,7 @@ class DatabaseSeeder extends Seeder
                 'remember_token' => Str::random(10),
         ]);
 
-        $adminProdiKimia = User::factory()->create([
+        $adminProdiKimia = User::create([
                 'id' => 13,
                 'nip_nim' => 'AdminKimia123',
                 'nama' => 'Admin Prodi Kimia',
@@ -200,7 +200,7 @@ class DatabaseSeeder extends Seeder
 
 
 
-        $peminatan = Peminatan::factory()->createMany([
+        $peminatan = Peminatan::insert([
             // Peminatan untuk Sistem Informasi
             [
                 'nama_peminatan' => 'Pengembangan Sistem Informasi',
@@ -312,7 +312,7 @@ class DatabaseSeeder extends Seeder
         $this->call(JenisUjianSeeder::class);
 
         // Create some Syarat (requirements)
-        \App\Models\Syarat::factory(10)->create();
+        // \App\Models\Syarat::factory(10)->create();
 
         //ranpel
         $this->call(RanpelSeeder::class);
@@ -348,7 +348,7 @@ class DatabaseSeeder extends Seeder
         // \App\Models\PemenuhanSyarat::factory(60)->create();
 
         // Create some Pejabat (officials)
-        Pejabat::factory(3)->create();
+        // Pejabat::factory(3)->create();
 
         // $this->call(RuanganSeeder::class);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreUjianRequest extends FormRequest
 {
@@ -42,34 +43,18 @@ class StoreUjianRequest extends FormRequest
                 }
             ],
             'ruanganId' => 'required|exists:ruangan,id',
-            'ketuaPenguji' => [
-                'nullable',
+
+            'penguji' => 'required|array|min:1|max:5',
+            'penguji.*.dosen_id' => [
+                'required',
                 'exists:dosen,id',
-                'different:sekretarisPenguji',
-                'different:penguji1',
-                'different:penguji2'
+                'distinct' // pastikan tidak duplikat
             ],
-            'sekretarisPenguji' => [
-                'nullable',
-                'exists:dosen,id',
-                'different:ketuaPenguji',
-                'different:penguji1',
-                'different:penguji2'
+            'penguji.*.peran' => [
+                'required',
+                Rule::in(['ketua_penguji', 'sekretaris_penguji', 'penguji_1', 'penguji_2'])
             ],
-            'penguji1' => [
-                'nullable',
-                'exists:dosen,id',
-                'different:ketuaPenguji',
-                'different:sekretarisPenguji',
-                'different:penguji2'
-            ],
-            'penguji2' => [
-                'nullable',
-                'exists:dosen,id',
-                'different:ketuaPenguji',
-                'different:sekretarisPenguji',
-                'different:penguji1'
-            ],
+
             'hasil' => [
                 'nullable',
                 'in:lulus,tidak lulus',
@@ -131,6 +116,23 @@ class StoreUjianRequest extends FormRequest
                 'hariUjian' => $hariIndonesia[$hariJadwal],
             ]);
         }
+        if($this->has('penguji') && is_array($this->penguji)) {
+            $mappedPenguji = collect($this->input('penguji'))->map(function($item) {
+
+                $roleMapped = [
+                    'ketuaPenguji' => 'ketua_penguji',
+                    'sekretarisPenguji' => 'sekretaris_penguji',
+                    'penguji1' => 'penguji_1',
+                    'penguji2' => 'penguji_2',
+                ];
+
+                return [
+                    'dosen_id' => $item['dosen_id'] ?? $item['dosenId' ] ?? null,
+                    'peran' => $roleMapped[$item['peran']] ?? $item['peran'] ?? null,
+                ];
+            })->toArray();
+
+        }
 
         $this->merge([
             'pendaftaran_ujian_id' => $this->input('pendaftaranUjianId'),
@@ -141,10 +143,7 @@ class StoreUjianRequest extends FormRequest
             'waktu_mulai' => $this->input('waktuMulai'),
             'waktu_selesai' => $this->input('waktuSelesai'),
             'ruangan_id' => $this->input('ruanganId'),
-            'ketua_penguji' => $this->input('ketuaPenguji'),
-            'sekretaris_penguji' => $this->input('sekretarisPenguji'),
-            'penguji_1' => $this->input('penguji1'),
-            'penguji_2' => $this->input('penguji2'),
+            'penguji' => $mappedPenguji ?? null,
             'nilai_akhir' => $this->input('nilaiAkhir'),
             'keputusan' => $this->input('keputusan'),
         ]);

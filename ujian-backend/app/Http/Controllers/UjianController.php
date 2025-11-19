@@ -14,7 +14,14 @@ class UjianController extends Controller
      */
     public function index()
     {
-        $ujian = Ujian::with(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'penilaian', 'ruangan'])->get();
+        $ujian = Ujian::with([
+            'pendaftaranUjian.ranpel',
+            'jenisUjian',
+            'mahasiswa',
+            'penilaian',
+            'ruangan',
+            'penguji'])
+        ->get();
 
         return UjianResource::collection($ujian);
     }
@@ -27,6 +34,15 @@ class UjianController extends Controller
         $request->validated();
         $ujian = Ujian::create($request->all());
 
+        if($request->has('penguji')){
+            $syncData = collect($request->penguji)
+                ->mapWithKeys(fn($penguji) => [
+                    $penguji['dosen_id'] => ['peran' => $penguji['peran']]
+                ])->toArray();
+
+            $ujian->penguji()->sync($syncData);
+        }
+
         return new UjianResource($ujian);
     }
 
@@ -35,7 +51,14 @@ class UjianController extends Controller
      */
     public function show($id)
     {
-        $ujian = Ujian::with(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'penilaian', 'ruangan'])->findOrFail($id);
+        $ujian = Ujian::with([
+            'pendaftaranUjian.ranpel',
+            'jenisUjian',
+            'mahasiswa',
+            'penilaian',
+            'ruangan',
+            'penguji'])
+        ->findOrFail($id);
 
         return new UjianResource($ujian);
     }
@@ -53,10 +76,6 @@ class UjianController extends Controller
                 'waktu_mulai',
                 'waktu_selesai',
                 'ruangan_id',
-                'ketua_penguji',
-                'sekretaris_penguji',
-                'penguji_1',
-                'penguji_2',
                 'hasil',
                 'nilai_akhir',
                 'catatan',
@@ -69,12 +88,22 @@ class UjianController extends Controller
 
         // Auto-set hasil kalau nilai_akhir dikirim tanpa hasil
         if (isset($data['nilai_akhir']) && !isset($data['hasil'])) {
-            $ujian->hasil = $data['nilai_akhir'] >= 70 ? 'lulus' : 'tidak lulus';
-            $ujian->save();
+            $ujian->update([
+                'hasil' => $data['nilai_akhir'] >= 70 ? 'lulus' : 'tidak lulus',
+            ]);
+        }
+
+        if($request->has('penguji')){
+            // Sync penguji
+            $syncData = [];
+            foreach($request->penguji as $item){
+                $syncData[$item['dosen_id']] = ['peran' => $item['peran']];
+            }
+            $ujian->penguji()->sync($syncData);
         }
 
         return new UjianResource(
-            $ujian->load(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'ruangan'])
+            $ujian->load(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'ruangan', 'penilaian', 'penguji'])
         );
     }
 

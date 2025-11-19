@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateUjianRequest extends FormRequest
 {
@@ -41,21 +42,16 @@ class UpdateUjianRequest extends FormRequest
             'ruanganId' => 'sometimes|exists:ruangan,id',
 
             // Penguji
-            'ketuaPenguji' => [
-                'sometimes', 'nullable', 'exists:dosen,id',
-                'different:sekretarisPenguji', 'different:penguji1', 'different:penguji2'
+            'penguji' => 'sometimes|array|min:1|max:4',
+            'penguji.*.dosen_id' => [
+                'required_with:penguji',
+                'distinct',
+                'exists:dosen,id',
             ],
-            'sekretarisPenguji' => [
-                'sometimes', 'nullable', 'exists:dosen,id',
-                'different:ketuaPenguji', 'different:penguji1', 'different:penguji2'
-            ],
-            'penguji1' => [
-                'sometimes', 'nullable', 'exists:dosen,id',
-                'different:ketuaPenguji', 'different:sekretarisPenguji', 'different:penguji2'
-            ],
-            'penguji2' => [
-                'sometimes', 'nullable', 'exists:dosen,id',
-                'different:ketuaPenguji', 'different:sekretarisPenguji', 'different:penguji1'
+            'penguji.*.peran' => [
+                'required_with:penguji',
+                Rule::in(['ketua_penguji', 'sekretaris_penguji', 'penguji_1', 'penguji_2']),
+                'distinct',
             ],
 
             // Hasil & nilai
@@ -110,6 +106,28 @@ class UpdateUjianRequest extends FormRequest
             ]);
         }
 
+        if($this->has('penguji') && is_array($this->input('penguji'))) {
+            $mappedPenguji = collect($this->input('penguji'))->map(function($item){
+                $roleMapped = [
+                    'ketuaPenguji' => 'ketua_penguji',
+                    'sekretarisPenguji' => 'sekretaris_penguji',
+                    'penguji1' => 'penguji_1',
+                    'penguji2' => 'penguji_2',
+                ];
+
+                return [
+                    'dosen_id' => $item['dosen_id'] ?? $item['dosenId'] ?? null,
+                    'peran' => $roleMapped[$item['peran']] ?? $item['peran'] ?? null,
+                ];
+            })->toArray();
+
+            $this->merge([
+                'penguji' => $mappedPenguji,
+            ]);
+        }
+
+
+
         // Normalisasi nama field ke snake_case (sesuai kolom di DB)
         $mapped = [
             'hari_ujian' => $this->input('hariUjian'),
@@ -126,28 +144,6 @@ class UpdateUjianRequest extends FormRequest
 
         // Hanya merge field yang terisi untuk menghindari overwrite null
         $this->merge(array_filter($mapped, fn($v) => $v !== null));
-    }
-
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            // Ambil semua nilai penguji dari request, atau dari data ujian lama
-            $ujian = $this->route('ujian'); // dari Route Model Binding
-            $penguji = collect([
-                $this->input('ketuaPenguji') ?? $this->input('ketua_penguji') ?? $ujian->ketua_penguji,
-                $this->input('sekretarisPenguji') ?? $this->input('sekretaris_penguji') ?? $ujian->sekretaris_penguji,
-                $this->input('penguji1') ?? $this->input('penguji_1') ?? $ujian->penguji_1,
-                $this->input('penguji2') ?? $this->input('penguji_2') ?? $ujian->penguji_2,
-            ])->filter()->values();
-
-            // Jika ada duplikat antar semua penguji (lama + baru)
-            if ($penguji->count() !== $penguji->unique()->count()) {
-                $validator->errors()->add(
-                    'penguji',
-                    'Setiap dosen penguji harus berbeda (tidak boleh ada duplikat).'
-                );
-            }
-        });
     }
 
 }

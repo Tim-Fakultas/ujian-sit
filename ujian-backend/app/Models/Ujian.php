@@ -21,10 +21,6 @@ class Ujian extends Model
         'waktu_mulai',
         'waktu_selesai',
         'ruangan_id',
-        'ketua_penguji',
-        'sekretaris_penguji',
-        'penguji_1',
-        'penguji_2',
         'hasil',
         'nilai_akhir',
         'catatan',
@@ -37,24 +33,16 @@ class Ujian extends Model
         return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
     }
 
-    public function ketuaPenguji()
+    public function penguji()
     {
-        return $this->belongsTo(Dosen::class, 'ketua_penguji');
+        return $this->belongsToMany(Dosen::class, 'penguji_ujian', 'ujian_id', 'dosen_id')
+                    ->withPivot('peran')
+                    ->withTimestamps();
     }
 
-    public function sekretarisPenguji()
+    public function pengujiUjian()
     {
-        return $this->belongsTo(Dosen::class, 'sekretaris_penguji');
-    }
-
-    public function penguji1()
-    {
-        return $this->belongsTo(Dosen::class, 'penguji_1');
-    }
-
-    public function penguji2()
-    {
-        return $this->belongsTo(Dosen::class, 'penguji_2');
+        return $this->hasMany(PengujiUjian::class, 'dosen_id');
     }
 
     public function ranpel()
