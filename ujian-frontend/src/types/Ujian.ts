@@ -44,8 +44,11 @@ export interface Ujian {
     namaRuangan: string;
   };
   penguji: {
-    dosenId: number;
-    peran: "ketuaPenguji" | "sekretarisPenguji" | "penguji1" | "penguji2";
+    id: number;
+    nama: string;
+    nip: string;
+    nidn: string;
+    peran: "ketua_penguji" | "sekretaris_penguji" | "penguji_1" | "penguji_2";
   };
   hasil: string | null;
   nilaiAkhir: number | null;
