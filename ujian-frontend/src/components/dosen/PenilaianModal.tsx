@@ -19,6 +19,7 @@ import { KomponenPenilaian } from "@/types/KomponenPenilaian";
 import { Ujian } from "@/types/Ujian";
 import { useActionState } from "react";
 import revalidateAction from "@/actions/revalidate";
+import { X } from "lucide-react";
 
 interface PenilaianModalProps {
   open: boolean;
@@ -168,7 +169,7 @@ export default function PenilaianModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-lg p-6 relative w-full max-w-2xl max-h-[85vh] overflow-y-auto"
+        className="bg-white dark:bg-[#1f1f1f] rounded-lg shadow-lg p-6 relative w-full max-w-2xl max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <Button
@@ -177,7 +178,7 @@ export default function PenilaianModal({
           className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
           onClick={onClose}
         >
-          &times;
+          <X size={16} />
         </Button>
         <h2 className="text-lg font-bold  mb-3 text-left">
           Form Penilaian Ujian
@@ -223,7 +224,7 @@ export default function PenilaianModal({
         <form action={formAction}>
           <Table className="w-full text-sm border">
             <TableHeader>
-              <TableRow className="bg-gray-100">
+              <TableRow>
                 <TableHead className="border px-2 py-1">Kriteria</TableHead>
                 <TableHead className="border px-2 py-1">Bobot (%)</TableHead>
                 <TableHead className="border px-2 py-1">Skor</TableHead>
@@ -263,7 +264,7 @@ export default function PenilaianModal({
                   </TableCell>
                 </TableRow>
               ))}
-              <TableRow className="font-bold bg-gray-50">
+              <TableRow className="font-bold bg-sidebar-accent">
                 <TableCell className="border px-2 py-1">Skor Akhir</TableCell>
                 <TableCell className="border px-2 py-1">Total</TableCell>
                 <TableCell className="border px-2 py-1"></TableCell>
@@ -293,7 +294,7 @@ export default function PenilaianModal({
           )}
 
           {/* Catatan interval nilai */}
-          <div className="mt-5 text-sm border rounded p-3 bg-gray-50">
+          <div className="mt-5 text-sm border rounded p-3 bg-gray-50 dark:bg-[#2a2a2a]">
             <strong className="block text-center mb-2">
               Catatan Interval Nilai:
             </strong>

@@ -43,30 +43,12 @@ export interface Ujian {
     id: number;
     namaRuangan: string;
   };
-  ketuaPenguji: {
-    nidn: string | null;
-    nip: string | null;
+  penguji: {
     id: number;
     nama: string;
-  };
-  peranPenguji?: string | null;
-  sekretarisPenguji: {
-    id: number;
-    nidn: string | null;
-    nip: string | null;
-    nama: string;
-  };
-  penguji1: {
-    id: number;
-    nidn: string | null;
-    nip: string | null;
-    nama: string;
-  };
-  penguji2: {
-    id: number;
-    nidn: string | null;
-    nip: string | null;
-    nama: string;
+    nip: string;
+    nidn: string;
+    peran: "ketua_penguji" | "sekretaris_penguji" | "penguji_1" | "penguji_2";
   };
   hasil: string | null;
   nilaiAkhir: number | null;

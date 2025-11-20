@@ -7,7 +7,7 @@ export default function Loading() {
         <Skeleton className="h-10 w-64" /> {/* Search */}
         <Skeleton className="h-10 w-24" /> {/* Filter */}
       </div>
-      <div className="rounded-xl border bg-white">
+      <div className="rounded-xl border ">
         <table className="w-full">
           <thead>
             <tr>

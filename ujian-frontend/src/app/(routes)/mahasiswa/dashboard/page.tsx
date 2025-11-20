@@ -1,5 +1,6 @@
 import { getCurrentUserAction } from "@/actions/auth";
 import { getPengajuanRanpelByMahasiswaId } from "@/actions/pengajuanRanpel";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function DashboardMahasiswa() {
   const { user } = await getCurrentUserAction();
@@ -21,30 +22,35 @@ export default async function DashboardMahasiswa() {
   return (
     <div className="p-6">
       <div className="max-w-full">
-        <div className="font-semibold text-gray-700 mb-2 text-sm">
-          Pengajuan Rancangan
-        </div>
+        <div className="font-semibold  mb-2 text-sm">Pengajuan Rancangan</div>
         <div className="flex flex-wrap gap-4">
-          <div className="min-w-[120px] flex-1 bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex flex-col items-start justify-center shadow-sm">
-            <span className="text-xs text-gray-500 mb-1">Menunggu</span>
-            <span className="text-2xl font-bold text-yellow-700">
-              {menunggu}
-            </span>
-          </div>
-          <div className="min-w-[120px] flex-1 bg-blue-50 border border-blue-200 rounded-xl p-4 flex flex-col items-start justify-center shadow-sm">
-            <span className="text-xs text-gray-500 mb-1">Diverifikasi</span>
-            <span className="text-2xl font-bold text-blue-700">
-              {diverifikasi}
-            </span>
-          </div>
-          <div className="min-w-[120px] flex-1 bg-blue-50 border border-blue-200 rounded-xl p-4 flex flex-col items-start justify-center shadow-sm">
-            <span className="text-xs text-gray-500 mb-1">Diterima</span>
-            <span className="text-2xl font-bold text-blue-700">{diterima}</span>
-          </div>
-          <div className="min-w-[120px] flex-1 bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col items-start justify-center shadow-sm">
-            <span className="text-xs text-gray-500 mb-1">Ditolak</span>
-            <span className="text-2xl font-bold text-red-700">{ditolak}</span>
-          </div>
+          <Card className="min-w-[120px] flex-1 rounded-xl p-4 shadow-sm">
+            <CardContent className="flex flex-col items-start justify-center p-0">
+              <span className="text-xs mb-1 ">Menunggu</span>
+              <span className="text-2xl font-bold">{menunggu}</span>
+            </CardContent>
+          </Card>
+
+          <Card className="min-w-[120px] flex-1  rounded-xl p-4 shadow-sm">
+            <CardContent className="flex flex-col items-start justify-center p-0">
+              <span className="text-xs  mb-1">Diverifikasi</span>
+              <span className="text-2xl font-bold ">{diverifikasi}</span>
+            </CardContent>
+          </Card>
+
+          <Card className="min-w-[120px] flex-1  rounded-xl p-4 shadow-sm">
+            <CardContent className="flex flex-col items-start justify-center p-0">
+              <span className="text-xs  mb-1">Diterima</span>
+              <span className="text-2xl font-bold ">{diterima}</span>
+            </CardContent>
+          </Card>
+
+          <Card className="min-w-[120px] flex-1  rounded-xl p-4 shadow-sm">
+            <CardContent className="flex flex-col items-start justify-center p-0">
+              <span className="text-xs  mb-1">Ditolak</span>
+              <span className="text-2xl font-bold ">{ditolak}</span>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

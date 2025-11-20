@@ -54,9 +54,6 @@ export default function PDFPreviewModal({
   );
 
   const { user } = useAuthStore.getState();
-  useEffect(() => {
-    console.log("Logged User in Modal:", user);
-  }, [user]);
 
   // Check if user has permission to approve/reject
   const canApproveReject =
@@ -89,6 +86,21 @@ export default function PDFPreviewModal({
       await updateStatusPengajuanRanpel(pengajuan.mahasiswa.id, ranpelId, {
         status,
       });
+
+      // Tampilkan toast dinamis jika status yang di-set adalah 'diverifikasi'
+      if (status === "diverifikasi") {
+        toast(
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="text-green-500" size={20} />
+            <div>
+              <div className="font-semibold">Berhasil Diverifikasi</div>
+              <div className="text-xs">
+                Pengajuan {pengajuan.mahasiswa.nama} berhasil diverifikasi.
+              </div>
+            </div>
+          </div>
+        );
+      }
 
       const role = user?.roles?.[0]?.name;
       if (role === "dosen" || role === "kaprodi") {
@@ -164,34 +176,52 @@ export default function PDFPreviewModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Blur background */}
       <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm z-40"
+        className="absolute inset-0 bg-black/30 dark:bg-[#1f1f1f]/80 backdrop-blur-sm z-40"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col z-50">
+      <div className="relative bg-white dark:bg-[#1f1f1f] rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col z-50">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-xl font-semibold">Rancangan Penelitian</h2>
+        <div className="flex items-start justify-between p-4 border-b gap-4 dark:border-gray-800">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Rancangan Penelitian
+            </h2>
+            <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+              {pengajuan.mahasiswa.nama} •{" "}
+              <span className="font-mono">{pengajuan.mahasiswa.nim}</span>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
-            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded">
+            <button
+              onClick={onClose}
+              aria-label="Tutup"
+              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
               <X size={20} />
             </button>
           </div>
         </div>
 
         {/* PDF Content */}
-        <div className="flex-1 overflow-auto p-4 ">
-          <div className="bg-white shadow-lg">
-            <PDFDocument pengajuan={pengajuan} />
+        <div className="flex-1 overflow-auto p-4 bg-white dark:bg-[#1f1f1f]">
+          <div className="bg-white shadow-sm border rounded-md overflow-hidden h-[60vh] dark:bg-[#1f1f1f]">
+            {/* PDF preview area */}
+            <div className="h-full overflow-auto">
+              <PDFDocument pengajuan={pengajuan} />
+            </div>
           </div>
+
           {/* Tampilkan dosen pembimbing di bawah preview */}
-          <div className="mt-6 border-t pt-4">
+          <div className="mt-6 border-t pt-4 dark:border-gray-800">
             <div className="mb-2 font-semibold">Dosen Pembimbing:</div>
             <div className="text-sm">
               <span className="font-medium">Pembimbing 1: </span>
               {pengajuan.mahasiswa.pembimbing1?.nama ? (
                 pengajuan.mahasiswa.pembimbing1.nama
               ) : (
-                <span className="italic text-gray-400">Belum ditentukan</span>
+                <span className="italic text-gray-400 dark:text-gray-500">
+                  Belum ditentukan
+                </span>
               )}
             </div>
             <div className="text-sm">
@@ -199,7 +229,9 @@ export default function PDFPreviewModal({
               {pengajuan.mahasiswa.pembimbing2?.nama ? (
                 pengajuan.mahasiswa.pembimbing2.nama
               ) : (
-                <span className="italic text-gray-400">Belum ditentukan</span>
+                <span className="italic text-gray-400 dark:text-gray-500">
+                  Belum ditentukan
+                </span>
               )}
             </div>
           </div>
@@ -207,18 +239,36 @@ export default function PDFPreviewModal({
 
         {/* Footer with action buttons - only show for dosen/kaprodi */}
         {canApproveReject && (
-          <div className="border-t p-4 bg-gray-50">
-            <div className="flex gap-4 justify-end">
+          <div className="border-t p-4 bg-gray-50 dark:bg-[#1f1f1f] dark:border-gray-800">
+            <div className="flex gap-3 justify-end">
               <Button
-                className="bg-emerald-600"
+                className="bg-emerald-600 text-white"
                 onClick={handleAccept}
                 disabled={isUpdating}
               >
-                {isUpdating ? "Memproses..." : "Terima"}
+                {isUpdating
+                  ? "Memproses..."
+                  : user?.roles?.[0]?.name === "dosen"
+                  ? "Verifikasi"
+                  : "Tentukan Pembimbing"}
               </Button>
               <Button
                 variant="destructive"
-                onClick={handleReject}
+                onClick={async () => {
+                  await handleReject();
+                  // tampilkan toast penolakan
+                  toast(
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="text-red-500" size={18} />
+                      <div>
+                        <div className="font-semibold">Ditolak</div>
+                        <div className="text-xs">
+                          Pengajuan berhasil ditolak.
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }}
                 disabled={isUpdating}
               >
                 {isUpdating ? "Memproses..." : "Tolak"}
@@ -233,22 +283,26 @@ export default function PDFPreviewModal({
         open={showPembimbingModal}
         onOpenChange={setShowPembimbingModal}
       >
-        <AlertDialogContent className="max-w-md">
+        <AlertDialogContent className="max-w-md dark:bg-[#1f1f1f]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Pilih Pembimbing 1 & 2</AlertDialogTitle>
+            <AlertDialogTitle className="dark:text-gray-100">
+              Pilih Pembimbing 1 & 2
+            </AlertDialogTitle>
           </AlertDialogHeader>
           <form onSubmit={handlePembimbingSubmit} className="space-y-4">
             <div>
-              <label className="block mb-1">Pembimbing 1</label>
+              <label className="block mb-1 dark:text-gray-200">
+                Pembimbing 1
+              </label>
               <Select
                 value={selectedPembimbing1 ? String(selectedPembimbing1) : ""}
                 onValueChange={(val) => setSelectedPembimbing1(Number(val))}
                 required
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full dark:bg-[#1f1f1f] dark:text-gray-100">
                   <SelectValue placeholder="Pilih Pembimbing 1" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-[#1f1f1f] dark:text-gray-100">
                   {dosenList.map((dosen) => (
                     <SelectItem key={dosen.id} value={String(dosen.id)}>
                       {dosen.nama}
@@ -258,16 +312,18 @@ export default function PDFPreviewModal({
               </Select>
             </div>
             <div>
-              <label className="block mb-1">Pembimbing 2</label>
+              <label className="block mb-1 dark:text-gray-200">
+                Pembimbing 2
+              </label>
               <Select
                 value={selectedPembimbing2 ? String(selectedPembimbing2) : ""}
                 onValueChange={(val) => setSelectedPembimbing2(Number(val))}
                 required
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full dark:bg-[#1f1f1f] dark:text-gray-100">
                   <SelectValue placeholder="Pilih Pembimbing 2" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-[#1f1f1f] dark:text-gray-100">
                   {dosenList.map((dosen) => (
                     <SelectItem key={dosen.id} value={String(dosen.id)}>
                       {dosen.nama}
@@ -278,7 +334,11 @@ export default function PDFPreviewModal({
             </div>
             <AlertDialogFooter className="pt-2 flex-row gap-2 justify-end">
               <AlertDialogAction asChild>
-                <Button type="submit" disabled={isUpdating}>
+                <Button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                >
                   {isUpdating ? "Memproses..." : "Simpan & Terima"}
                 </Button>
               </AlertDialogAction>

@@ -119,7 +119,7 @@ export default function PengajuanUjianForm({
           <CheckCircle2 className="text-green-500" size={20} />
           <div>
             <div className="font-semibold">Berhasil!</div>
-            <div className="text-xs">Pendaftaran ujian berhasil diajukan.</div>
+            <div className="text-sm">Pendaftaran ujian berhasil diajukan.</div>
           </div>
         </div>
       );
@@ -160,45 +160,53 @@ export default function PengajuanUjianForm({
 
   return (
     <form
-      className="space-y-6 bg-white rounded-lg max-w-2xl mx-auto"
+      className="space-y-6  rounded-lg max-w-2xl mx-auto"
       onSubmit={handleSubmit}
     >
       {/* Info syarat proposal */}
       <div className="mb-2">
         <div className="flex flex-col gap-1">
-          <span className="text-base text-gray-700 font-semibold mb-1">
+          <span className="text-base  font-semibold mb-1">
             Syarat Pengajuan Ujian Proposal
           </span>
-          <div className="flex flex-wrap gap-4 text-xs">
+          <div className="flex flex-wrap gap-4 text-sm">
             <span>
               IPK Anda:{" "}
               <span
                 className={`font-bold ${
-                  ipk >= 2 ? "text-green-600" : "text-red-500"
+                  ipk >= 2
+                    ? "text-green-600 dark:text-green-300"
+                    : "text-red-500 dark:text-red-400"
                 }`}
               >
                 {ipk}
               </span>
               {ipk < 2 && (
-                <span className="ml-1 text-red-500">(Minimal 2.00)</span>
+                <span className="ml-1 text-red-500 dark:text-red-400">
+                  (Minimal 2.00)
+                </span>
               )}
             </span>
             <span>
               Semester Anda:{" "}
               <span
                 className={`font-bold ${
-                  semester >= 6 ? "text-green-600" : "text-red-500"
+                  semester >= 6
+                    ? "text-green-600 dark:text-green-300"
+                    : "text-red-500 dark:text-red-400"
                 }`}
               >
                 {semester}
               </span>
               {semester < 6 && (
-                <span className="ml-1 text-red-500">(Minimal 6)</span>
+                <span className="ml-1 text-red-500 dark:text-red-400">
+                  (Minimal 6)
+                </span>
               )}
             </span>
           </div>
           {!canDaftarProposal() && (
-            <div className="mt-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-xs">
+            <div className="mt-2 bg-red-50 border border-red-200 text-red-700 dark:bg-red-950 dark:border-red-800 dark:text-red-300 px-3 py-2 rounded text-sm">
               Anda belum memenuhi syarat pengajuan ujian proposal.
               <br />
               Syarat: IPK &ge; 2.00 dan Semester &ge; 6.
@@ -282,7 +290,7 @@ export default function PengajuanUjianForm({
           const nama = selectedJenis.namaJenis.toLowerCase();
           if (nama.includes("proposal") && !canDaftarProposal()) {
             return (
-              <div className="mt-1 text-xs text-red-500">
+              <div className="mt-1 text-sm text-red-500">
                 Anda belum bisa mengajukan ujian proposal.
               </div>
             );
@@ -290,14 +298,14 @@ export default function PengajuanUjianForm({
           if (nama.includes("hasil")) {
             if (!canDaftarProposal()) {
               return (
-                <div className="mt-1 text-xs text-red-500">
+                <div className="mt-1 text-sm text-red-500">
                   Anda belum memenuhi syarat pengajuan proposal.
                 </div>
               );
             }
             if (!lulusProposal) {
               return (
-                <div className="mt-1 text-xs text-red-500">
+                <div className="mt-1 text-sm text-red-500">
                   Anda belum lulus ujian proposal.
                 </div>
               );
@@ -306,21 +314,21 @@ export default function PengajuanUjianForm({
           if (nama.includes("skripsi")) {
             if (!canDaftarProposal()) {
               return (
-                <div className="mt-1 text-xs text-red-500">
+                <div className="mt-1 text-sm text-red-500">
                   Anda belum memenuhi syarat pengajuan proposal.
                 </div>
               );
             }
             if (!lulusProposal) {
               return (
-                <div className="mt-1 text-xs text-red-500">
+                <div className="mt-1 text-sm text-red-500">
                   Anda belum lulus ujian proposal.
                 </div>
               );
             }
             if (!lulusHasil) {
               return (
-                <div className="mt-1 text-xs text-red-500">
+                <div className="mt-1 text-sm text-red-500">
                   Anda belum lulus ujian hasil.
                 </div>
               );
@@ -361,68 +369,65 @@ export default function PengajuanUjianForm({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label className="mb-1 block font-medium text-xs">
+          <Label className="mb-1 block font-medium text-sm">
             Transkrip Nilai
           </Label>
           <Input
             type="file"
             onChange={(e) => setBerkasTranskrip(e.target.files?.[0] ?? null)}
             required
-            className="w-full file:text-xs file:py-1 file:font-normal text-xs"
-            style={{ fontSize: "0.75rem" }}
+            className="w-full file:text-sm file:py-1 file:font-normal text-sm"
+            
           />
           {berkasTranskrip && (
-            <div className="text-xs mt-1">{berkasTranskrip.name}</div>
+            <div className="text-sm mt-1">{berkasTranskrip.name}</div>
           )}
         </div>
         <div>
-          <Label className="mb-1 block font-medium text-xs">
+          <Label className="mb-1 block font-medium text-sm">
             Pengesahan Proposal
           </Label>
           <Input
             type="file"
             onChange={(e) => setBerkasPengesahan(e.target.files?.[0] ?? null)}
             required
-            className="w-full file:text-xs file:py-1 file:font-normal text-xs"
-            style={{ fontSize: "0.75rem" }}
+            className="w-full file:text-sm file:py-1 file:font-normal text-sm"
           />
           {berkasPengesahan && (
-            <div className="text-xs mt-1">{berkasPengesahan.name}</div>
+            <div className="text-sm mt-1">{berkasPengesahan.name}</div>
           )}
         </div>
         <div>
-          <Label className="mb-1 block font-medium text-xs">
+          <Label className="mb-1 block font-medium text-sm">
             Surat Keterangan Lulus Plagiasi
           </Label>
           <Input
             type="file"
             onChange={(e) => setBerkasPlagiasi(e.target.files?.[0] ?? null)}
             required
-            className="w-full file:text-xs file:py-1 file:font-normal text-xs"
-            style={{ fontSize: "0.75rem" }}
+            className="w-full file:text-sm file:py-1 file:font-normal text-sm"
           />
           {berkasPlagiasi && (
-            <div className="text-xs mt-1">{berkasPlagiasi.name}</div>
+            <div className="text-sm mt-1">{berkasPlagiasi.name}</div>
           )}
         </div>
         <div>
-          <Label className="mb-1 block font-medium text-xs">
+          <Label className="mb-1 block font-medium text-sm">
             Proposal Skripsi
           </Label>
           <Input
             type="file"
             onChange={(e) => setBerkasProposal(e.target.files?.[0] ?? null)}
             required
-            className="w-full file:text-xs file:py-1 file:font-normal text-xs"
-            style={{ fontSize: "0.75rem" }}
+            className="w-full file:text-sm file:py-1 file:font-normal text-sm"
           />
           {berkasProposal && (
-            <div className="text-xs mt-1">{berkasProposal.name}</div>
+            <div className="text-sm mt-1">{berkasProposal.name}</div>
           )}
         </div>
       </div>
       {errorMsg && (
-        <div className="bg-red-100 border border-red-300 text-red-700 px-3 py-2 rounded mb-2 text-sm">
+        <div className="bg-red-100 border border-red-300 text-red-700 dark:bg-red-950 dark:border-red-800 dark:text-red-300 px-3 py-2 rounded mb-2 text-sm">
           {errorMsg}
         </div>
       )}
@@ -430,7 +435,7 @@ export default function PengajuanUjianForm({
         <Button
           type="submit"
           variant="default"
-          className="px-6 bg-blue-400 hover:bg-blue-500"
+          className="px-6 bg-blue-500 hover:bg-blue-600 text-white"
         >
           Ajukan
         </Button>

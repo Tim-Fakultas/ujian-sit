@@ -50,13 +50,10 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                     href={item.url || "#"}
                     prefetch={true}
                     className={cn(
-                      // Perbaiki alignment agar rapi di kedua mode
-                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-medium transition-colors",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
                       open ? "justify-start" : "justify-center",
                       "group-data-[collapsible=icon]:justify-center",
-                      isActive
-                        ? "bg-blue-50 text-blue-500  dark:text-blue-300"
-                        : "text-slate-700  hover:bg-slate-50 "
+                      isActive ? "bg-sidebar-accent" : ""
                     )}
                   >
                     {item.icon && (
@@ -97,13 +94,12 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton
                     className={cn(
-                      // Perbaiki alignment agar rapi di kedua mode
-                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-medium w-full transition-colors",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium w-full transition-colors",
                       open ? "justify-start" : "justify-center",
                       "group-data-[collapsible=icon]:justify-center",
                       isGroupActive
-                        ? "bg-slate-50 text-slate-900 dark:bg-slate-800/50 dark:text-slate-100"
-                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                        ? "bg-sidebar-accent"
+                        : " dark:hover:bg-sidebar-accent hover:bg-sidebar-accent"
                     )}
                   >
                     {item.icon && (
@@ -139,7 +135,7 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
               {open && (
                 <CollapsibleContent>
                   <SidebarGroupContent>
-                    <SidebarMenu className="ml-4 mt-1 space-y-0.5">
+                    <SidebarMenu className="mt-1 space-y-0.5">
                       {item.items.map((sub) => {
                         const isActive = pathname === sub.url;
                         return (
@@ -149,20 +145,12 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                                 href={sub.url}
                                 prefetch={true}
                                 className={cn(
-                                  "flex items-center gap-2.5 px-3 py-2 rounded-md text-xs transition-colors",
+                                  "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
                                   isActive
-                                    ? "bg-blue-50 text-blue-400 font-medium"
-                                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                                    ? "bg-sidebar-accent font-medium"
+                                    : "hover:bg-sidebar-accent dark:hover:bg-sidebar-accent"
                                 )}
                               >
-                                <div
-                                  className={cn(
-                                    "w-1.5 h-1.5 rounded-full flex-shrink-0",
-                                    isActive
-                                      ? "bg-blue-400 "
-                                      : "bg-slate-300 dark:bg-slate-600"
-                                  )}
-                                />
                                 <span className="truncate">{sub.title}</span>
                               </Link>
                             </SidebarMenuButton>

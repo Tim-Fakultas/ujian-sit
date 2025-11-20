@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
+import { useEffect, useTransition, useState } from "react";
 import {
   IconDotsVertical,
   IconLogout,
@@ -29,6 +29,14 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { logoutAction } from "@/actions/auth";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export type UserRole = {
   id: number;
@@ -50,6 +58,7 @@ export function NavUser({ user: serverUser }: { user?: User }) {
   const { user, setUser, initializeFromCookies } = useAuthStore();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   // 🚀 Pastikan store langsung punya data user dari server
   useEffect(() => {
@@ -65,7 +74,9 @@ export function NavUser({ user: serverUser }: { user?: User }) {
 
   const userRole =
     currentUser.roles && currentUser.roles.length > 0
-      ? currentUser.roles[0].name
+      ? currentUser.roles[0].name === "admin prodi"
+        ? "admin"
+        : currentUser.roles[0].name
       : "user";
 
   const initials =
@@ -91,7 +102,7 @@ export function NavUser({ user: serverUser }: { user?: User }) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-slate-50 dark:hover:bg-slate-800/50 h-12 group-data-[collapsible=icon]:justify-center"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-slate-50 dark:hover:bg-sidebar-accent h-12 group-data-[collapsible=icon]:justify-center"
             >
               <Avatar className="h-7 w-7 rounded-full flex-shrink-0">
                 <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-[10px] font-medium">
@@ -162,18 +173,42 @@ export function NavUser({ user: serverUser }: { user?: User }) {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem asChild>
-              <Button
-                onClick={handleLogout}
-                disabled={isPending}
-                variant="ghost"
-                className="w-full justify-start text-red-500 hover:text-red-600"
-              >
-                <IconLogout className="mr-2 h-4 w-4" />
-                {isPending ? "Logging out..." : "Log out"}
-              </Button>
+            {/* buka dialog konfirmasi saat klik logout */}
+            <DropdownMenuItem
+              onClick={() => setConfirmOpen(true)}
+              className="w-full flex items-center text-red-500 hover:bg-red-50"
+            >
+              <IconLogout className="mr-2 h-4 w-4" />
+              Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
+
+          {/* Dialog konfirmasi logout */}
+          <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Keluar dari Akun</DialogTitle>
+                <DialogDescription>
+                  Apakah Anda yakin ingin logout dari akun ini?
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="flex justify-end gap-2">
+                <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
+                  Batal
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    setConfirmOpen(false);
+                    handleLogout();
+                  }}
+                  disabled={isPending}
+                >
+                  {isPending ? "Logging out..." : "Logout"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>

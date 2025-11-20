@@ -11,9 +11,8 @@ export default async function Page() {
   return (
     <div className="p-6 ">
       <Suspense fallback={<Loading />}>
-        <div>
-          <DosenTable dosen={dosen} />
-        </div>
+        
+          <DosenTable dosen={dosen} user={user} />
       </Suspense>
     </div>
   );

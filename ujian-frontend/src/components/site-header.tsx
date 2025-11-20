@@ -7,17 +7,24 @@ import {
   BreadcrumbItem,
 } from "@/components/ui/breadcrumb";
 import { getCurrentLabel } from "@/utils/path";
+import { ModeToggle } from "@/app/theme-toggle";
 
 export function SiteHeader() {
-  const pathname = usePathname();
-  const currentLabel = getCurrentLabel(pathname);
+  // const pathname = usePathname();
+  // const currentLabel = getCurrentLabel(pathname);
 
   return (
-    <header className="flex h-14 shrink-0 items-center transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-14 border-b bg-white">
+    <header className="flex h-14 shrink-0 items-center transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-14 border-b ">
       <div className="flex w-full items-center justify-between gap-3 px-4 lg:gap-4 lg:px-6">
-        <div className="flex items-center gap-3 min-w-0">
-          <SidebarTrigger className="-ml-1" />
-          <span className="mx-2 text-neutral-300 select-none">|</span>
+        <div className="flex items-center gap-3 min-w-0 justify-between w-full">
+          <div className="flex items-center">
+            <SidebarTrigger className="-ml-1 " />
+            {/* <span className="mx-2 text-neutral-300 select-none">|</span> */}
+          </div>
+          <div>
+            <ModeToggle />
+          </div>
+          {/*
           <div className="truncate max-w-xs sm:max-w-sm md:max-w-md">
             <Breadcrumb>
               <BreadcrumbList>
@@ -28,7 +35,7 @@ export function SiteHeader() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-          </div>
+          </div> */}
         </div>
       </div>
     </header>

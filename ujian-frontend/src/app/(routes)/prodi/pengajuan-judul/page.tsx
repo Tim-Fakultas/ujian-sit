@@ -142,13 +142,8 @@ export default function PengajuanJudulProdiPage() {
     setIsProcessing(true);
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    console.log("Menyetujui pengajuan dengan pembimbing:", {
-      pembimbing1,
-      pembimbing2,
-    });
+    // TODO: Replace with actual API call
     alert("Pengajuan berhasil disetujui dan pembimbing telah ditetapkan!");
-
     setSelected(null);
     setPembimbing1("");
     setPembimbing2("");
@@ -164,10 +159,8 @@ export default function PengajuanJudulProdiPage() {
     setIsProcessing(true);
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    console.log("Menolak pengajuan dengan alasan:", rejectReason);
+    // TODO: Replace with actual API call
     alert("Pengajuan berhasil ditolak!");
-
     setShowRejectDialog(false);
     setSelected(null);
     setRejectReason("");

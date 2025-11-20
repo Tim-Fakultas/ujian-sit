@@ -80,19 +80,29 @@ export async function getJadwalUjianByProdiByDosen({
         const prodiMatch =
           Number(ujian.mahasiswa?.prodi?.id) === Number(prodiId);
         const statusMatch = ujian.pendaftaranUjian?.status === "dijadwalkan";
-        return prodiMatch && statusMatch;
+        // Filter hanya penguji yang dosenId-nya sesuai
+        const dosenMatch = Number(ujian.penguji?.id) === Number(dosenId);
+        return prodiMatch && statusMatch && dosenMatch;
       })
       .map((ujian) => {
         let peran: string | null = null;
-        const dosenIdNum = Number(dosenId);
-
-        if (Number(ujian.ketuaPenguji?.id) === dosenIdNum)
-          peran = "Ketua Penguji";
-        else if (Number(ujian.sekretarisPenguji?.id) === dosenIdNum)
-          peran = "Sekretaris Penguji";
-        else if (Number(ujian.penguji1?.id) === dosenIdNum) peran = "Penguji 1";
-        else if (Number(ujian.penguji2?.id) === dosenIdNum) peran = "Penguji 2";
-
+        // Sesuaikan dengan tipe peran di Ujian.ts
+        switch (ujian.penguji?.peran) {
+          case "ketua_penguji":
+            peran = "Ketua Penguji";
+            break;
+          case "sekretaris_penguji":
+            peran = "Sekretaris Penguji";
+            break;
+          case "penguji_1":
+            peran = "Penguji 1";
+            break;
+          case "penguji_2":
+            peran = "Penguji 2";
+            break;
+          default:
+            peran = null;
+        }
         return { ...ujian, peranPenguji: peran };
       })
       // 🚀 tampilkan hanya ujian yang memang relevan dengan dosen tsb

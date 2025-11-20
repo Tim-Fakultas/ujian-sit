@@ -86,9 +86,9 @@ export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
 
     const filteredData = data.data
       .filter(
-        (ujian: Ujian) =>
+        (ujian: Ujian) =>     
           ujian.mahasiswa?.prodi?.id === prodiId &&
-          ujian.pendaftaranUjian.status === "diterima"
+          ujian.pendaftaranUjian.status !== "menunggu" && ujian.pendaftaranUjian.status !== "selesai"
       )
 
       .sort(

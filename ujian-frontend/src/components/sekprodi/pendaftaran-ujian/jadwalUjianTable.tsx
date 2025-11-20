@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Ujian } from "@/types/Ujian";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Eye,
   Search,
@@ -128,12 +129,12 @@ export default function JadwalUjianTable({
   }, [filteredData, page, pageSize]);
 
   // Reset page ke 1 jika filter berubah
-  React.useEffect(() => {
+  useEffect(() => {
     setPage(1);
   }, [filterNama, filterJenis]);
 
   // Make sure page is always valid if filteredData changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (page > totalPage) setPage(totalPage === 0 ? 1 : totalPage);
   }, [totalPage, page]);
 
@@ -168,93 +169,96 @@ export default function JadwalUjianTable({
   }
 
   return (
-    <div className="rounded-lg overflow-x-auto text-xs">
-      {/* Filter Bar: search dan filter di kanan, filter ada arrow */}
-      <div className="flex items-center justify-end gap-2 mb-4">
-        <div className="relative w-full max-w-xs">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            <Search size={16} />
-          </span>
-          <Input
-            placeholder="Search"
-            value={filterNama}
-            onChange={(e) => setFilterNama(e.target.value)}
-            className="pl-10 w-full text-xs placeholder:text-xs"
-            inputMode="text"
-            style={{ fontSize: "0.75rem" }}
-          />
+    <div className="rounded-lg overflow-x-auto p-6 bg-white dark:bg-[#1f1f1f] shadow-sm">
+      {/* Bar atas: label kiri dan filter kanan */}
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <div className="font-semibold text-lg ">Jadwal Ujian</div>
+        <div className="flex items-center gap-2">
+          <div className="relative w-56">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <Search size={16} />
+            </span>
+            <Input
+              placeholder="Search"
+              value={filterNama}
+              onChange={(e) => setFilterNama(e.target.value)}
+              className="pl-10 w-full bg-white dark:bg-[#2a2a2a] "
+            />
+          </div>
+          <Popover open={openFilter} onOpenChange={setOpenFilter}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex h-9 items-center border border-gray-200 rounded-lg px-4 py-1 bg-white  hover:bg-gray-50  font-medium shadow-sm"
+              >
+                <ListFilter size={16} className="mr-2" />
+                Filters
+                <ChevronDown size={16} className="ml-2" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-2 " align="end">
+              <div className="font-semibold mb-2">Jenis Ujian</div>
+              <div className="flex flex-col gap-1">
+                <Button
+                  variant={filterJenis === "all" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="justify-start"
+                  onClick={() => {
+                    setFilterJenis("all");
+                    setOpenFilter(false);
+                  }}
+                >
+                  Semua
+                </Button>
+                <Button
+                  variant={
+                    filterJenis === "Ujian Proposal" ? "secondary" : "ghost"
+                  }
+                  size="sm"
+                  className="justify-start "
+                  onClick={() => {
+                    setFilterJenis("Ujian Proposal");
+                    setOpenFilter(false);
+                  }}
+                >
+                  Ujian Proposal
+                </Button>
+                <Button
+                  variant={
+                    filterJenis === "Ujian Hasil" ? "secondary" : "ghost"
+                  }
+                  size="sm"
+                  className="justify-start "
+                  onClick={() => {
+                    setFilterJenis("Ujian Hasil");
+                    setOpenFilter(false);
+                  }}
+                >
+                  Ujian Hasil
+                </Button>
+                <Button
+                  variant={
+                    filterJenis === "Ujian Skripsi" ? "secondary" : "ghost"
+                  }
+                  size="sm"
+                  className="justify-start "
+                  onClick={() => {
+                    setFilterJenis("Ujian Skripsi");
+                    setOpenFilter(false);
+                  }}
+                >
+                  Ujian Skripsi
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
-        <Popover open={openFilter} onOpenChange={setOpenFilter}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              className="flex items-center border border-gray-200 rounded-lg px-4 py-1 bg-white text-gray-700 hover:bg-gray-50 text-xs font-medium shadow-sm"
-            >
-              <ListFilter size={16} className="mr-2" />
-              Filters
-              <ChevronDown size={16} className="ml-2" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-48 p-2 text-xs" align="end">
-            <div className="font-semibold mb-2">Jenis Ujian</div>
-            <div className="flex flex-col gap-1">
-              <Button
-                variant={filterJenis === "all" ? "secondary" : "ghost"}
-                size="sm"
-                className="justify-start text-xs"
-                onClick={() => {
-                  setFilterJenis("all");
-                  setOpenFilter(false);
-                }}
-              >
-                Semua
-              </Button>
-              <Button
-                variant={
-                  filterJenis === "Ujian Proposal" ? "secondary" : "ghost"
-                }
-                size="sm"
-                className="justify-start text-xs"
-                onClick={() => {
-                  setFilterJenis("Ujian Proposal");
-                  setOpenFilter(false);
-                }}
-              >
-                Ujian Proposal
-              </Button>
-              <Button
-                variant={filterJenis === "Ujian Hasil" ? "secondary" : "ghost"}
-                size="sm"
-                className="justify-start text-xs"
-                onClick={() => {
-                  setFilterJenis("Ujian Hasil");
-                  setOpenFilter(false);
-                }}
-              >
-                Ujian Hasil
-              </Button>
-              <Button
-                variant={
-                  filterJenis === "Ujian Skripsi" ? "secondary" : "ghost"
-                }
-                size="sm"
-                className="justify-start text-xs"
-                onClick={() => {
-                  setFilterJenis("Ujian Skripsi");
-                  setOpenFilter(false);
-                }}
-              >
-                Ujian Skripsi
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
       </div>
 
-      <div className="border overflow-auto rounded-sm">
-        <Table className="text-xs ">
-          <TableHeader>
+      <div className="border overflow-auto rounded-lg bg-white dark:bg-[#1f1f1f]">
+        <Table>
+          <TableHeader className="bg-sidebar-accent">
             <TableRow>
               <TableHead className="text-center w-10">No</TableHead>
               <TableHead>
@@ -330,29 +334,27 @@ export default function JadwalUjianTable({
               paginatedData.map((ujian, index) => (
                 <TableRow
                   key={ujian.id}
-                  className="hover:bg-gray-50 transition text-xs"
+                  className="hover:bg-gray-50 transition "
                 >
-                  <TableCell className="text-center text-xs">
+                  <TableCell className="text-center ">
                     {(page - 1) * pageSize + index + 1}
                   </TableCell>
-                  <TableCell className="text-xs">
-                    {ujian.mahasiswa.nama}
-                  </TableCell>
-                  <TableCell className="whitespace-normal break-words max-w-xs text-xs">
+                  <TableCell className="">{ujian.mahasiswa.nama}</TableCell>
+                  <TableCell className="whitespace-normal break-words max-w-xs ">
                     {ujian.judulPenelitian}
                   </TableCell>
-                  <TableCell className="text-xs">
-                    <span
-                      className={`px-2 py-1 rounded text-[10px] font-medium inline-block ${getJenisUjianColor(
+                  <TableCell className="">
+                    <Badge
+                      className={`px-2 py-1 font-medium inline-block ${getJenisUjianColor(
                         ujian.jenisUjian.namaJenis
                       )}`}
                     >
                       {ujian.jenisUjian.namaJenis}
-                    </span>
+                    </Badge>
                   </TableCell>
-                  <TableCell className="max-w-xs text-xs">
-                    <div className="text-xs text-gray-700">
-                      <div className="font-medium text-xs">
+                  <TableCell className="max-w-xs ">
+                    <div className=" ">
+                      <div className="font-medium ">
                         {ujian?.hariUjian
                           ? ujian.hariUjian.charAt(0).toUpperCase() +
                             ujian.hariUjian.slice(1)
@@ -369,21 +371,21 @@ export default function JadwalUjianTable({
                             )
                           : "-"}
                       </div>
-                      <div className="text-xs text-gray-600 mt-1">
+                      <div className="  mt-1">
                         {(ujian.waktuMulai?.slice(0, 5) || "-") +
                           " - " +
                           (ujian.waktuSelesai?.slice(0, 5) || "-")}
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-xs">
+                  <TableCell className="">
                     {ujian.ruangan?.namaRuangan || "-"}
                   </TableCell>
-                  <TableCell className="text-center text-xs">
+                  <TableCell className="text-center ">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="hover:bg-gray-200 text-xs"
+                      className="hover:bg-gray-200 "
                       aria-label="Lihat Detail"
                       onClick={() => handleDetail(ujian)}
                     >
@@ -407,18 +409,14 @@ export default function JadwalUjianTable({
       </div>
 
       {/* Pagination */}
-      <div className="mt-4 flex justify-end text-xs">
+      <div className="mt-4 flex justify-end ">
         <Pagination>
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 aria-disabled={page === 1}
-                className={
-                  page === 1
-                    ? "pointer-events-none opacity-50 text-xs"
-                    : "text-xs"
-                }
+                className={page === 1 ? "pointer-events-none opacity-50 " : ""}
               />
             </PaginationItem>
             {Array.from({ length: totalPage }).map((_, i) => (
@@ -426,7 +424,7 @@ export default function JadwalUjianTable({
                 <PaginationLink
                   isActive={page === i + 1}
                   onClick={() => setPage(i + 1)}
-                  className="text-xs"
+                  className=""
                 >
                   {i + 1}
                 </PaginationLink>
@@ -437,9 +435,7 @@ export default function JadwalUjianTable({
                 onClick={() => setPage((p) => Math.min(totalPage, p + 1))}
                 aria-disabled={page === totalPage}
                 className={
-                  page === totalPage
-                    ? "pointer-events-none opacity-50 text-xs"
-                    : "text-xs"
+                  page === totalPage ? "pointer-events-none opacity-50 " : ""
                 }
               />
             </PaginationItem>
@@ -448,23 +444,21 @@ export default function JadwalUjianTable({
       </div>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-3xl p-6 max-h-[90vh] overflow-hidden text-xs">
+        <DialogContent className="sm:max-w-3xl p-6 max-h-[90vh] overflow-hidden ">
           <DialogHeader>
-            <DialogTitle className="font-semibold mb-2 text-xs">
+            <DialogTitle className="font-semibold mb-2">
               Tim Penguji
             </DialogTitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[65vh] pr-2 text-xs">
+          <ScrollArea className="max-h-[65vh] pr-2">
             {selected && (
-              <Table className="mb-4 text-xs">
-                <TableHeader className="bg-accent text-xs">
-                  <TableRow className="text-xs">
-                    <TableHead className="text-center w-10 text-xs">
-                      No
-                    </TableHead>
-                    <TableHead className="text-xs">Nama</TableHead>
-                    <TableHead className="text-xs">Jabatan</TableHead>
-                    <TableHead className="text-xs">Kehadiran</TableHead>
+              <Table className="mb-4">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-center w-10 ">No</TableHead>
+                    <TableHead className="">Nama</TableHead>
+                    <TableHead className="">Jabatan</TableHead>
+                    <TableHead className="text-center">Kehadiran</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -490,23 +484,19 @@ export default function JadwalUjianTable({
                       ? cekHadir(row.dosen.id)
                       : false;
                     return (
-                      <TableRow key={i} className="text-xs">
-                        <TableCell className="text-center text-xs">
-                          {i + 1}
-                        </TableCell>
-                        <TableCell className="text-xs">
-                          {row.dosen?.nama ?? "-"}
-                        </TableCell>
-                        <TableCell className="text-xs">{row.label}</TableCell>
-                        <TableCell className="text-xs">
+                      <TableRow key={i} className="">
+                        <TableCell className="text-center">{i + 1}</TableCell>
+                        <TableCell>{row.dosen?.nama ?? "-"}</TableCell>
+                        <TableCell>{row.label}</TableCell>
+                        <TableCell className="text-center">
                           {hadir ? (
-                            <span className="inline-block rounded-full bg-green-100 text-green-700 font-semibold text-xs px-3 py-1 border border-green-200">
+                            <Badge className="bg-green-100 text-green-700 border border-green-200 text-sm">
                               Hadir
-                            </span>
+                            </Badge>
                           ) : (
-                            <span className="inline-block rounded-full bg-gray-100 text-gray-500 font-semibold text-xs px-3 py-1 border border-gray-200">
+                            <Badge className="bg-gray-100 text-gray-500 border border-gray-200 text-sm">
                               -
-                            </span>
+                            </Badge>
                           )}
                         </TableCell>
                       </TableRow>
@@ -516,11 +506,11 @@ export default function JadwalUjianTable({
               </Table>
             )}
           </ScrollArea>
-          <div className="flex justify-end mt-5 text-xs">
+          <div className="flex justify-end mt-5 ">
             <Button
               variant="outline"
               onClick={() => setOpenDialog(false)}
-              className="border-gray-300 text-gray-700 hover:bg-gray-100 text-xs"
+              className="border-gray-300  hover:bg-gray-100 "
             >
               Tutup
             </Button>
@@ -530,108 +520,96 @@ export default function JadwalUjianTable({
 
       {/* Dialog Daftar Hadir */}
       <Dialog open={openDaftarHadir} onOpenChange={setOpenDaftarHadir}>
-        <DialogContent className="sm:max-w-lg p-6 text-xs">
+        <DialogContent className="sm:max-w-lg p-6 ">
           <DialogHeader>
-            <DialogTitle className="font-semibold mb-2 text-xs">
+            <DialogTitle className="font-semibold mb-2 ">
               Formulir Daftar Hadir Ujian Skripsi
             </DialogTitle>
           </DialogHeader>
           {selectedDaftarHadir && (
-            <div className="text-xs">
-              <div className="mb-4 text-xs">
+            <div className="">
+              <div className="mb-4 ">
                 <div>
-                  <span className="font-medium text-xs">Waktu</span>:{" "}
+                  <span className="font-medium ">Waktu</span>:{" "}
                   {(selectedDaftarHadir.waktuMulai?.slice(0, 5) || "-") +
                     " - " +
                     (selectedDaftarHadir.waktuSelesai?.slice(0, 5) || "-")}
                 </div>
                 <div>
-                  <span className="font-medium text-xs">Nama Mahasiswa</span>:{" "}
+                  <span className="font-medium ">Nama Mahasiswa</span>:{" "}
                   {selectedDaftarHadir.mahasiswa?.nama || "-"}
                 </div>
                 <div>
-                  <span className="font-medium text-xs">NIM</span>:{" "}
+                  <span className="font-medium ">NIM</span>:{" "}
                   {selectedDaftarHadir.mahasiswa?.nim || "-"}
                 </div>
                 <div>
-                  <span className="font-medium text-xs">Judul Skripsi</span>:{" "}
+                  <span className="font-medium ">Judul Skripsi</span>:{" "}
                   {selectedDaftarHadir.judulPenelitian || "-"}
                 </div>
               </div>
-              <div className="overflow-x-auto text-xs">
-                <table className="w-full border text-xs">
+              <div className="overflow-x-auto ">
+                <table className="w-full border ">
                   <thead>
-                    <tr className="bg-gray-100 text-xs">
-                      <th className="border px-2 py-1 text-xs">No.</th>
-                      <th className="border px-2 py-1 text-xs">Nama</th>
-                      <th className="border px-2 py-1 text-xs">NIP/NIDN</th>
-                      <th className="border px-2 py-1 text-xs">Jabatan</th>
-                      <th className="border px-2 py-1 text-xs">Kehadiran</th>
+                    <tr className="bg-gray-100 ">
+                      <th className="border px-2 py-1 ">No.</th>
+                      <th className="border px-2 py-1 ">Nama</th>
+                      <th className="border px-2 py-1 ">NIP/NIDN</th>
+                      <th className="border px-2 py-1 ">Jabatan</th>
+                      <th className="border px-2 py-1 ">Kehadiran</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="text-xs">
-                      <td className="border px-2 py-1 text-center text-xs">
-                        1.
-                      </td>
-                      <td className="border px-2 py-1 text-xs">
+                    <tr className="">
+                      <td className="border px-2 py-1 text-center ">1.</td>
+                      <td className="border px-2 py-1 ">
                         {selectedDaftarHadir.ketuaPenguji?.nama ?? "-"}
                       </td>
-                      <td className="border px-2 py-1 text-xs">
+                      <td className="border px-2 py-1 ">
                         {selectedDaftarHadir.ketuaPenguji?.nip ?? "-"}
                       </td>
-                      <td className="border px-2 py-1 text-xs">
-                        Ketua Penguji
-                      </td>
-                      <td className="border px-2 py-1 text-center text-xs">
-                        <span className="font-medium text-xs">-</span>
+                      <td className="border px-2 py-1 ">Ketua Penguji</td>
+                      <td className="border px-2 py-1 text-center ">
+                        <span className="font-medium ">-</span>
                       </td>
                     </tr>
-                    <tr className="text-xs">
-                      <td className="border px-2 py-1 text-center text-xs">
-                        2.
-                      </td>
-                      <td className="border px-2 py-1 text-xs">
+                    <tr className="">
+                      <td className="border px-2 py-1 text-center ">2.</td>
+                      <td className="border px-2 py-1 ">
                         {selectedDaftarHadir.sekretarisPenguji?.nama ?? "-"}
                       </td>
-                      <td className="border px-2 py-1 text-xs">
+                      <td className="border px-2 py-1 ">
                         {selectedDaftarHadir.sekretarisPenguji?.nip ?? "-"}
                       </td>
-                      <td className="border px-2 py-1 text-xs">
-                        Sekretaris Penguji
-                      </td>
-                      <td className="border px-2 py-1 text-center text-xs">
-                        <span className="font-medium text-xs">-</span>
+                      <td className="border px-2 py-1 ">Sekretaris Penguji</td>
+                      <td className="border px-2 py-1 text-center ">
+                        <span className="font-medium ">-</span>
                       </td>
                     </tr>
-                    <tr className="text-xs">
-                      <td className="border px-2 py-1 text-center text-xs">
-                        3.
-                      </td>
-                      <td className="border px-2 py-1 text-xs">
+                    <tr className="">
+                      <td className="border px-2 py-1 text-center ">3.</td>
+                      <td className="border px-2 py-1 ">
                         {selectedDaftarHadir.penguji1?.nama ?? "-"}
                       </td>
-                      <td className="border px-2 py-1 text-xs">
+                      <td className="border px-2 py-1 ">
                         {selectedDaftarHadir.penguji1?.nip ?? "-"}
                       </td>
-                      <td className="border px-2 py-1 text-xs">Penguji I</td>
-                      <td className="border px-2 py-1 text-center text-xs">
-                        <span className="font-medium text-xs">-</span>
+                      <td className="border px-2 py-1 ">Penguji I</td>
+                      <td className="border px-2 py-1 text-center ">
+                        <span className="font-medium ">-</span>
                       </td>
                     </tr>
-                    <tr className="text-xs">
-                      <td className="border px-2 py-1 text-center text-xs">
-                        4.
-                      </td>
-                      <td className="border px-2 py-1 text-xs">
+                    <tr className="">
+                      <td className="border px-2 py-1 text-center ">4.</td>
+                      <td className="border px-2 py-1 ">
                         {selectedDaftarHadir.penguji2?.nama ?? "-"}
                       </td>
-                      <td className="border px-2 py-1 text-xs">
+                      <td className="border px-2 py-1 ">
                         {selectedDaftarHadir.penguji2?.nip ?? "-"}
                       </td>
-                      <td className="border px-2 py-1 text-xs">Penguji II</td>
-                      <td className="border px-2 py-1 text-center text-xs">
-                        <span className="font-medium text-xs">-</span>
+                      <td className="border px-2 py-1 ">Penguji II</td>
+                      <td className="border px-2 py-1 text-center ">
+                        <span className="font-medium ">-</span>
                       </td>
                     </tr>
                   </tbody>
@@ -640,11 +618,11 @@ export default function JadwalUjianTable({
             </div>
           )}
 
-          <div className="flex justify-end mt-5 text-xs">
+          <div className="flex justify-end mt-5 ">
             <Button
               variant="outline"
               onClick={() => setOpenDaftarHadir(false)}
-              className="border-gray-300 text-gray-700 hover:bg-gray-100 text-xs"
+              className="border-gray-300  hover:bg-gray-100 "
             >
               Tutup
             </Button>

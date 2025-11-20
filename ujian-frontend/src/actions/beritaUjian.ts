@@ -64,7 +64,7 @@ export async function getBeritaUjianByLulus(prodiId: number | undefined) {
         const selesaiB = new Date(b.waktuSelesai).getTime();
         return selesaiB - selesaiA;
       });
-    console.log("Filtered Berita Ujian Data:", filteredData);
+    // ...existing code...
     return filteredData;
   } catch (error) {
     console.error("Error fetching ujian ujian by prodi:", error);

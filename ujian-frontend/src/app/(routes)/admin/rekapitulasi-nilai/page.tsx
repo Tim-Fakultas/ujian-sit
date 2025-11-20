@@ -1,6 +1,6 @@
 import { getBeritaUjianByLulus } from "@/actions/beritaUjian";
 import { getCurrentUserAction } from "@/actions/auth";
-import RekapitulasiNilaiTable from "@/components/sekprodi/rekapitulasi-nilai/rekapitulasiNilailTable";
+import RekapitulasiNilaiTable from "@/components/sekprodi/rekapitulasi-nilai/rekapitulasiNilaiTable";
 
 export default async function RekapitulasiNilaiPage() {
   const { user } = await getCurrentUserAction();

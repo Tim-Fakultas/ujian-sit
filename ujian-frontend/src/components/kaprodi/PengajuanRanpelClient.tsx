@@ -8,7 +8,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, Search, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Eye,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  MoreHorizontal,
+} from "lucide-react";
 import { formatDate, truncateTitle } from "@/lib/utils";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { useEffect, useState } from "react";
@@ -19,6 +25,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { ListFilter } from "lucide-react";
+import { Input } from "../ui/input";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Semua" },
@@ -123,22 +130,23 @@ export default function PengajuanTableClient({
   }
 
   return (
-    <>
+    <div className="bg-white p-6 dark:bg-[#1f1f1f] rounded-lg">
       {/* Filter Status & Search */}
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-4 my-6">
-        <div className="flex w-full md:w-auto gap-2 md:justify-end">
+      <div className="flex  items-center justify-between gap-4 mb-6">
+        <span className="text-lg font-semibold">Rancangan Penelitian</span>
+        <div className="flex w-full md:w-auto gap-2 md:justify-end ">
           {/* Search */}
-          <div className="relative w-full md:w-72">
+          <div className="relative w-full md:w-56">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
               <Search size={16} />
             </span>
-            <input
+            <Input
               type="text"
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full  rounded-md px-3 py-2 pl-9 text-sm "
             />
           </div>
           {/* Filter Status Popover */}
@@ -147,8 +155,7 @@ export default function PengajuanTableClient({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-4 flex items-center gap-2 border border-gray-200 rounded-lg text-xs font-normal shadow-none min-w-[110px] justify-between"
-                style={{ boxShadow: "0 1px 2px 0 rgba(16,24,40,.05)" }}
+                className="h-9 px-4 flex items-center gap-2  rounded-lg text-xs font-normal shadow-none min-w-[110px] justify-between"
               >
                 <span className="flex items-center gap-2">
                   <ListFilter size={15} />
@@ -159,24 +166,20 @@ export default function PengajuanTableClient({
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="w-44 p-0 rounded-md border border-gray-200 shadow"
+              className="w-44 p-0 rounded-md  shadow"
               sideOffset={8}
             >
               <div className="p-3">
-                <div className="font-semibold text-xs mb-2 text-gray-700">
-                  Status
-                </div>
+                <div className="font-semibold text-xs mb-2 ">Status</div>
                 <div className="flex flex-col gap-1">
                   {STATUS_OPTIONS.map((opt) => (
                     <Button
                       key={opt.value}
-                      variant={filterStatus === opt.value ? "default" : "ghost"}
+                      variant={
+                        filterStatus === opt.value ? "secondary" : "ghost"
+                      }
                       size="sm"
-                      className={`justify-start w-full text-xs rounded-md ${
-                        filterStatus === opt.value
-                          ? "bg-blue-100 text-blue-700 border-blue-400"
-                          : ""
-                      }`}
+                      className={`justify-start w-full text-xs rounded-md`}
                       onClick={() => setFilterStatus(opt.value)}
                     >
                       {opt.label}
@@ -189,8 +192,8 @@ export default function PengajuanTableClient({
         </div>
       </div>
 
-      <div className="overflow-x-auto border rounded-sm">
-        <Table >
+      <div className="overflow-x-auto border rounded-lg">
+        <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="text-center w-12">No</TableHead>
@@ -282,31 +285,49 @@ export default function PengajuanTableClient({
                   </TableCell>
                   <TableCell>
                     <span
-                      className={`px-2 py-1 rounded text-xs font-semibold shadow-sm ${
-                        pengajuan.status === "menunggu"
-                          ? "bg-yellow-100 text-yellow-800"
+                      className={
+                        `px-2 py-1 rounded text-xs font-semibold shadow-sm ` +
+                        (pengajuan.status === "menunggu"
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
                           : pengajuan.status === "diterima"
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                           : pengajuan.status === "diverifikasi"
-                          ? "bg-blue-100 text-blue-800"
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                           : pengajuan.status === "ditolak"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                          : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200")
+                      }
                     >
                       {pengajuan.status}
                     </span>
                   </TableCell>
                   <TableCell className="text-center">
-                    <Button
-                      onClick={() => handleLihatClick(pengajuan)}
-                      className="text-xs border-gray-300"
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Eye size={10} className="mr-1" />
-                      Preview
-                    </Button>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="" // border-gray-300 dihapus
+                        >
+                          <MoreHorizontal size={18} />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="end"
+                        className="w-32 p-2 rounded-md shadow" //  dihapus
+                        sideOffset={8}
+                      >
+                        <Button
+                          onClick={() => handleLihatClick(pengajuan)}
+                          variant="ghost"
+                          size="sm"
+                          className="w-full flex items-center gap-2 justify-start text-xs"
+                        >
+                          <Eye size={13} />
+                          Preview
+                        </Button>
+                      </PopoverContent>
+                    </Popover>
                   </TableCell>
                 </TableRow>
               ))
@@ -349,7 +370,7 @@ export default function PengajuanTableClient({
                 variant={page === item ? "default" : "outline"}
                 size="sm"
                 className={`border-gray-300 ${
-                  page === item ? "font-bold bg-primary text-white" : ""
+                  page === item ? "font-bold bg-primary " : ""
                 }`}
                 onClick={() => setPage(Number(item))}
               >
@@ -376,6 +397,6 @@ export default function PengajuanTableClient({
           pengajuan={selectedPengajuan}
         />
       )}
-    </>
+    </div>
   );
 }
