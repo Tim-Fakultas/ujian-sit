@@ -115,15 +115,15 @@ export default function BeritaAcaraUjianTable({
     if (!open) return null;
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in duration-200"
+        className="fixed inset-0 z-50 dark:bg-[#1f1f1f] flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={onClose}
       >
         <div
-          className={`bg-white w-full ${width} mx-4 rounded-xl shadow-xl border animate-in slide-in-from-bottom duration-200 overflow-y-auto max-h-[90vh]`}
+          className={`bg-white dark:bg-[#1f1f1f] w-full ${width} mx-4 rounded-xl shadow-xl border animate-in slide-in-from-bottom duration-200 overflow-y-auto max-h-[90vh]`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between p-4 border-b bg-gray-50 rounded-t-xl">
-            <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
+          <div className="flex items-center justify-between p-4 border-b bg-gray-50 rounded-t-xl dark:bg-[#1f1f1f]">
+            <h2 className="text-lg font-semibold dark:text-white">{title}</h2>
             <Button
               variant="ghost"
               size="icon"
@@ -352,13 +352,15 @@ export default function BeritaAcaraUjianTable({
                     {/* Status style for hasil */}
                     {ujian.hasil ? (
                       <span
-                        className={`px-2 py-1 rounded  font-semibold ${
-                          ujian.hasil.toLowerCase() === "lulus"
-                            ? "bg-green-100 text-green-700"
-                            : ujian.hasil.toLowerCase() === "tidak lulus"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-gray-100 "
-                        }`}
+                        className={`px-2 py-1 rounded font-semibold
+        ${
+          ujian.hasil.toLowerCase() === "lulus"
+            ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
+            : ujian.hasil.toLowerCase() === "tidak lulus"
+            ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
+            : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200"
+        }
+      `}
                       >
                         {ujian.hasil}
                       </span>
@@ -496,8 +498,8 @@ export default function BeritaAcaraUjianTable({
         title="Detail Berita Acara Ujian"
       >
         {selected && (
-          <div className="space-y-6">
-            <div className="bg-gray-50 border rounded-lg p-4  text-gray-800">
+          <div className="space-y-6 bg-white dark:bg-[#1f1f1f]">
+            <div className="bg-gray-50 dark:bg-[#232323] border rounded-lg p-4 dark:text-white">
               Pada hari{" "}
               <span className="font-semibold underline">
                 {selected.hariUjian ?? "Senin"}
@@ -518,26 +520,26 @@ export default function BeritaAcaraUjianTable({
             </div>
 
             {/* Info Mahasiswa */}
-            <div className="border rounded-lg p-4 space-y-2 bg-white">
+            <div className="border rounded-lg p-4 space-y-2 bg-white dark:bg-[#232323] dark:text-white">
               <div>
-                <span className=" text-gray-600">Nama Mahasiswa</span>
-                <p className="font-medium text-gray-900">
+                <span className=" ">Nama Mahasiswa</span>
+                <p className="font-medium ">
                   {selected.mahasiswa?.nama ?? "-"}
                 </p>
               </div>
               <div className="mt-2">
-                <span className=" text-gray-600">Judul Penelitian</span>
-                <p className="font-medium text-gray-900 leading-relaxed">
+                <span className=" ">Judul Penelitian</span>
+                <p className="font-medium  leading-relaxed">
                   {selected.judulPenelitian ?? "-"}
                 </p>
               </div>
             </div>
 
             {/* Kehadiran Penguji */}
-            <div className="border rounded-lg overflow-hidden bg-white">
+            <div className="border rounded-lg overflow-hidden bg-white dark:bg-[#232323]">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-100">
+                  <TableRow className="bg-sidebar-accent dark:bg-[#232323]">
                     <TableHead className="text-center w-10">No</TableHead>
                     <TableHead>Nama Dosen</TableHead>
                     <TableHead>Jabatan</TableHead>
@@ -555,13 +557,16 @@ export default function BeritaAcaraUjianTable({
                     { label: "Penguji II", dosen: selected.penguji2 },
                   ].map((row, i) => {
                     const status = getStatusHadir(row.dosen?.id);
-                    let color = "bg-gray-100 ";
+                    let color =
+                      "bg-gray-100 dark:bg-gray-800 dark:text-gray-200";
                     let text = "Tidak Hadir";
                     if (status === "hadir") {
-                      color = "bg-green-100 text-green-700";
+                      color =
+                        "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200";
                       text = "Hadir";
                     } else if (status === "izin") {
-                      color = "bg-yellow-100 text-yellow-700";
+                      color =
+                        "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200";
                       text = "Izin";
                     }
                     return (
@@ -571,7 +576,7 @@ export default function BeritaAcaraUjianTable({
                         <TableCell>{row.label}</TableCell>
                         <TableCell className="text-center">
                           <span
-                            className={`px-3 py-1  rounded-full font-medium ${color}`}
+                            className={`px-3 py-1 rounded-full font-medium ${color}`}
                           >
                             {text}
                           </span>
@@ -584,17 +589,19 @@ export default function BeritaAcaraUjianTable({
             </div>
 
             {/* Keputusan */}
-            <div className="border-t pt-4 text-gray-800 leading-relaxed">
+            <div className="border-t pt-4 text-gray-800 dark:text-gray-200 leading-relaxed">
               <span className="font-bold">MEMUTUSKAN:</span> Proposal saudara
               dinyatakan{" "}
               <span
-                className={`font-semibold underline px-2 py-1 rounded  ml-1 ${
-                  selected?.hasil?.toLowerCase() === "lulus"
-                    ? "bg-green-100 text-green-700"
-                    : selected?.hasil?.toLowerCase() === "tidak lulus"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-gray-100 "
-                }`}
+                className={`font-semibold underline px-2 py-1 rounded ml-1
+            ${
+              selected?.hasil?.toLowerCase() === "lulus"
+                ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
+                : selected?.hasil?.toLowerCase() === "tidak lulus"
+                ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
+                : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200"
+            }
+          `}
               >
                 {selected?.hasil?.toUpperCase() || "DITERIMA / DITOLAK"}
               </span>{" "}
@@ -622,7 +629,7 @@ export default function BeritaAcaraUjianTable({
         )}
       </Modal>
 
-      {/* ========== MODAL LAMPIRAN ========== */}
+      {/* Modal Lampiran */}
       <Modal
         open={openLampiran}
         onClose={() => setOpenLampiran(false)}
@@ -630,16 +637,16 @@ export default function BeritaAcaraUjianTable({
         width="max-w-4xl"
       >
         {selected && (
-          <div className="space-y-4 text-gray-800">
+          <div className="space-y-4 text-gray-800 dark:text-gray-200">
             <div className="mt-2 space-y-1 ">
               <p>
-                <span className="text-gray-600">Nama Mahasiswa :</span>{" "}
+                <span>Nama Mahasiswa :</span>{" "}
                 <span className="font-medium">
                   {selected.mahasiswa?.nama ?? "-"}
                 </span>
               </p>
               <p>
-                <span className="text-gray-600">NIM :</span>{" "}
+                <span>NIM :</span>{" "}
                 <span className="font-medium">
                   {selected.mahasiswa?.nim ?? "-"}
                 </span>
@@ -648,10 +655,10 @@ export default function BeritaAcaraUjianTable({
 
             <p className=" font-medium mt-4">Catatan/Daftar Revisi Penguji:</p>
 
-            <div className="overflow-x-auto border rounded-lg bg-white">
+            <div className="overflow-x-auto border rounded-lg bg-white dark:bg-[#232323]">
               <Table className="min-w-full">
-                <TableHeader>
-                  <TableRow className="bg-gray-100">
+                <TableHeader className="bg-sidebar-accent">
+                  <TableRow>
                     <TableHead className="border p-2 w-10 text-center">
                       No.
                     </TableHead>

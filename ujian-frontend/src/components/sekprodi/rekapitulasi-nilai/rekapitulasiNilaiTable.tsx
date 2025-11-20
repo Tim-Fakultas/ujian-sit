@@ -95,6 +95,16 @@ function hitungNilaiAkhir(ujianMhs: BeritaUjian[]) {
   return { total, detail };
 }
 
+// Helper: cek apakah mahasiswa sudah lulus semua ujian
+function sudahLulusSemua(ujianMhs: BeritaUjian[]) {
+  // Harus ada 3 jenis ujian dan semuanya hasil === "lulus"
+  return jenisList.every((jenis) =>
+    ujianMhs.some(
+      (u) => getJenisUjian(u) === jenis && u.hasil?.toLowerCase() === "lulus"
+    )
+  );
+}
+
 export default function RekapitulasiNilaiTable({ ujian }: Props) {
   const [selected, setSelected] = useState<{
     mhs: BeritaUjian["mahasiswa"];
@@ -138,17 +148,20 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
   // Filtered & sorted data
   const grouped = useMemo(() => groupByMahasiswa(ujian), [ujian]);
   const filteredData = useMemo(() => {
-    let data = grouped.filter((ujianMhs) => {
-      const nama = ujianMhs[0].mahasiswa.nama.toLowerCase();
-      const matchNama = nama.includes(filterNama.toLowerCase());
-      let matchJenis = true;
-      if (filterJenis !== "all") {
-        matchJenis = ujianMhs.some(
-          (u) => u.jenisUjian.namaJenis === filterJenis
-        );
-      }
-      return matchNama && matchJenis;
-    });
+    let data = grouped
+      // Filter: hanya tampilkan jika sudah lulus semua ujian
+      .filter((ujianMhs) => sudahLulusSemua(ujianMhs))
+      .filter((ujianMhs) => {
+        const nama = ujianMhs[0].mahasiswa.nama.toLowerCase();
+        const matchNama = nama.includes(filterNama.toLowerCase());
+        let matchJenis = true;
+        if (filterJenis !== "all") {
+          matchJenis = ujianMhs.some(
+            (u) => u.jenisUjian.namaJenis === filterJenis
+          );
+        }
+        return matchNama && matchJenis;
+      });
 
     // Sort by total nilai akhir
     data = [...data].sort((a, b) => {
@@ -169,7 +182,7 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
       {/* Search & Filter Bar */}
       <div className="flex items-center justify-between gap-2 mb-4">
         <h1 className="font-semibold text-lg">Rekapitulasi Nilai</h1>
-        
+
         <div className="flex gap-2 ">
           <div className="relative w-56">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">

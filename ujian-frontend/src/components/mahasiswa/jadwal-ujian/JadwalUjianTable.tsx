@@ -90,9 +90,46 @@ export default function JadwalUjianTable({
           >
             <X size={16} />
           </Button>
-          <CardContent className="p-0">{children}</CardContent>
+          <CardContent className="p-4">{children}</CardContent>
         </Card>
       </div>
+    );
+  }
+
+  const roleLabel = (peran: string) => {
+    switch (peran) {
+      case "ketua_penguji":
+        return "Ketua Penguji";
+      case "sekretaris_penguji":
+        return "Sekretaris Penguji";
+      case "penguji_1":
+        return "Penguji I";
+      case "penguji_2":
+        return "Penguji II";
+      default:
+        return peran;
+    }
+  };
+
+  function nilaiAkhirDosen(ujian: Ujian, dosenId: number) {
+    const items = penilaianData.filter((p) => p.dosenId === dosenId);
+    if (items.length === 0) return null;
+
+    let total = 0;
+    items.forEach((p) => {
+      total += (p.nilai * (p.komponenPenilaian?.bobot ?? 0)) / 100;
+    });
+    return Number(total.toFixed(2));
+  }
+
+  function getHadirStatus(ujian: Ujian, dosenId: number) {
+    return (
+      daftarHadir.find(
+        (d) =>
+          d.dosenId === dosenId &&
+          d.ujianId === ujian.id &&
+          d.statusKehadiran === "hadir"
+      ) !== undefined
     );
   }
 
@@ -151,56 +188,38 @@ export default function JadwalUjianTable({
     }
   }, [openRekapitulasi, selected?.id]);
 
+  // Tambahkan fungsi untuk styling badge status
+  function statusBadge(status: string) {
+    let color =
+      "bg-gray-100 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700";
+    if (status === "dijadwalkan")
+      color =
+        "bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-800";
+    else if (status === "menunggu")
+      color =
+        "bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-800";
+    else if (status === "diterima")
+      color =
+        "bg-green-100 text-green-700 border border-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-800";
+    else if (status === "selesai")
+      color =
+        "bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-800";
+    return (
+      <span
+        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${color}`}
+        style={{ minWidth: 80, textAlign: "center" }}
+      >
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  }
+
   return (
     <div className="bg-white dark:bg-[#1f1f1f] p-6 rounded-lg">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
         <span className="font-bold text-lg">Jadwal ujian</span>
         {/* Filter Bar */}
         <div className="flex flex-col md:flex-row md:items-center gap-3 ">
-          {/* Jadwal Filter: Popover */}
-          <Popover open={openJadwalFilter} onOpenChange={setOpenJadwalFilter}>
-            <PopoverTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                className="flex h-9 items-center  rounded-lg px-4 py-1 bg-white  hover:bg-gray-50  font-medium "
-              >
-                {filterJadwal === "all" ? "Semua Jadwal" : "Jadwal Saya"}
-                <ChevronDown size={16} className="ml-2" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-40 p-2 " align="start">
-              <div className="flex flex-col gap-1">
-                <Button
-                  variant={filterJadwal === "all" ? "secondary" : "ghost"}
-                  size="sm"
-                  className={`justify-start  ${
-                    filterJadwal === "all" ? "" : ""
-                  }`}
-                  onClick={() => {
-                    setFilterJadwal("all");
-                    setOpenJadwalFilter(false);
-                  }}
-                >
-                  Semua Jadwal
-                </Button>
-                <Button
-                  variant={filterJadwal === "mine" ? "secondary" : "ghost"}
-                  size="sm"
-                  className={`justify-start  ${
-                    filterJadwal === "mine" ? "" : ""
-                  }`}
-                  onClick={() => {
-                    setFilterJadwal("mine");
-                    setOpenJadwalFilter(false);
-                  }}
-                >
-                  Jadwal Saya
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-
           <div className="flex gap-2 w-full md:w-auto md:ml-auto justify-end">
             <div className="relative w-full max-w-xs">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -222,12 +241,11 @@ export default function JadwalUjianTable({
                   className="flex h-9 items-center border  rounded-lg px-4 py-1 bg-white  hover:bg-gray-50  font-medium "
                 >
                   <ListFilter size={16} className="mr-2" />
-                  Filters
+                  Jenis Ujian
                   <ChevronDown size={16} className="ml-2" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-48 p-2 " align="end">
-                <div className="font-semibold mb-2">Jenis Ujian</div>
                 <div className="flex flex-col gap-1">
                   <Button
                     variant={filterJenis === "all" ? "secondary" : "ghost"}
@@ -261,6 +279,49 @@ export default function JadwalUjianTable({
                 </div>
               </PopoverContent>
             </Popover>
+            {/* Jadwal Filter: Popover */}
+            <Popover open={openJadwalFilter} onOpenChange={setOpenJadwalFilter}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex h-9 items-center  rounded-lg px-4 py-1 bg-white  hover:bg-gray-50  font-medium "
+                >
+                  {filterJadwal === "all" ? "Semua Jadwal" : "Jadwal Saya"}
+                  <ChevronDown size={16} className="ml-2" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-40 p-2 " align="start">
+                <div className="flex flex-col gap-1">
+                  <Button
+                    variant={filterJadwal === "all" ? "secondary" : "ghost"}
+                    size="sm"
+                    className={`justify-start  ${
+                      filterJadwal === "all" ? "" : ""
+                    }`}
+                    onClick={() => {
+                      setFilterJadwal("all");
+                      setOpenJadwalFilter(false);
+                    }}
+                  >
+                    Semua Jadwal
+                  </Button>
+                  <Button
+                    variant={filterJadwal === "mine" ? "secondary" : "ghost"}
+                    size="sm"
+                    className={`justify-start  ${
+                      filterJadwal === "mine" ? "" : ""
+                    }`}
+                    onClick={() => {
+                      setFilterJadwal("mine");
+                      setOpenJadwalFilter(false);
+                    }}
+                  >
+                    Jadwal Saya
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </div>
@@ -274,6 +335,7 @@ export default function JadwalUjianTable({
               <TableHead>Jenis Ujian</TableHead>
               <TableHead>Ruangan</TableHead>
               <TableHead>Waktu</TableHead>
+              <TableHead className="text-center">Status</TableHead>
               <TableHead className="text-center">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -288,7 +350,7 @@ export default function JadwalUjianTable({
               paginatedData.map((ujian, idx) => (
                 <TableRow
                   key={ujian.id}
-                  className="hover:bg-gray-50 transition "
+                  className="hover:bg-gray-50  transition "
                 >
                   <TableCell className="text-center ">
                     {(page - 1) * pageSize + idx + 1}
@@ -323,6 +385,9 @@ export default function JadwalUjianTable({
                       </div>
                     </div>
                   </TableCell>
+                  <TableCell className="text-center">
+                    {statusBadge(ujian.pendaftaranUjian.status)}
+                  </TableCell>
 
                   <TableCell className="text-center ">
                     <DropdownMenu>
@@ -339,7 +404,7 @@ export default function JadwalUjianTable({
                       <DropdownMenuContent
                         align="end"
                         sideOffset={8}
-                        className="w-48 p-1 rounded-lg  shadow-lg"
+                        className="w-48 p-1 rounded-lg shadow-lg"
                       >
                         <DropdownMenuItem
                           onClick={() => {
@@ -365,204 +430,85 @@ export default function JadwalUjianTable({
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>
+
                     {/* Modal Rekapitulasi Nilai */}
                     <Modal
                       open={openRekapitulasi && selected?.id === ujian.id}
                       onClose={() => setOpenRekapitulasi(false)}
                       className="max-w-2xl w-full max-h-[85vh] overflow-y-auto"
                     >
-                      {(() => {
-                        // hitung penguji dan nilai di satu tempat
-                        const pengujiRows = [
-                          {
-                            no: 1,
-                            jabatan: "Ketua Penguji",
-                            dosen: ujian.ketuaPenguji,
-                          },
-                          {
-                            no: 2,
-                            jabatan: "Sekretaris Penguji",
-                            dosen: ujian.sekretarisPenguji,
-                          },
-                          {
-                            no: 3,
-                            jabatan: "Penguji I",
-                            dosen: ujian.penguji1,
-                          },
-                          {
-                            no: 4,
-                            jabatan: "Penguji II",
-                            dosen: ujian.penguji2,
-                          },
-                        ];
-                        function nilaiAkhirDosen(dosenId: number) {
-                          const penilaian = penilaianData.filter(
-                            (p) => p.dosenId === dosenId
-                          );
-                          if (penilaian.length === 0) return null;
-                          let total = 0;
-                          penilaian.forEach((p) => {
-                            total +=
-                              (p.nilai * (p.komponenPenilaian?.bobot ?? 0)) /
-                              100;
-                          });
-                          return Number(total.toFixed(2));
-                        }
-                        const nilaiList: number[] = [];
-                        pengujiRows.forEach((row) => {
-                          if (row.dosen?.id) {
-                            const n = nilaiAkhirDosen(row.dosen.id);
-                            if (n !== null) nilaiList.push(n);
-                          }
-                        });
-                        const totalNilai = nilaiList.reduce((a, b) => a + b, 0);
-                        const rata2 =
-                          nilaiList.length > 0
-                            ? totalNilai / nilaiList.length
+                      <div className="space-y-4">
+                        <div className="text-center">
+                          <h2 className="text-xl font-bold">
+                            Rekapitulasi Nilai {ujian.jenisUjian?.namaJenis}
+                          </h2>
+                        </div>
+
+                        {/* Tabel Rekap */}
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>No.</TableHead>
+                              <TableHead>Nama</TableHead>
+                              <TableHead>Jabatan</TableHead>
+                              <TableHead className="text-center">
+                                Nilai
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+
+                          <TableBody>
+                            {ujian.penguji.map((p, i) => {
+                              const label = roleLabel(p.peran);
+                              const nilai = nilaiAkhirDosen(ujian, p.id);
+
+                              return (
+                                <TableRow key={p.id}>
+                                  <TableCell>{i + 1}</TableCell>
+                                  <TableCell>{p.nama}</TableCell>
+                                  <TableCell>{label}</TableCell>
+                                  <TableCell className="text-center">
+                                    {nilai ?? "-"}
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+
+                        {/* Ringkasan */}
+                        {(() => {
+                          const nilaiList = ujian.penguji
+                            .map((p) => nilaiAkhirDosen(ujian, p.id))
+                            .filter((n) => n !== null) as number[];
+
+                          const total = nilaiList.reduce((a, b) => a + b, 0);
+                          const avg = nilaiList.length
+                            ? total / nilaiList.length
                             : 0;
-                        function nilaiHuruf(n: number) {
-                          if (n >= 80) return "A";
-                          if (n >= 70) return "B";
-                          if (n >= 60) return "C";
-                          if (n >= 50) return "D";
-                          return "E";
-                        }
 
-                        return (
-                          <div className="space-y-4">
-                            <div className="text-center">
-                              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                                Rekapitulasi Nilai {ujian.jenisUjian?.namaJenis}
-                              </h2>
-                              <div className="text-sm  mt-1">
-                                {ujian.hariUjian
-                                  ? ujian.hariUjian.charAt(0).toUpperCase() +
-                                    ujian.hariUjian.slice(1)
-                                  : "-"}{" "}
-                                / {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"} •{" "}
-                                {ujian.ruangan.namaRuangan ?? "-"}
+                          const huruf =
+                            avg >= 80
+                              ? "A"
+                              : avg >= 70
+                              ? "B"
+                              : avg >= 60
+                              ? "C"
+                              : avg >= 50
+                              ? "D"
+                              : "E";
+
+                          return (
+                            <div className="flex flex-col gap-2 text-right">
+                              <div>Total: {total.toFixed(2)}</div>
+                              <div>Rata-rata: {avg.toFixed(2)}</div>
+                              <div className="font-bold text-lg">
+                                Nilai Huruf: {huruf}
                               </div>
                             </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <div className="text-xs text-muted-foreground font-medium">
-                                  Mahasiswa
-                                </div>
-                                <div className="font-semibold">
-                                  {ujian.mahasiswa?.nama ?? "-"}
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-xs text-muted-foreground font-medium">
-                                  Jenis Ujian
-                                </div>
-                                <div className="font-semibold">
-                                  {ujian.jenisUjian?.namaJenis ?? "-"}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Tabel Rekap Nilai */}
-                            <div className="overflow-x-auto rounded-lg border border-muted">
-                              <Table className="min-w-[500px]">
-                                <TableHeader>
-                                  <TableRow className="bg-muted">
-                                    <TableHead className="w-12 text-center font-semibold border-r">
-                                      No.
-                                    </TableHead>
-                                    <TableHead className="font-semibold border-r">
-                                      Nama
-                                    </TableHead>
-                                    <TableHead className="font-semibold border-r">
-                                      Jabatan
-                                    </TableHead>
-                                    <TableHead className="font-semibold text-center">
-                                      Angka Nilai
-                                    </TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {pengujiRows.map((row, idx) => (
-                                    <TableRow
-                                      key={idx}
-                                      className="border-b last:border-b-0"
-                                    >
-                                      <TableCell className="text-center border-r w-12">
-                                        {row.no}
-                                      </TableCell>
-                                      <TableCell className="border-r">
-                                        {row.dosen?.nama ?? "-"}
-                                      </TableCell>
-                                      <TableCell className="border-r">
-                                        {row.jabatan}
-                                      </TableCell>
-                                      <TableCell className="text-center">
-                                        {row.dosen?.id
-                                          ? (() => {
-                                              const n = nilaiAkhirDosen(
-                                                row.dosen.id
-                                              );
-                                              return n !== null ? n : "-";
-                                            })()
-                                          : "-"}
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-
-                              {loadingPenilaian && (
-                                <div className="text-center py-4 text-gray-500">
-                                  Memuat data nilai...
-                                </div>
-                              )}
-                              {!loadingPenilaian &&
-                                penilaianData.length === 0 && (
-                                  <div className="text-center py-4 text-gray-500">
-                                    Belum ada data penilaian
-                                  </div>
-                                )}
-                            </div>
-
-                            {/* Ringkasan Nilai */}
-                            <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3">
-                              <div className="flex items-center gap-6">
-                                <div className="text-sm text-muted-foreground">
-                                  Total Angka
-                                </div>
-                                <div className="text-lg font-semibold">
-                                  {nilaiList.length > 0
-                                    ? totalNilai.toFixed(2)
-                                    : "-"}
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-6">
-                                <div className="text-sm text-muted-foreground">
-                                  Rata-rata
-                                </div>
-                                <div className="text-lg font-semibold">
-                                  {nilaiList.length > 0
-                                    ? rata2.toFixed(2)
-                                    : "-"}
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-3">
-                                <div className="text-sm text-muted-foreground">
-                                  Nilai Huruf
-                                </div>
-                                <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-600 text-white font-semibold">
-                                  {nilaiList.length > 0
-                                    ? nilaiHuruf(rata2)
-                                    : "-"}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })()}
+                          );
+                        })()}
+                      </div>
                     </Modal>
 
                     {/* Modal Daftar Hadir Ujian */}
@@ -571,94 +517,40 @@ export default function JadwalUjianTable({
                       onClose={() => setOpenDaftarHadir(false)}
                       className="max-w-4xl w-full max-h-[85vh] overflow-y-auto"
                     >
-                      <div className="mt-8 rounded-lg border border-muted">
-                        <Table className="w-full text-sm ">
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Nama</TableHead>
-                              <TableHead>NIP/NIDN</TableHead>
-                              <TableHead>Jabatan</TableHead>
-                              <TableHead className="text-center">
-                                Hadir
-                              </TableHead>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Nama</TableHead>
+                            <TableHead>NIP/NIDN</TableHead>
+                            <TableHead>Jabatan</TableHead>
+                            <TableHead className="text-center">
+                              Status
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {ujian.penguji.map((p) => (
+                            <TableRow key={p.id} className="text-left">
+                              <TableCell>{p.nama}</TableCell>
+                              <TableCell>
+                                {p.nip} / {p.nidn}
+                              </TableCell>
+                              <TableCell>{roleLabel(p.peran)}</TableCell>
+                              <TableCell className="text-center">
+                                {getHadirStatus(ujian, p.id) ? (
+                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-800">
+                                    Hadir
+                                  </span>
+                                ) : (
+                                  <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 dark:bg-red-900 dark:text-red-200 dark:border-red-800">
+                                    Tidak Hadir
+                                  </span>
+                                )}
+                              </TableCell>
                             </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {(() => {
-                              function getHadirStatus(dosenId?: number) {
-                                if (!dosenId) return false;
-                                return (
-                                  daftarHadir.find(
-                                    (d) =>
-                                      d.dosenId === dosenId &&
-                                      d.ujianId === ujian.id &&
-                                      d.statusKehadiran === "hadir"
-                                  ) !== undefined
-                                );
-                              }
-                              const pengujiRows = [
-                                {
-                                  no: 1,
-                                  nama: ujian.ketuaPenguji?.nama ?? "-",
-                                  nip: ujian.ketuaPenguji?.nip,
-                                  nidn: ujian.ketuaPenguji?.nidn,
-                                  jabatan: "Ketua Penguji",
-                                  dosenId: ujian.ketuaPenguji?.id,
-                                },
-                                {
-                                  no: 2,
-                                  nama: ujian.sekretarisPenguji?.nama ?? "-",
-                                  nip: ujian.sekretarisPenguji?.nip,
-                                  nidn: ujian.sekretarisPenguji?.nidn,
-                                  jabatan: "Sekretaris Penguji",
-                                  dosenId: ujian.sekretarisPenguji?.id,
-                                },
-                                {
-                                  no: 3,
-                                  nama: ujian.penguji1?.nama ?? "-",
-                                  nip: ujian.penguji1?.nip,
-                                  nidn: ujian.penguji1?.nidn,
-                                  jabatan: "Penguji I",
-                                  dosenId: ujian.penguji1?.id,
-                                },
-                                {
-                                  no: 4,
-                                  nama: ujian.penguji2?.nama ?? "-",
-                                  nip: ujian.penguji2?.nip,
-                                  nidn: ujian.penguji2?.nidn,
-                                  jabatan: "Penguji II",
-                                  dosenId: ujian.penguji2?.id,
-                                },
-                              ];
-                              return pengujiRows.map((row, idx) => (
-                                <TableRow key={idx}>
-                                  <TableCell className="text-left">
-                                    {row.nama}
-                                  </TableCell>
-                                  <TableCell className="text-left">
-                                    {row.nip ?? "-"}
-                                    {row.nidn ? ` / ${row.nidn}` : ""}
-                                  </TableCell>
-                                  <TableCell className="text-left">
-                                    {row.jabatan}
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    {getHadirStatus(row.dosenId) ? (
-                                      <span className="px-2 py-1 rounded bg-green-100 text-green-700  font-semibold">
-                                        Hadir
-                                      </span>
-                                    ) : (
-                                      <span className="px-2 py-1 rounded bg-red-100 text-red-700  font-semibold">
-                                        Tidak Hadir
-                                      </span>
-                                    )}
-                                  </TableCell>
-                                </TableRow>
-                              ));
-                            })()}
-                          </TableBody>
-                        </Table>
-                      </div>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </Modal>
                   </TableCell>
                 </TableRow>
@@ -667,6 +559,7 @@ export default function JadwalUjianTable({
           </TableBody>
         </Table>
       </div>
+
       {/* Pagination */}
       {totalPage > 1 && (
         <div className="mt-4 flex justify-end ">

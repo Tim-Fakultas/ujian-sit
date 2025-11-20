@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, useActionState, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useActionState,
+  useMemo,
+  useTransition,
+} from "react";
 import { getRuangan } from "@/actions/data-master/ruangan";
 
 import {
@@ -138,6 +144,8 @@ export default function PendaftaranUjianTable({
     message: "",
   });
 
+  const [isPending, startTransition] = useTransition();
+
   useEffect(() => {
     if (!state) return;
     (async () => {
@@ -255,7 +263,7 @@ export default function PendaftaranUjianTable({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-4 flex items-center gap-2 border border-gray-200 rounded-lg text-sm font-normal shadow-none min-w-[110px] justify-between"
+                className="h-9 px-4 flex items-center gap-2  rounded-lg text-sm font-normal shadow-none min-w-[110px] justify-between"
               >
                 <span className="flex items-center gap-2">
                   <ListFilter size={16} />
@@ -266,15 +274,14 @@ export default function PendaftaranUjianTable({
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="w-52 p-0 rounded-lg border border-gray-200 shadow"
+              className="w-52 p-0 rounded-lg  shadow"
               sideOffset={8}
             >
               <div className="p-4">
                 <div className="font-semibold text-xs mb-2 ">Jenis Ujian</div>
                 <div className="flex flex-col gap-1">
                   <Button
-                    type="button"
-                    variant={filterJenis === "all" ? "default" : "ghost"}
+                    variant={filterJenis === "all" ? "secondary" : "ghost"}
                     size="sm"
                     className={`justify-start w-full text-xs rounded-lg `}
                     onClick={() => setFilterJenis("all")}
@@ -346,7 +353,17 @@ export default function PendaftaranUjianTable({
                     <Badge
                       className={`px-2 py-1 text-xs font-semibold ${getJenisUjianColor(
                         u.jenisUjian.namaJenis
-                      )}`}
+                      )}
+                        ${
+                          u.jenisUjian.namaJenis === "Ujian Proposal"
+                            ? "dark:bg-yellow-900 dark:text-yellow-200"
+                            : u.jenisUjian.namaJenis === "Ujian Hasil"
+                            ? "dark:bg-blue-900 dark:text-blue-200"
+                            : u.jenisUjian.namaJenis === "Ujian Skripsi"
+                            ? "dark:bg-green-900 dark:text-green-200"
+                            : "dark:bg-gray-800 dark:text-gray-200"
+                        }
+                      `}
                     >
                       {u.jenisUjian.namaJenis}
                     </Badge>
@@ -355,7 +372,17 @@ export default function PendaftaranUjianTable({
                     <Badge
                       className={`px-2 py-1 text-xs ${getStatusColor(
                         u.pendaftaranUjian.status
-                      )}`}
+                      )} ${
+                        u.pendaftaranUjian.status === "menunggu"
+                          ? "dark:bg-yellow-900 dark:text-yellow-200"
+                          : u.pendaftaranUjian.status === "diterima"
+                          ? "dark:bg-emerald-900 dark:text-emerald-200"
+                          : u.pendaftaranUjian.status === "dijadwalkan"
+                          ? "dark:bg-indigo-900 dark:text-indigo-200"
+                          : u.pendaftaranUjian.status === "selesai"
+                          ? "dark:bg-gray-900 dark:text-gray-200"
+                          : "dark:bg-gray-800 dark:text-gray-200"
+                      }`}
                     >
                       {u.pendaftaranUjian.status}
                     </Badge>
@@ -523,7 +550,7 @@ export default function PendaftaranUjianTable({
           <div className="border-b my-2" />
           {selected && mahasiswaDetail && (
             <form
-              onSubmit={async (e) => {
+              onSubmit={(e) => {
                 e.preventDefault();
                 // Validasi client-side: penguji harus berbeda dan field wajib terisi
                 if (!penguji1 || !penguji2 || !ruangan) {
@@ -542,8 +569,10 @@ export default function PendaftaranUjianTable({
                 fd.set("penguji2", penguji2);
                 fd.set("ruanganId", ruangan);
 
-                // Panggil action
-                await formAction(fd);
+                // Panggil action di dalam startTransition
+                startTransition(() => {
+                  formAction(fd);
+                });
               }}
               className="space-y-4"
             >
@@ -559,19 +588,29 @@ export default function PendaftaranUjianTable({
                     type="text"
                     value={mahasiswaDetail.pembimbing1?.nama || ""}
                     disabled
-                    className=""
+                  />
+                  <input
+                    type="hidden"
+                    name="ketuaPenguji"
+                    value={String(mahasiswaDetail.pembimbing1?.id ?? "")}
                   />
                 </div>
+
                 <div>
                   <Label className="mb-2 block">Sekretaris Penguji</Label>
                   <Input
                     type="text"
                     value={mahasiswaDetail.pembimbing2?.nama || ""}
                     disabled
-                    className=""
+                  />
+                  <input
+                    type="hidden"
+                    name="sekretarisPenguji"
+                    value={String(mahasiswaDetail.pembimbing2?.id ?? "")}
                   />
                 </div>
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="mb-2 block">Tanggal Ujian</Label>

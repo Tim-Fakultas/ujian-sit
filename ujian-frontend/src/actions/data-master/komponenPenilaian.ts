@@ -18,11 +18,11 @@ export async function getKomponenPenilaianByUjianByPeran(
     );
 
     // Filter berdasarkan peran
-    if (peran === "Ketua Penguji" || peran === "Sekretaris Penguji") {
+    if (peran === "ketua_penguji" || peran === "sekretaris_penguji") {
       komponen = komponen.filter(
         (k) => k.namaKomponen !== "Sikap/Presentasi_2"
       );
-    } else if (peran === "Penguji 1" || peran === "Penguji 2") {
+    } else if (peran === "penguji_1" || peran === "penguji_2") {
       komponen = komponen.filter(
         (k) =>
           k.namaKomponen !== "Bimbingan" &&
