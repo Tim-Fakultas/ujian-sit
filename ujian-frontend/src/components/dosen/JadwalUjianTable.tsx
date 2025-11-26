@@ -142,17 +142,22 @@ export default function JadwalUjianTable({
     dosenId: number | undefined
   ): string | null {
     if (!Array.isArray(ujian.penguji) || !dosenId) return null;
+
     const found = ujian.penguji.find((p) => p.id === Number(dosenId));
     if (!found) return null;
-    return found.peran === "ketua_penguji"
-      ? "Ketua Penguji"
-      : found.peran === "sekretaris_penguji"
-      ? "Sekretaris Penguji"
-      : found.peran === "penguji_1"
-      ? "Penguji 1"
-      : found.peran === "penguji_2"
-      ? "Penguji 2"
-      : found.peran;
+
+    switch (found.peran) {
+      case "ketua_penguji":
+        return "Ketua Penguji";
+      case "sekretaris_penguji":
+        return "Sekretaris Penguji";
+      case "penguji_1":
+        return "Penguji 1";
+      case "penguji_2":
+        return "Penguji 2";
+      default:
+        return found.peran;
+    }
   }
 
   //* Filter & Pagination State
@@ -204,14 +209,28 @@ export default function JadwalUjianTable({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           data.forEach((item: any) => {
             // Tentukan jabatan dosen
+            const pengujiFound = selected.penguji.find(
+              (p) => p.id === item.dosenId
+            );
+
             let jabatan = "-";
-            if (selected.penguji.id === item.dosenId) jabatan = "Ketua Penguji";
-            else if (selected.penguji?.id === item.dosenId)
-              jabatan = "Sekretaris Penguji";
-            else if (selected.penguji.id === item.dosenId)
-              jabatan = "Penguji I";
-            else if (selected.penguji.id === item.dosenId)
-              jabatan = "Penguji II";
+            if (pengujiFound) {
+              switch (pengujiFound.peran) {
+                case "ketua_penguji":
+                  jabatan = "Ketua Penguji";
+                  break;
+                case "sekretaris_penguji":
+                  jabatan = "Sekretaris Penguji";
+                  break;
+                case "penguji_1":
+                  jabatan = "Penguji I";
+                  break;
+                case "penguji_2":
+                  jabatan = "Penguji II";
+                  break;
+              }
+            }
+
             // Hitung bobot * nilai / 100
             const bobot = item.komponenPenilaian?.bobot ?? 0;
             const nilai = item.nilai ?? 0;
@@ -819,8 +838,7 @@ export default function JadwalUjianTable({
                         open={openPenilaian && selected?.id === ujian.id}
                         onClose={() => setOpenPenilaian(false)}
                         ujian={ujian}
-                        penilaian={penilaian}
-                        setPenilaian={setPenilaian}
+                        currentDosenId={currentDosenId}
                       />
                     </TableCell>
                   </TableRow>

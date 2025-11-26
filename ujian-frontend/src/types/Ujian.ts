@@ -49,7 +49,7 @@ export interface Ujian {
     nip: string;
     nidn: string;
     peran: "ketua_penguji" | "sekretaris_penguji" | "penguji_1" | "penguji_2";
-  };
+  }[];
   hasil: string | null;
   nilaiAkhir: number | null;
   catatan: string | null;

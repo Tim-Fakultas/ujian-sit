@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -25,96 +26,76 @@ interface PenilaianModalProps {
   open: boolean;
   onClose: () => void;
   ujian: Ujian;
-  penilaian?: Record<string, number>;
-  setPenilaian?: (penilaian: Record<string, number>) => void;
+  currentDosenId?: number; // sangat penting
 }
 
 export default function PenilaianModal({
   open,
   onClose,
   ujian,
+  currentDosenId,
 }: PenilaianModalProps) {
   const [komponen, setKomponen] = useState<KomponenPenilaian[]>([]);
   const [nilai, setNilai] = useState<Record<number, number>>({});
   const [isSudahNilai, setIsSudahNilai] = useState(false);
 
+  // Ambil peran dosen dari pivot
+  const pengujiInfo = ujian?.penguji?.find(
+    (p) => p.id === Number(currentDosenId)
+  );
+
+  const peranPenguji = pengujiInfo?.peran; 
+  const dosenId = pengujiInfo?.id; 
+
   // Fetch komponen penilaian saat modal dibuka
   useEffect(() => {
-    if (ujian?.jenisUjian?.id && ujian?.peranPenguji) {
-      getKomponenPenilaianByUjianByPeran(
-        ujian.jenisUjian.id,
-        ujian.peranPenguji
-      ).then((data) => {
+    if (!ujian?.jenisUjian?.id || !peranPenguji) return;
+
+    getKomponenPenilaianByUjianByPeran(ujian.jenisUjian.id, peranPenguji).then(
+      (data) => {
         setKomponen(data ?? []);
         const init: Record<number, number> = {};
         (data ?? []).forEach((k) => (init[k.id] = 0));
         setNilai(init);
-      });
-    }
-  }, [ujian?.jenisUjian?.id, ujian?.peranPenguji]);
+      }
+    );
+  }, [ujian?.jenisUjian?.id, peranPenguji]);
 
   // Cek apakah dosen sudah memberikan nilai
   useEffect(() => {
-    async function cekSudahNilai() {
-      if (ujian?.id && ujian?.peranPenguji) {
-        const penilaian = await getPenilaianByUjianId(ujian.id);
-        let dosenId: number | undefined = undefined;
-        if (ujian.peranPenguji === "Ketua Penguji")
-          dosenId = ujian.ketuaPenguji?.id;
-        else if (ujian.peranPenguji === "Sekretaris Penguji")
-          dosenId = ujian.sekretarisPenguji?.id;
-        else if (ujian.peranPenguji === "Penguji 1")
-          dosenId = ujian.penguji1?.id;
-        else if (ujian.peranPenguji === "Penguji 2")
-          dosenId = ujian.penguji2?.id;
-
-        if (dosenId) {
-          const sudah = penilaian.some(
-            (p: { dosenId: number }) => p.dosenId === dosenId
-          );
-          setIsSudahNilai(sudah);
-        } else {
-          setIsSudahNilai(false);
-        }
-      } else {
+    async function cekSudah() {
+      if (!ujian?.id || !dosenId) {
         setIsSudahNilai(false);
+        return;
       }
-    }
-    cekSudahNilai();
-  }, [
-    ujian?.id,
-    ujian?.peranPenguji,
-    ujian?.ketuaPenguji,
-    ujian?.sekretarisPenguji,
-    ujian?.penguji1,
-    ujian?.penguji2,
-  ]);
 
-  // ✅ update skor secara dinamis
+      const data = await getPenilaianByUjianId(ujian.id);
+
+      const sudah = data.some(
+        (p: { dosenId: number }) => p.dosenId === Number(dosenId)
+      );
+
+      setIsSudahNilai(sudah);
+    }
+    cekSudah();
+  }, [ujian?.id, dosenId]);
+
+  // Update skor
   const handleNilaiChange = (id: number, val: number) => {
     setNilai((prev) => ({ ...prev, [id]: val }));
   };
 
-  // hitung bobot * skor
+  // Hitung bobot × skor
   const getBobotSkor = (id: number, bobot: number) =>
     ((nilai[id] ?? 0) * bobot) / 100;
 
-  // hitung total
   const totalSkor = komponen.reduce(
     (sum, k) => sum + getBobotSkor(k.id, k.bobot),
     0
   );
 
   // Server Action Submit
-  const submitPenilaianAction = async (_: unknown, formData: FormData) => {
-    let dosenId: number | undefined = undefined;
-    if (ujian.peranPenguji === "Ketua Penguji")
-      dosenId = ujian.ketuaPenguji?.id;
-    else if (ujian.peranPenguji === "Sekretaris Penguji")
-      dosenId = ujian.sekretarisPenguji?.id;
-    else if (ujian.peranPenguji === "Penguji 1") dosenId = ujian.penguji1?.id;
-    else if (ujian.peranPenguji === "Penguji 2") dosenId = ujian.penguji2?.id;
-
+  const submitPenilaianAction = async () => {
     if (!ujian.id || !dosenId) {
       return { error: "ID ujian atau dosen tidak ditemukan." };
     }
@@ -130,35 +111,27 @@ export default function PenilaianModal({
         dosenId,
         komponenNilai,
       });
+
       return { success: true };
-    } catch (err: unknown) {
-      return { error: (err as Error)?.message || "Gagal menyimpan penilaian" };
+    } catch (err: any) {
+      return { error: err.message || "Gagal menyimpan penilaian" };
     }
   };
 
-  const [state, formAction] = useActionState(
-    (prev: { success?: boolean; error?: string }, formData: FormData) =>
-      submitPenilaianAction(prev, formData),
-    { success: false, error: undefined }
-  );
+  const [state, formAction] = useActionState(submitPenilaianAction, {
+    success: false,
+    error: undefined,
+  });
 
   // Tutup modal jika sukses
   useEffect(() => {
-    if (state && state.success) {
-      // Cegah toast muncul terus-menerus dengan flag
-      let shown = false;
-      if (!shown) {
-        shown = true;
-        import("sonner").then(({ toast }) => {
-          toast.success("Penilaian berhasil disimpan!", {
-            description: "Data penilaian Anda telah berhasil disimpan.",
-          });
-        });
-        onClose();
-        revalidateAction("/dosen/jadwal-ujian");
-      }
+    if (state.success) {
+      import("sonner").then(({ toast }) =>
+        toast.success("Penilaian berhasil disimpan!")
+      );
+      onClose();
+      revalidateAction("/dosen/jadwal-ujian");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.success]);
 
   if (!open || !ujian) return null;
@@ -180,65 +153,46 @@ export default function PenilaianModal({
         >
           <X size={16} />
         </Button>
-        <h2 className="text-lg font-bold  mb-3 text-left">
-          Form Penilaian Ujian
-        </h2>
 
-        {/* Identitas Mahasiswa */}
+        <h2 className="text-lg font-bold mb-3">Form Penilaian Ujian</h2>
+
+        {/* Identitas */}
         <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
           <div>
-            <Label className="mb-1 text-xs">Nama Mahasiswa</Label>
-            <Input
-              value={ujian.mahasiswa?.nama ?? ""}
-              className="text-xs"
-              readOnly
-            />
+            <Label>Nama Mahasiswa</Label>
+            <Input value={ujian.mahasiswa?.nama ?? ""} readOnly />
           </div>
           <div>
-            <Label className="mb-1 text-xs">NIM</Label>
-            <Input
-              value={ujian.mahasiswa?.nim ?? ""}
-              className="text-xs"
-              readOnly
-            />
+            <Label>NIM</Label>
+            <Input value={ujian.mahasiswa?.nim ?? ""} readOnly />
           </div>
           <div>
-            <Label className="mb-1 text-xs">Prodi</Label>
-            <Input
-              value={ujian.mahasiswa?.prodi?.namaProdi ?? ""}
-              className="text-xs"
-              readOnly
-            />
+            <Label>Prodi</Label>
+            <Input value={ujian.mahasiswa?.prodi?.namaProdi ?? ""} readOnly />
           </div>
           <div>
-            <Label className="mb-1 text-xs">Peran Penguji</Label>
-            <Input
-              value={ujian.peranPenguji ?? ""}
-              className="text-xs"
-              readOnly
-            />
+            <Label>Peran Penguji</Label>
+            <Input value={pengujiInfo?.peran} readOnly />
           </div>
         </div>
-        {/* Pastikan seluruh text di dalam grid ini sudah text-xs */}
 
+        {/* Tabel Penilaian */}
         <form action={formAction}>
           <Table className="w-full text-sm border">
             <TableHeader>
               <TableRow>
-                <TableHead className="border px-2 py-1">Kriteria</TableHead>
-                <TableHead className="border px-2 py-1">Bobot (%)</TableHead>
-                <TableHead className="border px-2 py-1">Skor</TableHead>
-                <TableHead className="border px-2 py-1">Bobot × Skor</TableHead>
+                <TableHead>Kriteria</TableHead>
+                <TableHead>Bobot</TableHead>
+                <TableHead>Skor</TableHead>
+                <TableHead>Bobot × Skor</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {komponen.map((k) => (
                 <TableRow key={k.id}>
-                  <TableCell className="border px-2 py-1">
-                    {k.namaKomponen}
-                  </TableCell>
-                  <TableCell className="border px-2 py-1">{k.bobot}</TableCell>
-                  <TableCell className="border px-2 py-1">
+                  <TableCell>{k.namaKomponen}</TableCell>
+                  <TableCell>{k.bobot}</TableCell>
+                  <TableCell>
                     <Input
                       type="number"
                       min={0}
@@ -247,37 +201,20 @@ export default function PenilaianModal({
                       onChange={(e) =>
                         handleNilaiChange(k.id, Number(e.target.value))
                       }
-                      onFocus={(e) => {
-                        if (Number(e.target.value) === 0) e.target.value = "";
-                      }}
-                      onBlur={(e) => {
-                        if (e.target.value === "") {
-                          e.target.value = "0";
-                          handleNilaiChange(k.id, 0);
-                        }
-                      }}
                       className="w-16 text-center"
                     />
                   </TableCell>
-                  <TableCell className="border px-2 py-1 text-right">
+                  <TableCell>
                     {getBobotSkor(k.id, k.bobot).toFixed(2)}
                   </TableCell>
                 </TableRow>
               ))}
-              <TableRow className="font-bold bg-sidebar-accent">
-                <TableCell className="border px-2 py-1">Skor Akhir</TableCell>
-                <TableCell className="border px-2 py-1">Total</TableCell>
-                <TableCell className="border px-2 py-1"></TableCell>
-                <TableCell className="border px-2 py-1 text-right text-blue-400">
-                  {totalSkor.toFixed(2)}
-                </TableCell>
-              </TableRow>
             </TableBody>
           </Table>
 
           <Button
             type="submit"
-            className="w-full mt-4 bg-blue-400 hover:bg-blue-500 text-white"
+            className="w-full mt-4 bg-blue-500 text-white"
             disabled={isSudahNilai}
           >
             Simpan Penilaian
@@ -285,44 +222,15 @@ export default function PenilaianModal({
 
           {isSudahNilai && (
             <p className="text-xs text-red-600 mt-2 text-center">
-              Anda sudah memberikan penilaian untuk ujian ini.
+              Anda sudah memberikan penilaian.
             </p>
           )}
 
-          {state?.error && (
-            <p className="text-red-600 text-sm mt-2">{state.error}</p>
+          {state.error && (
+            <p className="text-red-600 text-sm mt-2 text-center">
+              {state.error}
+            </p>
           )}
-
-          {/* Catatan interval nilai */}
-          <div className="mt-5 text-sm border rounded p-3 bg-gray-50 dark:bg-[#2a2a2a]">
-            <strong className="block text-center mb-2">
-              Catatan Interval Nilai:
-            </strong>
-            <Table className="mt-2 w-full">
-              <TableBody>
-                <TableRow>
-                  <TableCell className="pr-2 text-left w-1/4">A</TableCell>
-                  <TableCell className="text-left">: 80.00 – 100</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="pr-2 text-left w-1/4">B</TableCell>
-                  <TableCell className="text-left">: 70.00 – 79.99</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="pr-2 text-left w-1/4">C</TableCell>
-                  <TableCell className="text-left">: 60.00 – 69.99</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="pr-2 text-left w-1/4">D</TableCell>
-                  <TableCell className="text-left">: 56.00 – 59.99</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="pr-2 text-left w-1/4">E</TableCell>
-                  <TableCell className="text-left">: {"<"} 55.99</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
         </form>
       </div>
     </div>

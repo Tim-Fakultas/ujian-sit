@@ -34,9 +34,7 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
 
 export async function getJadwalUjianByProdi(prodiId: number) {
   try {
-    const response = await fetch(`http://localhost:8000/api/ujian`, {
-      next: { tags: ["jadwalUjian"], revalidate: 60 }, // cache 1 menit, tag untuk invalidation
-    });
+    const response = await fetch(`http://localhost:8000/api/ujian`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch ujian ujian by prodi");
@@ -74,20 +72,28 @@ export async function getJadwalUjianByProdiByDosen({
     const data: UjianResponse = await response.json();
     if (!data?.data?.length) return [];
 
-    // 🔧 Pastikan semua ID jadi number agar tidak gagal dibandingkan
     const filteredData = data.data
       .filter((ujian) => {
         const prodiMatch =
           Number(ujian.mahasiswa?.prodi?.id) === Number(prodiId);
+
         const statusMatch = ujian.pendaftaranUjian?.status === "dijadwalkan";
-        // Filter hanya penguji yang dosenId-nya sesuai
-        const dosenMatch = Number(ujian.penguji?.id) === Number(dosenId);
-        return prodiMatch && statusMatch && dosenMatch;
+
+        // 🔥 CARI penguji yang perannya cocok dengan dosen ini
+        const pengujiFound = ujian.penguji?.find(
+          (p) => Number(p.id) === Number(dosenId)
+        );
+
+        return prodiMatch && statusMatch && pengujiFound;
       })
       .map((ujian) => {
-        let peran: string | null = null;
-        // Sesuaikan dengan tipe peran di Ujian.ts
-        switch (ujian.penguji?.peran) {
+        // ketahui peran spesifik dosen tersebut
+        const pengujiFound = ujian.penguji.find(
+          (p) => Number(p.id) === Number(dosenId)
+        );
+
+        let peran = null;
+        switch (pengujiFound?.peran) {
           case "ketua_penguji":
             peran = "Ketua Penguji";
             break;
@@ -103,9 +109,9 @@ export async function getJadwalUjianByProdiByDosen({
           default:
             peran = null;
         }
+
         return { ...ujian, peranPenguji: peran };
       })
-      // 🚀 tampilkan hanya ujian yang memang relevan dengan dosen tsb
       .filter((ujian) => ujian.peranPenguji !== null);
 
     return filteredData;
@@ -120,55 +126,61 @@ const JadwalUjianSchema = z.object({
   waktuMulai: z.string().nonempty("Waktu mulai wajib diisi"),
   waktuSelesai: z.string().nonempty("Waktu selesai wajib diisi"),
   ruanganId: z.coerce.number().min(1, "Ruangan wajib diisi"),
-  penguji1: z.coerce.number().min(1, "Dosen penguji 1 wajib diisi"),
-  penguji2: z.coerce.number().min(1, "Dosen penguji 2 wajib diisi"),
+
+  ketuaPenguji: z.coerce.number().min(1, "Ketua penguji wajib diisi"),
+  sekretarisPenguji: z.coerce.number().min(1, "Sekretaris penguji wajib diisi"),
+  penguji1: z.coerce.number().min(1, "Penguji 1 wajib diisi"),
+  penguji2: z.coerce.number().min(1, "Penguji 2 wajib diisi"),
 });
 
 export async function jadwalkanUjianAction(formData: FormData) {
   try {
     const rawData = Object.fromEntries(formData.entries());
     const parsed = JadwalUjianSchema.safeParse(rawData);
+
     if (!parsed.success) {
-      const firstError =
+      const first =
         Object.values(parsed.error.flatten().fieldErrors).flat()[0] ||
         "Form tidak valid";
-      throw new Error(firstError);
+      throw new Error(first);
     }
 
     const {
       jadwalUjian,
-      ruanganId,
       waktuMulai,
       waktuSelesai,
+      ruanganId,
+      ketuaPenguji,
+      sekretarisPenguji,
       penguji1,
       penguji2,
     } = parsed.data;
 
-    // Validasi agar tidak NaN
     const ruanganIdNum = Number(ruanganId);
-    const penguji1Num = Number(penguji1);
-    const penguji2Num = Number(penguji2);
-
-    if (
-      isNaN(ruanganIdNum) ||
-      isNaN(penguji1Num) ||
-      isNaN(penguji2Num) ||
-      ruanganIdNum < 1 ||
-      penguji1Num < 1 ||
-      penguji2Num < 1
-    ) {
-      throw new Error(
-        "Input tidak valid: pastikan ruangan dan dosen penguji dipilih."
-      );
-    }
 
     const ujianId = formData.get("ujianId");
+    if (!ujianId) throw new Error("ID ujian tidak ditemukan.");
+
+    // Ambil token
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) throw new Error("Token tidak ditemukan. Silakan login ulang.");
 
-    if (!token) {
-      throw new Error("Token tidak ditemukan. Silakan login ulang.");
-    }
+    // ==========================
+    // PENGIRIMAN FORMAT BARU 🔥
+    // ==========================
+    const payload = {
+      jadwalUjian,
+      waktuMulai,
+      waktuSelesai,
+      ruanganId: ruanganIdNum,
+      penguji: [
+        { peran: "ketua_penguji", dosenId: Number(ketuaPenguji) },
+        { peran: "sekretaris_penguji", dosenId: Number(sekretarisPenguji) },
+        { peran: "penguji_1", dosenId: Number(penguji1) },
+        { peran: "penguji_2", dosenId: Number(penguji2) },
+      ],
+    };
 
     const res = await fetch(`http://localhost:8000/api/ujian/${ujianId}`, {
       method: "PATCH",
@@ -177,16 +189,10 @@ export async function jadwalkanUjianAction(formData: FormData) {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        jadwalUjian,
-        ruanganId: ruanganIdNum,
-        waktuMulai,
-        waktuSelesai,
-        penguji1: penguji1Num,
-        penguji2: penguji2Num,
-      }),
+      body: JSON.stringify(payload),
     });
 
+    // Error handler
     if (!res.ok) {
       const text = await res.text();
       try {
@@ -204,11 +210,11 @@ export async function jadwalkanUjianAction(formData: FormData) {
         throw new Error("Gagal menjadwalkan ujian: " + text);
       }
     }
+
     revalidateTag("jadwalUjian");
 
     return { success: true };
   } catch (err: unknown) {
-    console.error("❌ Error jadwalkan ujian:", err);
     return {
       success: false,
       message: err instanceof Error ? err.message : "Gagal menjadwalkan ujian",
