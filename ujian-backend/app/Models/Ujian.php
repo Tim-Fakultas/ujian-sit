@@ -21,6 +21,7 @@ class Ujian extends Model
         'waktu_mulai',
         'waktu_selesai',
         'ruangan_id',
+        'keputusan_id',
         'hasil',
         'nilai_akhir',
         'catatan',
@@ -100,6 +101,11 @@ class Ujian extends Model
     public function daftarKehadiran()
     {
         return $this->hasMany(DaftarKehadiran::class, 'ujian_id');
+    }
+
+    public function keputusan()
+    {
+        return $this->belongsTo(Keputusan::class, 'keputusan_id');
     }
 
     public function hitungNilaiAkhir()

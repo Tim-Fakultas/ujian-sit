@@ -85,7 +85,7 @@ class StoreUjianRequest extends FormRequest
             ],
             'keputusan' => [
                 'nullable',
-                'in:Dapat diterima tanpa perbaikan,Dapat diterima dengan perbaikan kecil,Dapat diterima dengan perbaikan besar,Belum dapat diterima',
+                'exists:keputusan,id',
                 function ($attribute, $value, $fail) {
                     if ($value) {
                         $jenisUjian = \App\Models\JenisUjian::find($this->jenisUjianId);
@@ -93,7 +93,7 @@ class StoreUjianRequest extends FormRequest
                             $fail('Keputusan hanya bisa diisi untuk ujian hasil dan ujian skripsi.');
                         }
                     }
-                },
+                }
             ],
             'catatan' => 'nullable|string',
         ];
