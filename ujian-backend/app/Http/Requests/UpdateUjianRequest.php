@@ -70,16 +70,18 @@ class UpdateUjianRequest extends FormRequest
             ],
 
             // Keputusan (hanya untuk ujian hasil / skripsi)
-            'keputusan' => [
+            'keputusanId' => [
                 'sometimes', 'nullable',
-                'in:Dapat diterima tanpa perbaikan,Dapat diterima dengan perbaikan kecil,Dapat diterima dengan perbaikan besar,Belum dapat diterima',
+                'exists:keputusan,id',
                 function ($attribute, $value, $fail) {
                     // Hindari error jika relasi tidak dimuat
                     $jenisUjian = optional($this->ujian->jenisUjian)->nama_jenis;
-                    if ($value && !in_array(strtolower($jenisUjian ?? ''), ['ujian hasil', 'ujian skripsi'])) {
-                        $fail('Keputusan hanya bisa diisi untuk ujian hasil dan ujian skripsi.');
+                    if ($value) {
+                        if (!in_array(strtolower($jenisUjian), ['ujian hasil', 'ujian skripsi'])) {
+                            $fail('Keputusan hanya bisa diisi untuk ujian hasil dan ujian skripsi.');
+                        }
                     }
-                },
+                }
             ],
 
             'catatan' => 'sometimes|nullable|string',
@@ -139,6 +141,7 @@ class UpdateUjianRequest extends FormRequest
             'sekretaris_penguji' => $this->input('sekretarisPenguji'),
             'penguji_1' => $this->input('penguji1'),
             'penguji_2' => $this->input('penguji2'),
+            'keputusan_id' => $this->input('keputusanId'),
             'nilai_akhir' => $this->input('nilaiAkhir'),
         ];
 

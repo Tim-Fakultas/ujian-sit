@@ -75,7 +75,11 @@ class UjianResource extends JsonResource
             }),
             'hasil' => $this->hasil,
             'nilaiAkhir' => $this->nilai_akhir,
-            'keputusan' => in_array(strtolower($this->jenisUjian?->nama_jenis), ['ujian hasil', 'ujian skripsi']) ? $this->keputusan : null,
+            'keputusan' => $this->keputusan ? [
+                'id' => $this->keputusan->id,
+                'kode' => $this->keputusan->kode,
+                'namaKeputusan' => $this->keputusan->nama_keputusan,
+            ] : null,
             'catatan' => $this->catatan,
         ];
     }

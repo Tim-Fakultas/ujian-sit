@@ -326,6 +326,9 @@ class DatabaseSeeder extends Seeder
         // Create some PendaftaranUjian (exam registrations)
         $this->call(PendaftaranUjianSeeder::class);
 
+        //keputusan
+        $this->call(KeputusanSeeder::class);
+
         // // Create some Ujian (exams)
         $this->call(UjianSeeder::class);
 
@@ -373,8 +376,8 @@ class DatabaseSeeder extends Seeder
 
 
         try {
-            Artisan::call('import:ujian-proposal', [
-            'file' => storage_path('app/public/Data_mhs_ujian_proposal.xlsx')
+            Artisan::call('import:ujian-skripsi', [
+            'file' => storage_path('app/public/Data_mhs_ujian_skripsi.xlsx')
             ]);
             $this->command->info('Command import:ujian-skripsi telah dijalankan.');
         } catch (Exception $ex) {

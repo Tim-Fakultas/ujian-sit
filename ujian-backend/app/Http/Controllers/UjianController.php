@@ -20,7 +20,9 @@ class UjianController extends Controller
             'mahasiswa',
             'penilaian',
             'ruangan',
-            'penguji'])
+            'penguji',
+            'keputusan',
+            ])
         ->get();
 
         return UjianResource::collection($ujian);
@@ -77,6 +79,7 @@ class UjianController extends Controller
                 'waktu_selesai',
                 'ruangan_id',
                 'hasil',
+                'keputusan_id',
                 'nilai_akhir',
                 'catatan',
             ]),
