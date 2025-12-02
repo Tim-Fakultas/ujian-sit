@@ -1,8 +1,9 @@
 import { Dosen, DosenResponse } from "@/types/Dosen";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function getDosen(prodiId: number | undefined) {
   try {
-    const response = await fetch(`http://localhost:8000/api/dosen`, {
+    const response = await fetch(`${apiUrl}/dosen`, {
       next: { revalidate: 60 },
     });
 

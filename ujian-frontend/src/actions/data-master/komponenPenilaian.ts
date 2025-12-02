@@ -3,12 +3,13 @@ import {
   KomponenPenilaianResponse,
 } from "@/types/KomponenPenilaian";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function getKomponenPenilaianByUjianByPeran(
   jenisUjianId: number,
   peran: string
 ): Promise<KomponenPenilaian[]> {
   try {
-    const res = await fetch("http://localhost:8000/api/komponen-penilaian", {
+    const res = await fetch(`${apiUrl}/komponen-penilaian`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) throw new Error("Gagal fetch komponen penilaian");

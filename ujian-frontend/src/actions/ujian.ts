@@ -1,8 +1,9 @@
 import { UjianResponse } from "@/types/Ujian";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function getJadwalUjianByMahasiswaIdByHasil(mahasiswaId: number) {
   try {
-    const response = await fetch(`http://localhost:8000/api/ujian`, {
+    const response = await fetch(`${apiUrl}/ujian`, {
       cache: "no-store",
     });
 

@@ -1,6 +1,7 @@
 "use server";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function setHadirUjian(dosenId: number, ujianId: number) {
-  const res = await fetch(`http://localhost:8000/api/daftar-hadir`, {
+  const res = await fetch(`${apiUrl}/daftar-hadir`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -21,7 +22,7 @@ export async function setHadirUjian(dosenId: number, ujianId: number) {
 }
 
 export async function getHadirUjian() {
-  const res = await fetch("http://localhost:8000/api/daftar-hadir", {
+  const res = await fetch(`${apiUrl}/daftar-hadir`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",

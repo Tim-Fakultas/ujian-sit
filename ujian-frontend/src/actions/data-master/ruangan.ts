@@ -1,6 +1,7 @@
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function getRuangan() {
   try {
-    const res = await fetch("http://localhost:8000/api/ruangan", {
+    const res = await fetch(`${apiUrl}/ruangan`, {
       headers: {
         Accept: "application/json",
       },

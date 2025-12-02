@@ -1,8 +1,9 @@
 import { getCurrentUserAction } from "@/actions/auth";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 async function getTotalDosenByProdi(prodiId?: number) {
   const res = await fetch(
-    `http://localhost:8000/api/dosen?prodiId=${prodiId}`,
+    `${apiUrl}/dosen?prodiId=${prodiId}`,
     { cache: "no-store" }
   );
   if (!res.ok) return 0;
@@ -12,7 +13,7 @@ async function getTotalDosenByProdi(prodiId?: number) {
 
 async function getTotalMahasiswaByProdi(prodiId?: number) {
   const res = await fetch(
-    `http://localhost:8000/api/mahasiswa?prodiId=${prodiId}`,
+    `${apiUrl}/mahasiswa?prodiId=${prodiId}`,
     { cache: "no-store" }
   );
   if (!res.ok) return { aktif: 0 };
@@ -26,7 +27,7 @@ async function getTotalMahasiswaByProdi(prodiId?: number) {
 
 async function getTotalPendaftaranUjianByProdi(prodiId?: number) {
   const res = await fetch(
-    `http://localhost:8000/api/pendaftaran-ujian?prodiId=${prodiId}`,
+    `${apiUrl}/pendaftaran-ujian?prodiId=${prodiId}`,
     { cache: "no-store" }
   );
   if (!res.ok) return 0;

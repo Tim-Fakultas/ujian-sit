@@ -1,4 +1,5 @@
 "use server";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function postPenilaian(data: {
   ujianId: number;
   dosenId: number;
@@ -13,7 +14,7 @@ export async function postPenilaian(data: {
       nilai: k.nilai,
     })),
   };
-  const response = await fetch("http://localhost:8000/api/penilaian", {
+  const response = await fetch(`${apiUrl}/penilaian`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -39,7 +40,7 @@ export async function postPenilaian(data: {
 
 export async function getPenilaianByUjianId(ujianId: number) {
   try {
-    const response = await fetch(`http://localhost:8000/api/penilaian`, {
+    const response = await fetch(`${apiUrl}/penilaian`, {
       cache: "no-store",
     });
 

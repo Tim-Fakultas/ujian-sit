@@ -2,13 +2,14 @@
 
 import { RancanganPenelitian } from "@/types/RancanganPenelitian";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function createRancanganPenelitian(
   mahasiswaId: number,
   data: RancanganPenelitian
 ) {
   try {
     const response = await fetch(
-      `http://localhost:8000/api/mahasiswa/${mahasiswaId}/ranpel`,
+      `${apiUrl}/mahasiswa/${mahasiswaId}/ranpel`,
       {
         method: "POST",
         headers: {

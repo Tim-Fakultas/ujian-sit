@@ -5,9 +5,11 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import { revalidateTag } from "next/cache";
 
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
   try {
-    const response = await fetch(`http://localhost:8000/api/ujian`, {
+    const response = await fetch(`${apiUrl}/ujian`, {
       next: { tags: ["jadwalUjian"], revalidate: 60 },
     });
 
@@ -34,7 +36,7 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
 
 export async function getJadwalUjianByProdi(prodiId: number) {
   try {
-    const response = await fetch(`http://localhost:8000/api/ujian`);
+    const response = await fetch(`${apiUrl}/ujian`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch ujian ujian by prodi");
@@ -61,7 +63,7 @@ export async function getJadwalUjianByProdiByDosen({
   dosenId: number | undefined;
 }) {
   try {
-    const response = await fetch(`http://localhost:8000/api/ujian`, {
+    const response = await fetch(`${apiUrl}/ujian`, {
       cache: "no-store",
     });
 
@@ -182,7 +184,7 @@ export async function jadwalkanUjianAction(formData: FormData) {
       ],
     };
 
-    const res = await fetch(`http://localhost:8000/api/ujian/${ujianId}`, {
+    const res = await fetch(`${apiUrl}/ujian/${ujianId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
