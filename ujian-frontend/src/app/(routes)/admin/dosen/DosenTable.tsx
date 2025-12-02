@@ -1,224 +1,165 @@
 "use client";
+
+import * as React from "react";
 import {
-  Table,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableHeader,
-} from "@/components/ui/table";
-import { Dosen } from "@/types/Dosen";
-import { Search } from "lucide-react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+  ColumnDef,
+  ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+
 import { Input } from "@/components/ui/input";
-import { useState, useMemo } from "react";
+
+import { Dosen } from "@/types/Dosen";
 import { User } from "@/types/Auth";
+import TableGlobal from "@/components/tableGlobal";
 
 interface DosenTableProps {
   dosen: Dosen[];
-  user: User;
+  user?: User | null;
 }
 
-export default function DosenTable({ dosen, user }: DosenTableProps) {
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const pageSize = 10;
+export function DosenTable({ dosen }: DosenTableProps) {
+  // data berasal dari props `dosen`
+  const data = React.useMemo(() => dosen ?? [], [dosen]);
 
-  const filteredData = useMemo(() => {
-    const q = search.toLowerCase();
-    return dosen.filter(
-      (d) =>
-        d.nama.toLowerCase().includes(q) ||
-        d.nidn?.toLowerCase().includes(q) ||
-        d.nip?.toLowerCase().includes(q) ||
-        d.prodi?.nama?.toLowerCase().includes(q)
-    );
-  }, [dosen, search]);
+  // global search state (nama, nidn, nip, prodi)
+  const [search, setSearch] = React.useState("");
 
-  const totalPage = Math.ceil(filteredData.length / pageSize);
-
-  const paginatedData = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredData.slice(start, start + pageSize);
-  }, [filteredData, page, pageSize]);
-
-  function renderPagination() {
-    if (totalPage <= 1) return null;
-    const maxShown = 5;
-    let start = Math.max(1, page - 2);
-    let end = Math.min(totalPage, page + 2);
-
-    if (end - start < maxShown - 1) {
-      if (start === 1) {
-        end = Math.min(totalPage, start + maxShown - 1);
-      } else if (end === totalPage) {
-        start = Math.max(1, end - maxShown + 1);
-      }
-    }
-
-    const items = [];
-
-    if (start > 1) {
-      items.push(
-        <PaginationItem key={1}>
-          <PaginationLink isActive={page === 1} onClick={() => setPage(1)}>
-            1
-          </PaginationLink>
-        </PaginationItem>
+  // filteredData memfilter berdasarkan nama, nidn, nip, dan prodi.nama
+  const filteredData = React.useMemo(() => {
+    const q = (search || "").trim().toLowerCase();
+    if (!q) return data;
+    return data.filter((d) => {
+      const nama = (d.nama ?? "").toLowerCase();
+      const nidn = (d.nidn ?? "").toLowerCase();
+      const nip = (d.nip ?? "").toLowerCase();
+      const prodi = (d.prodi?.nama ?? "").toLowerCase();
+      return (
+        nama.includes(q) ||
+        nidn.includes(q) ||
+        nip.includes(q) ||
+        prodi.includes(q)
       );
-      if (start > 2) {
-        items.push(
-          <PaginationItem key="start-ellipsis">
-            <span className="px-2 text-gray-400">...</span>
-          </PaginationItem>
-        );
-      }
-    }
+    });
+  }, [data, search]);
 
-    for (let i = start; i <= end; i++) {
-      items.push(
-        <PaginationItem key={i}>
-          <PaginationLink isActive={page === i} onClick={() => setPage(i)}>
-            {i}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
 
-    if (end < totalPage) {
-      if (end < totalPage - 1) {
-        items.push(
-          <PaginationItem key="end-ellipsis">
-            <span className="px-2 text-gray-400">...</span>
-          </PaginationItem>
-        );
-      }
-      items.push(
-        <PaginationItem key={totalPage}>
-          <PaginationLink
-            isActive={page === totalPage}
-            onClick={() => setPage(totalPage)}
+  const cols: ColumnDef<Dosen>[] = React.useMemo(
+    () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: "nama",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            {totalPage}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
+            Nama
+            <ArrowUpDown />
+          </Button>
+        ),
+        cell: ({ row }) => (
+          <div className="">{row.getValue("nama") as string}</div>
+        ),
+      },
+      {
+        accessorKey: "nidn",
+        header: "NIDN",
+        cell: ({ row }) => (
+          <div className="">{row.getValue("nidn") ?? "-"}</div>
+        ),
+      },
+      {
+        accessorKey: "nip",
+        header: "NIP",
+        cell: ({ row }) => <div className="">{row.getValue("nip") ?? "-"}</div>,
+      },
+      {
+        id: "prodi",
+        accessorFn: (row) => row.prodi?.nama ?? "-",
+        header: "Program Studi",
+        cell: ({ row }) => (
+          <div className="">{row.getValue("prodi") as string}</div>
+        ),
+      },
+    ],
+    []
+  );
 
-    return items;
-  }
+  const table = useReactTable({
+    data: filteredData,
+    columns: cols,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  });
 
   return (
-    <div className="rounded-lg overflow-x-auto bg-white dark:bg-[#1f1f1f] p-6">
-      {/* Search bar kanan atas */}
-
-      <div className="flex justify-between mb-3">
-        <div>
-          <span className="font-semibold text-lg">Dosen</span>
-          <p className="text-xs text-gray-500">{user.prodi?.nama_prodi}</p>
-        </div>
-
-        <div className="relative w-56">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            <Search size={16} className="text-gray-400" />
-          </span>
+    <div className="w-full">
+      <div className="flex justify-between items-center">
+        <span className="text-xl">Dosen</span>
+        <div className="flex items-center py-4">
           <Input
-            placeholder="Search"
+            placeholder="Search "
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="pl-10 border border-gray-400 bg-transparent text-gray-100 placeholder:text-gray-300 rounded-lg focus:border-gray-300 focus:ring-0"
+            onChange={(event) => setSearch(event.target.value)}
+            className="max-w-sm bg-white dark:bg-neutral-800"
           />
         </div>
       </div>
-
-      <div className="border overflow-auto rounded-lg">
-        <Table>
-          <TableHeader className="bg-sidebar-accent">
-            <TableRow>
-              <TableHead className="text-center w-10 font-semibold">
-                No
-              </TableHead>
-              <TableHead className="font-semibold">Nama</TableHead>
-              <TableHead className="font-semibold">NIDN</TableHead>
-              <TableHead className="font-semibold">NIP</TableHead>
-              <TableHead className="font-semibold">Program Studi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedData.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="text-center py-8 text-gray-400"
-                >
-                  Tidak ada data dosen.
-                </TableCell>
-              </TableRow>
-            ) : (
-              paginatedData.map((dosenItem, index) => (
-                <TableRow
-                  key={dosenItem.id}
-                  className="hover:bg-gray-50 transition  border-b last:border-b-0 font-normal"
-                >
-                  <TableCell className="text-center align-middle ">
-                    {(page - 1) * pageSize + index + 1}
-                  </TableCell>
-                  <TableCell className="align-middle ">
-                    {dosenItem.nama}
-                  </TableCell>
-                  <TableCell className="align-middle ">
-                    {dosenItem.nidn}
-                  </TableCell>
-                  <TableCell className="align-middle ">
-                    {dosenItem.nip}
-                  </TableCell>
-                  <TableCell className="align-middle ">
-                    {dosenItem.prodi?.nama}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {totalPage > 1 && (
-        <div className="mt-4 flex justify-end ">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  aria-disabled={page === 1}
-                  className={
-                    page === 1 ? "pointer-events-none opacity-50 " : ""
-                  }
-                />
-              </PaginationItem>
-              {renderPagination()}
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setPage((p) => Math.min(totalPage, p + 1))}
-                  aria-disabled={page === totalPage}
-                  className={
-                    page === totalPage ? "pointer-events-none opacity-50 " : ""
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
+      <TableGlobal cols={cols} table={table} />
     </div>
   );
 }

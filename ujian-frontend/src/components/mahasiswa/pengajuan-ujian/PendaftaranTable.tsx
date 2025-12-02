@@ -1,41 +1,39 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import type { ColumnFiltersState } from "@tanstack/react-table";
+import TableGlobal from "@/components/tableGlobal";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  ColumnDef,
+  SortingState,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
 import {
   Plus,
   Search,
   ChevronDown,
-  ChevronUp,
   MoreHorizontal,
-  ArrowRight,
   X,
+  Check,
+  ArrowUpDown,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { getJenisUjianColor, getStatusColor } from "@/lib/utils";
 import { PendaftaranUjian } from "@/types/PendaftaranUjian";
 import { User } from "@/types/Auth";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { Input } from "@/components/ui/input";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationLink,
-} from "@/components/ui/pagination";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
+
 import { ListFilter } from "lucide-react";
 import { Ujian } from "@/types/Ujian";
 import PengajuanUjianForm from "./PengajuanUjianForm";
@@ -59,8 +57,6 @@ export default function PendaftaranTable({
   const [filterJudul, setFilterJudul] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterJenisUjian, setFilterJenisUjian] = useState("all");
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
 
   //* Status options
   const statusOptions = [
@@ -75,20 +71,28 @@ export default function PendaftaranTable({
   // SORT STATE
   const [sortField, setSortField] = useState<"judul" | "tanggal" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  // react-table states
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
   // SORT HANDLER
-  function handleSort(field: "judul" | "tanggal") {
-    if (sortField === field) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
+  const handleSort = useCallback(
+    (field: "judul" | "tanggal") => {
+      // compute next order immediately and sync to react-table sorting state
+      const nextOrder =
+        sortField === field ? (sortOrder === "asc" ? "desc" : "asc") : "asc";
       setSortField(field);
-      setSortOrder("asc");
-    }
-  }
+      setSortOrder(nextOrder);
+      setSorting([{ id: field, desc: nextOrder === "desc" }]);
+    },
+    [sortField, sortOrder]
+  );
 
   // FILTERED & SORTED DATA
   const filteredData = useMemo(() => {
-    let data = (pendaftaranUjian || []).filter((pendaftaran) => {
+    const data = (pendaftaranUjian || []).filter((pendaftaran) => {
       const matchJudul = pendaftaran.ranpel.judulPenelitian
         .toLowerCase()
         .includes(filterJudul.toLowerCase());
@@ -101,79 +105,190 @@ export default function PendaftaranTable({
       return matchJudul && matchStatus && matchJenis;
     });
 
-    // SORTING
-    if (sortField) {
-      data = [...data].sort((a, b) => {
-        if (sortField === "judul") {
-          const judulA = a.ranpel.judulPenelitian.toLowerCase();
-          const judulB = b.ranpel.judulPenelitian.toLowerCase();
-          if (judulA < judulB) return sortOrder === "asc" ? -1 : 1;
-          if (judulA > judulB) return sortOrder === "asc" ? 1 : -1;
-          return 0;
-        }
-        if (sortField === "tanggal") {
-          const tglA = new Date(a.tanggalPengajuan).getTime();
-          const tglB = new Date(b.tanggalPengajuan).getTime();
-          if (tglA < tglB) return sortOrder === "asc" ? -1 : 1;
-          if (tglA > tglB) return sortOrder === "asc" ? 1 : -1;
-          return 0;
-        }
-        return 0;
-      });
-    }
+    // Note: actual sorting will be handled by react-table using `sorting` state.
 
     return data;
-  }, [
-    pendaftaranUjian,
-    filterJudul,
-    filterStatus,
-    filterJenisUjian,
-    sortField,
-    sortOrder,
-  ]);
+  }, [pendaftaranUjian, filterJudul, filterStatus, filterJenisUjian]);
 
-  //* Pagination
-  const totalPage = Math.ceil(filteredData.length / pageSize);
-  const paginatedData = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredData.slice(start, start + pageSize);
-  }, [filteredData, page, pageSize]);
+  // build react-table columns (used by TableGlobal)
+  const cols: ColumnDef<PendaftaranUjian>[] = useMemo(
+    () => [
+      {
+        id: "no",
+        header: "No",
+        cell: ({ row, table }) => {
+          const index =
+            (table.getState().pagination?.pageIndex ?? 0) *
+              (table.getState().pagination?.pageSize ?? 10) +
+            row.index +
+            1;
+          return <div className="text-center">{index}</div>;
+        },
+      },
+      {
+        accessorFn: (row) => row.ranpel.judulPenelitian ?? "-",
+        id: "judul",
+        header: () => (
+          <div className="flex items-center gap-1 select-none">Judul</div>
+        ),
+        cell: ({ row }) => (
+          <div className="whitespace-pre-line break-words max-w-xs">
+            {String(row.getValue("judul") ?? "-")}
+          </div>
+        ),
+      },
+      {
+        accessorFn: (row) => row.jenisUjian.namaJenis ?? "-",
+        id: "jenis",
+        header: "Jenis Ujian",
+        cell: ({ row }) => (
+          <span
+            className={`px-2 py-1 rounded text-sm font-semibold inline-block
+                      ${getJenisUjianColor(String(row.getValue("jenis")))}
+                    `}
+          >
+            {row.getValue("jenis")}
+          </span>
+        ),
+      },
+      {
+        accessorFn: (row) => row.tanggalPengajuan ?? "",
+        id: "tanggal",
+        header: () => (
+          <div className="flex items-center gap-1 select-none">
+            Tanggal Pengajuan
+          </div>
+        ),
+        cell: ({ row }) => {
+          const v = String(row.getValue("tanggal") ?? "");
+          try {
+            return new Date(v).toLocaleDateString("id-ID");
+          } catch {
+            return v;
+          }
+        },
+      },
+      {
+        accessorFn: (row) => row.status ?? "-",
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const s = String(row.getValue("status"));
+          return (
+            <span
+              className={`px-2 py-1 rounded text-sm ${getStatusColor(s)} ${
+                s === "menunggu"
+                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                  : s === "diterima"
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : s === "ditolak"
+                  ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                  : s === "dijadwalkan"
+                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                  : s === "selesai"
+                  ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                  : ""
+              }`}
+            >
+              {s}
+            </span>
+          );
+        },
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => {
+          return (
+            <div className="text-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="p-1 h-7 w-7"
+                    aria-label="Aksi"
+                  >
+                    <MoreHorizontal size={18} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/mahasiswa/jadwal-ujian`}
+                      className="w-full flex items-center justify-between gap-2 text-sm px-3 py-2"
+                    >
+                      <span className="flex items-center gap-2">
+                        Lihat Jadwal Ujian
+                      </span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      },
+    ],
+    [handleSort, sortField, sortOrder]
+  );
+
+  // create react-table instance
+  const table = useReactTable({
+    data: filteredData,
+    columns: cols,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
 
   // Reset page ke 1 jika filter berubah
   useEffect(() => {
-    setPage(1);
-  }, [filterJudul, filterStatus, filterJenisUjian]);
+    try {
+      table.setPageIndex?.(0);
+    } catch {}
+  }, [filterJudul, filterStatus, filterJenisUjian, table]);
 
   const [showForm, setShowForm] = useState(false);
 
   return (
     <div className="bg-white dark:bg-[#1f1f1f] p-6 rounded-lg shadow-sm">
-      {/* Filter Bar */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 mb-4">
-        <div className="flex gap-2 w-full justify-between">
-          <h1 className="font-semibold text-lg">Pendaftaran Ujian</h1>
-
-          <div className="flex gap-2">
-            {/* Search */}
-            <div className="relative w-full md:w-56">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                <Search size={16} />
-              </span>
+      {/* Filter Bar - design like dosen page */}
+      <div className="rounded-md  overflow-x-auto mb-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search size={16} className="text-muted-foreground" />
+              </div>
               <Input
                 placeholder="Search"
                 value={filterJudul}
                 onChange={(e) => setFilterJudul(e.target.value)}
-                className="pl-9 w-full text-sm bg-white"
+                className="w-full pl-10 bg-white dark:bg-neutral-800"
+                aria-label="Search"
               />
             </div>
+          </div>
 
-            {/* Filter status */}
-            <Popover>
-              <PopoverTrigger asChild>
+          <div className="flex items-center gap-2 shrink-0">
+            {/* status filter - compact popover button */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 px-3 flex items-center gap-2  rounded-md text-sm font-normal shadow-none min-w-[90px] justify-between"
+                  className="h-9 px-3 flex items-center gap-2 rounded-md text-sm font-normal shadow-none min-w-[90px]"
                 >
                   <span className="flex items-center gap-2">
                     <ListFilter size={16} />
@@ -181,90 +296,104 @@ export default function PendaftaranTable({
                   </span>
                   <ChevronDown size={16} />
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="end"
-                className="w-44 p-0 rounded-md  shadow"
-                sideOffset={8}
-              >
-                <div className="p-3">
-                  <div className="font-semibold text-sm mb-2 ">Status</div>
-                  <div className="flex flex-col gap-1">
-                    {statusOptions.map((opt) => (
-                      <Button
-                        key={opt.value}
-                        variant={
-                          filterStatus === opt.value ? "secondary" : "ghost"
-                        }
-                        size="sm"
-                        className={`justify-start w-full text-sm rounded-md`}
-                        onClick={() => setFilterStatus(opt.value)}
-                      >
-                        {opt.label}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-            <Popover>
-              <PopoverTrigger asChild>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[180px]">
+                {statusOptions.map((opt) => (
+                  <DropdownMenuItem
+                    key={opt.value}
+                    onClick={() => setFilterStatus(opt.value)}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <span className="text-sm">{opt.label}</span>
+                    {filterStatus === opt.value && <Check size={14} />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* jenis ujian filter - compact popover */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 px-3 flex items-center gap-2  rounded-md text-sm font-normal shadow-none min-w-[90px] justify-between"
+                  className="h-8 w-9 p-0 grid place-items-center"
+                  aria-label="Filter jenis ujian"
+                  title="Filter jenis ujian"
                 >
-                  <span className="flex items-center gap-2">
-                    <ListFilter size={13} />
-                    Ujian
-                  </span>
-                  <ChevronDown size={13} />
+                  <ListFilter size={16} />
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="end"
-                className="w-44 p-0 rounded-md  shadow"
-                sideOffset={8}
-              >
-                <div className="p-3">
-                  <div className="font-semibold text-sm mb-2 ">Jenis Ujian</div>
-                  <div className="flex flex-col gap-1">
-                    <Button
-                      variant={
-                        filterJenisUjian === "all" ? "secondary" : "ghost"
-                      }
-                      size="sm"
-                      className={`justify-start w-full text-sm rounded-md`}
-                      onClick={() => setFilterJenisUjian("all")}
-                    >
-                      Semua
-                    </Button>
-                    {jenisUjianList.map((jenis) => (
-                      <Button
-                        key={jenis.id}
-                        variant={
-                          filterJenisUjian === String(jenis.id)
-                            ? "secondary"
-                            : "ghost"
-                        }
-                        size="sm"
-                        className={`justify-start w-full text-sm rounded-md `}
-                        onClick={() => setFilterJenisUjian(String(jenis.id))}
-                      >
-                        {jenis.namaJenis}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[180px]">
+                <DropdownMenuItem
+                  onClick={() => setFilterJenisUjian("all")}
+                  className="flex items-center justify-between gap-2"
+                >
+                  <span className="text-sm">Semua</span>
+                  {filterJenisUjian === "all" && <Check size={14} />}
+                </DropdownMenuItem>
+                {jenisUjianList.map((jenis) => (
+                  <DropdownMenuItem
+                    key={jenis.id}
+                    onClick={() => setFilterJenisUjian(String(jenis.id))}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <span className="text-sm">{jenis.namaJenis}</span>
+                    {filterJenisUjian === String(jenis.id) && (
+                      <Check size={14} />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* sort dropdown (compact) */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-3 flex items-center gap-2"
+                  aria-label="Sort"
+                  title="Sort"
+                >
+                  <ArrowUpDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => handleSort("tanggal")}>
+                  Tanggal{" "}
+                  {sortField === "tanggal"
+                    ? sortOrder === "asc"
+                      ? "↑"
+                      : "↓"
+                    : ""}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSort("judul")}>
+                  Judul{" "}
+                  {sortField === "judul"
+                    ? sortOrder === "asc"
+                      ? "↑"
+                      : "↓"
+                    : ""}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSorting([]);
+                    setSortField(null);
+                  }}
+                >
+                  Reset sorting
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Button
-              className="bg-blue-500 hover:bg-blue-600 text-white text-sm  px-4 flex items-center gap-2 rounded-md min-w-[90px] shadow-none"
+              className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 flex items-center gap-2 rounded-lg"
               onClick={() => setShowForm(true)}
             >
-              <Plus size={16} />
-              Ajukan Ujian
+              <span className="mr-6">Ajukan ujian</span>
+              <Plus size={14} />
             </Button>
           </div>
         </div>
@@ -272,7 +401,7 @@ export default function PendaftaranTable({
       {/* Popup Modal Form Pengajuan Ujian */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="relative max-w-2xl w-full bg-white dark:bg-[#232323] rounded-xl shadow-2xl overflow-auto">
+          <div className="relative max-w-3xl w-full bg-white dark:bg-[#232323] rounded-xl shadow-2xl overflow-auto">
             <button
               type="button"
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -281,8 +410,8 @@ export default function PendaftaranTable({
             >
               <X size={16} />
             </button>
-            <div className="p-6">
-              <div className="text-lg font-medium mb-4">
+            <div className="p-4 ">
+              <div className="text-lg font-medium mb-2 ">
                 Form Pengajuan Ujian
               </div>
               {user && (
@@ -297,196 +426,9 @@ export default function PendaftaranTable({
           </div>
         </div>
       )}
-      <div className="border  overflow-auto rounded-lg bg-white dark:bg-[#1f1f1f]">
-        <Table className="text-sm">
-          <TableHeader className="bg-sidebar-accent">
-            <TableRow>
-              <TableHead className="text-center w-10">No</TableHead>
-              <TableHead>
-                <div className="flex items-center gap-1 select-none">
-                  Judul
-                  <button
-                    type="button"
-                    className="ml-1 p-0.5"
-                    onClick={() => handleSort("judul")}
-                    aria-label="Urutkan Judul"
-                  >
-                    {sortField === "judul" ? (
-                      sortOrder === "asc" ? (
-                        <ChevronUp size={13} className="inline" />
-                      ) : (
-                        <ChevronDown size={13} className="inline" />
-                      )
-                    ) : (
-                      <ChevronDown size={13} className="inline text-gray-400" />
-                    )}
-                  </button>
-                </div>
-              </TableHead>
-              <TableHead>Jenis Ujian</TableHead>
-              <TableHead>
-                <div className="flex items-center gap-1 select-none">
-                  Tanggal Pengajuan
-                  <button
-                    type="button"
-                    className="ml-1 p-0.5"
-                    onClick={() => handleSort("tanggal")}
-                    aria-label="Urutkan Tanggal Pengajuan"
-                  >
-                    {sortField === "tanggal" ? (
-                      sortOrder === "asc" ? (
-                        <ChevronUp size={13} className="inline" />
-                      ) : (
-                        <ChevronDown size={13} className="inline" />
-                      )
-                    ) : (
-                      <ChevronDown size={13} className="inline text-gray-400" />
-                    )}
-                  </button>
-                </div>
-              </TableHead>
-              <TableHead className="text-center">Status</TableHead>
-              <TableHead className="text-center">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedData && paginatedData.length > 0 ? (
-              paginatedData.map((pendaftaran, index: number) => (
-                <TableRow
-                  key={pendaftaran.id}
-                  className="hover:bg-gray-50 transition"
-                >
-                  <TableCell className="text-center">
-                    {(page - 1) * pageSize + index + 1}
-                  </TableCell>
-                  <TableCell>
-                    <div className="whitespace-pre-line break-words max-w-xs">
-                      {pendaftaran.ranpel.judulPenelitian}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded text-sm font-semibold inline-block
-                        ${getJenisUjianColor(pendaftaran.jenisUjian.namaJenis)}
-                        ${
-                          pendaftaran.jenisUjian.namaJenis === "Ujian Proposal"
-                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                            : pendaftaran.jenisUjian.namaJenis === "Ujian Hasil"
-                            ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
-                            : "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-200"
-                        }
-                      `}
-                    >
-                      {pendaftaran.jenisUjian.namaJenis}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(pendaftaran.tanggalPengajuan).toLocaleDateString(
-                      "id-ID"
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span
-                      className={`px-2 py-1 rounded text-sm
-                        ${getStatusColor(pendaftaran.status)}
-                        ${
-                          pendaftaran.status === "menunggu"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : pendaftaran.status === "diterima"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                            : pendaftaran.status === "ditolak"
-                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                            : pendaftaran.status === "dijadwalkan"
-                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                            : pendaftaran.status === "selesai"
-                            ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                            : ""
-                        }
-                      `}
-                    >
-                      {pendaftaran.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {/* MoreHorizontal popover aksi */}
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="p-1 h-7 w-7"
-                          aria-label="Aksi"
-                        >
-                          <MoreHorizontal size={18} />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        align="end"
-                        className="w-48 p-3 rounded-lg border border-blue-100 shadow-lg"
-                        sideOffset={8}
-                      >
-                        <Link href={`/mahasiswa/jadwal-ujian`} passHref>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-full flex items-center justify-between gap-2 text-sm px-3 py-2 rounded-lg  font-medium transition"
-                          >
-                            <span className="flex items-center gap-2">
-                              Lihat Jadwal Ujian
-                            </span>
-                            <ArrowRight size={16} />
-                          </Button>
-                        </Link>
-                      </PopoverContent>
-                    </Popover>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center text-gray-500">
-                  Tidak ada data pendaftaran ujian
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      {/* Pagination */}
-      {totalPage > 1 && (
-        <div className="mt-4 flex justify-end">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  aria-disabled={page === 1}
-                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-              {Array.from({ length: totalPage }).map((_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    isActive={page === i + 1}
-                    onClick={() => setPage(i + 1)}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setPage((p) => Math.min(totalPage, p + 1))}
-                  aria-disabled={page === totalPage}
-                  className={
-                    page === totalPage ? "pointer-events-none opacity-50" : ""
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
+
+      <TableGlobal table={table} cols={cols} />
+      {/* pagination controls are rendered by TableGlobal (previous/next) */}
     </div>
   );
 }

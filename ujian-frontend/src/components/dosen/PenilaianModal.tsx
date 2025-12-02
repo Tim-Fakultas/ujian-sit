@@ -35,6 +35,28 @@ export default function PenilaianModal({
   ujian,
   currentDosenId,
 }: PenilaianModalProps) {
+  // flag to avoid repeated toasts
+  const [toastShown, setToastShown] = useState(false);
+  // reset toast flag when modal opens
+  useEffect(() => {
+    if (open) setToastShown(false);
+  }, [open]);
+  // helper: format peran seperti "penguji_2" -> "Penguji 2", "ketua_penguji" -> "Ketua Penguji"
+  const formatPeran = (p?: string) => {
+    if (!p) return "";
+    const map: Record<string, string> = {
+      ketua_penguji: "Ketua Penguji",
+      sekretaris_penguji: "Sekretaris Penguji",
+      penguji_1: "Penguji 1",
+      penguji_2: "Penguji 2",
+    };
+    if (map[p]) return map[p];
+    // fallback: replace underscores with spaces and title case each word
+    return p
+      .split("_")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+  };
   const [komponen, setKomponen] = useState<KomponenPenilaian[]>([]);
   const [nilai, setNilai] = useState<Record<number, number>>({});
   const [isSudahNilai, setIsSudahNilai] = useState(false);
@@ -44,8 +66,8 @@ export default function PenilaianModal({
     (p) => p.id === Number(currentDosenId)
   );
 
-  const peranPenguji = pengujiInfo?.peran; 
-  const dosenId = pengujiInfo?.id; 
+  const peranPenguji = pengujiInfo?.peran;
+  const dosenId = pengujiInfo?.id;
 
   // Fetch komponen penilaian saat modal dibuka
   useEffect(() => {
@@ -123,16 +145,18 @@ export default function PenilaianModal({
     error: undefined,
   });
 
-  // Tutup modal jika sukses
+  // Tutup modal jika sukses — tampilkan toast hanya sekali
   useEffect(() => {
-    if (state.success) {
+    if (state.success && !toastShown) {
       import("sonner").then(({ toast }) =>
         toast.success("Penilaian berhasil disimpan!")
       );
+      setToastShown(true);
+      // close modal & revalidate
       onClose();
       revalidateAction("/dosen/jadwal-ujian");
     }
-  }, [state.success]);
+  }, [state.success, toastShown, onClose]);
 
   if (!open || !ujian) return null;
 
@@ -148,69 +172,73 @@ export default function PenilaianModal({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          className="absolute top-2 right-2"
           onClick={onClose}
         >
           <X size={16} />
         </Button>
 
-        <h2 className="text-lg font-bold mb-3">Form Penilaian Ujian</h2>
+        <h2 className="text-lg font-bold mb-3 text-left">
+          Form Penilaian Ujian
+        </h2>
 
         {/* Identitas */}
         <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
           <div>
-            <Label>Nama Mahasiswa</Label>
+            <Label className="mb-2">Nama Mahasiswa</Label>
             <Input value={ujian.mahasiswa?.nama ?? ""} readOnly />
           </div>
           <div>
-            <Label>NIM</Label>
+            <Label className="mb-2">NIM</Label>
             <Input value={ujian.mahasiswa?.nim ?? ""} readOnly />
           </div>
           <div>
-            <Label>Prodi</Label>
+            <Label className="mb-2">Prodi</Label>
             <Input value={ujian.mahasiswa?.prodi?.namaProdi ?? ""} readOnly />
           </div>
           <div>
-            <Label>Peran Penguji</Label>
-            <Input value={pengujiInfo?.peran} readOnly />
+            <Label className="mb-2">Peran Penguji</Label>
+            <Input value={formatPeran(pengujiInfo?.peran)} readOnly />
           </div>
         </div>
 
         {/* Tabel Penilaian */}
         <form action={formAction}>
-          <Table className="w-full text-sm border">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Kriteria</TableHead>
-                <TableHead>Bobot</TableHead>
-                <TableHead>Skor</TableHead>
-                <TableHead>Bobot × Skor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {komponen.map((k) => (
-                <TableRow key={k.id}>
-                  <TableCell>{k.namaKomponen}</TableCell>
-                  <TableCell>{k.bobot}</TableCell>
-                  <TableCell>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={nilai[k.id] ?? 0}
-                      onChange={(e) =>
-                        handleNilaiChange(k.id, Number(e.target.value))
-                      }
-                      className="w-16 text-center"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {getBobotSkor(k.id, k.bobot).toFixed(2)}
-                  </TableCell>
+          <div className="border rounded-md overflow-hidden">
+            <Table className="w-full text-sm ">
+              <TableHeader className="border-b">
+                <TableRow>
+                  <TableHead>Kriteria</TableHead>
+                  <TableHead>Bobot</TableHead>
+                  <TableHead>Skor</TableHead>
+                  <TableHead>Bobot × Skor</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {komponen.map((k) => (
+                  <TableRow key={k.id}>
+                    <TableCell>{k.namaKomponen}</TableCell>
+                    <TableCell>{k.bobot}</TableCell>
+                    <TableCell>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={nilai[k.id] ?? 0}
+                        onChange={(e) =>
+                          handleNilaiChange(k.id, Number(e.target.value))
+                        }
+                        className="w-16 text-center"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {getBobotSkor(k.id, k.bobot).toFixed(2)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
           <Button
             type="submit"

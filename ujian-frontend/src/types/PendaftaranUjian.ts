@@ -34,3 +34,34 @@ export interface PendaftaranUjian {
   createdAt: string;
   updatedAt: string;
 }
+
+
+export interface PendaftaranUjianResponse {
+  data: Array<{
+    id: number;
+    mahasiswa: {
+      id: number;
+      nama: string;
+      nim: string;
+      prodiId: {
+        id: number;
+        namaProdi: string;
+      };
+    };
+    ranpel: {
+      id: number;
+      judulPenelitian: string;
+    };
+    jenisUjian: {
+      id: number;
+      namaJenis: string;
+    };
+    tanggalPengajuan: string;
+    tanggalDisetujui: string;
+    status: string;
+    berkas: File[];
+    keterangan: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+}

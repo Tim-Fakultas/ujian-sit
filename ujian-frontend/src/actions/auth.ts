@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { redirect } from "next/navigation";
@@ -10,7 +11,7 @@ export async function loginAction(formData: FormData) {
 
   let data: any = null;
 
-  const res = await fetch("http://localhost:8000/api/login", {
+  const res = await fetch(`http://localhost:8000/api/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nip_nim, password }),

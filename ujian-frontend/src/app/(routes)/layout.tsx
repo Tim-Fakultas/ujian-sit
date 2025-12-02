@@ -21,7 +21,7 @@ export default function MainLayout({
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col ">
-          <div className="@container/main flex flex-1 flex-col gap-2 bg-[#fafafa] dark:bg-[#252525]">
+          <div className="@container/main flex flex-1 flex-col gap-2 bg-[#fafafa] dark:bg-neutral-950">
             {children}
           </div>
         </div>
