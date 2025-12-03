@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import type { User } from "@/types/Auth";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function loginAction(formData: FormData) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const nip_nim = String(formData.get("nip_nim") || "");
   const password = String(formData.get("password") || "");
 
