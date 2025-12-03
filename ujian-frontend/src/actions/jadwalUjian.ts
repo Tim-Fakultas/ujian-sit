@@ -5,9 +5,8 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import { revalidateTag } from "next/cache";
 
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const response = await fetch(`${apiUrl}/ujian`, {
       next: { tags: ["jadwalUjian"], revalidate: 60 },
@@ -35,6 +34,8 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
 }
 
 export async function getJadwalUjianByProdi(prodiId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(`${apiUrl}/ujian`);
 
@@ -62,6 +63,8 @@ export async function getJadwalUjianByProdiByDosen({
   prodiId: number | undefined;
   dosenId: number | undefined;
 }) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(`${apiUrl}/ujian`, {
       cache: "no-store",
@@ -136,6 +139,8 @@ const JadwalUjianSchema = z.object({
 });
 
 export async function jadwalkanUjianAction(formData: FormData) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const rawData = Object.fromEntries(formData.entries());
     const parsed = JadwalUjianSchema.safeParse(rawData);

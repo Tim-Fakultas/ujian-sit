@@ -1,7 +1,7 @@
 import { PendaftaranUjian } from "@/types/PendaftaranUjian";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function getTotalJadwalUjian(prodiId?: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${apiUrl}/jadwal-ujian?prodiId=${prodiId}`, {
     cache: "no-store",
   });
@@ -11,6 +11,8 @@ export async function getTotalJadwalUjian(prodiId?: number) {
 }
 
 export async function getTotalPendaftaranUjianMenunggu(prodiId?: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   const res = await fetch(`${apiUrl}/pendaftaran-ujian`, {
     cache: "no-store",
   });
@@ -25,6 +27,8 @@ export async function getTotalPendaftaranUjianMenunggu(prodiId?: number) {
 }
 
 export async function getTotalBeritaUjian(prodiId?: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   const res = await fetch(`${apiUrl}/berita-ujian?prodiId=${prodiId}`, {
     cache: "no-store",
   });

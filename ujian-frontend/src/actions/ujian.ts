@@ -1,7 +1,7 @@
 import { UjianResponse } from "@/types/Ujian";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function getJadwalUjianByMahasiswaIdByHasil(mahasiswaId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const response = await fetch(`${apiUrl}/ujian`, {
       cache: "no-store",

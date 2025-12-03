@@ -5,10 +5,10 @@ import { PengajuanRanpelResponse } from "@/types/RancanganPenelitian";
 interface Status {
   status: "diverifikasi" | "ditolak" | "menunggu" | "diterima";
 }
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 // MAHASISWA FUNCTIONS
 export async function getPengajuanRanpelByMahasiswaId(userId?: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const response = await fetch(
       `${apiUrl}/mahasiswa/${userId}/pengajuan-ranpel`,
@@ -31,6 +31,8 @@ export async function getPengajuanRanpelByMahasiswaId(userId?: number) {
 }
 
 export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(`${apiUrl}/pengajuan-ranpel`, {
       cache: "no-store",
@@ -64,6 +66,8 @@ export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
 
 //  DOSEN PA FUNCTIONS
 export async function getPengajuanRanpelByDosenPA(dosenId?: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(`${apiUrl}/pengajuan-ranpel`, {
       cache: "no-store",
@@ -99,6 +103,8 @@ export async function getPengajuanRanpelByDosenPA(dosenId?: number) {
 
 // KAPRODI FUNCTIONS
 export async function getPengajuanRanpelByProdi(prodiId?: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(`${apiUrl}/pengajuan-ranpel`, {
       cache: "no-store",
@@ -141,9 +147,11 @@ export async function updateStatusPengajuanRanpel(
   pengajuanId: number,
   data: Status
 ) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(
-      `http://localhost:8000/api/mahasiswa/${mahasiswaId}/pengajuan-ranpel/${pengajuanId}`,
+      `${apiUrl}/mahasiswa/${mahasiswaId}/pengajuan-ranpel/${pengajuanId}`,
       {
         method: "PUT",
         headers: {

@@ -1,5 +1,4 @@
 "use server";
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export async function updatePembimbingMahasiswa({
   mahasiswaId,
@@ -10,6 +9,7 @@ export async function updatePembimbingMahasiswa({
   pembimbing1: number;
   pembimbing2: number;
 }) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const response = await fetch(`${apiUrl}/mahasiswa/${mahasiswaId}`, {
       method: "PUT",
@@ -18,7 +18,7 @@ export async function updatePembimbingMahasiswa({
         pembimbing1,
         pembimbing2,
       }),
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!response.ok) {
       throw new Error("Gagal update pembimbing mahasiswa");
@@ -32,6 +32,8 @@ export async function updatePembimbingMahasiswa({
 
 // Tambahkan fungsi getMahasiswaById
 export async function getMahasiswaById(mahasiswaId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(`${apiUrl}/mahasiswa/${mahasiswaId}`, {
       next: { revalidate: 60 },

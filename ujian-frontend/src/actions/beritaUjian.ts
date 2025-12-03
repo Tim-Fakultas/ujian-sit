@@ -1,7 +1,7 @@
 import { BeritaUjianResponse } from "@/types/BeritaUjian";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export async function getBeritaUjian(prodiId: number | undefined) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const response = await fetch(`${apiUrl}/ujian`, {
       cache: "no-store",
@@ -37,6 +37,8 @@ export async function getBeritaUjian(prodiId: number | undefined) {
 }
 
 export async function getBeritaUjianByLulus(prodiId: number | undefined) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(`${apiUrl}/ujian`, {
       cache: "no-store",

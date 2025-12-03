@@ -3,11 +3,10 @@
 import { PendaftaranUjianResponse } from "@/types/PendaftaranUjian";
 import { Ujian } from "@/types/Ujian";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 // MAHASISWA
 //* GET
 export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   try {
     const response = await fetch(
       `${API_URL}/mahasiswa/${mahasiswaId}/pendaftaran-ujian`,
@@ -46,6 +45,8 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
 // SEKPRODI
 //* GET
 export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(`${API_URL}/ujian`, {
       cache: "no-store",
@@ -85,6 +86,8 @@ export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
 // ADMIN
 //* GET
 export async function getPendaftaranUjianByProdi(prodiId: number) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(`${API_URL}/pendaftaran-ujian`, {
       cache: "no-store",
@@ -142,6 +145,8 @@ export async function createPendaftaranUjian({
   keterangan?: string;
   status?: string;
 }) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const formData = new FormData();
     formData.append("ranpelId", ranpelId.toString());
@@ -192,6 +197,8 @@ export async function createPendaftaranUjian({
 // ADMIN / SEKPRODI
 //* PUT
 export async function updateStatusPendaftaranUjian(id: number, status: string) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const response = await fetch(`${API_URL}/pendaftaran-ujian/${id}`, {
       method: "PUT",
