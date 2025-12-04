@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
 import {
@@ -18,6 +19,7 @@ import {
   MoreHorizontal,
   ListFilter,
   ChevronDown,
+  Check,
 } from "lucide-react";
 import { truncateTitle } from "@/lib/utils";
 import { daftarKehadiran } from "@/types/DaftarKehadiran";
@@ -29,7 +31,13 @@ import {
   PaginationPrevious,
   PaginationLink,
 } from "../../ui/pagination";
-import { Popover, PopoverTrigger, PopoverContent } from "../../ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function BeritaAcaraUjianTable({
   beritaUjian,
@@ -39,7 +47,7 @@ export default function BeritaAcaraUjianTable({
   daftarKehadiran: daftarKehadiran[];
 }) {
   const [openDialog, setOpenDialog] = useState(false);
-  const [openLampiran, setOpenLampiran] = useState(false);
+  const [openCatatan, setOpenCatatan] = useState(false);
   const [selected, setSelected] = useState<BeritaUjian | null>(null);
   // Tambah state untuk search
   const [search, setSearch] = useState("");
@@ -50,6 +58,10 @@ export default function BeritaAcaraUjianTable({
 
   const [hasilFilter, setHasilFilter] = useState<
     "all" | "lulus" | "tidak lulus"
+  >("all");
+
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "proposal" | "hasil" | "skripsi"
   >("all");
 
   // Filter data berdasarkan search, jenis ujian, dan hasil
@@ -161,13 +173,12 @@ export default function BeritaAcaraUjianTable({
             />
           </div>
           {/* Filter jenis ujian dan hasil dengan Popover */}
-          <Popover>
+          {/* <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
                 className={`h-9 px-4 flex items-center gap-2 border border-gray-200 rounded-lg  font-normal shadow-none min-w-[110px] justify-between `}
-                style={{ boxShadow: "0 1px 2px 0 rgba(16,24,40,.05)" }}
               >
                 <span className="flex items-center gap-2">
                   <ListFilter size={16} />
@@ -283,7 +294,37 @@ export default function BeritaAcaraUjianTable({
                 </div>
               </div>
             </PopoverContent>
-          </Popover>
+          </Popover> */}
+          <div className="flex items-center gap-2 shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-9 p-0 grid place-items-center"
+                  aria-label="Filter status"
+                  title="Filter status"
+                >
+                  <ListFilter size={16} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[180px]">
+                {["all", "proposal", "hasil", "skripsi"].map((opt) => {
+                  const isActive = filterStatus === opt;
+                  return (
+                    <DropdownMenuItem
+                      key={opt}
+                      onClick={() => setJenisFilter(opt as any)}
+                      className="flex items-center justify-between gap-2"
+                    >
+                      <span className="text-sm">{opt}</span>
+                      {isActive && <Check size={14} />}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 
@@ -615,11 +656,11 @@ export default function BeritaAcaraUjianTable({
                 className="flex items-center gap-2"
                 onClick={() => {
                   setOpenDialog(false);
-                  setOpenLampiran(true);
+                  setOpenCatatan(true);
                 }}
               >
                 <FileText size={16} />
-                Lihat Lampiran
+                Lihat Catatan
               </Button>
               <Button variant="outline" onClick={() => setOpenDialog(false)}>
                 Tutup
@@ -629,11 +670,11 @@ export default function BeritaAcaraUjianTable({
         )}
       </Modal>
 
-      {/* Modal Lampiran */}
+      {/* Modal Catatan */}
       <Modal
-        open={openLampiran}
-        onClose={() => setOpenLampiran(false)}
-        title="Lampiran: Berita Acara Pelaksanaan Ujian"
+        open={openCatatan}
+        onClose={() => setOpenCatatan(false)}
+        title="Berita Acara Pelaksanaan Ujian"
         width="max-w-4xl"
       >
         {selected && (
@@ -656,36 +697,10 @@ export default function BeritaAcaraUjianTable({
             <p className=" font-medium mt-4">Catatan/Daftar Revisi Penguji:</p>
 
             <div className="overflow-x-auto border rounded-lg bg-white dark:bg-[#232323]">
-              <Table className="min-w-full">
-                <TableHeader className="bg-sidebar-accent">
-                  <TableRow>
-                    <TableHead className="border p-2 w-10 text-center">
-                      No.
-                    </TableHead>
-                    <TableHead className="border p-2 text-left">
-                      Nama Penguji
-                    </TableHead>
-                    <TableHead className="border p-2 text-left">
-                      Uraian
-                    </TableHead>
-                    <TableHead className="border p-2 text-center">
-                      Tanda Tangan
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {[1, 2, 3, 4].map((i) => (
-                    <TableRow key={i}>
-                      <TableCell className="border p-2 text-center">
-                        {i}.
-                      </TableCell>
-                      <TableCell className="border p-2"></TableCell>
-                      <TableCell className="border p-2"></TableCell>
-                      <TableCell className="border p-2"></TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <Textarea
+                defaultValue={selected.catatan ?? "Tidak ada catatan."}
+                readOnly
+              />
             </div>
 
             <div className="flex justify-end pt-6 border-t mt-6">
@@ -693,7 +708,7 @@ export default function BeritaAcaraUjianTable({
                 variant="outline"
                 className="flex items-center gap-2"
                 onClick={() => {
-                  setOpenLampiran(false);
+                  setOpenCatatan(false);
                   setOpenDialog(true);
                 }}
               >

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import {
   Table,
@@ -25,9 +26,12 @@ import {
   Calendar,
   Clock,
   MapPin,
-  User,
   X,
   Check,
+  NotebookPen,
+  TreeDeciduousIcon,
+  Scale,
+  Gavel,
 } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { UserCheck } from "lucide-react";
@@ -44,6 +48,19 @@ import { Button } from "../ui/button";
 import { getHadirUjian, setHadirUjian } from "@/actions/daftarHadirUjian";
 import { Input } from "../ui/input";
 import { getPenilaianByUjianId } from "@/actions/penilaian";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "../ui/sheet";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+import { postCatatanByUjianId } from "@/actions/catatan";
+import { postKeputusanByUjianId } from "@/actions/keputusan";
 
 interface JadwalUjianTableProps {
   jadwalUjian: Ujian[];
@@ -80,10 +97,15 @@ export default function JadwalUjianTable({
   jadwalUjian,
   currentDosenId,
 }: JadwalUjianTableProps) {
+  // state untuk sheet keputusan
+  const [openKeputusan, setOpenKeputusan] = useState(false);
+  // keputusanChoice menyimpan id numeric (1/2/3/4)
+  const [keputusanChoice, setKeputusanChoice] = useState<number | null>(null);
   const [selected, setSelected] = useState<Ujian | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
   const [openRekapitulasi, setOpenRekapitulasi] = useState(false);
   const [openDaftarHadir, setOpenDaftarHadir] = useState(false);
+  const [openCatatan, setOpenCatatan] = useState(false);
 
   //* Penilaian Modal State
   const [openPenilaian, setOpenPenilaian] = useState(false);
@@ -95,6 +117,7 @@ export default function JadwalUjianTable({
   const [rekapPenilaian, setRekapPenilaian] = useState<PenilaianItem[]>([]);
   const [rekapLoading, setRekapLoading] = useState(false);
   const [hadirData, setHadirData] = useState<HadirUjian[]>([]);
+  const [catatanText, setCatatanText] = useState<string>("");
 
   // Ambil data hadir uj
   useEffect(() => {
@@ -278,6 +301,58 @@ export default function JadwalUjianTable({
     if (rata >= 56) return "D";
     return "E";
   }
+
+  // isi catatanText saat sheet dibuka / selected berubah
+  useEffect(() => {
+    if (openCatatan && selected) {
+      setCatatanText(selected.catatan ?? "");
+    }
+  }, [openCatatan, selected]);
+
+  const handleSaveCatatan = async () => {
+    await postCatatanByUjianId(selected?.id ?? null, catatanText);
+    try {
+      const { toast } = await import("sonner");
+      toast.success("Catatan disimpan.");
+    } catch {
+      // ignore toast error
+    }
+    setOpenCatatan(false);
+  };
+
+  // keputusanId adalah numeric (1..4). UI tetap menampilkan teks label.
+  const handleSetKeputusan = async (ujianId: number, keputusanId: number) => {
+    // cari label untuk ditampilkan
+    const opt = keputusanOptions.find((o) => o.id === keputusanId);
+    const label = opt ? opt.label : String(keputusanId);
+
+    // optimistik update selected: simpan hasil sebagai label (tampilan tetap string) dan simpan keputusanId
+    setSelected((prev) =>
+      prev && prev.id === ujianId
+        ? { ...prev, hasil: label, keputusanId }
+        : prev
+    );
+
+    try {
+      await postKeputusanByUjianId(ujianId, keputusanId);
+      const { toast } = await import("sonner");
+      toast.success("Keputusan berhasil disimpan.");
+    } catch (err) {
+      console.error("Gagal menyimpan keputusan:", err);
+      try {
+        const { toast } = await import("sonner");
+        toast.error("Gagal menyimpan keputusan.");
+      } catch {}
+    }
+  };
+
+  // daftar opsi keputusan (value = id, tampilkan label)
+  const keputusanOptions = [
+    { id: 1, kode: "A", label: "Dapat diterima tanpa perbaikan" },
+    { id: 2, kode: "B", label: "Dapat diterima dengan perbaikan kecil" },
+    { id: 3, kode: "C", label: "Dapat diterima dengan perbaikan besar" },
+    { id: 4, kode: "D", label: "Belum dapat diterima" },
+  ];
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border dark:bg-neutral-900">
@@ -551,6 +626,55 @@ export default function JadwalUjianTable({
                           >
                             <Pencil size={16} className="mr-2" /> Penilaian
                           </DropdownMenuItem>
+                          {/* role check */}
+                          {(() => {
+                            const isKetuaAtauSek = ujian.penguji?.some(
+                              (p) =>
+                                p.id === Number(currentDosenId) &&
+                                (p.peran === "ketua_penguji" ||
+                                  p.peran === "sekretaris_penguji")
+                            );
+                            const jenis = ujian.jenisUjian?.namaJenis ?? "";
+                            const isJenisUntukKeputusan =
+                              jenis === "Ujian Hasil" ||
+                              jenis === "Ujian Skripsi";
+                            return (
+                              isKetuaAtauSek && (
+                                <>
+                                  {/* Catatan: muncul untuk semua jenis ujian */}
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setSelected(ujian);
+                                      setOpenCatatan(true);
+                                    }}
+                                  >
+                                    <NotebookPen size={16} className="mr-2" />{" "}
+                                    Catatan
+                                  </DropdownMenuItem>
+
+                                  {/* Keputusan: hanya untuk jenis Hasil & Skripsi */}
+                                  {isJenisUntukKeputusan && (
+                                    <DropdownMenuItem
+                                      onClick={() => {
+                                        setSelected(ujian);
+                                        const initId =
+                                          (ujian as any).keputusanId ??
+                                          keputusanOptions.find(
+                                            (o) => o.label === ujian.hasil
+                                          )?.id ??
+                                          null;
+                                        setKeputusanChoice(initId);
+                                        setOpenKeputusan(true);
+                                      }}
+                                    >
+                                      <Gavel size={16} className="mr-2" />{" "}
+                                      <span className="mr-2">Keputusan</span>
+                                    </DropdownMenuItem>
+                                  )}
+                                </>
+                              )
+                            );
+                          })()}
                         </DropdownMenuContent>
                       </DropdownMenu>
 
@@ -569,7 +693,7 @@ export default function JadwalUjianTable({
                             onClick={() => setOpenDetail(false)}
                           />
                           <div
-                            className="relative z-10 w-full max-w-xl mx-4"
+                            className="relative z-10 w-full max-w-2xl mx-4"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Card>
@@ -604,7 +728,7 @@ export default function JadwalUjianTable({
                                       <div className="text-xs text-muted-foreground">
                                         Judul Penelitian
                                       </div>
-                                      <div className="mt-1 text-sm font-medium break-words">
+                                      <div className="mt-1 text-sm font-medium whitespace-pre-wrap break-words break-all max-w-full">
                                         {ujian.judulPenelitian ?? "-"}
                                       </div>
                                     </div>
@@ -628,9 +752,6 @@ export default function JadwalUjianTable({
                                         </span>
                                       </div>
                                     </div>
-                                  </div>
-
-                                  <div className="space-y-3">
                                     <div>
                                       <div className="text-xs text-muted-foreground">
                                         Waktu & Ruangan
@@ -663,6 +784,9 @@ export default function JadwalUjianTable({
                                         </div>
                                       </div>
                                     </div>
+                                  </div>
+
+                                  <div className="space-y-3">
                                     <div>
                                       <div className="text-xs text-muted-foreground">
                                         Penguji
@@ -996,6 +1120,109 @@ export default function JadwalUjianTable({
                         ujian={ujian}
                         currentDosenId={currentDosenId}
                       />
+
+                      {/* Modal Catatan */}
+
+                      {/* <CatatanModal
+                        open={openCatatan && selected?.id === ujian.id}
+                        onClose={() => setOpenCatatan(false)}
+                        ujian={ujian}
+                      /> */}
+
+                      {/* Sheet Catatan (render terpisah supaya muncul sebagai panel samping) */}
+                      <Sheet
+                        open={openCatatan && selected?.id === ujian.id}
+                        onOpenChange={(v) => {
+                          if (!v) setOpenCatatan(false);
+                        }}
+                      >
+                        <SheetContent
+                          side="right"
+                          className="w-[420px] bg-neutral-900"
+                        >
+                          <SheetHeader>
+                            <SheetTitle>Tambahkan Catatan</SheetTitle>
+                            <SheetDescription>
+                              Tambahkan catatan tambahan untuk ujian ini jika
+                              diperlukan.
+                            </SheetDescription>
+                          </SheetHeader>
+                          <div className="grid flex-1 auto-rows-min gap-2 px-4">
+                            <div className="grid gap-3">
+                              <Label htmlFor="catatan">Catatan</Label>
+                              <Textarea
+                                id="catatan"
+                                value={catatanText}
+                                onChange={(e) => setCatatanText(e.target.value)}
+                                className="min-h-[120px]"
+                              />
+                            </div>
+                          </div>
+                          <SheetFooter>
+                            <Button onClick={handleSaveCatatan}>Save</Button>
+                            <SheetClose asChild>
+                              <Button variant="outline">Close</Button>
+                            </SheetClose>
+                          </SheetFooter>
+                        </SheetContent>
+                      </Sheet>
+
+                      {/* Sheet Keputusan (Lulus / Tidak Lulus) */}
+                      <Sheet
+                        open={openKeputusan && selected?.id === ujian.id}
+                        onOpenChange={(v) => {
+                          if (!v) setOpenKeputusan(false);
+                        }}
+                      >
+                        <SheetContent side="right" className="w-[420px]">
+                          <SheetHeader>
+                            <SheetTitle>Set Keputusan</SheetTitle>
+                            <SheetDescription>
+                              Pilih keputusan untuk ujian ini.
+                            </SheetDescription>
+                          </SheetHeader>
+                          <div className="px-4 py-2">
+                            <div className="flex flex-col gap-3 mt-3">
+                              {keputusanOptions.map((opt) => (
+                                <label
+                                  key={opt.id}
+                                  className="inline-flex items-center gap-2"
+                                >
+                                  <input
+                                    type="radio"
+                                    name="keputusan"
+                                    checked={keputusanChoice === opt.id}
+                                    onChange={() => setKeputusanChoice(opt.id)}
+                                  />
+
+                                  <div className="text-sm text-muted-foreground">
+                                    {opt.label}
+                                  </div>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                          <SheetFooter>
+                            <Button
+                              onClick={() => {
+                                if (selected && keputusanChoice !== null) {
+                                  handleSetKeputusan(
+                                    selected.id,
+                                    keputusanChoice
+                                  );
+                                }
+                                setOpenKeputusan(false);
+                              }}
+                              disabled={keputusanChoice === null}
+                            >
+                              Simpan Keputusan
+                            </Button>
+                            <SheetClose asChild>
+                              <Button variant="outline">Batal</Button>
+                            </SheetClose>
+                          </SheetFooter>
+                        </SheetContent>
+                      </Sheet>
                     </TableCell>
                   </TableRow>
                 );

@@ -3,13 +3,12 @@ import { UjianResponse } from "@/types/Ujian";
 import { z } from "zod";
 
 import { cookies } from "next/headers";
-import { revalidateTag } from "next/cache";
 
 export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const response = await fetch(`${apiUrl}/ujian`, {
-      next: { tags: ["jadwalUjian"], revalidate: 60 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -196,6 +195,7 @@ export async function jadwalkanUjianAction(formData: FormData) {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
       },
+      
       body: JSON.stringify(payload),
     });
 
@@ -217,8 +217,6 @@ export async function jadwalkanUjianAction(formData: FormData) {
         throw new Error("Gagal menjadwalkan ujian: " + text);
       }
     }
-
-    revalidateTag("jadwalUjian");
 
     return { success: true };
   } catch (err: unknown) {

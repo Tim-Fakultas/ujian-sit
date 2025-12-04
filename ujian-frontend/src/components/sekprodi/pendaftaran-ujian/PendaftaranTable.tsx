@@ -465,7 +465,7 @@ export default function PendaftaranUjianTable({
             className="relative z-10 w-full max-w-3xl mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <Card className="bg-neutral-900 border-neutral-800">
+            <Card className="dark:bg-neutral-900 dark:border-neutral-800">
               <CardHeader className="flex items-center justify-between">
                 <CardTitle>
                   Jadwalkan Ujian

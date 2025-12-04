@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import * as React from "react";
 import { useState, useMemo, useEffect } from "react";
@@ -84,7 +85,7 @@ export default function PengajuanTableClient({
     setSorting([{ id, desc: order === "desc" }]);
   };
 
-  // filtered data (global search across nama, judul, status, tanggal)
+  //* filtered data (global search across nama, judul, status, tanggal)
   const filteredData = useMemo(() => {
     const q = (search || "").trim().toLowerCase();
     return (pengajuanRanpel || []).filter((p) => {
