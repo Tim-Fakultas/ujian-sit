@@ -534,7 +534,7 @@ export default function JadwalUjianTable({
                         {ujian.jenisUjian?.namaJenis ?? "-"}
                       </span>
                     </TableCell>
-                    <TableCell>{ujian.ruangan.namaRuangan ?? "-"}</TableCell>
+                    <TableCell>{ujian.ruangan?.namaRuangan ?? "-"}</TableCell>
                     <TableCell className="w-[20px]">
                       <div className="flex flex-col">
                         <span>
@@ -1121,14 +1121,6 @@ export default function JadwalUjianTable({
                         currentDosenId={currentDosenId}
                       />
 
-                      {/* Modal Catatan */}
-
-                      {/* <CatatanModal
-                        open={openCatatan && selected?.id === ujian.id}
-                        onClose={() => setOpenCatatan(false)}
-                        ujian={ujian}
-                      /> */}
-
                       {/* Sheet Catatan (render terpisah supaya muncul sebagai panel samping) */}
                       <Sheet
                         open={openCatatan && selected?.id === ujian.id}
@@ -1138,7 +1130,7 @@ export default function JadwalUjianTable({
                       >
                         <SheetContent
                           side="right"
-                          className="w-[420px] bg-neutral-900"
+                          className="w-[420px] dark:bg-neutral-900"
                         >
                           <SheetHeader>
                             <SheetTitle>Tambahkan Catatan</SheetTitle>

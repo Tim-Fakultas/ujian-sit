@@ -1,21 +1,21 @@
 import { getCurrentUserAction } from "@/actions/auth";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 async function getTotalDosenByProdi(prodiId?: number) {
-  const res = await fetch(
-    `${apiUrl}/dosen?prodiId=${prodiId}`,
-    { cache: "no-store" }
-  );
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${apiUrl}/dosen?prodiId=${prodiId}`, {
+    cache: "no-store",
+  });
   if (!res.ok) return 0;
   const data = await res.json();
   return data?.data?.length ?? 0;
 }
 
 async function getTotalMahasiswaByProdi(prodiId?: number) {
-  const res = await fetch(
-    `${apiUrl}/mahasiswa?prodiId=${prodiId}`,
-    { cache: "no-store" }
-  );
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  const res = await fetch(`${apiUrl}/mahasiswa?prodiId=${prodiId}`, {
+    cache: "no-store",
+  });
   if (!res.ok) return { aktif: 0 };
   const data = await res.json();
   return {
@@ -26,10 +26,11 @@ async function getTotalMahasiswaByProdi(prodiId?: number) {
 }
 
 async function getTotalPendaftaranUjianByProdi(prodiId?: number) {
-  const res = await fetch(
-    `${apiUrl}/pendaftaran-ujian?prodiId=${prodiId}`,
-    { cache: "no-store" }
-  );
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  const res = await fetch(`${apiUrl}/pendaftaran-ujian?prodiId=${prodiId}`, {
+    cache: "no-store",
+  });
   if (!res.ok) return 0;
   const data = await res.json();
   return data?.data?.length ?? 0;

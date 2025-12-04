@@ -1,5 +1,6 @@
 async function getTotalDosen() {
-  const res = await fetch("http://localhost:8000/api/dosen", {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${apiUrl}/dosen`, {
     cache: "no-store",
   });
   if (!res.ok) return 0;
@@ -7,7 +8,8 @@ async function getTotalDosen() {
   return data?.data?.length ?? 0;
 }
 async function getTotalMahasiswa() {
-  const res = await fetch("http://localhost:8000/api/mahasiswa", {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${apiUrl}/mahasiswa`, {
     cache: "no-store",
   });
   if (!res.ok) return 0;
@@ -15,7 +17,8 @@ async function getTotalMahasiswa() {
   return data?.data?.length ?? 0;
 }
 async function getTotalPeminatan() {
-  const res = await fetch("http://localhost:8000/api/peminatan", {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${apiUrl}/peminatan`, {
     cache: "no-store",
   });
   if (!res.ok) return 0;
@@ -23,7 +26,8 @@ async function getTotalPeminatan() {
   return data?.data?.length ?? 0;
 }
 async function getTotalProdi() {
-  const res = await fetch("http://localhost:8000/api/prodi", {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${apiUrl}/prodi`, {
     cache: "no-store",
   });
   if (!res.ok) return 0;

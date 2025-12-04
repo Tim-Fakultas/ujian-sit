@@ -151,6 +151,17 @@ export default function BeritaAcaraUjianTable({
     );
   };
 
+  // helper: ambil inisial nama untuk avatar kecil
+  function getInitials(name?: string) {
+    if (!name) return "";
+    return name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() ?? "")
+      .join("");
+  }
+
   return (
     <div className="p-6 bg-white dark:bg-[#1f1f1f] rounded-lg">
       {/* Filter nav & Search input in one row */}
@@ -532,125 +543,191 @@ export default function BeritaAcaraUjianTable({
           </Pagination>
         </div>
       )}
-      {/* ========== MODAL DETAIL ========== */}
+      {/* ========== MODAL DETAIL (DESAIN DITINGKATKAN) ========== */}
       <Modal
         open={openDialog}
         onClose={() => setOpenDialog(false)}
         title="Detail Berita Acara Ujian"
+        width="max-w-4xl"
       >
         {selected && (
-          <div className="space-y-6 bg-white dark:bg-[#1f1f1f]">
-            <div className="bg-gray-50 dark:bg-[#232323] border rounded-lg p-4 dark:text-white">
-              Pada hari{" "}
-              <span className="font-semibold underline">
-                {selected.hariUjian ?? "Senin"}
-              </span>
-              , tanggal{" "}
-              <span className="font-semibold underline">
-                {selected.jadwalUjian
-                  ? new Date(selected.jadwalUjian).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })
-                  : "[tanggal]"}
-              </span>{" "}
-              telah dilaksanakan{" "}
-              {selected.jenisUjian?.namaJenis?.toLowerCase() ?? "ujian skripsi"}
-              .
-            </div>
-
-            {/* Info Mahasiswa */}
-            <div className="border rounded-lg p-4 space-y-2 bg-white dark:bg-[#232323] dark:text-white">
+          <div className="space-y-6">
+            {/* header ringkas */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <span className=" ">Nama Mahasiswa</span>
-                <p className="font-medium ">
+                <div className="text-sm text-muted-foreground">
+                  {selected.hariUjian ?? "Hari"},{" "}
+                  <span className="font-medium">
+                    {selected.jadwalUjian
+                      ? new Date(selected.jadwalUjian).toLocaleDateString(
+                          "id-ID",
+                          { day: "numeric", month: "long", year: "numeric" }
+                        )
+                      : "-"}
+                  </span>
+                </div>
+                <div className="mt-2 text-lg font-semibold">
                   {selected.mahasiswa?.nama ?? "-"}
-                </p>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  NIM: {selected.mahasiswa?.nim ?? "-"}
+                </div>
               </div>
-              <div className="mt-2">
-                <span className=" ">Judul Penelitian</span>
-                <p className="font-medium  leading-relaxed">
-                  {selected.judulPenelitian ?? "-"}
-                </p>
+              <div className="text-right">
+                <div className="inline-flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Jenis Ujian
+                  </span>
+                  <span className="px-2 py-1 text-sm rounded bg-muted/30 font-medium">
+                    {selected.jenisUjian?.namaJenis ?? "-"}
+                  </span>
+                </div>
+                <div className="mt-3 text-sm text-muted-foreground">
+                  <div>
+                    <span className="font-medium text-gray-700 dark:text-gray-200">
+                      Ruangan:
+                    </span>{" "}
+                    {selected.ruangan?.namaRuangan ?? "-"}
+                  </div>
+                  <div className="mt-1">
+                    <span className="font-medium text-gray-700 dark:text-gray-200">
+                      Waktu:
+                    </span>{" "}
+                    {selected.waktuMulai?.slice(0, 5) ?? "-"} —{" "}
+                    {selected.waktuSelesai?.slice(0, 5) ?? "-"}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Kehadiran Penguji */}
-            <div className="border rounded-lg overflow-hidden bg-white dark:bg-[#232323]">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-sidebar-accent dark:bg-[#232323]">
-                    <TableHead className="text-center w-10">No</TableHead>
-                    <TableHead>Nama Dosen</TableHead>
-                    <TableHead>Jabatan</TableHead>
-                    <TableHead className="text-center">Kehadiran</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {[
-                    { label: "Ketua Penguji", dosen: selected.ketuaPenguji },
-                    {
-                      label: "Sekretaris Penguji",
-                      dosen: selected.sekretarisPenguji,
-                    },
-                    { label: "Penguji I", dosen: selected.penguji1 },
-                    { label: "Penguji II", dosen: selected.penguji2 },
-                  ].map((row, i) => {
-                    const status = getStatusHadir(row.dosen?.id);
-                    let color =
-                      "bg-gray-100 dark:bg-gray-800 dark:text-gray-200";
-                    let text = "Tidak Hadir";
-                    if (status === "hadir") {
-                      color =
-                        "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200";
-                      text = "Hadir";
-                    } else if (status === "izin") {
-                      color =
-                        "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200";
-                      text = "Izin";
-                    }
-                    return (
-                      <TableRow key={i}>
-                        <TableCell className="text-center">{i + 1}</TableCell>
-                        <TableCell>{row.dosen?.nama ?? "-"}</TableCell>
-                        <TableCell>{row.label}</TableCell>
-                        <TableCell className="text-center">
-                          <span
-                            className={`px-3 py-1 rounded-full font-medium ${color}`}
-                          >
-                            {text}
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Main: Judul & keputusan */}
+              <div className="lg:col-span-2 space-y-4">
+                <div className="border rounded-lg p-4 bg-white dark:bg-[#1f1f1f] shadow-sm">
+                  <h3 className="text-sm text-muted-foreground">
+                    Judul Penelitian
+                  </h3>
+                  <p className="mt-2 text-sm font-semibold whitespace-pre-wrap break-words leading-relaxed">
+                    {selected.judulPenelitian ?? "-"}
+                  </p>
+                </div>
+
+                <div className="border rounded-lg p-4 bg-white dark:bg-[#1f1f1f] shadow-sm">
+                  <h3 className="text-sm text-muted-foreground">Keputusan</h3>
+                  <div className="mt-3">
+                    {selected.jenisUjian?.namaJenis
+                      ?.toLowerCase()
+                      .includes("proposal") ? (
+                      <div className="flex items-center gap-3">
+                        <span className="font-semibold">Hasil:</span>
+                        <span
+                          className={`px-3 py-1 rounded font-semibold ${
+                            selected?.hasil?.toLowerCase() === "lulus"
+                              ? "bg-green-100 text-green-700"
+                              : selected?.hasil?.toLowerCase() === "tidak lulus"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {selected?.hasil?.toUpperCase() ||
+                            "DITERIMA / DITOLAK"}
+                        </span>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="text-sm font-medium">
+                          {selected.keputusan?.namaKeputusan ??
+                            (selected as any)?.keputusan ??
+                            "-"}
+                        </div>
+                        
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Penguji & kehadiran */}
+              <div className="space-y-4">
+                <div className="border rounded-lg p-3 bg-white dark:bg-[#1f1f1f] shadow-sm">
+                  <h4 className="text-sm text-muted-foreground mb-3">
+                    Penguji
+                  </h4>
+                  <div className="space-y-3">
+                    {[
+                      { label: "Ketua Penguji", dosen: selected.ketuaPenguji },
+                      {
+                        label: "Sekretaris Penguji",
+                        dosen: selected.sekretarisPenguji,
+                      },
+                      { label: "Penguji I", dosen: selected.penguji1 },
+                      { label: "Penguji II", dosen: selected.penguji2 },
+                    ].map((row, i) => {
+                      const status = getStatusHadir(row.dosen?.id);
+                      const badge =
+                        status === "hadir"
+                          ? "bg-green-100 text-green-700"
+                          : status === "izin"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-gray-100 text-gray-700";
+                      return (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-muted/40 grid place-items-center text-sm font-semibold">
+                              {getInitials(row.dosen?.nama)}
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium">
+                                {row.dosen?.nama ?? "-"}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {row.label}
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <span
+                              className={`px-3 py-1 text-xs rounded-full font-medium ${badge}`}
+                            >
+                              {status === "hadir"
+                                ? "Hadir"
+                                : status === "izin"
+                                ? "Izin"
+                                : "Tidak Hadir"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="border rounded-lg p-3 bg-white dark:bg-[#1f1f1f] shadow-sm">
+                  <h4 className="text-sm text-muted-foreground">Metadata</h4>
+                  <div className="mt-2 text-sm text-muted-foreground space-y-1">
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-200">
+                        Lokasi:
+                      </span>{" "}
+                      {selected.ruangan?.namaRuangan ?? "-"}
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-200">
+                        Waktu:
+                      </span>{" "}
+                      {selected.waktuMulai?.slice(0, 5) ?? "-"} -{" "}
+                      {selected.waktuSelesai?.slice(0, 5) ?? "-"}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Keputusan */}
-            <div className="border-t pt-4 text-gray-800 dark:text-gray-200 leading-relaxed">
-              <span className="font-bold">MEMUTUSKAN:</span> Proposal saudara
-              dinyatakan{" "}
-              <span
-                className={`font-semibold underline px-2 py-1 rounded ml-1
-            ${
-              selected?.hasil?.toLowerCase() === "lulus"
-                ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
-                : selected?.hasil?.toLowerCase() === "tidak lulus"
-                ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
-                : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200"
-            }
-          `}
-              >
-                {selected?.hasil?.toUpperCase() || "DITERIMA / DITOLAK"}
-              </span>{" "}
-              dengan catatan terlampir.
-            </div>
-
-            {/* Tombol bawah */}
-            <div className="flex justify-end gap-3 pt-4 border-t">
+            {/* actions */}
+            <div className="flex items-center justify-end gap-3 pt-2">
               <Button
                 variant="secondary"
                 className="flex items-center gap-2"

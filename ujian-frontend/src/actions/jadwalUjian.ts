@@ -81,7 +81,7 @@ export async function getJadwalUjianByProdiByDosen({
         const prodiMatch =
           Number(ujian.mahasiswa?.prodi?.id) === Number(prodiId);
 
-        const statusMatch = ujian.pendaftaranUjian?.status === "dijadwalkan";
+        const statusMatch = ujian.pendaftaranUjian?.status !== "menunggu";
 
         // 🔥 CARI penguji yang perannya cocok dengan dosen ini
         const pengujiFound = ujian.penguji?.find(
