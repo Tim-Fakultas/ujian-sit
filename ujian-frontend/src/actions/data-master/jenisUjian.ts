@@ -1,9 +1,10 @@
 import { JenisUjianResponse } from "@/types/JenisUjian";
 
 export async function getJenisUjian() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
-    const response = await fetch(`http://localhost:8000/api/jenis-ujian`, {
-      next: { revalidate: 60 },
+    const response = await fetch(`${apiUrl}/jenis-ujian`, {
+      cache: "no-store",
     });
 
     if (!response.ok) {

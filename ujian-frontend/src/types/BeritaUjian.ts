@@ -45,14 +45,21 @@ export interface BeritaUjian {
   jadwalUjian: string;
   waktuMulai: string;
   waktuSelesai: string;
-  ruangan: string;
+  ruangan: {
+    id: number;
+    namaRuangan: string;
+  }
   ketuaPenguji: Dosen;
   sekretarisPenguji: Dosen;
   penguji1: Dosen;
   penguji2: Dosen;
   hasil: string | null;
   nilaiAkhir: number | null;
-  keputusan: string | null;
+  keputusan: {
+    id: number;
+    kode: string;
+    namaKeputusan: string;
+  };
   catatan: string | null;
 }
 

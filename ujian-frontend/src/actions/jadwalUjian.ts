@@ -3,12 +3,12 @@ import { UjianResponse } from "@/types/Ujian";
 import { z } from "zod";
 
 import { cookies } from "next/headers";
-import { revalidateTag } from "next/cache";
 
 export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
-    const response = await fetch(`http://localhost:8000/api/ujian`, {
-      next: { tags: ["jadwalUjian"], revalidate: 60 },
+    const response = await fetch(`${apiUrl}/ujian`, {
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -33,8 +33,10 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
 }
 
 export async function getJadwalUjianByProdi(prodiId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
-    const response = await fetch(`http://localhost:8000/api/ujian`);
+    const response = await fetch(`${apiUrl}/ujian`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch ujian ujian by prodi");
@@ -60,8 +62,10 @@ export async function getJadwalUjianByProdiByDosen({
   prodiId: number | undefined;
   dosenId: number | undefined;
 }) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
-    const response = await fetch(`http://localhost:8000/api/ujian`, {
+    const response = await fetch(`${apiUrl}/ujian`, {
       cache: "no-store",
     });
 
@@ -77,7 +81,7 @@ export async function getJadwalUjianByProdiByDosen({
         const prodiMatch =
           Number(ujian.mahasiswa?.prodi?.id) === Number(prodiId);
 
-        const statusMatch = ujian.pendaftaranUjian?.status === "dijadwalkan";
+        const statusMatch = ujian.pendaftaranUjian?.status !== "menunggu";
 
         // 🔥 CARI penguji yang perannya cocok dengan dosen ini
         const pengujiFound = ujian.penguji?.find(
@@ -134,6 +138,8 @@ const JadwalUjianSchema = z.object({
 });
 
 export async function jadwalkanUjianAction(formData: FormData) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const rawData = Object.fromEntries(formData.entries());
     const parsed = JadwalUjianSchema.safeParse(rawData);
@@ -182,13 +188,14 @@ export async function jadwalkanUjianAction(formData: FormData) {
       ],
     };
 
-    const res = await fetch(`http://localhost:8000/api/ujian/${ujianId}`, {
+    const res = await fetch(`${apiUrl}/ujian/${ujianId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
       },
+      
       body: JSON.stringify(payload),
     });
 
@@ -210,8 +217,6 @@ export async function jadwalkanUjianAction(formData: FormData) {
         throw new Error("Gagal menjadwalkan ujian: " + text);
       }
     }
-
-    revalidateTag("jadwalUjian");
 
     return { success: true };
   } catch (err: unknown) {

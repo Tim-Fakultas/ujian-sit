@@ -9,19 +9,17 @@ export async function updatePembimbingMahasiswa({
   pembimbing1: number;
   pembimbing2: number;
 }) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
-    const response = await fetch(
-      `http://localhost:8000/api/mahasiswa/${mahasiswaId}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          pembimbing1,
-          pembimbing2,
-        }),
-        next: { revalidate: 60 },
-      }
-    );
+    const response = await fetch(`${apiUrl}/mahasiswa/${mahasiswaId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pembimbing1,
+        pembimbing2,
+      }),
+      cache: "no-store",
+    });
     if (!response.ok) {
       throw new Error("Gagal update pembimbing mahasiswa");
     }
@@ -34,11 +32,12 @@ export async function updatePembimbingMahasiswa({
 
 // Tambahkan fungsi getMahasiswaById
 export async function getMahasiswaById(mahasiswaId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
-    const response = await fetch(
-      `http://localhost:8000/api/mahasiswa/${mahasiswaId}`,
-      { next: { revalidate: 60 } }
-    );
+    const response = await fetch(`${apiUrl}/mahasiswa/${mahasiswaId}`, {
+      next: { revalidate: 60 },
+    });
     if (!response.ok) {
       throw new Error("Gagal mengambil data mahasiswa");
     }

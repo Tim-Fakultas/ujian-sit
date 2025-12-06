@@ -2,8 +2,8 @@ import { getCurrentUserAction } from "@/actions/auth";
 import { Suspense } from "react";
 import Loading from "./Loading";
 import { getDosen } from "@/actions/data-master/dosen";
-import DosenTable from "./DosenTable";
 import { Dosen } from "@/types/Dosen";
+import { DosenTable } from "./DosenTable";
 
 export default async function Page() {
   const { user } = await getCurrentUserAction();
@@ -11,8 +11,7 @@ export default async function Page() {
   return (
     <div className="p-6 ">
       <Suspense fallback={<Loading />}>
-        
-          <DosenTable dosen={dosen} user={user} />
+        <DosenTable dosen={dosen} user={user} />
       </Suspense>
     </div>
   );

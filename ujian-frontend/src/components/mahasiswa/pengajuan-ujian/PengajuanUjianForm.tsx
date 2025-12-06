@@ -16,7 +16,7 @@ import {
   SelectGroup,
 } from "@/components/ui/select";
 import revalidateAction from "@/actions/revalidate";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Send } from "lucide-react";
 
 export default function PengajuanUjianForm({
   user,
@@ -116,7 +116,7 @@ export default function PengajuanUjianForm({
       const { toast } = await import("sonner");
       toast(
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="text-green-500" size={20} />
+          <CheckCircle2 className="text-emerald-500" size={20} />
           <div>
             <div className="font-semibold">Berhasil!</div>
             <div className="text-sm">Pendaftaran ujian berhasil diajukan.</div>
@@ -160,62 +160,69 @@ export default function PengajuanUjianForm({
 
   return (
     <form
-      className="space-y-6  rounded-lg max-w-2xl mx-auto"
+      className="w-full mx-auto h-[80vh] rounded-lg overflow-auto p-4 flex flex-col"
       onSubmit={handleSubmit}
     >
-      {/* Info syarat proposal */}
-      <div className="mb-2">
-        <div className="flex flex-col gap-1">
-          <span className="text-base  font-semibold mb-1">
-            Syarat Pengajuan Ujian Proposal
-          </span>
-          <div className="flex flex-wrap gap-4 text-sm">
-            <span>
-              IPK Anda:{" "}
-              <span
-                className={`font-bold ${
-                  ipk >= 2
-                    ? "text-green-600 dark:text-green-300"
-                    : "text-red-500 dark:text-red-400"
-                }`}
-              >
-                {ipk}
-              </span>
-              {ipk < 2 && (
-                <span className="ml-1 text-red-500 dark:text-red-400">
-                  (Minimal 2.00)
-                </span>
+      {/* scrollable content */}
+      <div className="flex-1 py-4 space-y-6">
+        {/* Info syarat proposal - compact for mobile */}
+        <div className="bg-gray-50 dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 rounded-md p-3">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="text-sm md:text-base font-semibold">
+                Syarat Pengajuan Ujian Proposal
+              </h3>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                Pastikan IPK & semester memenuhi syarat sebelum mengajukan.
+              </p>
+
+              <div className="mt-3 flex flex-wrap gap-2 items-center">
+                <div
+                  className={`inline-flex items-center gap-2 px-2 py-0.5 rounded-md text-sm font-medium ${
+                    ipk >= 2
+                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200"
+                      : "bg-red-50 text-red-700 dark:bg-red-900 dark:text-red-200"
+                  }`}
+                >
+                  <span className="opacity-90 text-xs">IPK</span>
+                  <span className="ml-1 font-semibold text-sm">{ipk}</span>
+                </div>
+
+                <div
+                  className={`inline-flex items-center gap-2 px-2 py-0.5 rounded-md text-sm font-medium ${
+                    semester >= 6
+                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200"
+                      : "bg-red-50 text-red-700 dark:bg-red-900 dark:text-red-200"
+                  }`}
+                >
+                  <span className="opacity-90 text-xs">Semester</span>
+                  <span className="ml-1 font-semibold text-sm">{semester}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-shrink-0 self-start">
+              {canDaftarProposal() ? (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-600 text-white text-xs sm:text-sm font-medium">
+                  ✓ Memenuhi syarat
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-red-600 text-white text-xs sm:text-sm font-medium">
+                  ✕ Belum memenuhi
+                </div>
               )}
-            </span>
-            <span>
-              Semester Anda:{" "}
-              <span
-                className={`font-bold ${
-                  semester >= 6
-                    ? "text-green-600 dark:text-green-300"
-                    : "text-red-500 dark:text-red-400"
-                }`}
-              >
-                {semester}
-              </span>
-              {semester < 6 && (
-                <span className="ml-1 text-red-500 dark:text-red-400">
-                  (Minimal 6)
-                </span>
-              )}
-            </span>
+            </div>
           </div>
+
           {!canDaftarProposal() && (
-            <div className="mt-2 bg-red-50 border border-red-200 text-red-700 dark:bg-red-950 dark:border-red-800 dark:text-red-300 px-3 py-2 rounded text-sm">
-              Anda belum memenuhi syarat pengajuan ujian proposal.
-              <br />
-              Syarat: IPK &ge; 2.00 dan Semester &ge; 6.
+            <div className="mt-3 px-2 py-2 bg-red-50 border border-red-200 text-red-700 dark:bg-red-950 dark:border-red-800 dark:text-red-300 rounded text-xs">
+              Anda belum memenuhi syarat: IPK &ge; 2.00 dan Semester &ge; 6.
             </div>
           )}
         </div>
       </div>
-      <div>
-        <Label className="mb-1 block font-medium">Jenis Ujian</Label>
+      <div className="space-y-4">
+        <Label className="mb-2 block font-medium">Jenis Ujian</Label>
         <Select
           value={selectedJenisUjian ? String(selectedJenisUjian) : ""}
           onValueChange={(val) => handleJenisUjianSelect(Number(val))}
@@ -338,7 +345,7 @@ export default function PengajuanUjianForm({
         })()}
       </div>
       <div>
-        <Label className="mb-1 block font-medium">Judul Penelitian</Label>
+        <Label className="mb-2 block font-medium">Judul Penelitian</Label>
         {pengajuanRanpel && pengajuanRanpel.length > 1 ? (
           <Select
             value={selectedRanpelId ? String(selectedRanpelId) : ""}
@@ -367,78 +374,78 @@ export default function PengajuanUjianForm({
           <Input value="" readOnly placeholder="Tidak ada judul penelitian" />
         )}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label className="mb-1 block font-medium text-sm">
-            Transkrip Nilai
-          </Label>
-          <Input
-            type="file"
-            onChange={(e) => setBerkasTranskrip(e.target.files?.[0] ?? null)}
-            required
-            className="w-full file:text-sm file:py-1 file:font-normal text-sm"
-            
-          />
-          {berkasTranskrip && (
-            <div className="text-sm mt-1">{berkasTranskrip.name}</div>
-          )}
-        </div>
-        <div>
-          <Label className="mb-1 block font-medium text-sm">
-            Pengesahan Proposal
-          </Label>
-          <Input
-            type="file"
-            onChange={(e) => setBerkasPengesahan(e.target.files?.[0] ?? null)}
-            required
-            className="w-full file:text-sm file:py-1 file:font-normal text-sm"
-          />
-          {berkasPengesahan && (
-            <div className="text-sm mt-1">{berkasPengesahan.name}</div>
-          )}
-        </div>
-        <div>
-          <Label className="mb-1 block font-medium text-sm">
-            Surat Keterangan Lulus Plagiasi
-          </Label>
-          <Input
-            type="file"
-            onChange={(e) => setBerkasPlagiasi(e.target.files?.[0] ?? null)}
-            required
-            className="w-full file:text-sm file:py-1 file:font-normal text-sm"
-          />
-          {berkasPlagiasi && (
-            <div className="text-sm mt-1">{berkasPlagiasi.name}</div>
-          )}
-        </div>
-        <div>
-          <Label className="mb-1 block font-medium text-sm">
-            Proposal Skripsi
-          </Label>
-          <Input
-            type="file"
-            onChange={(e) => setBerkasProposal(e.target.files?.[0] ?? null)}
-            required
-            className="w-full file:text-sm file:py-1 file:font-normal text-sm"
-          />
-          {berkasProposal && (
-            <div className="text-sm mt-1">{berkasProposal.name}</div>
-          )}
-        </div>
+
+      {/* File uploads - responsive: vertical on mobile, two columns on md */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-4">
+        {[
+          {
+            label: "Transkrip Nilai",
+            file: berkasTranskrip,
+            onChange: (f: File | null) => setBerkasTranskrip(f),
+          },
+          {
+            label: "Pengesahan Proposal",
+            file: berkasPengesahan,
+            onChange: (f: File | null) => setBerkasPengesahan(f),
+          },
+          {
+            label: "Surat Keterangan Lulus Plagiasi",
+            file: berkasPlagiasi,
+            onChange: (f: File | null) => setBerkasPlagiasi(f),
+          },
+          {
+            label: "Proposal Skripsi",
+            file: berkasProposal,
+            onChange: (f: File | null) => setBerkasProposal(f),
+          },
+        ].map((it, idx) => (
+          <div key={idx}>
+            <Label className="mb-1 block font-medium text-sm">{it.label}</Label>
+            <label className="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border border-dashed rounded-md px-3 py-2 cursor-pointer hover:bg-muted/50 w-full">
+              <input
+                type="file"
+                className="hidden"
+                onChange={(e) => it.onChange(e.target.files?.[0] ?? null)}
+                accept="application/pdf"
+                required
+              />
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="text-sm font-medium">Upload PDF</div>
+             
+              </div>
+              <div className="text-sm text-muted-foreground w-full sm:w-1/2 truncate text-right sm:text-left">
+                {it.file ? it.file.name : "Belum ada file"}
+              </div>
+            </label>
+          </div>
+        ))}
       </div>
+
+      <div className="text-xs text-muted-foreground mt-1">
+        Tips: Unggah file dalam format PDF. Maks. 1 MB per file. Periksa kembali
+        nama file agar mudah dikenali.
+      </div>
+
       {errorMsg && (
         <div className="bg-red-100 border border-red-300 text-red-700 dark:bg-red-950 dark:border-red-800 dark:text-red-300 px-3 py-2 rounded mb-2 text-sm">
           {errorMsg}
         </div>
       )}
-      <div className="flex gap-2 pt-2 justify-end">
-        <Button
-          type="submit"
-          variant="default"
-          className="px-6 bg-blue-500 hover:bg-blue-600 text-white"
-        >
-          Ajukan
-        </Button>
+
+      {/* Submit footer (non-sticky) */}
+      <div className="pt-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex gap-2 justify-end">
+            <Button
+              type="submit"
+              variant="default"
+              className="md:w-auto px-6 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center"
+            >
+              <Send className="mr-2" size={16} />
+              Ajukan
+            </Button>
+          </div>
+        </div>
       </div>
     </form>
   );

@@ -1,394 +1,443 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import * as React from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
+import TableGlobal from "@/components/tableGlobal";
+
+import { PengajuanRanpel } from "@/types/RancanganPenelitian";
+import PDFPreviewModal from "../dosen/PDFPreviewModal";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+
 import {
   Eye,
   Search,
-  ChevronDown,
-  ChevronUp,
+  ListFilter,
+  ArrowUpDown,
   MoreHorizontal,
+  LayoutGrid,
+  List,
+  Check,
 } from "lucide-react";
-import { formatDate, truncateTitle } from "@/lib/utils";
-import { PengajuanRanpel } from "@/types/RancanganPenelitian";
-import { useEffect, useState } from "react";
-import PDFPreviewModal from "../dosen/PDFPreviewModal";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { ListFilter } from "lucide-react";
-import { Input } from "../ui/input";
-
-const STATUS_OPTIONS = [
-  { value: "all", label: "Semua" },
-  { value: "diterima", label: "Diterima" },
-  { value: "diverifikasi", label: "Diverifikasi" },
-];
+import { truncateTitle } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function PengajuanTableClient({
   pengajuanRanpel,
 }: {
   pengajuanRanpel: PengajuanRanpel[];
 }) {
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [search, setSearch] = useState("");
-  const [sortAsc, setSortAsc] = useState(false); // default: terbaru (desc)
+  // preview modal
   const [selectedPengajuan, setSelectedPengajuan] =
     useState<PengajuanRanpel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sortField, setSortField] = useState<
-    "nama" | "judul" | "tanggal" | null
-  >("tanggal");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // default: terbaru
 
-  // Filter & sort
-  const filteredData = pengajuanRanpel
-    .filter((p) => (filterStatus === "all" ? true : p.status === filterStatus))
-    .filter((p) =>
-      search.trim() === ""
-        ? true
-        : p.mahasiswa.nama.toLowerCase().includes(search.toLowerCase())
-    );
+  // view mode + sorting state for react-table
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const sortedData = [...filteredData].sort((a, b) => {
-    if (sortField === "nama") {
-      const namaA = a.mahasiswa.nama.toLowerCase();
-      const namaB = b.mahasiswa.nama.toLowerCase();
-      if (namaA < namaB) return sortOrder === "asc" ? -1 : 1;
-      if (namaA > namaB) return sortOrder === "asc" ? 1 : -1;
-      return 0;
-    }
-    if (sortField === "judul") {
-      const judulA = (a.ranpel.judulPenelitian || "").toLowerCase();
-      const judulB = (b.ranpel.judulPenelitian || "").toLowerCase();
-      if (judulA < judulB) return sortOrder === "asc" ? -1 : 1;
-      if (judulA > judulB) return sortOrder === "asc" ? 1 : -1;
-      return 0;
-    }
-    // tanggal
-    const dateA = new Date(a.tanggalPengajuan).getTime();
-    const dateB = new Date(b.tanggalPengajuan).getTime();
-    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-  });
+  // controls
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
 
-  // Pagination
-  const total = sortedData.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const paginatedData = sortedData.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
+  const statusOptions = [
+    { value: "all", label: "Semua" },
+    { value: "menunggu", label: "Menunggu" },
+    { value: "diterima", label: "Diterima" },
+    { value: "diverifikasi", label: "Diverifikasi" },
+    { value: "ditolak", label: "Ditolak" },
+  ];
 
-  useEffect(() => {
-    setPage(1);
-  }, [filterStatus, search, sortAsc]);
-
-  // Modal handlers
-  const handleLihatClick = (pengajuan: PengajuanRanpel) => {
-    setSelectedPengajuan(pengajuan);
-    setIsModalOpen(true);
+  const sortOptions = [
+    { value: "tanggal:desc", label: "Tanggal terbaru" },
+    { value: "tanggal:asc", label: "Tanggal terlama" },
+    { value: "nama:asc", label: "Nama A–Z" },
+    { value: "nama:desc", label: "Nama Z–A" },
+  ];
+  const isSortActive = (val: string) => {
+    if (!sorting?.length) return false;
+    const s = sorting[0] as any;
+    return `${s.id}:${s.desc ? "desc" : "asc"}` === val;
   };
+  const handleSortSelect = (val: string) => {
+    if (val === "none") {
+      setSorting([]);
+      return;
+    }
+    const [id, order] = val.split(":");
+    setSorting([{ id, desc: order === "desc" }]);
+  };
+
+  //* filtered data (global search across nama, judul, status, tanggal)
+  const filteredData = useMemo(() => {
+    const q = (search || "").trim().toLowerCase();
+    return (pengajuanRanpel || []).filter((p) => {
+      const nama = (p.mahasiswa?.nama ?? "").toLowerCase();
+      const judul = (p.ranpel?.judulPenelitian ?? "").toLowerCase();
+      const status = (p.status ?? "").toLowerCase();
+      const tanggal = (p.tanggalPengajuan ?? "").toString().toLowerCase();
+      const statusMatch =
+        filterStatus === "all" ? true : status === filterStatus;
+      const qEmpty = q === "";
+      const matchesQ =
+        qEmpty ||
+        nama.includes(q) ||
+        judul.includes(q) ||
+        status.includes(q) ||
+        tanggal.includes(q);
+      return matchesQ && statusMatch;
+    });
+  }, [pengajuanRanpel, search, filterStatus]);
+
+  // table state (sorting state already declared above)
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  // handlers
+  const handleLihatClick = React.useCallback((p: PengajuanRanpel) => {
+    setSelectedPengajuan(p);
+    setIsModalOpen(true);
+  }, []);
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedPengajuan(null);
   };
 
-  // Pagination logic with ellipsis
-  function getPaginationItems(current: number, total: number) {
-    if (total <= 5) {
-      return Array.from({ length: total }, (_, i) => i + 1);
-    }
-    if (current <= 3) {
-      return [1, 2, 3, 4, "...", total];
-    }
-    if (current >= total - 2) {
-      return [1, "...", total - 3, total - 2, total - 1, total];
-    }
-    return [1, "...", current - 1, current, current + 1, "...", total];
-  }
+  // columns
+  const cols: ColumnDef<PengajuanRanpel>[] = useMemo(
+    () => [
+      {
+        id: "no",
+        header: "No",
+        cell: ({ row, table }) => {
+          const index =
+            (table.getState().pagination?.pageIndex ?? 0) *
+              (table.getState().pagination?.pageSize ?? 10) +
+            row.index +
+            1;
+          return <div className="text-center">{index}</div>;
+        },
+      },
+      {
+        accessorFn: (row) => row.mahasiswa?.nama ?? "-",
+        id: "nama",
+        header: () => (
+          <div className="flex items-center gap-1">
+            <span>Nama Mahasiswa</span>
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="font-medium">{String(row.getValue("nama"))}</div>
+        ),
+      },
+      {
+        accessorFn: (row) => row.ranpel?.judulPenelitian ?? "-",
+        id: "judul",
+        header: "Judul Rancangan Penelitian",
+        cell: ({ row }) => (
+          <div className="max-w-[48ch] ">
+            {truncateTitle(String(row.getValue("judul")), 40)}
+          </div>
+        ),
+      },
+      {
+        accessorFn: (row) => row.tanggalPengajuan ?? "",
+        id: "tanggal",
+        header: "Tanggal Pengajuan",
+        cell: ({ row }) => {
+          const val = row.getValue("tanggal") as string;
+          try {
+            return new Date(val).toLocaleDateString("id-ID");
+          } catch {
+            return val;
+          }
+        },
+      },
+      {
+        accessorFn: (row) => row.status ?? "-",
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const s = String(row.getValue("status"));
+          const cls =
+            s === "menunggu"
+              ? "bg-yellow-100 text-yellow-800"
+              : s === "diterima"
+              ? "bg-green-100 text-green-800"
+              : s === "ditolak"
+              ? "bg-red-100 text-red-800"
+              : "bg-blue-100 text-blue-800";
+          return (
+            <span className={`px-2 py-1 rounded text-sm ${cls}`}>{s}</span>
+          );
+        },
+      },
+      {
+        id: "actions",
+        header: "Aksi",
+        cell: ({ row }) => {
+          const item = row.original;
+          return (
+            <div className="text-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleLihatClick(item)}>
+                    <Eye size={14} /> Preview
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      },
+    ],
+    [handleLihatClick]
+  );
 
-  const paginationItems = getPaginationItems(page, totalPages);
+  const table = useReactTable({
+    data: filteredData,
+    columns: cols,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  });
 
-  // Sort handler
-  function handleSort(field: "nama" | "judul" | "tanggal") {
-    if (sortField === field) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortField(field);
-      setSortOrder(field === "tanggal" ? "desc" : "asc");
-    }
-  }
+  // reset page when search/filter change
+  useEffect(() => {
+    try {
+      table.setPageIndex?.(0);
+    } catch {}
+  }, [search, filterStatus]); // eslint-disable-line
 
   return (
-    <div className="bg-white p-6 dark:bg-[#1f1f1f] rounded-lg">
-      {/* Filter Status & Search */}
+    <>
+      <div className="bg-white dark:bg-neutral-900 p-4 md:p-6 rounded-md shadow-sm">
+        {/* Header */}
 
-      <div className="flex  items-center justify-between gap-4 mb-6">
-        <span className="text-lg font-semibold">Rancangan Penelitian</span>
-        <div className="flex w-full md:w-auto gap-2 md:justify-end ">
-          {/* Search */}
-          <div className="relative w-full md:w-56">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-              <Search size={16} />
-            </span>
-            <Input
-              type="text"
-              placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full  rounded-md px-3 py-2 pl-9 text-sm "
-            />
+        {/* Controls: search, status filter (with colored dots), sort dropdown, view tabs */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <div className="flex-1 min-w-0">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search size={16} className="text-muted-foreground" />
+              </div>
+              <Input
+                placeholder="Search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 bg-white dark:bg-neutral-800"
+              />
+            </div>
           </div>
-          {/* Filter Status Popover */}
-          <Popover>
-            <PopoverTrigger asChild>
+
+          {/* status filter as DropdownMenu with colored dots */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-4 flex items-center gap-2  rounded-lg text-xs font-normal shadow-none min-w-[110px] justify-between"
+                className="h-9 px-3 flex items-center gap-2"
               >
-                <span className="flex items-center gap-2">
-                  <ListFilter size={15} />
-                  Filter
-                </span>
-                <ChevronDown size={15} />
+                <ListFilter size={16} />
               </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="w-44 p-0 rounded-md  shadow"
-              sideOffset={8}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              {statusOptions.map((opt) => {
+                const color =
+                  opt.value === "menunggu"
+                    ? "bg-yellow-500"
+                    : opt.value === "diterima"
+                    ? "bg-green-500"
+                    : opt.value === "ditolak"
+                    ? "bg-red-500"
+                    : opt.value === "diverifikasi"
+                    ? "bg-blue-500"
+                    : "bg-gray-500";
+                const active = filterStatus === opt.value;
+                return (
+                  <DropdownMenuItem
+                    key={opt.value}
+                    onClick={() => setFilterStatus(opt.value)}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`w-2 h-2 rounded-full ${color} inline-block`}
+                        aria-hidden
+                      />
+                      <span className="text-sm">{opt.label}</span>
+                    </div>
+                    {active && <Check size={14} />}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* sort dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-3 flex items-center gap-2"
+              >
+                <ArrowUpDown size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {sortOptions.map((opt) => (
+                <DropdownMenuItem
+                  key={opt.value}
+                  onClick={() => handleSortSelect(opt.value)}
+                  className={`flex items-center justify-between gap-2 ${
+                    isSortActive(opt.value) ? "bg-muted/30" : ""
+                  }`}
+                >
+                  <span className="text-sm">{opt.label}</span>
+                  {isSortActive(opt.value) && <Check size={14} />}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuItem onClick={() => handleSortSelect("none")}>
+                Reset sorting
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* view tabs */}
+          <div>
+            <Tabs
+              value={viewMode}
+              onValueChange={(v) => setViewMode(v as "table" | "card")}
+              className="h-8"
             >
-              <div className="p-3">
-                <div className="font-semibold text-xs mb-2 ">Status</div>
-                <div className="flex flex-col gap-1">
-                  {STATUS_OPTIONS.map((opt) => (
-                    <Button
-                      key={opt.value}
-                      variant={
-                        filterStatus === opt.value ? "secondary" : "ghost"
-                      }
-                      size="sm"
-                      className={`justify-start w-full text-xs rounded-md`}
-                      onClick={() => setFilterStatus(opt.value)}
-                    >
-                      {opt.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+              <TabsList className="rounded-md bg-muted p-1 gap-1">
+                <TabsTrigger value="table" className="h-7 px-2 rounded-md">
+                  <LayoutGrid size={14} />
+                </TabsTrigger>
+                <TabsTrigger value="card" className="h-7 px-2 rounded-md">
+                  <List size={14} />
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
         </div>
+
+        {/* Table or Card view */}
+        {filteredData.length === 0 ? (
+          <div className="p-6 flex flex-col items-center justify-center gap-3">
+            <div className="text-sm text-muted-foreground text-center">
+              Tidak ada data pengajuan rancangan penelitian.
+            </div>
+            <div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setFilterStatus("all");
+                  setSearch("");
+                }}
+              >
+                Reset filter
+              </Button>
+            </div>
+          </div>
+        ) : viewMode === "table" ? (
+          <TableGlobal table={table} cols={cols} />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {filteredData.map((item, idx) => {
+              const key = (item as any).id ?? idx;
+              const nama = item.mahasiswa?.nama ?? "-";
+              const judul = item.ranpel?.judulPenelitian ?? "-";
+              const tanggal = item.tanggalPengajuan ?? "";
+              const status = item.status ?? "-";
+              const colorClass =
+                status === "menunggu"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : status === "diterima"
+                  ? "bg-green-100 text-green-800"
+                  : status === "ditolak"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-blue-100 text-blue-800";
+              return (
+                <div
+                  key={key}
+                  className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-xs"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">
+                        {new Date(String(tanggal)).toLocaleDateString?.(
+                          "id-ID"
+                        ) || tanggal}
+                      </div>
+                      <div className="font-medium">{nama}</div>
+                      <div className="text-sm text-muted-foreground mt-2">
+                        {truncateTitle(String(judul), 80)}
+                      </div>
+                    </div>
+                    <div className="ml-3 text-right">
+                      <div
+                        className={`px-2 py-1 rounded text-sm ${colorClass}`}
+                      >
+                        {status}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center justify-end gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleLihatClick(item)}
+                    >
+                      Preview
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      <div className="overflow-x-auto border rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-center w-12">No</TableHead>
-              <TableHead>
-                <div className="flex items-center gap-1 select-none">
-                  Nama Mahasiswa
-                  <button
-                    type="button"
-                    className="ml-1 p-0.5"
-                    onClick={() => handleSort("nama")}
-                    aria-label="Urutkan Nama"
-                  >
-                    {sortField === "nama" ? (
-                      sortOrder === "asc" ? (
-                        <ChevronUp size={13} />
-                      ) : (
-                        <ChevronDown size={13} />
-                      )
-                    ) : (
-                      <ChevronDown size={13} className="text-gray-400" />
-                    )}
-                  </button>
-                </div>
-              </TableHead>
-              <TableHead>
-                <div className="flex items-center gap-1 select-none">
-                  Judul Rancangan Penelitian
-                  <button
-                    type="button"
-                    className="ml-1 p-0.5"
-                    onClick={() => handleSort("judul")}
-                    aria-label="Urutkan Judul"
-                  >
-                    {sortField === "judul" ? (
-                      sortOrder === "asc" ? (
-                        <ChevronUp size={13} />
-                      ) : (
-                        <ChevronDown size={13} />
-                      )
-                    ) : (
-                      <ChevronDown size={13} className="text-gray-400" />
-                    )}
-                  </button>
-                </div>
-              </TableHead>
-              <TableHead>
-                <div className="flex items-center gap-1 select-none">
-                  <span>Tanggal Pengajuan</span>
-                  <button
-                    type="button"
-                    className="ml-1 p-0.5"
-                    onClick={() => handleSort("tanggal")}
-                    aria-label="Urutkan Tanggal"
-                  >
-                    {sortField === "tanggal" ? (
-                      sortOrder === "asc" ? (
-                        <ChevronUp size={13} />
-                      ) : (
-                        <ChevronDown size={13} />
-                      )
-                    ) : (
-                      <ChevronDown size={13} className="text-gray-400" />
-                    )}
-                  </button>
-                </div>
-              </TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-center w-24">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedData.length > 0 ? (
-              paginatedData.map((pengajuan, index) => (
-                <TableRow
-                  key={pengajuan.id}
-                  className="hover:bg-gray-50 transition"
-                >
-                  <TableCell className="text-center font-medium">
-                    {(page - 1) * pageSize + index + 1}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {pengajuan.mahasiswa.nama}
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    {truncateTitle(pengajuan.ranpel.judulPenelitian)}
-                  </TableCell>
-                  <TableCell>
-                    {formatDate(pengajuan.tanggalPengajuan)}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={
-                        `px-2 py-1 rounded text-xs font-semibold shadow-sm ` +
-                        (pengajuan.status === "menunggu"
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          : pengajuan.status === "diterima"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : pengajuan.status === "diverifikasi"
-                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                          : pengajuan.status === "ditolak"
-                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                          : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200")
-                      }
-                    >
-                      {pengajuan.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="" // border-gray-300 dihapus
-                        >
-                          <MoreHorizontal size={18} />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        align="end"
-                        className="w-32 p-2 rounded-md shadow" //  dihapus
-                        sideOffset={8}
-                      >
-                        <Button
-                          onClick={() => handleLihatClick(pengajuan)}
-                          variant="ghost"
-                          size="sm"
-                          className="w-full flex items-center gap-2 justify-start text-xs"
-                        >
-                          <Eye size={13} />
-                          Preview
-                        </Button>
-                      </PopoverContent>
-                    </Popover>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="text-center text-gray-400 py-8"
-                >
-                  Tidak ada data pengajuan rancangan penelitian.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      {/* Pagination controls */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-6">
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-gray-300"
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            Prev
-          </Button>
-          {paginationItems.map((item, idx) =>
-            item === "..." ? (
-              <span
-                key={`ellipsis-${idx}`}
-                className="px-2 text-gray-400 select-none"
-              >
-                ...
-              </span>
-            ) : (
-              <Button
-                key={item}
-                variant={page === item ? "default" : "outline"}
-                size="sm"
-                className={`border-gray-300 ${
-                  page === item ? "font-bold bg-primary " : ""
-                }`}
-                onClick={() => setPage(Number(item))}
-              >
-                {item}
-              </Button>
-            )
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-gray-300"
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Next
-          </Button>
-        </div>
-      )}
       {/* PDF Preview Modal */}
       {selectedPengajuan && (
         <PDFPreviewModal
@@ -397,6 +446,6 @@ export default function PengajuanTableClient({
           pengajuan={selectedPengajuan}
         />
       )}
-    </div>
+    </>
   );
 }

@@ -89,8 +89,8 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       title: "Skripsi",
       icon: IconBook,
       items: [
-        { title: "Jadwal Ujian", url: "/sekprodi/jadwal-ujian" },
         { title: "Daftar Ujian", url: "/sekprodi/daftar-ujian" },
+        { title: "Jadwal Ujian", url: "/sekprodi/jadwal-ujian" },
         { title: "Berita Acara", url: "/sekprodi/berita-ujian" },
         { title: "Rekapitulasi Nilai", url: "/sekprodi/rekapitulasi-nilai" },
       ],
@@ -150,7 +150,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
   const navItems = routeKey ? routeMap[routeKey] : navMahasiswa;
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" >
       {/* Header */}
       <SidebarHeader className="p-3">
         <SidebarMenu>

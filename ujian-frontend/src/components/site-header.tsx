@@ -14,7 +14,7 @@ export function SiteHeader() {
   // const currentLabel = getCurrentLabel(pathname);
 
   return (
-    <header className="flex h-14 shrink-0 items-center transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-14 border-b ">
+    <header className="flex h-14 shrink-0 items-center transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-14 border-b bg-white dark:bg-[#0a0a0a]">
       <div className="flex w-full items-center justify-between gap-3 px-4 lg:gap-4 lg:px-6">
         <div className="flex items-center gap-3 min-w-0 justify-between w-full">
           <div className="flex items-center">

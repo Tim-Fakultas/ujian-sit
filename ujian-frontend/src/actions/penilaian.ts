@@ -4,6 +4,7 @@ export async function postPenilaian(data: {
   dosenId: number;
   komponenNilai: { komponenId: number; nilai: number }[];
 }) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   // Format sesuai kebutuhan backend
   const payload = {
     data: data.komponenNilai.map((k) => ({
@@ -13,14 +14,14 @@ export async function postPenilaian(data: {
       nilai: k.nilai,
     })),
   };
-  const response = await fetch("http://localhost:8000/api/penilaian", {
+  const response = await fetch(`${apiUrl}/penilaian`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
     body: JSON.stringify(payload),
-    next: { revalidate: 60 },
+    cache: "no-store",
   });
   if (!response.ok) {
     let errorText = "Gagal menyimpan penilaian";
@@ -38,8 +39,10 @@ export async function postPenilaian(data: {
 }
 
 export async function getPenilaianByUjianId(ujianId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   try {
-    const response = await fetch(`http://localhost:8000/api/penilaian`, {
+    const response = await fetch(`${apiUrl}/penilaian`, {
       cache: "no-store",
     });
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import {
   Table,
@@ -22,18 +23,44 @@ import {
   ListFilter,
   SearchIcon,
   MoreHorizontal,
+  Calendar,
+  Clock,
+  MapPin,
+  X,
+  Check,
+  NotebookPen,
+  TreeDeciduousIcon,
+  Scale,
+  Gavel,
 } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { UserCheck } from "lucide-react";
 import PenilaianModal from "./PenilaianModal";
-import Modal from "../Modal";
-import { Button } from "../ui/button";
-import { setHadirUjian } from "@/actions/daftarHadirUjian";
-import { Input } from "../ui/input";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "../ui/card";
 
-import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
+import { Button } from "../ui/button";
+import { getHadirUjian, setHadirUjian } from "@/actions/daftarHadirUjian";
+import { Input } from "../ui/input";
 import { getPenilaianByUjianId } from "@/actions/penilaian";
-import { getHadirUjian } from "@/actions/daftarHadirUjian";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "../ui/sheet";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+import { postCatatanByUjianId } from "@/actions/catatan";
+import { postKeputusanByUjianId } from "@/actions/keputusan";
 
 interface JadwalUjianTableProps {
   jadwalUjian: Ujian[];
@@ -70,10 +97,15 @@ export default function JadwalUjianTable({
   jadwalUjian,
   currentDosenId,
 }: JadwalUjianTableProps) {
+  // state untuk sheet keputusan
+  const [openKeputusan, setOpenKeputusan] = useState(false);
+  // keputusanChoice menyimpan id numeric (1/2/3/4)
+  const [keputusanChoice, setKeputusanChoice] = useState<number | null>(null);
   const [selected, setSelected] = useState<Ujian | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
   const [openRekapitulasi, setOpenRekapitulasi] = useState(false);
   const [openDaftarHadir, setOpenDaftarHadir] = useState(false);
+  const [openCatatan, setOpenCatatan] = useState(false);
 
   //* Penilaian Modal State
   const [openPenilaian, setOpenPenilaian] = useState(false);
@@ -85,6 +117,7 @@ export default function JadwalUjianTable({
   const [rekapPenilaian, setRekapPenilaian] = useState<PenilaianItem[]>([]);
   const [rekapLoading, setRekapLoading] = useState(false);
   const [hadirData, setHadirData] = useState<HadirUjian[]>([]);
+  const [catatanText, setCatatanText] = useState<string>("");
 
   // Ambil data hadir uj
   useEffect(() => {
@@ -163,11 +196,8 @@ export default function JadwalUjianTable({
   //* Filter & Pagination State
   const [filterPeran, setFilterPeran] = useState("all");
   const [search, setSearch] = useState("");
-  //* State untuk popover filter
-  const [openFilter, setOpenFilter] = useState(false);
   //* State untuk filter jenis ujian
   const [filterJenisUjian, setFilterJenisUjian] = useState("all");
-  const [openFilterJenis, setOpenFilterJenis] = useState(false);
 
   //* Jenis ujian statis
   const jenisUjianList = ["Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"];
@@ -272,8 +302,60 @@ export default function JadwalUjianTable({
     return "E";
   }
 
+  // isi catatanText saat sheet dibuka / selected berubah
+  useEffect(() => {
+    if (openCatatan && selected) {
+      setCatatanText(selected.catatan ?? "");
+    }
+  }, [openCatatan, selected]);
+
+  const handleSaveCatatan = async () => {
+    await postCatatanByUjianId(selected?.id ?? null, catatanText);
+    try {
+      const { toast } = await import("sonner");
+      toast.success("Catatan disimpan.");
+    } catch {
+      // ignore toast error
+    }
+    setOpenCatatan(false);
+  };
+
+  // keputusanId adalah numeric (1..4). UI tetap menampilkan teks label.
+  const handleSetKeputusan = async (ujianId: number, keputusanId: number) => {
+    // cari label untuk ditampilkan
+    const opt = keputusanOptions.find((o) => o.id === keputusanId);
+    const label = opt ? opt.label : String(keputusanId);
+
+    // optimistik update selected: simpan hasil sebagai label (tampilan tetap string) dan simpan keputusanId
+    setSelected((prev) =>
+      prev && prev.id === ujianId
+        ? { ...prev, hasil: label, keputusanId }
+        : prev
+    );
+
+    try {
+      await postKeputusanByUjianId(ujianId, keputusanId);
+      const { toast } = await import("sonner");
+      toast.success("Keputusan berhasil disimpan.");
+    } catch (err) {
+      console.error("Gagal menyimpan keputusan:", err);
+      try {
+        const { toast } = await import("sonner");
+        toast.error("Gagal menyimpan keputusan.");
+      } catch {}
+    }
+  };
+
+  // daftar opsi keputusan (value = id, tampilkan label)
+  const keputusanOptions = [
+    { id: 1, kode: "A", label: "Dapat diterima tanpa perbaikan" },
+    { id: 2, kode: "B", label: "Dapat diterima dengan perbaikan kecil" },
+    { id: 3, kode: "C", label: "Dapat diterima dengan perbaikan besar" },
+    { id: 4, kode: "D", label: "Belum dapat diterima" },
+  ];
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm dark:bg-[#1f1f1f]">
+    <div className="bg-white p-6 rounded-lg shadow-sm border dark:bg-neutral-900">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <span className="text-lg font-semibold">Jadwal Ujian</span>
         {/* Search bar & filter (right) */}
@@ -290,8 +372,8 @@ export default function JadwalUjianTable({
             </span>
           </div>
           {/* Filter peran popover */}
-          <Popover open={openFilter} onOpenChange={setOpenFilter}>
-            <PopoverTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
@@ -303,14 +385,12 @@ export default function JadwalUjianTable({
                 </span>
                 <ChevronDown size={13} />
               </Button>
-            </PopoverTrigger>
-            <PopoverContent
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
               align="end"
-              className="w-44 p-0 rounded-md  shadow"
-              sideOffset={8}
+              className="w-44 p-0 rounded-md shadow"
             >
-              <div className="p-3">
-                <div className="font-semibold mb-2">Peran</div>
+              <div className="p-2">
                 <div className="flex flex-col gap-1">
                   {[
                     { label: "Semua", value: "all" },
@@ -322,30 +402,34 @@ export default function JadwalUjianTable({
                     { label: "Penguji 1", value: "Penguji 1" },
                     { label: "Penguji 2", value: "Penguji 2" },
                   ].map((item) => (
-                    <Button
+                    <DropdownMenuItem
                       key={item.value}
-                      variant={filterPeran === item.value ? "default" : "ghost"}
-                      size="sm"
-                      className={`justify-start w-full  rounded-md `}
-                      onClick={() => {
-                        setFilterPeran(item.value);
-                        setOpenFilter(false);
-                      }}
+                      onClick={() => setFilterPeran(item.value)}
+                      className="justify-between"
                     >
-                      {item.label}
-                    </Button>
+                      <span
+                        className={
+                          filterPeran === item.value ? "font-medium" : ""
+                        }
+                      >
+                        {item.label}
+                      </span>
+                      {filterPeran === item.value && (
+                        <Check size={16} className="ml-2" />
+                      )}
+                    </DropdownMenuItem>
                   ))}
                 </div>
               </div>
-            </PopoverContent>
-          </Popover>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {/* Filter jenis ujian popover */}
-          <Popover open={openFilterJenis} onOpenChange={setOpenFilterJenis}>
-            <PopoverTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-3 flex items-center gap-2  rounded-lg  font-normal shadow-none min-w-[90px] justify-between"
+                className="h-9 px-3 flex items-center gap-2 rounded-lg  font-normal shadow-none min-w-[90px] justify-between"
               >
                 <span className="flex items-center gap-2">
                   <ListFilter size={16} />
@@ -353,47 +437,53 @@ export default function JadwalUjianTable({
                 </span>
                 <ChevronDown size={16} />
               </Button>
-            </PopoverTrigger>
-            <PopoverContent
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
               align="end"
-              className=" w-44 p-0 rounded-md   shadow"
-              sideOffset={8}
+              className="w-44 p-0 rounded-md shadow"
             >
               <div className="p-3">
-                <div className="font-semibold  mb-2 ">Jenis Ujian</div>
                 <div className="flex flex-col gap-1">
-                  <Button
-                    variant={filterJenisUjian === "all" ? "default" : "ghost"}
-                    size="sm"
-                    className={`justify-start w-full rounded-md `}
-                    onClick={() => {
-                      setFilterJenisUjian("all");
-                      setOpenFilterJenis(false);
-                    }}
+                  <DropdownMenuItem
+                    onClick={() => setFilterJenisUjian("all")}
+                    className="justify-between"
                   >
-                    Semua
-                  </Button>
-                  {jenisUjianList.map((jenis) => (
-                    <Button
-                      key={jenis}
-                      variant={filterJenisUjian === jenis ? "default" : "ghost"}
-                      size="sm"
-                      className={`justify-start w-full  rounded-md`}
-                      onClick={() => {
-                        setFilterJenisUjian(jenis);
-                        setOpenFilterJenis(false);
-                      }}
+                    <span
+                      className={
+                        filterJenisUjian === "all" ? "font-medium" : ""
+                      }
                     >
-                      {jenis}
-                    </Button>
+                      Semua
+                    </span>
+                    {filterJenisUjian === "all" && (
+                      <Check size={16} className="ml-2" />
+                    )}
+                  </DropdownMenuItem>
+                  {jenisUjianList.map((jenis) => (
+                    <DropdownMenuItem
+                      key={jenis}
+                      onClick={() => setFilterJenisUjian(jenis)}
+                      className="justify-between"
+                    >
+                      <span
+                        className={
+                          filterJenisUjian === jenis ? "font-medium" : ""
+                        }
+                      >
+                        {jenis}
+                      </span>
+                      {filterJenisUjian === jenis && (
+                        <Check size={16} className="ml-2" />
+                      )}
+                    </DropdownMenuItem>
                   ))}
                 </div>
               </div>
-            </PopoverContent>
-          </Popover>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
-      <div className="border overflow-auto rounded-lg bg-white dark:bg-[#1f1f1f]">
+      <div className="border overflow-auto rounded-lg">
         <Table>
           <TableHeader className="bg-sidebar-accent">
             <TableRow>
@@ -423,9 +513,6 @@ export default function JadwalUjianTable({
                 function capitalize(str: string) {
                   return str.charAt(0).toUpperCase() + str.slice(1);
                 }
-                const waktuGabung = `${capitalize(
-                  ujian.hariUjian ?? "-"
-                )}, ${tanggal}, ${waktuMulai} - ${waktuSelesai}`;
                 const peranPenguji = getPeranPenguji(ujian, currentDosenId);
 
                 return (
@@ -434,20 +521,20 @@ export default function JadwalUjianTable({
                     <TableCell>{ujian.mahasiswa?.nama ?? "-"}</TableCell>
                     <TableCell>
                       <span
-                        className={`px-2 py-1 rounded  font-semibold ${
+                        className={`px-2 py-1 rounded font-semibold ${
                           ujian.jenisUjian?.namaJenis === "Ujian Proposal"
-                            ? "bg-yellow-100 text-yellow-800"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
                             : ujian.jenisUjian?.namaJenis === "Ujian Hasil"
-                            ? "bg-blue-100 text-blue-800"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
                             : ujian.jenisUjian?.namaJenis === "Ujian Skripsi"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-600"
+                            ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+                            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
                         }`}
                       >
                         {ujian.jenisUjian?.namaJenis ?? "-"}
                       </span>
                     </TableCell>
-                    <TableCell>{ujian.ruangan.namaRuangan ?? "-"}</TableCell>
+                    <TableCell>{ujian.ruangan?.namaRuangan ?? "-"}</TableCell>
                     <TableCell className="w-[20px]">
                       <div className="flex flex-col">
                         <span>
@@ -463,20 +550,20 @@ export default function JadwalUjianTable({
                         <span
                           className={`px-2 py-1 rounded font-semibold ${
                             peranPenguji === "Ketua Penguji"
-                              ? "bg-purple-100 text-purple-800"
+                              ? "bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100"
                               : peranPenguji === "Sekretaris Penguji"
-                              ? "bg-pink-100 text-pink-800"
+                              ? "bg-pink-100 text-pink-800 dark:bg-pink-800 dark:text-pink-100"
                               : peranPenguji === "Penguji 1"
-                              ? "bg-cyan-100 text-cyan-800"
+                              ? "bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100"
                               : peranPenguji === "Penguji 2"
-                              ? "bg-orange-100 text-orange-800"
-                              : "bg-gray-100 text-gray-600"
+                              ? "bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100"
+                              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
                           }`}
                         >
                           {peranPenguji}
                         </span>
                       ) : (
-                        <span className="px-2 py-1 rounded  font-semibold bg-gray-100 text-gray-600">
+                        <span className="px-2 py-1 rounded font-semibold bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200">
                           -
                         </span>
                       )}
@@ -484,12 +571,12 @@ export default function JadwalUjianTable({
                     <TableCell>{ujian.nilaiAkhir ?? "-"}</TableCell>
                     <TableCell>
                       <span
-                        className={`px-2 py-1 rounded  font-semibold ${
+                        className={`px-2 py-1 rounded font-semibold ${
                           ujian.hasil?.toLowerCase() === "lulus"
-                            ? "bg-green-100 text-green-700"
+                            ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100"
                             : ujian.hasil?.toLowerCase() === "tidak lulus"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-gray-100 text-gray-600"
+                            ? "bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100"
+                            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
                         }`}
                       >
                         {ujian.hasil ?? "-"}
@@ -527,7 +614,6 @@ export default function JadwalUjianTable({
                               setSelected(ujian);
                               setOpenDaftarHadir(true);
                             }}
-                            className=""
                           >
                             <UserCheck size={16} className="mr-2" /> Daftar
                             Hadir
@@ -537,301 +623,495 @@ export default function JadwalUjianTable({
                               setSelected(ujian);
                               setOpenPenilaian(true);
                             }}
-                            className=""
                           >
                             <Pencil size={16} className="mr-2" /> Penilaian
                           </DropdownMenuItem>
+                          {/* role check */}
+                          {(() => {
+                            const isKetuaAtauSek = ujian.penguji?.some(
+                              (p) =>
+                                p.id === Number(currentDosenId) &&
+                                (p.peran === "ketua_penguji" ||
+                                  p.peran === "sekretaris_penguji")
+                            );
+                            const jenis = ujian.jenisUjian?.namaJenis ?? "";
+                            const isJenisUntukKeputusan =
+                              jenis === "Ujian Hasil" ||
+                              jenis === "Ujian Skripsi";
+                            return (
+                              isKetuaAtauSek && (
+                                <>
+                                  {/* Catatan: muncul untuk semua jenis ujian */}
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setSelected(ujian);
+                                      setOpenCatatan(true);
+                                    }}
+                                  >
+                                    <NotebookPen size={16} className="mr-2" />{" "}
+                                    Catatan
+                                  </DropdownMenuItem>
+
+                                  {/* Keputusan: hanya untuk jenis Hasil & Skripsi */}
+                                  {isJenisUntukKeputusan && (
+                                    <DropdownMenuItem
+                                      onClick={() => {
+                                        setSelected(ujian);
+                                        const initId =
+                                          (ujian as any).keputusanId ??
+                                          keputusanOptions.find(
+                                            (o) => o.label === ujian.hasil
+                                          )?.id ??
+                                          null;
+                                        setKeputusanChoice(initId);
+                                        setOpenKeputusan(true);
+                                      }}
+                                    >
+                                      <Gavel size={16} className="mr-2" />{" "}
+                                      <span className="mr-2">Keputusan</span>
+                                    </DropdownMenuItem>
+                                  )}
+                                </>
+                              )
+                            );
+                          })()}
                         </DropdownMenuContent>
                       </DropdownMenu>
 
-                      {/* Modal Detail */}
-                      <Modal
-                        open={openDetail && selected?.id === ujian.id}
-                        onClose={() => setOpenDetail(false)}
-                      >
-                        <div className="text-left">
-                          <h2 className="text-lg font-bold mb-2">
-                            Detail Jadwal Ujian
-                          </h2>
-                          <div className="space-y-2 mt-2">
-                            <div>
-                              <strong>Nama Mahasiswa:</strong>{" "}
-                              {ujian.mahasiswa?.nama}
-                            </div>
-                            <div>
-                              <strong>NIM:</strong> {ujian.mahasiswa?.nim}
-                            </div>
-                            <div>
-                              <strong>Judul Penelitian:</strong>{" "}
-                              {ujian.judulPenelitian}
-                            </div>
-                            <div>
-                              <strong>Jenis Ujian:</strong>{" "}
-                              {ujian.jenisUjian?.namaJenis}
-                            </div>
-                            <div>
-                              <strong>Ruangan:</strong>{" "}
-                              {ujian.ruangan.namaRuangan}
-                            </div>
-                            <div>
-                              <strong>Waktu:</strong> {waktuGabung}
-                            </div>
-                            {/* Loop penguji */}
-                            {getPengujiList(ujian).map((penguji) => (
-                              <div key={penguji.id}>
-                                <strong>{penguji.label}:</strong> {penguji.nama}
-                              </div>
-                            ))}
-                            <div>
-                              <strong>Peran Anda:</strong> {peranPenguji ?? "-"}
-                            </div>
+                      {/* Detail Popup (Card) */}
+                      {openDetail && selected?.id === ujian.id && (
+                        <div
+                          className="fixed inset-0 z-50 flex items-center justify-center"
+                          role="dialog"
+                          aria-modal="true"
+                          onKeyDown={(e) => {
+                            if (e.key === "Escape") setOpenDetail(false);
+                          }}
+                        >
+                          <div
+                            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                            onClick={() => setOpenDetail(false)}
+                          />
+                          <div
+                            className="relative z-10 w-full max-w-2xl mx-4"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Card>
+                              <CardHeader className="flex items-start justify-between gap-4">
+                                <div className="text-left">
+                                  <h3 className="text-lg font-semibold">
+                                    {ujian.mahasiswa?.nama ?? "-"}
+                                  </h3>
+                                  <div className="text-sm text-muted-foreground">
+                                    {ujian.mahasiswa?.nim ?? "-"} •{" "}
+                                    <span className="inline-flex items-center gap-1">
+                                      <Calendar size={14} />{" "}
+                                      {ujian.jadwalUjian?.split(/[ T]/)[0] ??
+                                        "-"}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setOpenDetail(false)}
+                                  aria-label="Tutup detail"
+                                >
+                                  <X size={16} />
+                                </Button>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 text-left gap-4 text-sm">
+                                  <div className="space-y-3">
+                                    <div>
+                                      <div className="text-xs text-muted-foreground">
+                                        Judul Penelitian
+                                      </div>
+                                      <div className="mt-1 text-sm font-medium whitespace-pre-wrap break-words break-all max-w-full">
+                                        {ujian.judulPenelitian ?? "-"}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs text-muted-foreground">
+                                        Jenis Ujian
+                                      </div>
+                                      <div className="mt-1 inline-flex items-center gap-2">
+                                        <span
+                                          className={`px-2 py-1 rounded font-semibold text-xs ${
+                                            ujian.jenisUjian?.namaJenis ===
+                                            "Ujian Proposal"
+                                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
+                                              : ujian.jenisUjian?.namaJenis ===
+                                                "Ujian Hasil"
+                                              ? "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
+                                              : "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+                                          }`}
+                                        >
+                                          {ujian.jenisUjian?.namaJenis ?? "-"}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs text-muted-foreground">
+                                        Waktu & Ruangan
+                                      </div>
+                                      <div className="mt-1 text-sm flex flex-col gap-1">
+                                        <div className="inline-flex items-center gap-2">
+                                          <Calendar size={14} />
+                                          <span>
+                                            {ujian.hariUjian ?? "-"} ,{" "}
+                                            {ujian.jadwalUjian?.split(
+                                              /[ T]/
+                                            )[0] ?? "-"}
+                                          </span>
+                                        </div>
+                                        <div className="inline-flex items-center gap-2">
+                                          <Clock size={14} />
+                                          <span>
+                                            {ujian.waktuMulai?.slice(0, 5) ??
+                                              "-"}{" "}
+                                            -{" "}
+                                            {ujian.waktuSelesai?.slice(0, 5) ??
+                                              "-"}
+                                          </span>
+                                        </div>
+                                        <div className="inline-flex items-center gap-2">
+                                          <MapPin size={14} />
+                                          <span>
+                                            {ujian.ruangan?.namaRuangan ?? "-"}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-3">
+                                    <div>
+                                      <div className="text-xs text-muted-foreground">
+                                        Penguji
+                                      </div>
+                                      <div className="mt-2 space-y-2">
+                                        {getPengujiList(ujian).map((p) => (
+                                          <div
+                                            key={p.id}
+                                            className="flex items-center justify-between"
+                                          >
+                                            <div>
+                                              <div className="text-xs text-muted-foreground">
+                                                {p.label}
+                                              </div>
+                                              <div className="text-sm font-medium">
+                                                {p.nama ?? "-"}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
                           </div>
                         </div>
-                      </Modal>
+                      )}
 
-                      {/* Modal Rekapitulasi Nilai */}
-                      <Modal
-                        open={openRekapitulasi && selected?.id === ujian.id}
-                        onClose={() => setOpenRekapitulasi(false)}
-                        className="max-h-[80vh] overflow-y-auto w-full max-w-2xl"
-                      >
-                        <div className="space-y-4">
-                          <div className="text-center">
-                            <h2 className="text-xl font-semibold mb-1 text-gray-900 dark:text-gray-100">
-                              Rekapitulasi Nilai {ujian.jenisUjian?.namaJenis}
-                            </h2>
-                            <div className="text-sm text-muted-foreground">
-                              {ujian.hariUjian ?? "-"} /{" "}
-                              {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <div className="text-xs text-muted-foreground font-medium">
-                                Mahasiswa
-                              </div>
-                              <div className="font-semibold">
-                                {ujian.mahasiswa?.nama ?? "-"}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="text-xs text-muted-foreground font-medium">
-                                NIM
-                              </div>
-                              <div className="font-semibold">
-                                {ujian.mahasiswa?.nim ?? "-"}
-                              </div>
-                            </div>
-                            <div className="sm:col-span-2">
-                              <div className="text-xs text-muted-foreground font-medium mb-2">
-                                Judul Penelitian
-                              </div>
-                              <div className="font-medium border rounded px-3 py-2 bg-gray-900/80 text-white dark:bg-sidebar-accent dark:text-white whitespace-normal break-words">
-                                {ujian.judulPenelitian ?? "-"}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="overflow-x-auto rounded-lg border border-muted">
-                            <Table className="min-w-[500px]">
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead className="w-8 text-center font-semibold border-r">
-                                    No.
-                                  </TableHead>
-                                  <TableHead className="font-semibold border-r">
-                                    Nama
-                                  </TableHead>
-                                  <TableHead className="font-semibold border-r">
-                                    Jabatan
-                                  </TableHead>
-                                  <TableHead className="font-semibold text-center">
-                                    Angka Nilai
-                                  </TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {rekapLoading ? (
-                                  <TableRow>
-                                    <TableCell
-                                      colSpan={4}
-                                      className="text-center py-4"
-                                    >
-                                      Loading...
-                                    </TableCell>
-                                  </TableRow>
-                                ) : rekapPenilaian.length === 0 ? (
-                                  <TableRow>
-                                    <TableCell
-                                      colSpan={4}
-                                      className="text-center py-4"
-                                    >
-                                      Tidak ada data penilaian
-                                    </TableCell>
-                                  </TableRow>
-                                ) : (
-                                  rekapPenilaian.map((d, i) => (
-                                    <TableRow key={d.dosen?.id || i}>
-                                      <TableCell className="border-r text-center">
-                                        {i + 1}
-                                      </TableCell>
-                                      <TableCell className="border-r">
-                                        {d.dosen?.nama ?? "-"}
-                                      </TableCell>
-                                      <TableCell className="border-r">
-                                        {d.jabatan}
-                                      </TableCell>
-                                      <TableCell className="text-center">
-                                        {d.total.toFixed(2)}
-                                      </TableCell>
-                                    </TableRow>
-                                  ))
+                      {/* Rekapitulasi Popup (Card) */}
+                      {openRekapitulasi && selected?.id === ujian.id && (
+                        <div
+                          className="fixed inset-0 z-50 flex items-center justify-center"
+                          role="dialog"
+                          aria-modal="true"
+                        >
+                          <div
+                            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                            onClick={() => setOpenRekapitulasi(false)}
+                          />
+                          <div
+                            className="relative z-10 w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Card>
+                              <CardHeader className="text-center">
+                                <CardTitle>
+                                  Rekapitulasi Nilai{" "}
+                                  {ujian.jenisUjian?.namaJenis}
+                                </CardTitle>
+                                <div className="text-sm text-muted-foreground mt-1">
+                                  {ujian.hariUjian ?? "-"} /{" "}
+                                  {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"}
+                                </div>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <div className="text-xs text-muted-foreground font-medium">
+                                      Mahasiswa
+                                    </div>
+                                    <div className="font-semibold">
+                                      {ujian.mahasiswa?.nama ?? "-"}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="text-xs text-muted-foreground font-medium">
+                                      NIM
+                                    </div>
+                                    <div className="font-semibold">
+                                      {ujian.mahasiswa?.nim ?? "-"}
+                                    </div>
+                                  </div>
+                                  <div className="sm:col-span-2">
+                                    <div className="text-xs text-muted-foreground font-medium mb-2">
+                                      Judul Penelitian
+                                    </div>
+                                    <div className="font-medium border rounded px-3 py-2 dark:bg-sidebar-accent dark:text-white whitespace-normal break-words">
+                                      {ujian.judulPenelitian ?? "-"}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="overflow-x-auto rounded-md border border-muted mt-4">
+                                  <Table>
+                                    <TableHeader className="border-b">
+                                      <TableRow>
+                                        <TableHead className="w-8 text-center font-semibold">
+                                          No.
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                          Nama
+                                        </TableHead>
+                                        <TableHead className="font-semibold">
+                                          Jabatan
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-center">
+                                          Angka Nilai
+                                        </TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {rekapLoading ? (
+                                        <TableRow>
+                                          <TableCell
+                                            colSpan={4}
+                                            className="text-center py-4"
+                                          >
+                                            Loading...
+                                          </TableCell>
+                                        </TableRow>
+                                      ) : rekapPenilaian.length === 0 ? (
+                                        <TableRow>
+                                          <TableCell
+                                            colSpan={4}
+                                            className="text-center py-4"
+                                          >
+                                            Tidak ada data penilaian
+                                          </TableCell>
+                                        </TableRow>
+                                      ) : (
+                                        rekapPenilaian.map((d, i) => (
+                                          <TableRow key={d.dosen?.id || i}>
+                                            <TableCell className="border-r text-center">
+                                              {i + 1}
+                                            </TableCell>
+                                            <TableCell className="border-r">
+                                              {d.dosen?.nama ?? "-"}
+                                            </TableCell>
+                                            <TableCell className="border-r">
+                                              {d.jabatan}
+                                            </TableCell>
+                                            <TableCell className="text-center">
+                                              {d.total.toFixed(2)}
+                                            </TableCell>
+                                          </TableRow>
+                                        ))
+                                      )}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+
+                                {rekapPenilaian.length > 0 && (
+                                  <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 pt-2">
+                                    <div className="flex items-center gap-4">
+                                      <span className="text-sm text-muted-foreground">
+                                        Total
+                                      </span>
+                                      <span className="text-lg font-semibold">
+                                        {rekapPenilaian
+                                          .reduce((sum, d) => sum + d.total, 0)
+                                          .toFixed(2)}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                      <span className="text-sm text-muted-foreground">
+                                        Rata-rata
+                                      </span>
+                                      <span className="text-lg font-semibold">
+                                        {(
+                                          rekapPenilaian.reduce(
+                                            (sum, d) => sum + d.total,
+                                            0
+                                          ) / rekapPenilaian.length
+                                        ).toFixed(2)}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm text-muted-foreground">
+                                        Nilai Huruf
+                                      </span>
+                                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-600 text-white font-semibold">
+                                        {getNilaiHuruf(
+                                          rekapPenilaian.reduce(
+                                            (sum, d) => sum + d.total,
+                                            0
+                                          ) / rekapPenilaian.length
+                                        )}
+                                      </span>
+                                    </div>
+                                  </div>
                                 )}
-                              </TableBody>
-                            </Table>
+                              </CardContent>
+                              <CardFooter className="flex justify-end">
+                                <Button
+                                  variant="default"
+                                  onClick={() => setOpenRekapitulasi(false)}
+                                >
+                                  Tutup
+                                </Button>
+                              </CardFooter>
+                            </Card>
                           </div>
-                          {/* Ringkasan nilai */}
-                          {rekapPenilaian.length > 0 && (
-                            <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 pt-2">
-                              <div className="flex items-center gap-4">
-                                <span className="text-sm text-muted-foreground">
-                                  Total
-                                </span>
-                                <span className="text-lg font-semibold">
-                                  {rekapPenilaian
-                                    .reduce((sum, d) => sum + d.total, 0)
-                                    .toFixed(2)}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <span className="text-sm text-muted-foreground">
-                                  Rata-rata
-                                </span>
-                                <span className="text-lg font-semibold">
-                                  {(
-                                    rekapPenilaian.reduce(
-                                      (sum, d) => sum + d.total,
-                                      0
-                                    ) / rekapPenilaian.length
-                                  ).toFixed(2)}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">
-                                  Nilai Huruf
-                                </span>
-                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-600 text-white font-semibold">
-                                  {getNilaiHuruf(
-                                    rekapPenilaian.reduce(
-                                      (sum, d) => sum + d.total,
-                                      0
-                                    ) / rekapPenilaian.length
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-                          )}
                         </div>
-                      </Modal>
+                      )}
 
-                      {/* Modal Daftar Hadir Ujian */}
-                      <Modal
-                        open={openDaftarHadir && selected?.id === ujian.id}
-                        onClose={() => setOpenDaftarHadir(false)}
-                        className="max-w-4xl w-full max-h-[85vh] overflow-y-auto "
-                      >
-                        <div>
-                          <h2 className="text-lg font-bold mb-2">
-                            Daftar Hadir {ujian.jenisUjian?.namaJenis}
-                          </h2>
-                          <div className="mb-4 mt-2">
-                            <div className="flex flex-col gap-1">
-                              <span>
-                                <strong>Hari/Tanggal:</strong>{" "}
-                                {ujian.hariUjian ?? "-"} /{" "}
-                                {ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-"}
-                              </span>
-                              <span>
-                                <strong>Ruangan:</strong>{" "}
-                                {ujian.ruangan.namaRuangan ?? "-"}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="rounded-lg overflow-auto">
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead>Nama</TableHead>
-                                  <TableHead>NIP/NIDN</TableHead>
-                                  <TableHead>Jabatan</TableHead>
-                                  <TableHead className="text-center">
-                                    Kehadiran
-                                  </TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {getPengujiList(ujian).map((penguji, idx) => (
-                                  <TableRow key={penguji.id}>
-                                    <TableCell className="text-left">
-                                      {penguji.nama ?? "-"}
-                                    </TableCell>
-                                    <TableCell className="text-left">
-                                      {penguji.nip ?? "-"}
-                                      {penguji.nidn ? ` / ${penguji.nidn}` : ""}
-                                    </TableCell>
-                                    <TableCell className="text-left">
-                                      {penguji.label}
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                      {(() => {
-                                        const hadir = sudahHadir(
-                                          ujian.id,
-                                          penguji.id
-                                        );
-                                        if (penguji.id === currentDosenId) {
-                                          return (
-                                            <Button
-                                              size="sm"
-                                              className={
-                                                hadir
-                                                  ? "bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg cursor-default"
-                                                  : "bg-green-500 text-white  hover:bg-green-600 transition px-3 py-1 rounded-lg"
+                      {/* Daftar Hadir Popup (Card) */}
+                      {openDaftarHadir && selected?.id === ujian.id && (
+                        <div
+                          className="fixed inset-0 z-50 flex items-center justify-center"
+                          role="dialog"
+                          aria-modal="true"
+                        >
+                          <div
+                            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                            onClick={() => setOpenDaftarHadir(false)}
+                          />
+                          <div
+                            className="relative z-10 w-full max-w-4xl mx-4 max-h-[85vh] overflow-y-auto"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Card>
+                              <CardHeader className="flex items-center justify-between">
+                                <CardTitle>
+                                  Daftar Hadir {ujian.jenisUjian?.namaJenis}
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="mb-4 mt-2">
+                                  <div className="flex justify-between items-center gap-1">
+                                    <span>
+                                      <strong>Hari/Tanggal:</strong>{" "}
+                                      {ujian.hariUjian ?? "-"} /{" "}
+                                      {ujian.jadwalUjian?.split(/[ T]/)[0] ??
+                                        "-"}
+                                    </span>
+                                    <span>
+                                      <strong>Ruangan:</strong>{" "}
+                                      {ujian.ruangan.namaRuangan ?? "-"}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="rounded-md overflow-auto border border-muted">
+                                  <Table>
+                                    <TableHeader className="border-b">
+                                      <TableRow>
+                                        <TableHead>Nama</TableHead>
+                                        <TableHead>NIP/NIDN</TableHead>
+                                        <TableHead>Jabatan</TableHead>
+                                        <TableHead className="text-center">
+                                          Kehadiran
+                                        </TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {getPengujiList(ujian).map((penguji) => (
+                                        <TableRow key={penguji.id}>
+                                          <TableCell className="text-left">
+                                            {penguji.nama ?? "-"}
+                                          </TableCell>
+                                          <TableCell className="text-left">
+                                            {penguji.nip ?? "-"}
+                                            {penguji.nidn
+                                              ? ` / ${penguji.nidn}`
+                                              : ""}
+                                          </TableCell>
+                                          <TableCell className="text-left">
+                                            {penguji.label}
+                                          </TableCell>
+                                          <TableCell className="text-center">
+                                            {(() => {
+                                              const hadir = sudahHadir(
+                                                ujian.id,
+                                                penguji.id
+                                              );
+                                              if (
+                                                penguji.id === currentDosenId
+                                              ) {
+                                                return (
+                                                  <Button
+                                                    size="sm"
+                                                    className={
+                                                      hadir
+                                                        ? "bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg cursor-default"
+                                                        : "bg-green-500 text-white  hover:bg-green-600 transition px-3 py-1 rounded-lg"
+                                                    }
+                                                    disabled={
+                                                      hadirLoading ===
+                                                        ujian.id || hadir
+                                                    }
+                                                    onClick={() =>
+                                                      handleHadir(
+                                                        currentDosenId!,
+                                                        ujian.id
+                                                      )
+                                                    }
+                                                  >
+                                                    {hadirLoading === ujian.id
+                                                      ? "Loading..."
+                                                      : hadir
+                                                      ? "Sudah Hadir"
+                                                      : "Hadir"}
+                                                  </Button>
+                                                );
+                                              } else {
+                                                return hadir ? (
+                                                  <span className="bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg">
+                                                    Sudah Hadir
+                                                  </span>
+                                                ) : (
+                                                  "-"
+                                                );
                                               }
-                                              disabled={
-                                                hadirLoading === ujian.id ||
-                                                hadir
-                                              }
-                                              onClick={() =>
-                                                handleHadir(
-                                                  currentDosenId!,
-                                                  ujian.id
-                                                )
-                                              }
-                                            >
-                                              {hadirLoading === ujian.id
-                                                ? "Loading..."
-                                                : hadir
-                                                ? "Sudah Hadir"
-                                                : "Hadir"}
-                                            </Button>
-                                          );
-                                        } else {
-                                          return hadir ? (
-                                            <span className="bg-green-200 text-green-700  font-semibold px-3 py-1 rounded-lg">
-                                              Sudah Hadir
-                                            </span>
-                                          ) : (
-                                            "-"
-                                          );
-                                        }
-                                      })()}
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
+                                            })()}
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </CardContent>
+                              <CardFooter className="flex justify-end">
+                                <Button
+                                  variant="ghost"
+                                  onClick={() => setOpenDaftarHadir(false)}
+                                >
+                                  Tutup
+                                </Button>
+                              </CardFooter>
+                            </Card>
                           </div>
                         </div>
-                      </Modal>
+                      )}
 
                       {/* Modal Penilaian */}
                       <PenilaianModal
@@ -840,6 +1120,101 @@ export default function JadwalUjianTable({
                         ujian={ujian}
                         currentDosenId={currentDosenId}
                       />
+
+                      {/* Sheet Catatan (render terpisah supaya muncul sebagai panel samping) */}
+                      <Sheet
+                        open={openCatatan && selected?.id === ujian.id}
+                        onOpenChange={(v) => {
+                          if (!v) setOpenCatatan(false);
+                        }}
+                      >
+                        <SheetContent
+                          side="right"
+                          className="w-[420px] dark:bg-neutral-900"
+                        >
+                          <SheetHeader>
+                            <SheetTitle>Tambahkan Catatan</SheetTitle>
+                            <SheetDescription>
+                              Tambahkan catatan tambahan untuk ujian ini jika
+                              diperlukan.
+                            </SheetDescription>
+                          </SheetHeader>
+                          <div className="grid flex-1 auto-rows-min gap-2 px-4">
+                            <div className="grid gap-3">
+                              <Label htmlFor="catatan">Catatan</Label>
+                              <Textarea
+                                id="catatan"
+                                value={catatanText}
+                                onChange={(e) => setCatatanText(e.target.value)}
+                                className="min-h-[120px]"
+                              />
+                            </div>
+                          </div>
+                          <SheetFooter>
+                            <Button onClick={handleSaveCatatan}>Save</Button>
+                            <SheetClose asChild>
+                              <Button variant="outline">Close</Button>
+                            </SheetClose>
+                          </SheetFooter>
+                        </SheetContent>
+                      </Sheet>
+
+                      {/* Sheet Keputusan (Lulus / Tidak Lulus) */}
+                      <Sheet
+                        open={openKeputusan && selected?.id === ujian.id}
+                        onOpenChange={(v) => {
+                          if (!v) setOpenKeputusan(false);
+                        }}
+                      >
+                        <SheetContent side="right" className="w-[420px]">
+                          <SheetHeader>
+                            <SheetTitle>Set Keputusan</SheetTitle>
+                            <SheetDescription>
+                              Pilih keputusan untuk ujian ini.
+                            </SheetDescription>
+                          </SheetHeader>
+                          <div className="px-4 py-2">
+                            <div className="flex flex-col gap-3 mt-3">
+                              {keputusanOptions.map((opt) => (
+                                <label
+                                  key={opt.id}
+                                  className="inline-flex items-center gap-2"
+                                >
+                                  <input
+                                    type="radio"
+                                    name="keputusan"
+                                    checked={keputusanChoice === opt.id}
+                                    onChange={() => setKeputusanChoice(opt.id)}
+                                  />
+
+                                  <div className="text-sm text-muted-foreground">
+                                    {opt.label}
+                                  </div>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                          <SheetFooter>
+                            <Button
+                              onClick={() => {
+                                if (selected && keputusanChoice !== null) {
+                                  handleSetKeputusan(
+                                    selected.id,
+                                    keputusanChoice
+                                  );
+                                }
+                                setOpenKeputusan(false);
+                              }}
+                              disabled={keputusanChoice === null}
+                            >
+                              Simpan Keputusan
+                            </Button>
+                            <SheetClose asChild>
+                              <Button variant="outline">Batal</Button>
+                            </SheetClose>
+                          </SheetFooter>
+                        </SheetContent>
+                      </Sheet>
                     </TableCell>
                   </TableRow>
                 );

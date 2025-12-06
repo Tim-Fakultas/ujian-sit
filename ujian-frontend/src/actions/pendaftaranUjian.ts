@@ -1,42 +1,13 @@
 "use server";
 
+import { PendaftaranUjianResponse } from "@/types/PendaftaranUjian";
 import { Ujian } from "@/types/Ujian";
 
-interface PendaftaranUjianResponse {
-  data: Array<{
-    id: number;
-    mahasiswa: {
-      id: number;
-      nama: string;
-      nim: string;
-      prodiId: {
-        id: number;
-        namaProdi: string;
-      };
-    };
-    ranpel: {
-      id: number;
-      judulPenelitian: string;
-    };
-    jenisUjian: {
-      id: number;
-      namaJenis: string;
-    };
-    tanggalPengajuan: string;
-    tanggalDisetujui: string;
-    status: string;
-    berkas: File[];
-    keterangan: string;
-    createdAt: string;
-    updatedAt: string;
-  }>;
-}
-
+// MAHASISWA
+//* GET
 export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   try {
-    const API_URL =
-      process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
-
     const response = await fetch(
       `${API_URL}/mahasiswa/${mahasiswaId}/pendaftaran-ujian`,
       {
@@ -44,15 +15,13 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
       }
     );
 
-    // ✅ Jika backend balas 404, artinya belum ada data — jangan lempar error
     if (response.status === 404) {
       console.warn(
         `Tidak ada pendaftaran ujian untuk mahasiswa ID ${mahasiswaId}`
       );
-      return []; // kembalikan array kosong
+      return [];
     }
 
-    // Jika response gagal karena alasan lain
     if (!response.ok) {
       const text = await response.text();
       throw new Error(
@@ -60,7 +29,6 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
       );
     }
 
-    // ✅ Jika response kosong tapi format JSON valid
     const data = await response.json();
 
     if (!data || !data.data) {
@@ -74,9 +42,15 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
   }
 }
 
+// SEKPRODI
+//* GET
 export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   try {
-    const response = await fetch(`http://localhost:8000/api/ujian`, {});
+    const response = await fetch(`${API_URL}/ujian`, {
+      cache: "no-store",
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch pendaftaran ujian by prodi");
@@ -86,9 +60,10 @@ export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
 
     const filteredData = data.data
       .filter(
-        (ujian: Ujian) =>     
+        (ujian: Ujian) =>
           ujian.mahasiswa?.prodi?.id === prodiId &&
-          ujian.pendaftaranUjian.status !== "menunggu" && ujian.pendaftaranUjian.status !== "selesai"
+          ujian.pendaftaranUjian.status !== "menunggu" &&
+          ujian.pendaftaranUjian.status !== "selesai"
       )
 
       .sort(
@@ -108,22 +83,21 @@ export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
   }
 }
 
-
+// ADMIN
+//* GET
 export async function getPendaftaranUjianByProdi(prodiId: number) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   try {
-    const response = await fetch(
-      `http://localhost:8000/api/pendaftaran-ujian`,
-      {
-        cache: "no-store",
-      }
-    );
+    const response = await fetch(`${API_URL}/pendaftaran-ujian`, {
+      cache: "no-store",
+    });
 
     if (!response.ok)
       throw new Error("Failed to fetch pendaftaran ujian by prodi");
 
     const data: PendaftaranUjianResponse = await response.json();
 
-    // Filter dan map sesuai tipe, lalu urutkan dari tanggal pengajuan terbaru
     const filteredData = data.data
       .filter((p) => p.mahasiswa?.prodiId?.id === prodiId)
       .filter((p) => p.status !== "selesai")
@@ -154,6 +128,8 @@ export async function getPendaftaranUjianByProdi(prodiId: number) {
   }
 }
 
+// ADMIN
+//* POST
 export async function createPendaftaranUjian({
   mahasiswaId,
   ranpelId,
@@ -169,6 +145,8 @@ export async function createPendaftaranUjian({
   keterangan?: string;
   status?: string;
 }) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   try {
     const formData = new FormData();
     formData.append("ranpelId", ranpelId.toString());
@@ -182,7 +160,7 @@ export async function createPendaftaranUjian({
     });
 
     const response = await fetch(
-      `http://localhost:8000/api/mahasiswa/${mahasiswaId}/pendaftaran-ujian`,
+      `${API_URL}/mahasiswa/${mahasiswaId}/pendaftaran-ujian`,
       {
         method: "POST",
         body: formData,
@@ -216,10 +194,12 @@ export async function createPendaftaranUjian({
   }
 }
 
+// ADMIN / SEKPRODI
+//* PUT
 export async function updateStatusPendaftaranUjian(id: number, status: string) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   try {
-    const API_URL =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
     const response = await fetch(`${API_URL}/pendaftaran-ujian/${id}`, {
       method: "PUT",
       headers: {

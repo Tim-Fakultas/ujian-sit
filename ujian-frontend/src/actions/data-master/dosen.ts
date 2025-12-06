@@ -1,9 +1,10 @@
 import { Dosen, DosenResponse } from "@/types/Dosen";
 
 export async function getDosen(prodiId: number | undefined) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
-    const response = await fetch(`http://localhost:8000/api/dosen`, {
-      next: { revalidate: 60 },
+    const response = await fetch(`${apiUrl}/dosen`, {
+      cache: "no-store",
     });
 
     if (!response.ok) {

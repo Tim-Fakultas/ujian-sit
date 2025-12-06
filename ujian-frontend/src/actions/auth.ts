@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { redirect } from "next/navigation";
@@ -5,12 +6,13 @@ import { cookies } from "next/headers";
 import type { User } from "@/types/Auth";
 
 export async function loginAction(formData: FormData) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const nip_nim = String(formData.get("nip_nim") || "");
   const password = String(formData.get("password") || "");
 
   let data: any = null;
 
-  const res = await fetch("http://localhost:8000/api/login", {
+  const res = await fetch(`${apiUrl}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nip_nim, password }),

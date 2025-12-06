@@ -5,8 +5,9 @@ import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { updateStatusPengajuanRanpel } from "@/actions/pengajuanRanpel";
 import { getDosen } from "@/actions/data-master/dosen";
 import { updatePembimbingMahasiswa } from "@/actions/data-master/mahasiswa";
-import { X } from "lucide-react";
+import { X, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useRef } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import revalidateAction from "@/actions/revalidate";
 import {
@@ -26,7 +27,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { CheckCircle2 } from "lucide-react";
 
 interface PDFPreviewModalProps {
   isOpen: boolean;
@@ -52,6 +52,8 @@ export default function PDFPreviewModal({
   const [selectedPembimbing2, setSelectedPembimbing2] = useState<number | null>(
     null
   );
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const firstSelectRef = useRef<HTMLButtonElement | null>(null);
 
   const { user } = useAuthStore.getState();
 
@@ -67,6 +69,22 @@ export default function PDFPreviewModal({
       });
     }
   }, [showPembimbingModal, user]);
+
+  // Prefill pembimbing jika sudah ada ketika modal dibuka
+  useEffect(() => {
+    if (showPembimbingModal) {
+      const p1 = pengajuan.mahasiswa.pembimbing1?.id ?? null;
+      const p2 = pengajuan.mahasiswa.pembimbing2?.id ?? null;
+      setSelectedPembimbing1(p1);
+      setSelectedPembimbing2(p2);
+      setValidationError(null);
+
+      // fokus ke select pertama untuk akses keyboard
+      setTimeout(() => {
+        firstSelectRef.current?.focus?.();
+      }, 80);
+    }
+  }, [showPembimbingModal, pengajuan]);
 
   if (!isOpen) return null;
 
@@ -140,6 +158,20 @@ export default function PDFPreviewModal({
     e.preventDefault();
     setIsUpdating(true);
     try {
+      // Validasi cepat: pembimbing tidak boleh sama
+      if (
+        selectedPembimbing1 == null ||
+        selectedPembimbing2 == null ||
+        selectedPembimbing1 === selectedPembimbing2
+      ) {
+        setValidationError(
+          selectedPembimbing1 === selectedPembimbing2
+            ? "Pembimbing 1 dan 2 tidak boleh sama."
+            : "Harap pilih kedua pembimbing."
+        );
+        setIsUpdating(false);
+        return;
+      }
       await updatePembimbingMahasiswa({
         mahasiswaId: pengajuan.mahasiswa.id,
         pembimbing1: selectedPembimbing1!,
@@ -176,12 +208,12 @@ export default function PDFPreviewModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Blur background */}
       <div
-        className="absolute inset-0 bg-black/30 dark:bg-[#1f1f1f]/80 backdrop-blur-sm z-40"
+        className="absolute inset-0 bg-black/30 dark:bg-neutral-950/70 backdrop-blur-sm z-40"
         onClick={onClose}
       />
-      <div className="relative bg-white dark:bg-[#1f1f1f] rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col z-50">
+      <div className="relative bg-white dark:bg-neutral-950 rounded-lg max-w-5xl w-full max-h-[92vh] flex flex-col z-50">
         {/* Header */}
-        <div className="flex items-start justify-between p-4 border-b gap-4 dark:border-gray-800">
+        <div className="flex items-center justify-between p-4 border-b gap-4 dark:border-neutral-800">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Rancangan Penelitian
@@ -202,44 +234,138 @@ export default function PDFPreviewModal({
           </div>
         </div>
 
-        {/* PDF Content */}
-        <div className="flex-1 overflow-auto p-4 bg-white dark:bg-[#1f1f1f]">
-          <div className="bg-white shadow-sm border rounded-md overflow-hidden h-[60vh] dark:bg-[#1f1f1f]">
-            {/* PDF preview area */}
-            <div className="h-full overflow-auto">
-              <PDFDocument pengajuan={pengajuan} />
+        {/* Main content: left = preview (scrollable), right = sidebar (sticky on md+) */}
+        <div className="flex-1 overflow-hidden">
+          <div className="flex flex-col md:flex-row h-full min-h-0">
+            {/* preview pane */}
+            <div className="flex-1 p-4 overflow-auto min-h-0">
+              <div className="bg-white dark:bg-neutral-950 border border-gray-100 dark:border-neutral-800 rounded-md shadow-sm overflow-hidden h-full">
+                {/* preview area controlled by parent: use native overflow-auto to avoid runtime invalid element errors */}
+                <div className="h-full overflow-auto p-6">
+                  <PDFDocument pengajuan={pengajuan} />
+                </div>
+                {/* pembimbing info (mobile: below preview) */}
+                <div className="mt-4 md:hidden border-t pt-4 dark:border-neutral-800">
+                  <div className="mb-2 font-semibold">Dosen Pembimbing:</div>
+                  <div className="text-sm">
+                    <span className="font-medium">Pembimbing 1: </span>
+                    {pengajuan.mahasiswa.pembimbing1?.nama ? (
+                      pengajuan.mahasiswa.pembimbing1.nama
+                    ) : (
+                      <span className="italic text-gray-400 dark:text-gray-500">
+                        Belum ditentukan
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-medium">Pembimbing 2: </span>
+                    {pengajuan.mahasiswa.pembimbing2?.nama ? (
+                      pengajuan.mahasiswa.pembimbing2.nama
+                    ) : (
+                      <span className="italic text-gray-400 dark:text-gray-500">
+                        Belum ditentukan
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Tampilkan dosen pembimbing di bawah preview */}
-          <div className="mt-6 border-t pt-4 dark:border-gray-800">
-            <div className="mb-2 font-semibold">Dosen Pembimbing:</div>
-            <div className="text-sm">
-              <span className="font-medium">Pembimbing 1: </span>
-              {pengajuan.mahasiswa.pembimbing1?.nama ? (
-                pengajuan.mahasiswa.pembimbing1.nama
-              ) : (
-                <span className="italic text-gray-400 dark:text-gray-500">
-                  Belum ditentukan
-                </span>
-              )}
-            </div>
-            <div className="text-sm">
-              <span className="font-medium">Pembimbing 2: </span>
-              {pengajuan.mahasiswa.pembimbing2?.nama ? (
-                pengajuan.mahasiswa.pembimbing2.nama
-              ) : (
-                <span className="italic text-gray-400 dark:text-gray-500">
-                  Belum ditentukan
-                </span>
-              )}
-            </div>
+            {/* sidebar */}
+            <aside className="w-full md:w-80 border-t md:border-t-0 md:border-l border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+              <div className="p-4 md:sticky md:top-4">
+                <div className="mb-4">
+                  <div className="text-sm text-muted-foreground">Status</div>
+                  <div className="mt-2">
+                    <span
+                      className={
+                        `inline-block px-2 py-1 rounded text-sm font-semibold ` +
+                        (pengajuan.status === "menunggu"
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                          : pengajuan.status === "diterima"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          : pengajuan.status === "diverifikasi"
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                          : pengajuan.status === "ditolak"
+                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                          : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200")
+                      }
+                    >
+                      {pengajuan.status}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <div className="text-sm text-muted-foreground">
+                    Dosen Pembimbing
+                  </div>
+                  <div className="mt-2 text-sm">
+                    <div>
+                      <span className="font-medium">Pembimbing 1:</span>{" "}
+                      {pengajuan.mahasiswa.pembimbing1?.nama ?? (
+                        <span className="italic text-gray-400">Belum</span>
+                      )}
+                    </div>
+                    <div className="mt-1">
+                      <span className="font-medium">Pembimbing 2:</span>{" "}
+                      {pengajuan.mahasiswa.pembimbing2?.nama ?? (
+                        <span className="italic text-gray-400">Belum</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* actions - visible on desktop inside sidebar; on mobile actions shown in footer */}
+                {canApproveReject && (
+                  <div className="hidden md:block">
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        className="bg-emerald-700 hover:bg-emerald-800 text-white w-full"
+                        onClick={handleAccept}
+                        disabled={isUpdating}
+                      >
+                        {isUpdating
+                          ? "Memproses..."
+                          : user?.roles?.[0]?.name === "dosen"
+                          ? "Verifikasi"
+                          : "Tentukan Pembimbing"}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={async () => {
+                          await handleReject();
+                          toast(
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2
+                                className="text-red-500"
+                                size={18}
+                              />
+                              <div>
+                                <div className="font-semibold">Ditolak</div>
+                                <div className="text-xs">
+                                  Pengajuan berhasil ditolak.
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }}
+                        disabled={isUpdating}
+                        className="w-full"
+                      >
+                        {isUpdating ? "Memproses..." : "Tolak"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </aside>
           </div>
         </div>
 
-        {/* Footer with action buttons - only show for dosen/kaprodi */}
+        {/* Mobile footer actions (sticky bottom) */}
         {canApproveReject && (
-          <div className="border-t p-4 bg-gray-50 dark:bg-[#1f1f1f] dark:border-gray-800">
+          <div className="md:hidden border-t p-3 bg-white dark:bg-neutral-950 dark:border-neutral-800">
             <div className="flex gap-3 justify-end">
               <Button
                 className="bg-emerald-600 text-white"
@@ -256,7 +382,6 @@ export default function PDFPreviewModal({
                 variant="destructive"
                 onClick={async () => {
                   await handleReject();
-                  // tampilkan toast penolakan
                   toast(
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="text-red-500" size={18} />
@@ -296,10 +421,22 @@ export default function PDFPreviewModal({
               </label>
               <Select
                 value={selectedPembimbing1 ? String(selectedPembimbing1) : ""}
-                onValueChange={(val) => setSelectedPembimbing1(Number(val))}
+                onValueChange={(val) => {
+                  setSelectedPembimbing1(Number(val));
+                  // reset validation when user changes
+                  setValidationError(null);
+                  // if user selected same as pembimbing2, clear pembimbing2 to force reselect
+                  if (Number(val) === selectedPembimbing2) {
+                    setSelectedPembimbing2(null);
+                  }
+                }}
                 required
               >
-                <SelectTrigger className="w-full dark:bg-[#1f1f1f] dark:text-gray-100">
+                <SelectTrigger
+                  ref={firstSelectRef}
+                  className="w-full dark:bg-[#1f1f1f] dark:text-gray-100"
+                  aria-label="Pilih Pembimbing 1"
+                >
                   <SelectValue placeholder="Pilih Pembimbing 1" />
                 </SelectTrigger>
                 <SelectContent className="dark:bg-[#1f1f1f] dark:text-gray-100">
@@ -310,6 +447,10 @@ export default function PDFPreviewModal({
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-2">
+                Pilih dosen pembimbing pertama. Pastikan pembimbing 1 dan 2
+                berbeda.
+              </p>
             </div>
             <div>
               <label className="block mb-1 dark:text-gray-200">
@@ -317,26 +458,46 @@ export default function PDFPreviewModal({
               </label>
               <Select
                 value={selectedPembimbing2 ? String(selectedPembimbing2) : ""}
-                onValueChange={(val) => setSelectedPembimbing2(Number(val))}
+                onValueChange={(val) => {
+                  setSelectedPembimbing2(Number(val));
+                  setValidationError(null);
+                }}
                 required
               >
-                <SelectTrigger className="w-full dark:bg-[#1f1f1f] dark:text-gray-100">
+                <SelectTrigger
+                  className="w-full dark:bg-[#1f1f1f] dark:text-gray-100"
+                  aria-label="Pilih Pembimbing 2"
+                >
                   <SelectValue placeholder="Pilih Pembimbing 2" />
                 </SelectTrigger>
                 <SelectContent className="dark:bg-[#1f1f1f] dark:text-gray-100">
-                  {dosenList.map((dosen) => (
-                    <SelectItem key={dosen.id} value={String(dosen.id)}>
-                      {dosen.nama}
-                    </SelectItem>
-                  ))}
+                  {dosenList
+                    .filter((d) => d.id !== selectedPembimbing1)
+                    .map((dosen) => (
+                      <SelectItem key={dosen.id} value={String(dosen.id)}>
+                        {dosen.nama}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="mt-2">
+              {validationError && (
+                <div className="text-sm text-red-600 mt-1">
+                  {validationError}
+                </div>
+              )}
             </div>
             <AlertDialogFooter className="pt-2 flex-row gap-2 justify-end">
               <AlertDialogAction asChild>
                 <Button
                   type="submit"
-                  disabled={isUpdating}
+                  disabled={
+                    isUpdating ||
+                    !selectedPembimbing1 ||
+                    !selectedPembimbing2 ||
+                    selectedPembimbing1 === selectedPembimbing2
+                  }
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
                   {isUpdating ? "Memproses..." : "Simpan & Terima"}
