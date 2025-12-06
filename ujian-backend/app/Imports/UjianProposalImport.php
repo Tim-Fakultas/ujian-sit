@@ -85,7 +85,7 @@ class UjianProposalImport implements ToCollection
 
                     // ========== Buat Ranpel ==========
                     $ranpel = Ranpel::firstOrCreate(
-                        ['judul_penelitian' => 'Belum diinput'],
+                        ['judul_penelitian' => $judulExcel],
                         ['created_at' => now(), 'updated_at' => now()]
                     );
 

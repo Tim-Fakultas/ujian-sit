@@ -32,11 +32,12 @@ class MahasiswaAll extends Seeder
 
         foreach ($json as $angkatan => $mahasiswas) {
             foreach ($mahasiswas as $mhs) {
-                // Hitung semester berdasarkan angkatan
-                $yearDiff = $currentYear - (int) $angkatan;
-                $semester = ($yearDiff * 2) + ($currentMonth >= 7 ? 1 : 0);
+                  // Hitung semester berdasarkan angkatan (logika akademik riil)
+                $start = \Carbon\Carbon::createFromDate((int)$angkatan, 9, 1);
+                $months = $start->diffInMonths($now);
+                $semester = intdiv($months, 6) + 1;
                 $semester = max(1, min($semester, 14));
-
+                
                 // Buat user untuk setiap mahasiswa
                 $user = User::create([
                     'nip_nim' => $mhs['nim'],
@@ -64,7 +65,7 @@ class MahasiswaAll extends Seeder
                     'pembimbing_2' => null,
                     'status' => 'aktif',
                     'angkatan' => $angkatan,
-                    'user_id' => $user->id, 
+                    'user_id' => $user->id,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];

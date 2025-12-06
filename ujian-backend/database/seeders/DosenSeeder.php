@@ -62,6 +62,7 @@ class DosenSeeder extends Seeder
                 'status' => 'aktif',
                 'prodi_id' => 1,
                 'foto' => null,
+                'override_firstname' => 'fenny' // Tambahan untuk override firstname karena ada nama depan yang sama
             ],
             [
                 'nidn' => '2025117901',
@@ -167,6 +168,7 @@ class DosenSeeder extends Seeder
                 'status' => 'aktif',
                 'prodi_id' => 1,
                 'foto' => null,
+                'override_firstname' => 'kadafi' // Tambahan untuk override firstname karena ada nama depan yang sama
             ],
             [
                 'nidn' => '2029128503',
@@ -182,6 +184,7 @@ class DosenSeeder extends Seeder
                 'status' => 'aktif',
                 'prodi_id' => 1,
                 'foto' => null,
+                'override_firstname' => 'son' // Tambahan untuk override firstname karena ada nama depan yang sama
             ],
             [
                 'nidn' => '2017118205',
@@ -257,6 +260,7 @@ class DosenSeeder extends Seeder
                 'status' => 'aktif',
                 'prodi_id' => 1,
                 'foto' => null,
+                'override_firstname' => 'leandry' // Tambahan untuk override firstname karena ada nama depan yang sama
             ],
             [
                 'nidn' => '2023058902',
@@ -317,6 +321,7 @@ class DosenSeeder extends Seeder
                 'status' => 'aktif',
                 'prodi_id' => 1,
                 'foto' => null,
+                'override_firstname' => 'syendi' // Tambahan untuk override firstname karena ada nama depan yang sama
             ],
             [
                 'nidn' => '0221039001',
@@ -347,6 +352,7 @@ class DosenSeeder extends Seeder
                 'status' => 'aktif',
                 'prodi_id' => 1,
                 'foto' => null,
+                'override_firstname' => 'isnaini' // Tambahan untuk override firstname karena ada nama depan yang sama
             ],
             [
                 'nidn' => '0002018705',
@@ -382,9 +388,9 @@ class DosenSeeder extends Seeder
 
         foreach ($initialData as $data) {
             // Create user
-            $firstName = trim(Str::before(Str::before($data['nama'], ','), ' ')); // ambil kata pertama sebelum koma
+            $firstName = $data['override_firstname'] ?? trim(string: Str::before(Str::before($data['nama'], ','), ' ')); // ambil kata pertama sebelum koma
             $nipNumbers = substr(preg_replace('/\D/', '', $data['nip']), 0, 8);
-            $nipNim = Str::lower($firstName . $nipNumbers);
+            $nipNim = Str::lower( $firstName . $nipNumbers);
 
             $user = User::create([
                 'nip_nim' => $nipNim,
