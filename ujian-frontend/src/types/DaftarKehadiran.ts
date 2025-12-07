@@ -7,3 +7,10 @@ export interface daftarKehadiran {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface HadirUjian {
+  id: number;
+  ujianId: number;
+  dosenId: number;
+  statusKehadiran: string;
+}

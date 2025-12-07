@@ -169,30 +169,14 @@ export function BeritaAcaraModal({
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell>1.</TableCell>
-              <TableCell>{ujian.ketuaPenguji?.nama ?? "-"}</TableCell>
-              <TableCell>Ketua Penguji</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>2.</TableCell>
-              <TableCell>{ujian.sekretarisPenguji?.nama ?? "-"}</TableCell>
-              <TableCell>Sekretaris Penguji</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>3.</TableCell>
-              <TableCell>{ujian.penguji1?.nama ?? "-"}</TableCell>
-              <TableCell>Penguji I</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>4.</TableCell>
-              <TableCell>{ujian.penguji2?.nama ?? "-"}</TableCell>
-              <TableCell>Penguji II</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
+            {(ujian.penguji ?? []).map((penguji, idx) => (
+              <TableRow key={penguji.id ?? idx}>
+                <TableCell>{idx + 1}.</TableCell>
+                <TableCell>{penguji.nama ?? "-"}</TableCell>
+                <TableCell>{penguji.peran ?? "-"}</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
         {getKeputusan()}

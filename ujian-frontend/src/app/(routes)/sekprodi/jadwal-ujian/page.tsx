@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { getCurrentUserAction } from "@/actions/auth";
 import { getHadirUjian } from "@/actions/daftarHadirUjian";
 import Loading from "./loading";
+import Header from "@/components/Header";
 
 export default async function JadwalUjianPage() {
   const { user } = await getCurrentUserAction();
@@ -16,6 +17,7 @@ export default async function JadwalUjianPage() {
   const daftarHadir = await getHadirUjian();
   return (
     <div className="p-6">
+      <Header title="Jadwal Ujian" desc="Kelola jadwal ujian di sini." />
       <Suspense fallback={<Loading />}>
         <JadwalUjianTable jadwalUjian={jadwalUjian} daftarHadir={daftarHadir} />
       </Suspense>

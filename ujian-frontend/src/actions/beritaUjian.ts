@@ -19,7 +19,7 @@ export async function getBeritaUjian(prodiId: number | undefined) {
           ujian.pendaftaranUjian.status === "selesai"
       )
       .sort((a, b) => {
-        // Sort by jadwalUjian first, then waktuSelesai
+        // Sort by jadwalUjian (desc), then waktuSelesai (desc)
         const jadwalA = new Date(a.jadwalUjian).getTime();
         const jadwalB = new Date(b.jadwalUjian).getTime();
         if (jadwalB !== jadwalA) {
@@ -29,6 +29,7 @@ export async function getBeritaUjian(prodiId: number | undefined) {
         const selesaiB = new Date(b.waktuSelesai).getTime();
         return selesaiB - selesaiA;
       });
+
     return filteredData;
   } catch (error) {
     console.error("Error fetching ujian ujian by prodi:", error);
@@ -67,7 +68,6 @@ export async function getBeritaUjianByLulus(prodiId: number | undefined) {
         const selesaiB = new Date(b.waktuSelesai).getTime();
         return selesaiB - selesaiA;
       });
-    // ...existing code...
     return filteredData;
   } catch (error) {
     console.error("Error fetching ujian ujian by prodi:", error);

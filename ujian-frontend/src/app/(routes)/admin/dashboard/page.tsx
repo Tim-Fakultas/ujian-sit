@@ -46,7 +46,6 @@ async function getTotalJadwalUjianByProdi(prodiId?: number) {
   return data?.data?.length ?? 0;
 }
 
-// Tambahkan Card + ikon untuk desain serupa dosen/dashboard
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, UserCheck, ClipboardList, Calendar } from "lucide-react";
 

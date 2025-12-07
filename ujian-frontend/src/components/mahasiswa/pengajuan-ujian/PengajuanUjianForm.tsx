@@ -23,11 +23,13 @@ export default function PengajuanUjianForm({
   jenisUjianList,
   pengajuanRanpel,
   ujian,
+  onCloseModal, // Tambahkan prop opsional
 }: {
   user: User | null;
   jenisUjianList: Array<{ id: number; namaJenis: string }>;
   pengajuanRanpel: PengajuanRanpel[];
   ujian: Ujian[];
+  onCloseModal?: () => void; // Tambahkan tipe prop
 }) {
   const [selectedJenisUjian, setSelectedJenisUjian] = useState<number | null>(
     null
@@ -137,6 +139,11 @@ export default function PengajuanUjianForm({
       );
 
       revalidateAction("/mahasiswa/pendaftaran-ujian");
+
+      // Tutup modal jika fungsi tersedia
+      if (onCloseModal) {
+        onCloseModal();
+      }
     } catch (err: unknown) {
       let msg = "Gagal submit pendaftaran ujian.";
       if (
@@ -160,7 +167,7 @@ export default function PengajuanUjianForm({
 
   return (
     <form
-      className="w-full mx-auto h-[80vh] rounded-lg overflow-auto p-4 flex flex-col"
+      className="w-full mx-auto h-[80vh] rounded-lg overflow-auto  flex flex-col"
       onSubmit={handleSubmit}
     >
       {/* scrollable content */}
@@ -411,7 +418,6 @@ export default function PengajuanUjianForm({
               />
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <div className="text-sm font-medium">Upload PDF</div>
-             
               </div>
               <div className="text-sm text-muted-foreground w-full sm:w-1/2 truncate text-right sm:text-left">
                 {it.file ? it.file.name : "Belum ada file"}

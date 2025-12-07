@@ -44,11 +44,11 @@ export default async function DaftarUjianPage() {
           <CardTitle>
             <div className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Pengajuan Rancangan Penelitian
+              Daftar Ujian
             </div>
           </CardTitle>
           <CardDescription>
-            Kelola pengajuan rancangan penelitian Anda di sini.
+            Lihat dan kelola pendaftaran ujian Anda di sini.
           </CardDescription>
         </CardHeader>
       </Card>

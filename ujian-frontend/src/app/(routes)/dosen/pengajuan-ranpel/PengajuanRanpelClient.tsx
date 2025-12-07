@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import * as React from "react";
 import { useState, useMemo, useEffect } from "react";
@@ -15,17 +16,17 @@ import {
 import TableGlobal from "@/components/tableGlobal";
 
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
-import PDFPreviewModal from "./PDFPreviewModal";
+import PDFPreviewModal from "../jadwal-ujian/PDFPreviewModal";
 import { Button } from "@/components/ui/button";
 import {
   Eye,
   ListFilter,
   MoreHorizontal,
-  ArrowUpDown,
   LayoutGrid,
   List,
   Check,
   Search,
+  Settings2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,7 +36,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "../../../../components/ui/dropdown-menu";
 
 export default function PengajuanRanpelClient({
   pengajuanRanpel,
@@ -90,40 +91,6 @@ export default function PengajuanRanpelClient({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  // helper label for current sort (small UX nicety)
-  const currentSortLabel = React.useMemo(() => {
-    if (!sorting?.length) return "Urutkan";
-    const s = sorting[0];
-    if (s.id === "tanggal")
-      return s.desc ? "Tanggal terbaru" : "Tanggal terlama";
-    if (s.id === "nama") return s.desc ? "Nama Z–A" : "Nama A–Z";
-    return "Urutkan";
-  }, [sorting]);
-
-  const handleSortSelect = (value: string) => {
-    // value values: tanggal:desc / tanggal:asc / nama:asc / nama:desc / none
-    if (value === "none") {
-      setSorting([]);
-      return;
-    }
-    const [id, order] = value.split(":");
-    setSorting([{ id, desc: order === "desc" }]);
-  };
-
-  // sort options for dropdown (tanggal / nama)
-  const sortOptions = [
-    { value: "tanggal:desc", label: "Tanggal terbaru" },
-    { value: "tanggal:asc", label: "Tanggal terlama" },
-    { value: "nama:asc", label: "Nama A–Z" },
-    { value: "nama:desc", label: "Nama Z–A" },
-  ];
-
-  const isSortActive = (val: string) => {
-    if (!sorting?.length) return false;
-    const s = sorting[0] as any;
-    return `${s.id}:${s.desc ? "desc" : "asc"}` === val;
-  };
-
   // handlers
   const handleLihatClick = React.useCallback((pengajuan: PengajuanRanpel) => {
     setSelectedPengajuan(pengajuan);
@@ -139,8 +106,8 @@ export default function PengajuanRanpelClient({
     () => [
       {
         id: "select",
-        header: ({ table }) => null,
-        cell: ({ row }) => null,
+        header: () => null,
+        cell: () => null,
         enableSorting: false,
         enableHiding: false,
       },
@@ -159,7 +126,7 @@ export default function PengajuanRanpelClient({
       {
         accessorFn: (row) => row.mahasiswa?.nama ?? "-",
         id: "nama",
-        header: ({ column }) => (
+        header: () => (
           <div className="flex items-center gap-1">
             <span>Nama Mahasiswa</span>
           </div>
@@ -296,22 +263,13 @@ export default function PengajuanRanpelClient({
                   aria-label="Filter status"
                   title="Filter status"
                 >
-                  <ListFilter size={16} />
+                  <Settings2 size={16} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="min-w-[180px]">
                 {statusOptions.map((opt) => {
                   const isActive = filterStatus === opt.value;
-                  const color =
-                    opt.value === "menunggu"
-                      ? "bg-yellow-500"
-                      : opt.value === "diterima"
-                      ? "bg-green-500"
-                      : opt.value === "ditolak"
-                      ? "bg-red-500"
-                      : opt.value === "diverifikasi"
-                      ? "bg-blue-500"
-                      : "bg-gray-500";
+
                   return (
                     <DropdownMenuItem
                       key={opt.value}
@@ -319,63 +277,12 @@ export default function PengajuanRanpelClient({
                       className="flex items-center justify-between gap-2"
                     >
                       <div className="flex items-center gap-3">
-                        <span
-                          className={`w-2 h-2 rounded-full ${color} inline-block`}
-                          aria-hidden
-                        />
                         <span className="text-sm">{opt.label}</span>
                       </div>
                       {isActive && <Check size={14} />}
                     </DropdownMenuItem>
                   );
                 })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 px-3 flex items-center gap-2"
-                  aria-label="Sort"
-                  title="Sort"
-                >
-                  <ArrowUpDown size={14} />
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent align="end" className="w-48">
-                {sortOptions.map((opt) => {
-                  const active = isSortActive(opt.value);
-                  return (
-                    <DropdownMenuItem
-                      key={opt.value}
-                      onClick={() => handleSortSelect(opt.value)}
-                      className={`flex items-center justify-between gap-2 ${
-                        active ? "bg-muted/30" : ""
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`w-2 h-2 rounded-full ${
-                            opt.value.startsWith("tanggal")
-                              ? "bg-gray-400"
-                              : "bg-gray-500"
-                          }`}
-                        />
-                        <span className="text-sm">{opt.label}</span>
-                      </div>
-                      {active && <Check size={14} />}
-                    </DropdownMenuItem>
-                  );
-                })}
-                <DropdownMenuItem
-                  onClick={() => handleSortSelect("none")}
-                  className="mt-1"
-                >
-                  Reset sorting
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 

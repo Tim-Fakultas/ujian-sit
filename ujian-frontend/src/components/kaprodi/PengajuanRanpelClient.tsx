@@ -16,7 +16,7 @@ import {
 import TableGlobal from "@/components/tableGlobal";
 
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
-import PDFPreviewModal from "../dosen/PDFPreviewModal";
+import PDFPreviewModal from "../../app/(routes)/dosen/jadwal-ujian/PDFPreviewModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

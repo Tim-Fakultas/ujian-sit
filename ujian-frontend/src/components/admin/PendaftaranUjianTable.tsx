@@ -23,6 +23,10 @@ import {
   X,
   MoreHorizontal,
   ArrowUpDown,
+  LayoutGrid,
+  List,
+  Settings,
+  Settings2,
 } from "lucide-react";
 import { PendaftaranUjian } from "@/types/PendaftaranUjian";
 import { Button } from "../ui/button";
@@ -37,7 +41,6 @@ import React, { useState, useTransition, useMemo, useEffect } from "react";
 import { updateStatusPendaftaranUjian } from "@/actions/pendaftaranUjian";
 import { Input } from "../ui/input";
 import revalidateAction from "@/actions/revalidate";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -46,6 +49,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 export default function PendaftaranUjianTable({
   pendaftaranUjian,
@@ -106,6 +110,61 @@ export default function PendaftaranUjianTable({
     setSortOrder(order === "asc" ? "asc" : "desc");
   };
 
+  // Tabs state
+  const [tab, setTab] = useState<
+    "all" | "menunggu" | "diterima" | "ditolak" | "dijadwalkan" | "selesai"
+  >("all");
+  // View mode state
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
+  // Responsive: cek mobile
+  const isMobile =
+    typeof window !== "undefined" ? window.innerWidth < 640 : false;
+
+  // Status options for dropdown
+  const statusOptions = [
+    { value: "all", label: "Semua" },
+    { value: "menunggu", label: "Menunggu" },
+    { value: "diterima", label: "Diterima" },
+    { value: "ditolak", label: "Ditolak" },
+    { value: "dijadwalkan", label: "Dijadwalkan" },
+    { value: "selesai", label: "Selesai" },
+  ];
+
+  // Gabungkan status dan jenis ujian untuk filter
+  const combinedFilterOptions = [
+    ...statusOptions.map((opt) => ({
+      type: "status",
+      value: opt.value,
+      label: opt.label,
+    })),
+    ...jenisUjianOptions.map((opt) => ({
+      type: "jenis",
+      value: opt.value,
+      label: `Jenis: ${opt.label}`,
+    })),
+  ];
+
+  // State untuk filter gabungan
+  const [filterOption, setFilterOption] = useState<{
+    type: string;
+    value: string;
+  }>({
+    type: "status",
+    value: "all",
+  });
+
+  // Update filterJenis dan tab berdasarkan filterOption
+  useEffect(() => {
+    if (filterOption.type === "status") {
+      setTab(filterOption.value as typeof tab);
+      setFilterJenis("all");
+    } else if (filterOption.type === "jenis") {
+      setTab("all");
+      setFilterJenis(filterOption.value as typeof filterJenis);
+    }
+  }, [filterOption]);
+
   // Filtered & Sorted data (basic filter applied; actual sorting handled by react-table)
   const filteredData = useMemo(() => {
     const data = pendaftaranUjian.filter((item) => {
@@ -114,14 +173,20 @@ export default function PendaftaranUjianTable({
       const jenis = item.jenisUjian?.namaJenis?.toLowerCase() ?? "";
       const q = search.toLowerCase();
       const matchSearch = nama.includes(q) || judul.includes(q);
+
+      // Gabungan filter
+      let matchStatus = true;
       let matchJenis = true;
-      if (filterJenis !== "all") {
-        matchJenis = jenis.includes(filterJenis);
+      if (filterOption.type === "status" && filterOption.value !== "all") {
+        matchStatus = item.status === filterOption.value;
       }
-      return matchSearch && matchJenis;
+      if (filterOption.type === "jenis" && filterOption.value !== "all") {
+        matchJenis = jenis.includes(filterOption.value);
+      }
+      return matchSearch && matchStatus && matchJenis;
     });
     return data;
-  }, [pendaftaranUjian, search, filterJenis]);
+  }, [pendaftaranUjian, search, filterOption]);
 
   const handleDetail = React.useCallback((pendaftaran: PendaftaranUjian) => {
     setSelected(pendaftaran);
@@ -147,17 +212,26 @@ export default function PendaftaranUjianTable({
         accessorFn: (row) => row.mahasiswa?.nama ?? "-",
         id: "nama",
         header: "Nama Mahasiswa",
-        cell: ({ row }) => <div>{row.getValue("nama")}</div>,
+        cell: ({ row }) => (
+          <div>
+            {row.getValue("nama")}
+            <div className="text-xs text-muted-foreground">
+              {row.original.mahasiswa?.nim ?? "-"}
+            </div>
+          </div>
+        ),
+        size: 160, // kurangi lebar kolom nama
       },
       {
         accessorFn: (row) => row.ranpel?.judulPenelitian ?? "-",
         id: "judul",
         header: "Judul",
         cell: ({ row }) => (
-          <div className="whitespace-normal break-words max-w-sm">
+          <div className="whitespace-normal break-words max-w-[180px]">
             {row.getValue("judul")}
           </div>
         ),
+        size: 200, // kurangi lebar kolom judul
       },
       {
         accessorFn: (row) => row.tanggalPengajuan ?? "",
@@ -197,6 +271,7 @@ export default function PendaftaranUjianTable({
             return v;
           }
         },
+        size: 110, // kurangi lebar kolom tanggal
       },
       {
         accessorFn: (row) => row.jenisUjian.namaJenis ?? "-",
@@ -211,6 +286,7 @@ export default function PendaftaranUjianTable({
             {row.getValue("jenis")}
           </span>
         ),
+        size: 110, // kurangi lebar kolom jenis
       },
       {
         accessorFn: (row) => row.status ?? "-",
@@ -226,6 +302,7 @@ export default function PendaftaranUjianTable({
             </span>
           );
         },
+        size: 100, // kurangi lebar kolom status
       },
       {
         id: "actions",
@@ -241,13 +318,14 @@ export default function PendaftaranUjianTable({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => handleDetail(pendaftaran)}>
-                    <Eye size={16} /> Lihat Detail
+                    <Eye size={16} /> Lihat berkas
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           );
         },
+        size: 60, // kurangi lebar kolom aksi
       },
     ],
     [handleDetail, sortField, sortOrder]
@@ -343,96 +421,192 @@ export default function PendaftaranUjianTable({
   }
 
   return (
-    <div className=" dark:bg-neutral-900 p-6 rounded-lg bg-white">
-      <div className="flex items-center gap-2 justify-between mb-4">
-        <div className="flex items-center gap-3 w-full ">
-          {/* search (full width) */}
-          <div className="relative flex-1 flex items-center gap-2">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              <Search size={16} />
-            </span>
+    <div className="dark:bg-neutral-900 border p-6 rounded-lg bg-white">
+      {/* Filter bar: gabungan status/jenis, view mode, search, sort */}
+      <div className="flex flex-col gap-2 mb-4">
+        <div className="flex flex-row items-center gap-2 w-full">
+          {/* Search */}
+          <div className="relative flex-1 flex items-center min-w-0">
             <Input
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 w-full bg-white dark:bg-[#2a2a2a] "
+              className="pl-9 w-full bg-white dark:bg-[#2a2a2a]"
+              aria-label="Search"
             />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <Search size={16} />
+            </span>
           </div>
 
-          {/* filter jenis (shadcn DropdownMenu) */}
+          {/* Gabungan filter status/jenis */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="h-9 px-4 py-1 rounded-lg font-medium border transition flex items-center gap-2"
+                className="h-9 px-3 rounded-lg border flex items-center gap-2"
+                aria-label="Filter Status/Jenis"
               >
-                <span className="flex items-center gap-2">
-                  <ListFilter size={16} />
-                  {
-                    jenisUjianOptions.find((opt) => opt.value === filterJenis)
-                      ?.label
-                  }
-                </span>
-                <ChevronDown size={14} />
+                <Settings2 size={16} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-[180px]">
-              {jenisUjianOptions.map((opt) => (
+            <DropdownMenuContent align="start" className="min-w-[160px]">
+              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                Status
+              </div>
+              {statusOptions.map((opt) => (
                 <DropdownMenuItem
-                  key={opt.value}
+                  key={"status-" + opt.value}
                   onClick={() =>
-                    setFilterJenis(opt.value as typeof filterJenis)
+                    setFilterOption({ type: "status", value: opt.value })
                   }
                   className="flex items-center justify-between gap-2"
                 >
                   <span className="text-sm">{opt.label}</span>
-                  {filterJenis === opt.value && (
-                    <CheckCircle2 size={14} className="text-emerald-500" />
-                  )}
+                  {filterOption.type === "status" &&
+                    filterOption.value === opt.value && (
+                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    )}
+                </DropdownMenuItem>
+              ))}
+              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t border-muted">
+                Jenis Ujian
+              </div>
+              {jenisUjianOptions.map((opt) => (
+                <DropdownMenuItem
+                  key={"jenis-" + opt.value}
+                  onClick={() =>
+                    setFilterOption({ type: "jenis", value: opt.value })
+                  }
+                  className="flex items-center justify-between gap-2"
+                >
+                  <span className="text-sm">{opt.label}</span>
+                  {filterOption.type === "jenis" &&
+                    filterOption.value === opt.value && (
+                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    )}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* sort dropdown (shadcn DropdownMenu) */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-9 px-3 py-1 rounded-lg font-medium border transition flex items-center gap-2"
-                title="Sort"
+          {/* View mode */}
+          <Tabs
+            value={viewMode}
+            onValueChange={(v) => setViewMode(v as "table" | "card")}
+            className="h-8"
+          >
+            <TabsList className="rounded-md bg-muted p-1 gap-1">
+              <TabsTrigger
+                value="table"
+                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                aria-label="Table view"
               >
-                <ArrowUpDown size={16} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {sortOptions.map((opt) => {
-                const active = isSortActive(opt.value);
-                return (
-                  <DropdownMenuItem
-                    key={opt.value}
-                    onClick={() => handleSortSelect(opt.value)}
-                    className={`flex items-center justify-between gap-2 ${
-                      active ? "bg-muted/20" : ""
-                    }`}
-                  >
-                    <span className="text-sm">{opt.label}</span>
-                    {active && (
-                      <CheckCircle2 size={14} className="text-emerald-500" />
-                    )}
-                  </DropdownMenuItem>
-                );
-              })}
-              <DropdownMenuItem onClick={() => handleSortSelect("none")}>
-                Reset sorting
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <LayoutGrid size={16} />
+              </TabsTrigger>
+              <TabsTrigger
+                value="card"
+                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                aria-label="Card view"
+              >
+                <List size={16} />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
-
-      {/* TableGlobal replaces manual Table & pagination */}
-      <TableGlobal table={table} cols={cols} />
+      {/* Table/Card view */}
+      {viewMode === "table" ? (
+        <TableGlobal table={table} cols={cols} />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+          {filteredData.length === 0 ? (
+            <div className="col-span-full text-center text-muted-foreground py-8">
+              Tidak ada data.
+            </div>
+          ) : (
+            filteredData.map((item, idx) => {
+              const judul = item.ranpel?.judulPenelitian ?? "-";
+              const jenis = item.jenisUjian?.namaJenis ?? "-";
+              const tanggal = item.tanggalPengajuan ?? "";
+              const status = item.status ?? "-";
+              const nama = item.mahasiswa?.nama ?? "-";
+              const nim = item.mahasiswa?.nim ?? "-";
+              const tanggalStr = tanggal
+                ? new Date(String(tanggal)).toLocaleDateString("id-ID", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })
+                : "-";
+              return (
+                <div
+                  key={item.id ?? idx}
+                  className="relative border rounded-xl p-4 bg-white dark:bg-neutral-900 shadow-sm flex flex-col min-h-[220px]"
+                >
+                  {/* Status di kanan atas */}
+                  <span
+                    className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold
+                      max-w-[110px] truncate
+                      ${getStatusColor(status)} ${
+                      status === "menunggu"
+                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                        : status === "diterima"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                        : status === "ditolak"
+                        ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                        : status === "dijadwalkan"
+                        ? "bg-violet-200 text-violet-700 dark:bg-violet-900 dark:text-violet-200"
+                        : status === "selesai"
+                        ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                        : ""
+                    }`}
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </span>
+                  {/* Tanggal di kiri atas */}
+                  <div className="text-sm text-muted-foreground mb-2">
+                    {tanggalStr}
+                  </div>
+                  {/* Judul besar */}
+                  <div className="font-bold text-base mt-2 mb-2 whitespace-pre-line break-words">
+                    {judul}
+                  </div>
+                  {/* Info mahasiswa */}
+                  <div className="text-sm text-muted-foreground mb-1">
+                    {nama} ({nim})
+                  </div>
+                  {/* Info jenis */}
+                  <div className="text-sm text-muted-foreground mb-1">
+                    Jenis: {jenis}
+                  </div>
+                  {/* Tombol aksi di kanan bawah */}
+                  <div className="absolute bottom-4 right-4">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="p-2">
+                          <MoreHorizontal size={22} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={() => handleDetail(item)}>
+                          <Eye size={16} /> Lihat berkas
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
 
       {/* Pop Up Card Detail */}
       {showModal && selected && (
@@ -526,7 +700,8 @@ export default function PendaftaranUjianTable({
                   <div className="space-y-3">
                     {selected.berkas && selected.berkas.length > 0 ? (
                       selected.berkas.map((file, idx) => {
-                        const fileUrl = `http://localhost:8000/storage/${file.filePath}`;
+                        const apiUrl = "http://localhost:8000";
+                        const fileUrl = `${apiUrl}/storage/${file.filePath}`;
                         let label = "";
                         if (idx === 0) label = "Transkrip Nilai";
                         else if (idx === 1) label = "Pengesahan Proposal";
