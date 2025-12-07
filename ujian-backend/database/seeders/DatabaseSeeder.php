@@ -57,7 +57,7 @@ class DatabaseSeeder extends Seeder
 
         $adminUser = User::create([
                 'id' => 1,
-                'nip_nim' => '1',
+                'nip_nim' => 'superadmin',
                 'nama' => 'Muhammad Adib Saputra',
                 'email' => 'Abdi@example.com',
                 'password' => bcrypt('1'),
