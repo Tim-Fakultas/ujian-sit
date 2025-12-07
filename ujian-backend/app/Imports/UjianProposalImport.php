@@ -110,7 +110,7 @@ class UjianProposalImport implements ToCollection
                         'jenis_ujian_id' => $jenisUjianId,
                         'tanggal_pengajuan' => now(),
                         'tanggal_disetujui' => now(),
-                        'status' => 'selesai',
+                        'status' => 'dijadwalkan',
                     ]);
 
                     // ========== Dosen & Ruangan ==========
