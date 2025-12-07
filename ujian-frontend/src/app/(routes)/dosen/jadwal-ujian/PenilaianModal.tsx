@@ -9,10 +9,10 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from "../ui/table";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
+} from "../../../../components/ui/table";
+import { Input } from "../../../../components/ui/input";
+import { Label } from "../../../../components/ui/label";
+import { Button } from "../../../../components/ui/button";
 import { getKomponenPenilaianByUjianByPeran } from "@/actions/data-master/komponenPenilaian";
 import { postPenilaian } from "@/actions/penilaian";
 import { getPenilaianByUjianId } from "@/actions/penilaian";
@@ -58,6 +58,7 @@ export default function PenilaianModal({
   // nilai bisa null = belum diisi
   const [nilai, setNilai] = useState<Record<number, number | null>>({});
   const [isSudahNilai, setIsSudahNilai] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // cek apakah semua skor sudah diisi (bukan null/undefined)
   const isAllFilled =
     komponen.length > 0 &&
@@ -71,39 +72,48 @@ export default function PenilaianModal({
   const peranPenguji = pengujiInfo?.peran;
   const dosenId = pengujiInfo?.id;
 
-  // Fetch komponen penilaian saat modal dibuka
+  // Fetch komponen penilaian dan penilaian saat modal dibuka
   useEffect(() => {
-    if (!ujian?.jenisUjian?.id || !peranPenguji) return;
-
-    getKomponenPenilaianByUjianByPeran(ujian.jenisUjian.id, peranPenguji).then(
-      (data) => {
-        setKomponen(data ?? []);
-        const init: Record<number, number | null> = {};
-        // default null agar kita bisa memaksa pengisian semua field
-        (data ?? []).forEach((k) => (init[k.id] = null));
-        setNilai(init);
-      }
-    );
-  }, [ujian?.jenisUjian?.id, peranPenguji]);
-
-  // Cek apakah dosen sudah memberikan nilai
-  useEffect(() => {
-    async function cekSudah() {
-      if (!ujian?.id || !dosenId) {
+    let isMounted = true;
+    async function fetchData() {
+      if (!ujian?.jenisUjian?.id || !peranPenguji || !ujian?.id || !dosenId) {
+        setKomponen([]);
+        setNilai({});
         setIsSudahNilai(false);
         return;
       }
-
-      const data = await getPenilaianByUjianId(ujian.id);
-
-      const sudah = data.some(
+      // Ambil komponen penilaian
+      const dataKomponen = await getKomponenPenilaianByUjianByPeran(
+        ujian.jenisUjian.id,
+        peranPenguji
+      );
+      if (!isMounted) return;
+      setKomponen(dataKomponen ?? []);
+      // Ambil penilaian yang sudah ada
+      const dataPenilaian = await getPenilaianByUjianId(ujian.id);
+      if (!isMounted) return;
+      // Cek apakah sudah menilai
+      const penilaianDosen = dataPenilaian.filter(
         (p: { dosenId: number }) => p.dosenId === Number(dosenId)
       );
-
+      const sudah = penilaianDosen.length > 0;
       setIsSudahNilai(sudah);
+
+      // Set nilai: jika sudah ada, tampilkan nilai sebelumnya, jika belum null
+      const init: Record<number, number | null> = {};
+      (dataKomponen ?? []).forEach((k) => {
+        const existing = penilaianDosen.find(
+          (p: any) => p.komponenPenilaianId === k.id
+        );
+        init[k.id] = existing ? Number(existing.nilai) : null;
+      });
+      setNilai(init);
     }
-    cekSudah();
-  }, [ujian?.id, dosenId]);
+    if (open) fetchData();
+    return () => {
+      isMounted = false;
+    };
+  }, [open, ujian?.jenisUjian?.id, peranPenguji, ujian?.id, dosenId]);
 
   // Update skor, terima string dari input; kosong -> null, else number (clamped 0-100)
   const handleNilaiChange = (id: number, val: string | number | null) => {
@@ -129,11 +139,14 @@ export default function PenilaianModal({
 
   // Server Action Submit
   const submitPenilaianAction = async () => {
+    setIsLoading(true);
     // Prevent double submit if already submitted
     if (isSudahNilai) {
+      setIsLoading(false);
       return { error: "Anda sudah memberikan penilaian." };
     }
     if (!ujian.id || !dosenId) {
+      setIsLoading(false);
       return { error: "ID ujian atau dosen tidak ditemukan." };
     }
 
@@ -148,9 +161,10 @@ export default function PenilaianModal({
         dosenId,
         komponenNilai,
       });
-
+      setIsLoading(false);
       return { success: true };
     } catch (err: any) {
+      setIsLoading(false);
       return { error: err.message || "Gagal menyimpan penilaian" };
     }
   };
@@ -263,15 +277,15 @@ export default function PenilaianModal({
           <Button
             type="submit"
             className={`w-full mt-4 bg-blue-500 text-white ${
-              isSudahNilai ? "opacity-50 cursor-not-allowed" : ""
+              isSudahNilai || isLoading ? "opacity-50 cursor-not-allowed" : ""
             }`}
-            disabled={isSudahNilai || !isAllFilled}
-            aria-disabled={isSudahNilai || !isAllFilled}
+            disabled={isSudahNilai || !isAllFilled || isLoading}
+            aria-disabled={isSudahNilai || !isAllFilled || isLoading}
             title={
               isSudahNilai ? "Anda sudah memberikan penilaian." : undefined
             }
           >
-            Simpan Penilaian
+            {isLoading ? "Menyimpan..." : "Simpan Penilaian"}
           </Button>
 
           {isSudahNilai && (

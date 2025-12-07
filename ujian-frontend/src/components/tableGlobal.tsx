@@ -31,8 +31,8 @@ export default function TableGlobal({
       : totalFiltered;
   return (
     <>
-      <div className="overflow-hidden rounded-md border bg-white dark:bg-neutral-800">
-        <Table>
+      <div className="overflow-x-auto rounded-md border bg-white dark:bg-neutral-800">
+        <Table className="min-w-[700px] sm:min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup: any) => (
               <TableRow key={headerGroup.id}>

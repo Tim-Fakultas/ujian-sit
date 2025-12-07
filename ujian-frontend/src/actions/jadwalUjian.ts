@@ -43,11 +43,18 @@ export async function getJadwalUjianByProdi(prodiId: number) {
     }
 
     const data: UjianResponse = await response.json();
-    const filteredData = data.data.filter(
-      (ujian) =>
-        ujian.mahasiswa.prodi.id === prodiId &&
-        ujian.pendaftaranUjian.status === "dijadwalkan"
-    );
+    const filteredData = data.data
+      .filter(
+        (ujian) =>
+          ujian.mahasiswa.prodi.id === prodiId &&
+          ujian.pendaftaranUjian.status !== "diterima"
+      )
+      .sort((a, b) => {
+        // Sort by jadwalUjian (descending, terbaru di atas)
+        const dateA = new Date(a.jadwalUjian ?? 0).getTime();
+        const dateB = new Date(b.jadwalUjian ?? 0).getTime();
+        return dateB - dateA;
+      });
     return filteredData;
   } catch (error) {
     console.error("Error fetching ujian ujian by prodi:", error);
@@ -90,33 +97,16 @@ export async function getJadwalUjianByProdiByDosen({
 
         return prodiMatch && statusMatch && pengujiFound;
       })
-      .map((ujian) => {
-        // ketahui peran spesifik dosen tersebut
-        const pengujiFound = ujian.penguji.find(
-          (p) => Number(p.id) === Number(dosenId)
-        );
-
-        let peran = null;
-        switch (pengujiFound?.peran) {
-          case "ketua_penguji":
-            peran = "Ketua Penguji";
-            break;
-          case "sekretaris_penguji":
-            peran = "Sekretaris Penguji";
-            break;
-          case "penguji_1":
-            peran = "Penguji 1";
-            break;
-          case "penguji_2":
-            peran = "Penguji 2";
-            break;
-          default:
-            peran = null;
-        }
-
-        return { ...ujian, peranPenguji: peran };
-      })
-      .filter((ujian) => ujian.peranPenguji !== null);
+      // Sort by pendaftaran ujian date (descending, terbaru di atas)
+      .sort((a, b) => {
+        const dateA = new Date(
+          a.pendaftaranUjian?.tanggalPengajuan ?? 0
+        ).getTime();
+        const dateB = new Date(
+          b.pendaftaranUjian?.tanggalPengajuan ?? 0
+        ).getTime();
+        return dateB - dateA;
+      });
 
     return filteredData;
   } catch (error) {
@@ -195,7 +185,7 @@ export async function jadwalkanUjianAction(formData: FormData) {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
       },
-      
+
       body: JSON.stringify(payload),
     });
 
@@ -224,5 +214,53 @@ export async function jadwalkanUjianAction(formData: FormData) {
       success: false,
       message: err instanceof Error ? err.message : "Gagal menjadwalkan ujian",
     };
+  }
+}
+
+export async function setUjianSelesai(pendaftaranId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const response = await fetch(
+      `${apiUrl}/pendaftaran-ujian/${pendaftaranId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+        body: JSON.stringify({ status: "selesai" }),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to set ujian selesai");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error setting ujian selesai:", error);
+  }
+}
+
+export async function setUjianDijadwalkan(pendaftaranId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const response = await fetch(
+      `${apiUrl}/pendaftaran-ujian/${pendaftaranId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+        body: JSON.stringify({ status: "dijadwalkan" }),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to set ujian selesai");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error setting ujian selesai:", error);
   }
 }

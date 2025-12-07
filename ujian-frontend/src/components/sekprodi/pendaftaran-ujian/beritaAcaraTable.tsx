@@ -1,36 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../ui/table";
+
 import { BeritaUjian } from "@/types/BeritaUjian";
 import { Button } from "../../ui/button";
 import {
   X,
-  FileText,
-  ArrowLeft,
   Search,
   MoreHorizontal,
-  ListFilter,
-  ChevronDown,
   Check,
+  LayoutGrid,
+  List,
+  Settings2,
 } from "lucide-react";
 import { truncateTitle } from "@/lib/utils";
 import { daftarKehadiran } from "@/types/DaftarKehadiran";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationLink,
-} from "../../ui/pagination";
+
 import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
@@ -38,6 +23,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TableGlobal from "@/components/tableGlobal";
 
 export default function BeritaAcaraUjianTable({
   beritaUjian,
@@ -47,7 +35,6 @@ export default function BeritaAcaraUjianTable({
   daftarKehadiran: daftarKehadiran[];
 }) {
   const [openDialog, setOpenDialog] = useState(false);
-  const [openCatatan, setOpenCatatan] = useState(false);
   const [selected, setSelected] = useState<BeritaUjian | null>(null);
   // Tambah state untuk search
   const [search, setSearch] = useState("");
@@ -60,11 +47,13 @@ export default function BeritaAcaraUjianTable({
     "all" | "lulus" | "tidak lulus"
   >("all");
 
-  const [filterStatus, setFilterStatus] = useState<
-    "all" | "proposal" | "hasil" | "skripsi"
-  >("all");
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
 
-  // Filter data berdasarkan search, jenis ujian, dan hasil
+  // Tambah state untuk filter bulan dan tahun
+  const [filterBulan, setFilterBulan] = useState<string>("all");
+  const [filterTahun, setFilterTahun] = useState<string>("all");
+
+  // Filter data berdasarkan search, jenis ujian, hasil, bulan, tahun
   const filteredData = beritaUjian.filter((item) => {
     const nama = item.mahasiswa?.nama?.toLowerCase() ?? "";
     const judul = item.judulPenelitian?.toLowerCase() ?? "";
@@ -82,7 +71,25 @@ export default function BeritaAcaraUjianTable({
       matchHasil = (item.hasil?.toLowerCase() ?? "") === hasilFilter;
     }
 
-    return matchSearch && matchJenis && matchHasil;
+    // Filter bulan
+    let matchBulan = true;
+    if (filterBulan !== "all") {
+      if (!item.jadwalUjian) matchBulan = false;
+      else {
+        const bulan = String(new Date(item.jadwalUjian).getMonth() + 1);
+        matchBulan = bulan === filterBulan;
+      }
+    }
+    // Filter tahun
+    let matchTahun = true;
+    if (filterTahun !== "all") {
+      if (!item.jadwalUjian) matchTahun = false;
+      else {
+        const tahun = String(new Date(item.jadwalUjian).getFullYear());
+        matchTahun = tahun === filterTahun;
+      }
+    }
+    return matchSearch && matchJenis && matchHasil && matchBulan && matchTahun;
   });
 
   // Pagination state
@@ -97,7 +104,7 @@ export default function BeritaAcaraUjianTable({
   // Reset page ke 1 saat search atau filter berubah
   React.useEffect(() => {
     setPage(1);
-  }, [search, jenisFilter, hasilFilter]);
+  }, [search, jenisFilter, hasilFilter, filterBulan, filterTahun]);
 
   const handleDetail = (ujian: BeritaUjian) => {
     setSelected(ujian);
@@ -127,11 +134,11 @@ export default function BeritaAcaraUjianTable({
     if (!open) return null;
     return (
       <div
-        className="fixed inset-0 z-50 dark:bg-[#1f1f1f] flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in duration-200"
+        className="fixed inset-0 z-50 dark:bg-neutral-900 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={onClose}
       >
         <div
-          className={`bg-white dark:bg-[#1f1f1f] w-full ${width} mx-4 rounded-xl shadow-xl border animate-in slide-in-from-bottom duration-200 overflow-y-auto max-h-[90vh]`}
+          className={`bg-white dark:bg-neutral-900 w-full ${width} mx-4 rounded-xl shadow-xl border animate-in slide-in-from-bottom duration-200 overflow-y-auto max-h-[90vh]`}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between p-4 border-b bg-gray-50 rounded-t-xl dark:bg-[#1f1f1f]">
@@ -139,10 +146,10 @@ export default function BeritaAcaraUjianTable({
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-500 hover:"
+              className="text-gray-500 "
               onClick={onClose}
             >
-              <X size={20} />
+              <X size={18} />
             </Button>
           </div>
           <div className="p-6 space-y-6">{children}</div>
@@ -151,177 +158,258 @@ export default function BeritaAcaraUjianTable({
     );
   };
 
-  // helper: ambil inisial nama untuk avatar kecil
-  function getInitials(name?: string) {
-    if (!name) return "";
-    return name
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((p) => p[0]?.toUpperCase() ?? "")
-      .join("");
+  // helper: kapitalisasi huruf pertama (untuk nama hari seperti "rabu" -> "Rabu")
+  function capitalize(s?: string) {
+    if (!s) return "";
+    return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  return (
-    <div className="p-6 bg-white dark:bg-[#1f1f1f] rounded-lg">
-      {/* Filter nav & Search input in one row */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+  // Kolom untuk TableGlobal
+  const cols = [
+    {
+      id: "no",
+      header: "No",
+      cell: ({ row, table }: any) => {
+        const index =
+          (table.getState().pagination?.pageIndex ?? 0) *
+            (table.getState().pagination?.pageSize ?? 10) +
+          row.index +
+          1;
+        return <div className="text-center">{index}</div>;
+      },
+      size: 36,
+    },
+    {
+      accessorFn: (row: BeritaUjian) => row.mahasiswa?.nama ?? "-",
+      id: "mahasiswa",
+      header: "Mahasiswa",
+      cell: ({ row }: any) => (
         <div>
-          <h1 className="font-semibold text-lg">Berita Ujian</h1>
+          {row.getValue("mahasiswa")}
+          <br />
+          <span className="text-xs text-gray-500">
+            {row.original.mahasiswa?.nim ?? "-"}
+          </span>
         </div>
-        <div className="flex w-full sm:w-auto items-center gap-3">
-          {/* Search */}
-          <div className="relative w-56">
+      ),
+      size: 120,
+    },
+    {
+      accessorFn: (row: BeritaUjian) => row.judulPenelitian ?? "-",
+      id: "judul",
+      header: "Judul",
+      cell: ({ row }: any) => (
+        <div className="whitespace-pre-line break-words max-w-[180px]">
+          {truncateTitle(row.getValue("judul"), 50)}
+        </div>
+      ),
+      size: 180,
+    },
+    {
+      accessorFn: (row: BeritaUjian) => row.jenisUjian?.namaJenis ?? "-",
+      id: "jenis",
+      header: "Jenis",
+      cell: ({ row }: any) => {
+        const jenis = row.getValue("jenis")?.toLowerCase() ?? "";
+        const badgeClass = jenis.includes("proposal")
+          ? "bg-blue-100 text-blue-700"
+          : jenis.includes("hasil")
+          ? "bg-yellow-100 text-yellow-700"
+          : jenis.includes("skripsi")
+          ? "bg-green-100 text-green-700"
+          : "bg-gray-100";
+        return (
+          <span className={`px-2 py-1 rounded font-medium ${badgeClass}`}>
+            {row.getValue("jenis")}
+          </span>
+        );
+      },
+      size: 90,
+    },
+    {
+      accessorFn: (row: BeritaUjian) => row.nilaiAkhir ?? "-",
+      id: "nilaiAkhir",
+      header: "Nilai Akhir",
+      cell: ({ row }: any) => (
+        <div className="text-center">{row.getValue("nilaiAkhir")}</div>
+      ),
+      size: 70,
+    },
+    {
+      accessorFn: (row: BeritaUjian) => row.hasil ?? "-",
+      id: "hasil",
+      header: "Hasil",
+      cell: ({ row }: any) => {
+        const hasil = row.getValue("hasil")?.toLowerCase();
+        const badgeClass =
+          hasil === "lulus"
+            ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
+            : hasil === "tidak lulus"
+            ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
+            : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200";
+        return hasil && hasil !== "-" ? (
+          <span className={`px-2 py-1 rounded font-semibold ${badgeClass}`}>
+            {row.getValue("hasil")}
+          </span>
+        ) : (
+          "-"
+        );
+      },
+      size: 70,
+    },
+    {
+      id: "actions",
+      header: "Aksi",
+      cell: ({ row }: any) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleDetail(row.original)}
+          className="hover:bg-gray-200"
+        >
+          <MoreHorizontal size={16} />
+        </Button>
+      ),
+      size: 60,
+    },
+  ];
+
+  // TableGlobal setup
+  const table = {
+    getRowModel: () => ({
+      rows: paginatedData.map((item, idx) => ({
+        id: item.id,
+        index: idx,
+        original: item,
+        getVisibleCells: () =>
+          cols.map((col) => ({
+            id: col.id,
+            column: { columnDef: col },
+            getContext: () => ({
+              row: {
+                index: idx,
+                original: item,
+                getValue: (key: string) => {
+                  if (col.accessorFn) return col.accessorFn(item);
+                  // Hindari akses dinamis ke properti tanpa index signature
+                  return (item as any)[key];
+                },
+              },
+              table,
+            }),
+          })),
+        getIsSelected: () => false,
+      })),
+    }),
+    getHeaderGroups: () => [
+      {
+        id: "main",
+        headers: cols.map((col) => ({
+          id: col.id,
+          isPlaceholder: false,
+          column: { columnDef: col },
+          getContext: () => ({ table }),
+        })),
+      },
+    ],
+    previousPage: () => setPage((p) => Math.max(1, p - 1)),
+    nextPage: () => setPage((p) => Math.min(totalPage, p + 1)),
+    getCanPreviousPage: () => page > 1,
+    getCanNextPage: () => page < totalPage,
+    getFilteredRowModel: () => ({
+      rows: filteredData.map((item, idx) => ({
+        id: item.id,
+        index: idx,
+        original: item,
+        getVisibleCells: () =>
+          cols.map((col) => ({
+            id: col.id,
+            column: { columnDef: col },
+            getContext: () => ({
+              row: {
+                index: idx,
+                original: item,
+                getValue: (key: string) => {
+                  if (col.accessorFn) return col.accessorFn(item);
+                  // Hindari akses dinamis ke properti tanpa index signature
+                  return (item as any)[key];
+                },
+              },
+              table,
+            }),
+          })),
+        getIsSelected: () => false,
+      })),
+    }),
+    getPreFilteredRowModel: () => ({
+      rows: beritaUjian.map((item, idx) => ({
+        id: item.id,
+        index: idx,
+        original: item,
+        getVisibleCells: () =>
+          cols.map((col) => ({
+            id: col.id,
+            column: { columnDef: col },
+            getContext: () => ({
+              row: {
+                index: idx,
+                original: item,
+                getValue: (key: string) => {
+                  if (col.accessorFn) return col.accessorFn(item);
+                  // Hindari akses dinamis ke properti tanpa index signature
+                  return (item as any)[key];
+                },
+              },
+              table,
+            }),
+          })),
+        getIsSelected: () => false,
+      })),
+    }),
+    getState: () => ({
+      pagination: { pageIndex: page - 1, pageSize },
+    }),
+  };
+
+  return (
+    <div className="p-3 sm:p-6 bg-white dark:bg-neutral-900 rounded-lg border">
+      {/* Search, Filter, and Tabs in one row (tabs below on mobile) */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end sm:gap-4 gap-2 mb-4">
+        {/* Search and Filter */}
+
+        <div className="flex w-full  items-center gap-2 sm:gap-2">
+          <div className="relative w-full ">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              <Search size={18} />
+              <Search size={16} />
             </span>
-            <input
+            <Input
               type="text"
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border rounded-lg pl-10 pr-3 py-2 w-full bg-white dark:bg-[#1f1f1f] text-sm"
+              className="border rounded-lg pl-10 pr-3 py-2 w-full bg-white dark:bg-neutral-800 text-sm"
             />
           </div>
-          {/* Filter jenis ujian dan hasil dengan Popover */}
-          {/* <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className={`h-9 px-4 flex items-center gap-2 border border-gray-200 rounded-lg  font-normal shadow-none min-w-[110px] justify-between `}
-              >
-                <span className="flex items-center gap-2">
-                  <ListFilter size={16} />
-                  Filter
-                </span>
-                <ChevronDown size={16} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="w-52 p-0 rounded-lg border border-gray-200 shadow"
-              sideOffset={8}
-            >
-              <div className="p-4">
-                <div className="font-semibold  mb-2 ">Jenis Ujian</div>
-                <div className="flex flex-col gap-1 mb-3">
-                  <Button
-                    type="button"
-                    variant={jenisFilter === "all" ? "default" : "ghost"}
-                    size="sm"
-                    className={`justify-start w-full  rounded-lg ${
-                      jenisFilter === "all"
-                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
-                        : ""
-                    }`}
-                    onClick={() => setJenisFilter("all")}
-                  >
-                    Semua
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={jenisFilter === "proposal" ? "default" : "ghost"}
-                    size="sm"
-                    className={`justify-start w-full  rounded-lg ${
-                      jenisFilter === "proposal"
-                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
-                        : ""
-                    }`}
-                    onClick={() => setJenisFilter("proposal")}
-                  >
-                    Proposal
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={jenisFilter === "hasil" ? "default" : "ghost"}
-                    size="sm"
-                    className={`justify-start w-full  rounded-lg ${
-                      jenisFilter === "hasil"
-                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
-                        : ""
-                    }`}
-                    onClick={() => setJenisFilter("hasil")}
-                  >
-                    Hasil
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={jenisFilter === "skripsi" ? "default" : "ghost"}
-                    size="sm"
-                    className={`justify-start w-full  rounded-lg ${
-                      jenisFilter === "skripsi"
-                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
-                        : ""
-                    }`}
-                    onClick={() => setJenisFilter("skripsi")}
-                  >
-                    Skripsi
-                  </Button>
-                </div>
-                <div className="font-semibold  mb-2 ">Hasil</div>
-                <div className="flex flex-col gap-1">
-                  <Button
-                    type="button"
-                    variant={hasilFilter === "all" ? "default" : "ghost"}
-                    size="sm"
-                    className={`justify-start w-full  rounded-lg ${
-                      hasilFilter === "all"
-                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
-                        : ""
-                    }`}
-                    onClick={() => setHasilFilter("all")}
-                  >
-                    Semua
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={hasilFilter === "lulus" ? "default" : "ghost"}
-                    size="sm"
-                    className={`justify-start w-full  rounded-lg ${
-                      hasilFilter === "lulus"
-                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
-                        : ""
-                    }`}
-                    onClick={() => setHasilFilter("lulus")}
-                  >
-                    Lulus
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={
-                      hasilFilter === "tidak lulus" ? "default" : "ghost"
-                    }
-                    size="sm"
-                    className={`justify-start w-full  rounded-lg ${
-                      hasilFilter === "tidak lulus"
-                        ? "bg-blue-50 text-blue-500 border-blue-500 hover:bg-blue-50"
-                        : ""
-                    }`}
-                    onClick={() => setHasilFilter("tidak lulus")}
-                  >
-                    Tidak Lulus
-                  </Button>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover> */}
+
           <div className="flex items-center gap-2 shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 w-9 p-0 grid place-items-center"
+                  className="h-9 w-9 p-0 grid place-items-center"
                   aria-label="Filter status"
                   title="Filter status"
                 >
-                  <ListFilter size={16} />
+                  <Settings2 size={16} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-[180px]">
+              <DropdownMenuContent align="end" className="min-w-[220px] p-3">
+                <div className="mb-2 font-semibold text-xs text-muted-foreground">
+                  Jenis Ujian
+                </div>
                 {["all", "proposal", "hasil", "skripsi"].map((opt) => {
-                  const isActive = filterStatus === opt;
+                  const isActive = jenisFilter === opt;
                   return (
                     <DropdownMenuItem
                       key={opt}
@@ -329,220 +417,182 @@ export default function BeritaAcaraUjianTable({
                       className="flex items-center justify-between gap-2"
                     >
                       <span className="text-sm">{opt}</span>
-                      {isActive && <Check size={14} />}
+                      {isActive && (
+                        <Check size={14} className="text-emerald-600" />
+                      )}
                     </DropdownMenuItem>
                   );
                 })}
+                <div className="mt-3 font-semibold text-xs text-muted-foreground">
+                  Hasil
+                </div>
+                {["all", "lulus", "tidak lulus"].map((opt) => {
+                  const isActive = hasilFilter === opt;
+                  return (
+                    <DropdownMenuItem
+                      key={opt}
+                      onClick={() => setHasilFilter(opt as any)}
+                      className="flex items-center justify-between gap-2"
+                    >
+                      <span className="text-sm capitalize">
+                        {opt === "all" ? "Semua" : opt}
+                      </span>
+                      {isActive && (
+                        <Check size={14} className="text-emerald-600" />
+                      )}
+                    </DropdownMenuItem>
+                  );
+                })}
+                <div className="mt-3 font-semibold text-xs text-muted-foreground">
+                  Bulan
+                </div>
+                <div className="flex flex-col gap-1 mb-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={12}
+                    value={filterBulan === "all" ? "" : filterBulan}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFilterBulan(val === "" ? "all" : val);
+                    }}
+                    placeholder="Bulan (1-12)"
+                    className="w-full px-2 py-1 border rounded text-sm"
+                  />
+                </div>
+                <div className="font-semibold text-xs text-muted-foreground">
+                  Tahun
+                </div>
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="number"
+                    min={2000}
+                    max={2100}
+                    value={filterTahun === "all" ? "" : filterTahun}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFilterTahun(val === "" ? "all" : val);
+                    }}
+                    placeholder="Tahun"
+                    className="w-full px-2 py-1 border rounded text-sm"
+                  />
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
+          <div className="">
+            <Tabs
+              value={viewMode}
+              onValueChange={(v) => setViewMode(v as any)}
+              className="sm:mb-0 h-9"
+            >
+              <TabsList>
+                <TabsTrigger value="table">
+                  <LayoutGrid size={16} />
+                </TabsTrigger>
+                <TabsTrigger value="card">
+                  <List />
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
         </div>
+        {/* Tabs for view mode */}
       </div>
 
-      <div className="border rounded-lg overflow-auto bg-white dark:bg-[#1f1f1f]">
-        <Table>
-          <TableHeader className="bg-sidebar-accent">
-            <TableRow>
-              <TableHead className="w-10 text-center">No</TableHead>
-              <TableHead>Mahasiswa</TableHead>
-              <TableHead>Judul</TableHead>
-              <TableHead>Jenis</TableHead>
-              <TableHead className="text-center">Nilai Akhir</TableHead>
-              <TableHead className="text-center">Hasil</TableHead>
-              <TableHead className="text-center">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedData.length > 0 ? (
-              paginatedData.map((ujian, idx) => (
-                <TableRow
-                  key={ujian.id}
-                  className="hover:bg-gray-50 transition"
-                >
-                  <TableCell className="text-center">
-                    {(page - 1) * pageSize + idx + 1}
-                  </TableCell>
-                  <TableCell>
-                    <span className="">
-                      {ujian.mahasiswa?.nama ?? "-"} <br />
-                    </span>
-                    <span className=" text-gray-500">
+      {/* Table Mode */}
+      {viewMode === "table" && <TableGlobal table={table} cols={cols} />}
+
+      {/* Card Mode */}
+      {viewMode === "card" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {paginatedData.length > 0 ? (
+            paginatedData.map((ujian) => (
+              <div
+                key={ujian.id}
+                className="border rounded-lg bg-white dark:bg-neutral-800 shadow-xs p-4 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-semibold">
+                      {ujian.mahasiswa?.nama ?? "-"}
+                    </div>
+                    <span className="text-xs text-gray-500">
                       {ujian.mahasiswa.nim ?? "-"}
                     </span>
-                  </TableCell>
-                  <TableCell className="max-w-xs truncate">
+                  </div>
+                  <div className="mb-2 text-sm font-medium">
                     {truncateTitle(ujian.judulPenelitian ?? "-", 50)}
-                  </TableCell>
-                  <TableCell>
-                    {/* Badge style for jenis ujian */}
+                  </div>
+                  <div className="mb-2">
                     <span
-                      className={`px-2 py-1 rounded  font-medium
-                      ${
-                        ujian.jenisUjian?.namaJenis
-                          ?.toLowerCase()
-                          .includes("proposal")
-                          ? "bg-blue-100 text-blue-700"
-                          : ujian.jenisUjian?.namaJenis
-                              ?.toLowerCase()
-                              .includes("hasil")
-                          ? "bg-yellow-100 text-yellow-700"
-                          : ujian.jenisUjian?.namaJenis
-                              ?.toLowerCase()
-                              .includes("skripsi")
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 "
-                      }
-                    `}
+                      className={`px-2 py-1 rounded font-medium text-xs
+                        ${
+                          ujian.jenisUjian?.namaJenis
+                            ?.toLowerCase()
+                            .includes("proposal")
+                            ? "bg-blue-100 text-blue-700"
+                            : ujian.jenisUjian?.namaJenis
+                                ?.toLowerCase()
+                                .includes("hasil")
+                            ? "bg-yellow-100 text-yellow-700"
+                            : ujian.jenisUjian?.namaJenis
+                                ?.toLowerCase()
+                                .includes("skripsi")
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100"
+                        }
+                      `}
                     >
                       {ujian.jenisUjian?.namaJenis ?? "-"}
                     </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {ujian.nilaiAkhir ?? "-"}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {/* Status style for hasil */}
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs">Nilai Akhir:</span>
+                    <span className="font-bold">{ujian.nilaiAkhir ?? "-"}</span>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs">Hasil:</span>
                     {ujian.hasil ? (
                       <span
-                        className={`px-2 py-1 rounded font-semibold
-        ${
-          ujian.hasil.toLowerCase() === "lulus"
-            ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
-            : ujian.hasil.toLowerCase() === "tidak lulus"
-            ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
-            : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200"
-        }
-      `}
+                        className={`px-2 py-1 rounded font-semibold text-xs
+                          ${
+                            ujian.hasil.toLowerCase() === "lulus"
+                              ? "bg-green-100 text-green-700"
+                              : ujian.hasil.toLowerCase() === "tidak lulus"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-gray-100 text-gray-700"
+                          }
+                        `}
                       >
                         {ujian.hasil}
                       </span>
                     ) : (
                       "-"
                     )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDetail(ujian)}
-                      className="hover:bg-gray-200"
-                    >
-                      <MoreHorizontal size={16} />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="text-center text-gray-500 italic py-6"
-                >
-                  Tidak ada berita acara ujian
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      {/* Pagination */}
-      {totalPage > 1 && (
-        <div className="mt-4 flex justify-end">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  aria-disabled={page === 1}
-                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-              {/* Custom Pagination with Dots */}
-              {(() => {
-                const pages = [];
-                const maxShown = 5;
-                let start = Math.max(1, page - 2);
-                let end = Math.min(totalPage, page + 2);
-
-                if (end - start < maxShown - 1) {
-                  if (start === 1) {
-                    end = Math.min(totalPage, start + maxShown - 1);
-                  } else if (end === totalPage) {
-                    start = Math.max(1, end - maxShown + 1);
-                  }
-                }
-
-                // First page
-                if (start > 1) {
-                  pages.push(
-                    <PaginationItem key={1}>
-                      <PaginationLink
-                        isActive={page === 1}
-                        onClick={() => setPage(1)}
-                      >
-                        1
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                  if (start > 2) {
-                    pages.push(
-                      <PaginationItem key="start-ellipsis">
-                        <span className="px-2 text-gray-400">...</span>
-                      </PaginationItem>
-                    );
-                  }
-                }
-
-                // Middle pages
-                for (let i = start; i <= end; i++) {
-                  pages.push(
-                    <PaginationItem key={i}>
-                      <PaginationLink
-                        isActive={page === i}
-                        onClick={() => setPage(i)}
-                      >
-                        {i}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                }
-
-                // Last page
-                if (end < totalPage) {
-                  if (end < totalPage - 1) {
-                    pages.push(
-                      <PaginationItem key="end-ellipsis">
-                        <span className="px-2 text-gray-400">...</span>
-                      </PaginationItem>
-                    );
-                  }
-                  pages.push(
-                    <PaginationItem key={totalPage}>
-                      <PaginationLink
-                        isActive={page === totalPage}
-                        onClick={() => setPage(totalPage)}
-                      >
-                        {totalPage}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                }
-
-                return pages;
-              })()}
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setPage((p) => Math.min(totalPage, p + 1))}
-                  aria-disabled={page === totalPage}
-                  className={
-                    page === totalPage ? "pointer-events-none opacity-50" : ""
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                  </div>
+                </div>
+                <div className="flex justify-end mt-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDetail(ujian)}
+                    className="hover:bg-gray-200"
+                  >
+                    <MoreHorizontal size={16} />
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center text-gray-500 italic py-6">
+              Tidak ada berita acara ujian
+            </div>
+          )}
         </div>
       )}
+
       {/* ========== MODAL DETAIL (DESAIN DITINGKATKAN) ========== */}
       <Modal
         open={openDialog}
@@ -556,7 +606,8 @@ export default function BeritaAcaraUjianTable({
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <div className="text-sm text-muted-foreground">
-                  {selected.hariUjian ?? "Hari"},{" "}
+                  {selected.hariUjian ? capitalize(selected.hariUjian) : "Hari"}
+                  ,{" "}
                   <span className="font-medium">
                     {selected.jadwalUjian
                       ? new Date(selected.jadwalUjian).toLocaleDateString(
@@ -573,7 +624,7 @@ export default function BeritaAcaraUjianTable({
                   NIM: {selected.mahasiswa?.nim ?? "-"}
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-left sm:text-right">
                 <div className="inline-flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
                     Jenis Ujian
@@ -582,7 +633,7 @@ export default function BeritaAcaraUjianTable({
                     {selected.jenisUjian?.namaJenis ?? "-"}
                   </span>
                 </div>
-                <div className="mt-3 text-sm text-muted-foreground">
+                <div className="mt-3 text-sm text-muted-foreground ">
                   <div>
                     <span className="font-medium text-gray-700 dark:text-gray-200">
                       Ruangan:
@@ -600,10 +651,11 @@ export default function BeritaAcaraUjianTable({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Responsive grid for modal detail */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               {/* Main: Judul & keputusan */}
               <div className="lg:col-span-2 space-y-4">
-                <div className="border rounded-lg p-4 bg-white dark:bg-[#1f1f1f] shadow-sm">
+                <div className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-sm">
                   <h3 className="text-sm text-muted-foreground">
                     Judul Penelitian
                   </h3>
@@ -612,14 +664,13 @@ export default function BeritaAcaraUjianTable({
                   </p>
                 </div>
 
-                <div className="border rounded-lg p-4 bg-white dark:bg-[#1f1f1f] shadow-sm">
+                <div className="border rounded-lg p-4 bg-white dark:bg-neutral-800 h-35 shadow-sm">
                   <h3 className="text-sm text-muted-foreground">Keputusan</h3>
                   <div className="mt-3">
                     {selected.jenisUjian?.namaJenis
                       ?.toLowerCase()
                       .includes("proposal") ? (
                       <div className="flex items-center gap-3">
-                        <span className="font-semibold">Hasil:</span>
                         <span
                           className={`px-3 py-1 rounded font-semibold ${
                             selected?.hasil?.toLowerCase() === "lulus"
@@ -629,8 +680,7 @@ export default function BeritaAcaraUjianTable({
                               : "bg-gray-100 text-gray-700"
                           }`}
                         >
-                          {selected?.hasil?.toUpperCase() ||
-                            "DITERIMA / DITOLAK"}
+                          {selected?.hasil?.toUpperCase() || "lulus"}
                         </span>
                       </div>
                     ) : (
@@ -640,7 +690,6 @@ export default function BeritaAcaraUjianTable({
                             (selected as any)?.keputusan ??
                             "-"}
                         </div>
-                        
                       </div>
                     )}
                   </div>
@@ -648,22 +697,16 @@ export default function BeritaAcaraUjianTable({
               </div>
 
               {/* Right: Penguji & kehadiran */}
-              <div className="space-y-4">
-                <div className="border rounded-lg p-3 bg-white dark:bg-[#1f1f1f] shadow-sm">
+              <div className="space-y-4 w-full">
+                <div className="border rounded-lg p-3 bg-white dark:bg-neutral-800 shadow-sm w-full">
                   <h4 className="text-sm text-muted-foreground mb-3">
                     Penguji
                   </h4>
                   <div className="space-y-3">
-                    {[
-                      { label: "Ketua Penguji", dosen: selected.ketuaPenguji },
-                      {
-                        label: "Sekretaris Penguji",
-                        dosen: selected.sekretarisPenguji,
-                      },
-                      { label: "Penguji I", dosen: selected.penguji1 },
-                      { label: "Penguji II", dosen: selected.penguji2 },
-                    ].map((row, i) => {
-                      const status = getStatusHadir(row.dosen?.id);
+                    {selected.penguji.map((row, i) => {
+                      // { changed code }
+                      // gunakan id untuk lookup status
+                      const status = getStatusHadir(row.id);
                       const badge =
                         status === "hadir"
                           ? "bg-green-100 text-green-700"
@@ -672,125 +715,57 @@ export default function BeritaAcaraUjianTable({
                           : "bg-gray-100 text-gray-700";
                       return (
                         <div
-                          key={i}
+                          key={row.id ?? i}
                           className="flex items-center justify-between gap-3"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-muted/40 grid place-items-center text-sm font-semibold">
-                              {getInitials(row.dosen?.nama)}
-                            </div>
                             <div>
-                              <div className="text-sm font-medium">
-                                {row.dosen?.nama ?? "-"}
+                              {/* tampilkan status di atas nama */}
+                              <div className="mb-1">
+                                <span
+                                  className={`px-2 py-0.5 text-xs rounded-full font-medium ${badge}`}
+                                >
+                                  {status === "hadir"
+                                    ? "Hadir"
+                                    : status === "izin"
+                                    ? "Izin"
+                                    : "Tidak Hadir"}
+                                </span>
                               </div>
-                              <div className="text-xs text-muted-foreground">
-                                {row.label}
+                              <div className="text-sm font-medium">
+                                {row.nama ?? "-"}
                               </div>
                             </div>
                           </div>
-                          <div>
-                            <span
-                              className={`px-3 py-1 text-xs rounded-full font-medium ${badge}`}
-                            >
-                              {status === "hadir"
-                                ? "Hadir"
-                                : status === "izin"
-                                ? "Izin"
-                                : "Tidak Hadir"}
-                            </span>
-                          </div>
+                          <div></div>
                         </div>
                       );
                     })}
                   </div>
                 </div>
+              </div>
 
-                <div className="border rounded-lg p-3 bg-white dark:bg-[#1f1f1f] shadow-sm">
-                  <h4 className="text-sm text-muted-foreground">Metadata</h4>
-                  <div className="mt-2 text-sm text-muted-foreground space-y-1">
-                    <div>
-                      <span className="font-medium text-gray-700 dark:text-gray-200">
-                        Lokasi:
-                      </span>{" "}
-                      {selected.ruangan?.namaRuangan ?? "-"}
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-700 dark:text-gray-200">
-                        Waktu:
-                      </span>{" "}
-                      {selected.waktuMulai?.slice(0, 5) ?? "-"} -{" "}
-                      {selected.waktuSelesai?.slice(0, 5) ?? "-"}
-                    </div>
+              {/* Catatan / Daftar Revisi (card tersendiri, tampil di bawah grid) */}
+              <div className="lg:col-span-3">
+                <div className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-sm">
+                  <h4 className="text-sm text-muted-foreground mb-2">
+                    Catatan / Daftar Revisi Penguji
+                  </h4>
+                  <div className="overflow-hidden">
+                    <Textarea
+                      className="w-full min-h-[120px] resize-none bg-transparent"
+                      defaultValue={selected.catatan ?? "Tidak ada catatan."}
+                      readOnly
+                    />
                   </div>
                 </div>
               </div>
             </div>
 
             {/* actions */}
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <Button
-                variant="secondary"
-                className="flex items-center gap-2"
-                onClick={() => {
-                  setOpenDialog(false);
-                  setOpenCatatan(true);
-                }}
-              >
-                <FileText size={16} />
-                Lihat Catatan
-              </Button>
+            <div className="flex justify-end pt-6 border-t mt-6">
               <Button variant="outline" onClick={() => setOpenDialog(false)}>
                 Tutup
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      {/* Modal Catatan */}
-      <Modal
-        open={openCatatan}
-        onClose={() => setOpenCatatan(false)}
-        title="Berita Acara Pelaksanaan Ujian"
-        width="max-w-4xl"
-      >
-        {selected && (
-          <div className="space-y-4 text-gray-800 dark:text-gray-200">
-            <div className="mt-2 space-y-1 ">
-              <p>
-                <span>Nama Mahasiswa :</span>{" "}
-                <span className="font-medium">
-                  {selected.mahasiswa?.nama ?? "-"}
-                </span>
-              </p>
-              <p>
-                <span>NIM :</span>{" "}
-                <span className="font-medium">
-                  {selected.mahasiswa?.nim ?? "-"}
-                </span>
-              </p>
-            </div>
-
-            <p className=" font-medium mt-4">Catatan/Daftar Revisi Penguji:</p>
-
-            <div className="overflow-x-auto border rounded-lg bg-white dark:bg-[#232323]">
-              <Textarea
-                defaultValue={selected.catatan ?? "Tidak ada catatan."}
-                readOnly
-              />
-            </div>
-
-            <div className="flex justify-end pt-6 border-t mt-6">
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => {
-                  setOpenCatatan(false);
-                  setOpenDialog(true);
-                }}
-              >
-                <ArrowLeft size={16} />
-                Kembali
               </Button>
             </div>
           </div>

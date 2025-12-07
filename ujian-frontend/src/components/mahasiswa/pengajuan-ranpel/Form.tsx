@@ -266,7 +266,7 @@ export default function Form({ mahasiswaId, onSuccess }: FormProps) {
             onChange={handleChange}
             placeholder="Contoh: Waterfall, Agile, dll."
             required
-            className={`h-12 text-base ${
+            className={`h-18 text-base ${
               errors.metodePenelitian ? "border-red-400" : ""
             }`}
             maxLength={200}

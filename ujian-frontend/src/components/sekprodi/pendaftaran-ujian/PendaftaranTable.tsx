@@ -47,6 +47,11 @@ import {
   MoreHorizontal,
   ArrowUpDown,
   X,
+  CheckCircle2,
+  Settings2,
+  Layout,
+  List,
+  LayoutGrid,
 } from "lucide-react";
 import { getMahasiswaById } from "@/actions/data-master/mahasiswa";
 import { getJenisUjianColor, getStatusColor, truncateTitle } from "@/lib/utils";
@@ -61,6 +66,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function PendaftaranUjianTable({
   ujianList,
@@ -181,34 +187,59 @@ export default function PendaftaranUjianTable({
     return () => window.removeEventListener("keydown", onKey);
   }, [selected]);
 
-  // Otomatis set waktu selesai berdasarkan waktu mulai & jenis ujian
+  // Jenis ujian statis
+  const jenisUjianOptions = [
+    { label: "Semua", value: "all" },
+    { label: "Ujian Proposal", value: "Ujian Proposal" },
+    { label: "Ujian Hasil", value: "Ujian Hasil" },
+    { label: "Ujian Skripsi", value: "Ujian Skripsi" },
+  ];
+
+  // Status options
+  const statusOptions = [
+    { value: "all", label: "Semua" },
+    { value: "diterima", label: "Diterima" },
+    { value: "ditolak", label: "Ditolak" },
+    { value: "dijadwalkan", label: "Dijadwalkan" },
+    { value: "selesai", label: "Selesai" },
+  ];
+
+  // Gabungan status dan jenis ujian untuk filter
+  const combinedFilterOptions = [
+    ...statusOptions.map((opt) => ({
+      type: "status",
+      value: opt.value,
+      label: opt.label,
+    })),
+    ...jenisUjianOptions.map((opt) => ({
+      type: "jenis",
+      value: opt.value,
+      label: `Jenis: ${opt.label}`,
+    })),
+  ];
+
+  // State untuk filter gabungan
+  const [filterOption, setFilterOption] = useState<{
+    type: string;
+    value: string;
+  }>({
+    type: "status",
+    value: "all",
+  });
+
+  // Update filterJenis berdasarkan filterOption
   useEffect(() => {
-    if (!waktuMulai || !selected) {
-      setWaktuSelesai("");
-      return;
+    if (filterOption.type === "status") {
+      setFilterJenis("all");
+    } else if (filterOption.type === "jenis") {
+      setFilterJenis(filterOption.value);
     }
-    // Ambil durasi berdasarkan jenis ujian
-    let durasiJam = 2;
-    let durasiMenit = 0;
-    if (selected.jenisUjian.namaJenis.toLowerCase().includes("skripsi")) {
-      durasiJam = 1;
-      durasiMenit = 30;
-    }
-    // Parse waktu mulai
-    const [jam, menit] = waktuMulai.split(":").map(Number);
-    const mulai = new Date();
-    mulai.setHours(jam, menit, 0, 0);
-    // Tambah durasi
-    mulai.setHours(mulai.getHours() + durasiJam);
-    mulai.setMinutes(mulai.getMinutes() + durasiMenit);
-    // Format kembali ke "HH:MM"
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    setWaktuSelesai(`${pad(mulai.getHours())}:${pad(mulai.getMinutes())}`);
-  }, [waktuMulai, selected]);
+  }, [filterOption]);
 
   // Filter & Pagination State
   const [filterNama, setFilterNama] = useState("");
-  const [filterJenis, setFilterJenis] = useState("all");
+  const [filterJenis, setFilterJenis] = useState<string>("all");
+
   // react-table states (for TableGlobal)
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -231,18 +262,27 @@ export default function PendaftaranUjianTable({
     setSorting([{ id, desc }]);
   };
 
+  // Filtered data
   const filteredData = useMemo(() => {
-    const data = ujianList.filter((u) => {
+    return ujianList.filter((u) => {
       const matchNama = u.mahasiswa.nama
         .toLowerCase()
         .includes(filterNama.toLowerCase());
       const matchJenis =
-        filterJenis === "all" ? true : u.jenisUjian.namaJenis === filterJenis;
-      return matchNama && matchJenis;
+        filterOption.type === "jenis"
+          ? filterOption.value === "all"
+            ? true
+            : u.jenisUjian.namaJenis === filterOption.value
+          : true;
+      const matchStatus =
+        filterOption.type === "status"
+          ? filterOption.value === "all"
+            ? true
+            : u.pendaftaranUjian?.status === filterOption.value
+          : true;
+      return matchNama && matchJenis && matchStatus;
     });
-
-    return data;
-  }, [ujianList, filterNama, filterJenis]);
+  }, [ujianList, filterNama, filterOption]);
 
   // helper to open modal from table action
   const handleDetail = (u: Ujian) => {
@@ -262,20 +302,23 @@ export default function PendaftaranUjianTable({
             1;
           return <div className="text-center">{index}</div>;
         },
+        size: 40,
       },
       {
         accessorFn: (row) => row.mahasiswa.nama ?? "-",
         id: "nama",
         header: "Nama Mahasiswa",
         cell: ({ row }) => <div>{row.getValue("nama")}</div>,
+        size: 160, // kurangi lebar kolom nama
       },
       {
         accessorFn: (row) => row.judulPenelitian ?? "-",
         id: "judul",
         header: "Judul",
         cell: ({ row }) => (
-          <div className="max-w-[48ch] truncate">{row.getValue("judul")}</div>
+          <div className="max-w-[180px] truncate">{row.getValue("judul")}</div>
         ),
+        size: 200, // kurangi lebar kolom judul
       },
       {
         accessorFn: (row) => row.jenisUjian.namaJenis ?? "-",
@@ -290,6 +333,7 @@ export default function PendaftaranUjianTable({
             {row.getValue("jenis")}
           </span>
         ),
+        size: 110, // kurangi lebar kolom jenis
       },
       {
         accessorFn: (row) => row.pendaftaranUjian?.status ?? "-",
@@ -304,6 +348,7 @@ export default function PendaftaranUjianTable({
             {row.getValue("status")}
           </span>
         ),
+        size: 100, // kurangi lebar kolom status
       },
       {
         id: "actions",
@@ -317,7 +362,7 @@ export default function PendaftaranUjianTable({
                     <MoreHorizontal size={18} />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" >
                   <DropdownMenuItem onClick={() => handleDetail(u)}>
                     <CalendarPlus className="mr-2" size={16} />
                     Jadwalkan
@@ -327,6 +372,7 @@ export default function PendaftaranUjianTable({
             </div>
           );
         },
+        size: 60, // kurangi lebar kolom aksi
       },
     ],
     []
@@ -352,101 +398,169 @@ export default function PendaftaranUjianTable({
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  // Add viewMode state
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
   return (
     <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow">
-      {/* Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        <span className="font-semibold text-lg">Daftar ujian</span>
-        <div className="flex w-full sm:w-auto items-center gap-3">
+      {/* Filter Bar - match admin design */}
+      <div className="flex flex-col gap-2 mb-4">
+        <div className="flex flex-row items-center gap-2 w-full">
           {/* Search */}
-          <div className="relative w-56">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              <Search size={16} />
-            </span>
+          <div className="relative flex-1 flex items-center min-w-0">
             <Input
               placeholder="Search"
               value={filterNama}
               onChange={(e) => setFilterNama(e.target.value)}
-              className="pl-10 w-full   bg-white dark:bg-[#1f1f1f] "
+              className="pl-9 w-full bg-white dark:bg-[#1f1f1f]"
+              aria-label="Search"
             />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <Search size={16} />
+            </span>
           </div>
-          {/* Filter jenis ujian dengan Popover, ukuran sama dengan search */}
+          {/* Gabungan filter status/jenis */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                size="sm"
-                className="h-9 px-4 flex items-center gap-2  rounded-lg text-sm font-normal shadow-none min-w-[110px] justify-between"
+                className="h-9 px-3 rounded-lg border flex items-center gap-2"
+                aria-label="Filter Status/Jenis"
               >
-                <span className="flex items-center gap-2">
-                  <ListFilter size={16} />
-                  Filter
-                </span>
-                <ChevronDown size={16} />
+                <Settings2 size={18} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-52 p-0 rounded-lg shadow"
-            >
-              <div className="p-4">
-                <div className="font-semibold text-xs mb-2">Jenis Ujian</div>
-                <div className="flex flex-col gap-1">
-                  <DropdownMenuItem onClick={() => setFilterJenis("all")}>
-                    Semua
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setFilterJenis("Ujian Proposal")}
-                  >
-                    Ujian Proposal
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setFilterJenis("Ujian Hasil")}
-                  >
-                    Ujian Hasil
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setFilterJenis("Ujian Skripsi")}
-                  >
-                    Ujian Skripsi
-                  </DropdownMenuItem>
-                </div>
+            <DropdownMenuContent align="end" className="min-w-[180px]">
+              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                Status
               </div>
+              {statusOptions.map((opt) => (
+                <DropdownMenuItem
+                  key={"status-" + opt.value}
+                  onClick={() =>
+                    setFilterOption({ type: "status", value: opt.value })
+                  }
+                  className="flex items-center justify-between gap-2"
+                >
+                  <span className="text-sm">{opt.label}</span>
+                  {filterOption.type === "status" &&
+                    filterOption.value === opt.value && (
+                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    )}
+                </DropdownMenuItem>
+              ))}
+              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t border-muted">
+                Jenis Ujian
+              </div>
+              {jenisUjianOptions.map((opt) => (
+                <DropdownMenuItem
+                  key={"jenis-" + opt.value}
+                  onClick={() =>
+                    setFilterOption({ type: "jenis", value: opt.value })
+                  }
+                  className="flex items-center justify-between gap-2"
+                >
+                  <span className="text-sm">{opt.label}</span>
+                  {filterOption.type === "jenis" &&
+                    filterOption.value === opt.value && (
+                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    )}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          {/* Sort dropdown (shadcn) */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-4 flex items-center gap-2 rounded-lg text-sm font-normal shadow-none "
-              >
-                <ArrowUpDown size={16} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => applySort("nama", false)}>
-                Nama ↑
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => applySort("nama", true)}>
-                Nama ↓
-              </DropdownMenuItem>
 
-              <DropdownMenuItem
-                onClick={() => {
-                  setSorting([]);
-                }}
-              >
-                Clear sorting
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Tabs for view mode */}
+          <Tabs
+            value={viewMode}
+            onValueChange={(v) => setViewMode(v as "table" | "card")}
+          >
+            <TabsList>
+              <TabsTrigger value="table">
+                <LayoutGrid size={16} />
+              </TabsTrigger>
+              <TabsTrigger value="card">
+                <List size={16} />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 
-      {/* Replace manual table + pagination with TableGlobal */}
-      <TableGlobal table={table} cols={cols} />
+      {/* Table/Card View */}
+      <Tabs
+        value={viewMode}
+        onValueChange={(v) => setViewMode(v as "table" | "card")}
+      >
+        <TabsContent value="table">
+          <TableGlobal table={table} cols={cols} />
+        </TabsContent>
+        <TabsContent value="card">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {filteredData.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8 col-span-full">
+                Tidak ada data.
+              </div>
+            ) : (
+              filteredData.map((ujian) => (
+                <div
+                  key={ujian.id}
+                  className="border rounded-lg bg-white dark:bg-neutral-800 shadow-sm flex flex-col"
+                >
+                  <div className="p-4 flex flex-col gap-2">
+                    <div className="font-semibold text-base leading-tight">
+                      {ujian.mahasiswa.nama}
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-1 leading-none">
+                      {ujian.mahasiswa.nim}
+                    </div>
+                    <div>
+                      <span className="font-medium block mb-1">Judul:</span>
+                      <div className="whitespace-pre-line break-words text-sm leading-relaxed max-h-16 overflow-hidden">
+                        {ujian.judulPenelitian}
+                      </div>
+                    </div>
+                    <div className="flex flex-row items-center gap-2 mt-2">
+                      <span className="font-medium">Jenis:</span>
+                      <span
+                        className={`px-2 py-0.5 text-xs rounded font-semibold ${getJenisUjianColor(
+                          ujian.jenisUjian.namaJenis
+                        )}`}
+                      >
+                        {ujian.jenisUjian.namaJenis}
+                      </span>
+                    </div>
+                    <div className="flex flex-row items-center gap-2">
+                      <span className="font-medium">Status:</span>
+                      <span
+                        className={`px-2 py-0.5 text-xs rounded font-semibold ${getStatusColor(
+                          ujian.pendaftaranUjian?.status
+                        )}`}
+                      >
+                        {ujian.pendaftaranUjian?.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="border-t px-4 py-2 flex justify-end items-center gap-2 bg-gray-50 dark:bg-neutral-900 rounded-b-lg">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDetail(ujian)}
+                      aria-label="Jadwalkan"
+                      className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-neutral-800 px-2 py-1"
+                    >
+                      <CalendarPlus size={16} />
+                      <span className="text-xs font-medium text-muted-foreground">
+                        Jadwalkan
+                      </span>
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Popup Card Jadwal */}
       {selected && mahasiswaDetail && (
@@ -462,18 +576,19 @@ export default function PendaftaranUjianTable({
           />
           {/* Card container — klik di sini tidak menutup popup */}
           <div
-            className="relative z-10 w-full max-w-3xl mx-4"
+            className="relative z-10 w-full max-w-2xl mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <Card className="dark:bg-neutral-900 dark:border-neutral-800">
-              <CardHeader className="flex items-center justify-between">
-                <CardTitle>
-                  Jadwalkan Ujian
-                  <div className="text-sm font-normal text-muted-foreground ">
+            {/* Ganti Card dengan shadcn Card */}
+            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl border border-muted">
+              <div className="flex items-center justify-between px-6 py-4 border-b dark:border-neutral-800">
+                <div>
+                  <div className="text-lg font-semibold">Jadwalkan Ujian</div>
+                  <div className="text-sm font-normal text-muted-foreground">
                     {selected.mahasiswa.nama} &mdash;{" "}
                     {selected.jenisUjian.namaJenis}
                   </div>
-                </CardTitle>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -481,8 +596,8 @@ export default function PendaftaranUjianTable({
                 >
                   <X size={16} />
                 </Button>
-              </CardHeader>
-              <CardContent>
+              </div>
+              <div className="px-6 py-4">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -524,7 +639,6 @@ export default function PendaftaranUjianTable({
                         value={String(mahasiswaDetail.pembimbing1?.id ?? "")}
                       />
                     </div>
-
                     <div>
                       <Label className="mb-2 block">Sekretaris Penguji</Label>
                       <Input
@@ -539,7 +653,6 @@ export default function PendaftaranUjianTable({
                       />
                     </div>
                   </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="mb-2 block">Tanggal Ujian</Label>
@@ -569,13 +682,9 @@ export default function PendaftaranUjianTable({
                           name="waktuSelesai"
                           required
                           value={waktuSelesai}
-                          readOnly
-                          tabIndex={-1}
-                          className="bg-[#f3f4f6] text-muted-foreground"
+                          onChange={(e) => setWaktuSelesai(e.target.value)}
+                          placeholder="10:00"
                         />
-                        <span className="text-xs text-muted-foreground block mt-1">
-                          Otomatis diisi sesuai jenis ujian
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -645,33 +754,31 @@ export default function PendaftaranUjianTable({
                       </Select>
                     </div>
                   </div>
-                  <CardFooter className="p-0">
-                    <div className="w-full">
-                      {penguji1 === penguji2 && penguji1 !== "" && (
-                        <div className="text-sm text-red-600 mb-2">
-                          Pilih penguji yang berbeda.
-                        </div>
-                      )}
-                      <Button
-                        type="submit"
-                        className="w-full mt-1"
-                        disabled={
-                          !penguji1 ||
-                          !penguji2 ||
-                          !ruangan ||
-                          penguji1 === "" ||
-                          penguji2 === "" ||
-                          ruangan === "" ||
-                          penguji1 === penguji2
-                        }
-                      >
-                        Simpan Jadwal
-                      </Button>
-                    </div>
-                  </CardFooter>
+                  <div className="pt-2">
+                    {penguji1 === penguji2 && penguji1 !== "" && (
+                      <div className="text-sm text-red-600 mb-2">
+                        Pilih penguji yang berbeda.
+                      </div>
+                    )}
+                    <Button
+                      type="submit"
+                      className="w-full mt-1"
+                      disabled={
+                        !penguji1 ||
+                        !penguji2 ||
+                        !ruangan ||
+                        penguji1 === "" ||
+                        penguji2 === "" ||
+                        ruangan === "" ||
+                        penguji1 === penguji2
+                      }
+                    >
+                      Simpan Jadwal
+                    </Button>
+                  </div>
                 </form>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       )}

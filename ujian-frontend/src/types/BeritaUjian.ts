@@ -48,11 +48,13 @@ export interface BeritaUjian {
   ruangan: {
     id: number;
     namaRuangan: string;
-  }
-  ketuaPenguji: Dosen;
-  sekretarisPenguji: Dosen;
-  penguji1: Dosen;
-  penguji2: Dosen;
+  };
+  penguji: {
+    id: number;
+    nama: string;
+    peran: "ketua_penguji" | "sekretaris_penguji" | "penguji_1" | "penguji_2";
+  }[];
+
   hasil: string | null;
   nilaiAkhir: number | null;
   keputusan: {

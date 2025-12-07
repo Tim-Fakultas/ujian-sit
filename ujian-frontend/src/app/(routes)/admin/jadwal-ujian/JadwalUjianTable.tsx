@@ -6,8 +6,6 @@ import { Ujian } from "@/types/Ujian";
 import {
   Eye,
   Search,
-  ChevronDown,
-  ListFilter,
   MoreHorizontal,
   X,
   LayoutGrid,
@@ -312,18 +310,6 @@ export default function JadwalUjianTable({
                   <Eye size={16} />
                   <span>Lihat Penguji</span>
                 </DropdownMenuItem>
-                {ujian.mahasiswa?.id === userId && (
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setSelected(ujian);
-                      setOpenRekapitulasi(true);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg"
-                  >
-                    <IconClipboardText size={16} />
-                    <span>Rekapitulasi Nilai</span>
-                  </DropdownMenuItem>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -403,30 +389,6 @@ export default function JadwalUjianTable({
                     ))}
                   </div>
                 </div>
-                {/* Jadwal Filter */}
-                <div>
-                  <div className="text-xs font-semibold mb-1 text-muted-foreground">
-                    Jadwal
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={filterJadwal === "all" ? "secondary" : "ghost"}
-                      size="sm"
-                      className="rounded"
-                      onClick={() => setFilterJadwal("all")}
-                    >
-                      Semua Jadwal
-                    </Button>
-                    <Button
-                      variant={filterJadwal === "mine" ? "secondary" : "ghost"}
-                      size="sm"
-                      className="rounded"
-                      onClick={() => setFilterJadwal("mine")}
-                    >
-                      Jadwal Saya
-                    </Button>
-                  </div>
-                </div>
               </div>
             </PopoverContent>
           </Popover>
@@ -468,9 +430,7 @@ export default function JadwalUjianTable({
 
       {/* Table/Card view */}
       {viewMode === "table" ? (
-        <div className="overflow-x-auto rounded-lg bg-white dark:bg-neutral-900 w-full">
-          <TableGlobal table={table} cols={columns} />
-        </div>
+        <TableGlobal table={table} cols={columns} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
           {paginatedData.map((ujian, idx) => {

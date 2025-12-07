@@ -6,7 +6,6 @@ import {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -23,14 +22,11 @@ import {
   Eye,
   Search,
   Plus,
-  ChevronDown,
-  ChevronUp,
-  ListFilter,
   MoreHorizontal,
-  ArrowUpDown,
   LayoutGrid,
   List,
   Check,
+  Settings2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -42,9 +38,11 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Form from "./Form";
 import { useAuthStore } from "@/stores/useAuthStore";
-
-type SortKey = "no" | "nama" | "judul" | "tanggal";
-type SortOrder = "asc" | "desc";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 
 export default function PengajuanTableClient({
   data,
@@ -62,7 +60,9 @@ export default function PengajuanTableClient({
 
   // Controls
   const [search, setSearch] = useState("");
+  const [filterJenis, setFilterJenis] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [openFilter, setOpenFilter] = useState(false);
 
   const statusOptions = [
     { value: "all", label: "All" },
@@ -82,6 +82,7 @@ export default function PengajuanTableClient({
       const tanggal = (p.tanggalPengajuan ?? "").toString().toLowerCase();
       const statusMatch =
         filterStatus === "all" ? true : status === filterStatus;
+
       const qEmpty = q === "";
       const matchesQ =
         qEmpty ||
@@ -105,7 +106,7 @@ export default function PengajuanTableClient({
   // handlers for preview modal passed into column cell
   const handleLihatClick = React.useCallback((pengajuan: PengajuanRanpel) => {
     setSelectedPengajuan(pengajuan);
-    setIsPdfOpen(true); // open PDF preview only
+    setIsPdfOpen(true);
   }, []);
   const handleClosePdf = () => {
     setIsPdfOpen(false);
@@ -149,7 +150,6 @@ export default function PengajuanTableClient({
         header: ({ column }) => (
           <div className="flex items-center gap-1">
             <span>Nama Mahasiswa</span>
-            <ArrowUpDown size={16} />
           </div>
         ),
         cell: ({ row }) => <div>{row.getValue("nama")}</div>,
@@ -244,98 +244,90 @@ export default function PengajuanTableClient({
     },
   });
 
-  // keep previous behavior: reset page when filters change
   useEffect(() => {
-    // if using internal pagination, you can reset page index here via table.setPageIndex(0)
-    // but TableGlobal uses table controls; ensure page reset if necessary
     try {
       table.setPageIndex?.(0);
     } catch {}
-  }, [search, filterStatus]); // eslint-disable-line
+  }, [search, filterStatus, table]);
 
   return (
     <>
-      {/* container lebih gelap di dark mode; card di dalam dibuat lebih terang */}
-      <div className="bg-white dark:bg-neutral-900 p-4 md:p-6 rounded-md shadow-sm overflow-x-auto">
-        {/* Header controls: search left, controls right */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <div className="flex-1 min-w-0">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={16} className="text-muted-foreground" />
-              </div>
-              <Input
-                placeholder="Search"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                className="w-full pl-10 bg-white dark:bg-neutral-800"
-              />
+      <div className="bg-white dark:bg-neutral-900 border p-2 sm:p-6 rounded-md shadow-sm w-full max-w-full">
+        {/* Header controls: search/filter/add/tabs */}
+        <div className="flex flex-row gap-2 mb-4 w-full items-center">
+          {/* Search input */}
+          <div className="relative min-w-[120px] max-w-full flex-1">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={16} className="text-muted-foreground" />
             </div>
+            <Input
+              placeholder="Search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="w-full pl-10 bg-white dark:bg-neutral-800"
+            />
           </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            {/* popover and controls */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+          {/* Filter popover */}
+          <Popover open={openFilter} onOpenChange={setOpenFilter}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 w-9 flex items-center justify-center rounded-md"
+              >
+                <Settings2 size={16} />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="min-w-[160px] p-2">
+              <div className="text-xs font-semibold text-muted-foreground mb-1">
+                Status
+              </div>
+              {statusOptions.map((opt) => (
                 <Button
-                  variant="outline"
+                  key={opt.value}
+                  variant={filterStatus === opt.value ? "secondary" : "ghost"}
                   size="sm"
-                  className="h-8 w-9 p-0 grid place-items-center"
-                  aria-label="Filter status"
-                  title="Filter status"
+                  className="w-full justify-between"
+                  onClick={() => setFilterStatus(opt.value)}
                 >
-                  <ListFilter size={16} />
+                  <span className="text-sm">{opt.label}</span>
+                  {filterStatus === opt.value && <Check size={14} />}
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-[180px]">
-                {statusOptions.map((opt) => {
-                  const isActive = filterStatus === opt.value;
-                  return (
-                    <DropdownMenuItem
-                      key={opt.value}
-                      onClick={() => setFilterStatus(opt.value)}
-                      className="flex items-center justify-between gap-2"
-                    >
-                      <span className="text-sm">{opt.label}</span>
-                      {isActive && <Check size={14} />}
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Tabs to switch view (table / card) */}
-            <Tabs
-              value={viewMode}
-              onValueChange={(v) => setViewMode(v as any)}
-              className="h-8"
-            >
-              <TabsList className="rounded-md bg-muted p-1 gap-1">
-                <TabsTrigger
-                  value="table"
-                  className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  aria-label="Table view"
-                >
-                  <LayoutGrid size={16} />
-                </TabsTrigger>
-                <TabsTrigger
-                  value="card"
-                  className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  aria-label="Card view"
-                >
-                  <List size={16} />
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            <Button
-              className="bg-blue-500 hover:bg-blue-500 text-white text-sm px-4 flex items-center gap-2 rounded-lg"
-              onClick={handleOpenForm}
-            >
-              Tambah pengajuan
-              <Plus size={14} />
-            </Button>
-          </div>
+              ))}
+            </PopoverContent>
+          </Popover>
+          {/* Tabs */}
+          <Tabs
+            value={viewMode}
+            onValueChange={(v) => setViewMode(v as any)}
+            className="h-8"
+          >
+            <TabsList className="rounded-md bg-muted p-1 gap-1">
+              <TabsTrigger
+                value="table"
+                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                aria-label="Table view"
+              >
+                <LayoutGrid size={16} />
+              </TabsTrigger>
+              <TabsTrigger
+                value="card"
+                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                aria-label="Card view"
+              >
+                <List size={16} />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          {/* Tombol tambah pengajuan */}
+          <Button
+            className="w-9 bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 flex items-center justify-center rounded-lg h-9"
+            onClick={handleOpenForm}
+            title="Tambah pengajuan"
+            aria-label="Tambah pengajuan"
+          >
+            <Plus size={16} />
+          </Button>
         </div>
 
         {/* Table / Card */}
@@ -358,50 +350,54 @@ export default function PengajuanTableClient({
             </div>
           </div>
         ) : viewMode === "table" ? (
-          <TableGlobal table={table} cols={cols} />
+          <div className="overflow-x-auto w-full">
+            <TableGlobal table={table} cols={cols} />
+          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
             {filteredData.map((item, idx) => {
               const key = (item as any).id ?? idx;
               const nama = item.mahasiswa?.nama ?? "-";
               const judul = item.ranpel?.judulPenelitian ?? "-";
               const tanggal = item.tanggalPengajuan ?? "";
               const status = item.status ?? "-";
+              // Status badge style
+              const statusClass =
+                status === "menunggu"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : status === "diterima"
+                  ? "bg-green-100 text-green-800"
+                  : status === "ditolak"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-blue-100 text-blue-800";
               return (
                 <div
                   key={key}
-                  /* buat card lebih terang dari background gelap */
-                  className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-sm "
+                  className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-sm flex flex-col h-full"
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
+                  <div className="flex flex-row flex-wrap justify-between items-start gap-2">
+                    <div className="flex-1 min-w-0">
                       <div className="text-sm text-muted-foreground mb-1">
                         {new Date(String(tanggal)).toLocaleDateString?.(
                           "id-ID"
                         ) || tanggal}
                       </div>
-                      <div className="font-medium">{nama}</div>
-                      <div className="text-sm text-muted-foreground mt-2 truncate max-w-[36ch]">
+                      <div className="font-medium break-words max-w-[20ch]">
+                        {nama}
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-2 truncate max-w-[32ch]">
                         {judul}
                       </div>
                     </div>
-                    <div className="ml-3 text-right">
-                      <div
-                        className={`px-2 py-1 rounded text-sm ${
-                          status === "menunggu"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : status === "diterima"
-                            ? "bg-green-100 text-green-800"
-                            : status === "ditolak"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}
+                    <div className="flex-shrink-0">
+                      <span
+                        className={`px-2 py-1 rounded text-sm block ${statusClass}`}
+                        style={{ wordBreak: "break-word", maxWidth: "100px" }}
                       >
                         {status}
-                      </div>
+                      </span>
                     </div>
                   </div>
-
                   <div className="mt-4 flex items-center justify-end gap-2">
                     <Button
                       size="sm"
@@ -430,7 +426,7 @@ export default function PengajuanTableClient({
       {/* Card Form Modal */}
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-6">
-          <div className="max-w-3xl w-full bg-white dark:bg-[#232323] rounded-xl shadow-2xl relative">
+          <div className="max-w-3xl w-full bg-white dark:bg-neutral-800 rounded-xl shadow-2xl relative">
             <Button
               variant="ghost"
               size="icon"
