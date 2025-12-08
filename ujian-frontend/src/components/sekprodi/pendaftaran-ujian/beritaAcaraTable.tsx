@@ -199,8 +199,8 @@ export default function BeritaAcaraUjianTable({
       id: "judul",
       header: "Judul",
       cell: ({ row }: any) => (
-        <div className="whitespace-pre-line break-words max-w-[180px]">
-          {truncateTitle(row.getValue("judul"), 50)}
+        <div className="whitespace-pre-line break-words max-w-[240px] text-xs">
+          {row.getValue("judul")}
         </div>
       ),
       size: 180,
@@ -226,37 +226,37 @@ export default function BeritaAcaraUjianTable({
       },
       size: 90,
     },
-    {
-      accessorFn: (row: BeritaUjian) => row.nilaiAkhir ?? "-",
-      id: "nilaiAkhir",
-      header: "Nilai Akhir",
-      cell: ({ row }: any) => (
-        <div className="text-center">{row.getValue("nilaiAkhir")}</div>
-      ),
-      size: 70,
-    },
-    {
-      accessorFn: (row: BeritaUjian) => row.hasil ?? "-",
-      id: "hasil",
-      header: "Hasil",
-      cell: ({ row }: any) => {
-        const hasil = row.getValue("hasil")?.toLowerCase();
-        const badgeClass =
-          hasil === "lulus"
-            ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
-            : hasil === "tidak lulus"
-            ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
-            : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200";
-        return hasil && hasil !== "-" ? (
-          <span className={`px-2 py-1 rounded font-semibold ${badgeClass}`}>
-            {row.getValue("hasil")}
-          </span>
-        ) : (
-          "-"
-        );
-      },
-      size: 70,
-    },
+    // {
+    //   accessorFn: (row: BeritaUjian) => row.nilaiAkhir ?? "-",
+    //   id: "nilaiAkhir",
+    //   header: "Nilai Akhir",
+    //   cell: ({ row }: any) => (
+    //     <div className="text-center">{row.getValue("nilaiAkhir")}</div>
+    //   ),
+    //   size: 70,
+    // },
+    // {
+    //   accessorFn: (row: BeritaUjian) => row.hasil ?? "-",
+    //   id: "hasil",
+    //   header: "Hasil",
+    //   cell: ({ row }: any) => {
+    //     const hasil = row.getValue("hasil")?.toLowerCase();
+    //     const badgeClass =
+    //       hasil === "lulus"
+    //         ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
+    //         : hasil === "tidak lulus"
+    //         ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
+    //         : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200";
+    //     return hasil && hasil !== "-" ? (
+    //       <span className={`px-2 py-1 rounded font-semibold ${badgeClass}`}>
+    //         {row.getValue("hasil")}
+    //       </span>
+    //     ) : (
+    //       "-"
+    //     );
+    //   },
+    //   size: 70,
+    // },
     {
       id: "actions",
       header: "Aksi",

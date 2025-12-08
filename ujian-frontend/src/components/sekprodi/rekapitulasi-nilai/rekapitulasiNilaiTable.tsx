@@ -238,7 +238,6 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
             : total >= 55
             ? "D"
             : "E";
-            
 
         const [openPopover, setOpenPopover] = useState(false);
 
@@ -257,11 +256,11 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
                   <MoreHorizontal size={16} />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="p-2  w-[230px]" align="end">
+              <PopoverContent className="p-2 w-[230px]" align="end">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full flex items-center gap-2 justify-start "
+                  className="w-full flex items-center gap-2 justify-start"
                   onClick={() => {
                     setSelected({ mhs, judul, detail, total });
                     setOpen(true);

@@ -362,7 +362,7 @@ export default function PendaftaranUjianTable({
                     <MoreHorizontal size={18} />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" >
+                <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => handleDetail(u)}>
                     <CalendarPlus className="mr-2" size={16} />
                     Jadwalkan
@@ -782,6 +782,7 @@ export default function PendaftaranUjianTable({
           </div>
         </div>
       )}
+      
     </div>
   );
 }
