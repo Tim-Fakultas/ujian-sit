@@ -184,9 +184,7 @@ export default function PendaftaranUjianTable({
       setWaktuMulai(selected.waktuMulai ?? "");
       setWaktuSelesai(selected.waktuSelesai ?? "");
       setRuangan(
-        selected.ruangan?.id
-          ? String(selected.ruangan.id)
-          : selected.ruangan.id
+        selected.ruangan && selected.ruangan.id
           ? String(selected.ruangan.id)
           : ""
       );

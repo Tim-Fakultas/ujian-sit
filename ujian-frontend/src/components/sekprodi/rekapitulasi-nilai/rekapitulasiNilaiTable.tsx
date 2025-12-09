@@ -460,7 +460,7 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
               value={filterNama}
               onChange={(e) => setFilterNama(e.target.value)}
               className="pl-10 w-full bg-white text-sm dark:bg-[#1f1f1f]"
-              inputMode="text"
+              inputMode="text"  
             />
           </div>
 

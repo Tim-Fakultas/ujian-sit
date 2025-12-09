@@ -145,8 +145,7 @@ export async function createPendaftaranUjian({
   keterangan?: string;
   status?: string;
 }) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const formData = new FormData();
     formData.append("ranpelId", ranpelId.toString());
@@ -160,7 +159,7 @@ export async function createPendaftaranUjian({
     });
 
     const response = await fetch(
-      `${API_URL}/mahasiswa/${mahasiswaId}/pendaftaran-ujian`,
+      `${apiUrl}/mahasiswa/${mahasiswaId}/pendaftaran-ujian`,
       {
         method: "POST",
         body: formData,
@@ -172,13 +171,13 @@ export async function createPendaftaranUjian({
 
     if (!response.ok) {
       const errorText = await response.text();
-      // Deteksi error body size
+      // Deteksi error body size (ubah jadi 5 MB)
       if (
-        errorText.includes("Body exceeded 1 MB limit") ||
+        errorText.includes("Body exceeded 5 MB limit") ||
         response.status === 413
       ) {
         throw new Error(
-          "Body exceeded 1 MB limit. File terlalu besar, maksimal 1 MB per file."
+          "Body exceeded 5 MB limit. File terlalu besar, maksimal 5 MB per file."
         );
       }
       throw new Error(

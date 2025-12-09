@@ -60,7 +60,6 @@ export default function PengajuanTableClient({
 
   // Controls
   const [search, setSearch] = useState("");
-  const [filterJenis, setFilterJenis] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [openFilter, setOpenFilter] = useState(false);
 
@@ -126,8 +125,8 @@ export default function PengajuanTableClient({
     () => [
       {
         id: "select",
-        header: ({ table }) => null,
-        cell: ({ row }) => null,
+        header: () => null,
+        cell: () => null,
         enableSorting: false,
         enableHiding: false,
       },
@@ -147,7 +146,7 @@ export default function PengajuanTableClient({
       {
         accessorFn: (row) => row.mahasiswa?.nama ?? "-",
         id: "nama",
-        header: ({ column }) => (
+        header: () => (
           <div className="flex items-center gap-1">
             <span>Nama Mahasiswa</span>
           </div>
