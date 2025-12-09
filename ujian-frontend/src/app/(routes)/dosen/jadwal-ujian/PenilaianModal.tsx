@@ -191,120 +191,112 @@ export default function PenilaianModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-[#1f1f1f] rounded-lg shadow-lg p-6 relative w-full max-w-2xl max-h-[85vh] overflow-y-auto"
+        className="bg-white dark:bg-[#18181c] rounded-2xl shadow-2xl p-0 relative w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden "
         onClick={(e) => e.stopPropagation()}
       >
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-2 right-2"
-          onClick={onClose}
-        >
-          <X size={16} />
-        </Button>
-
-        <h2 className="text-lg font-bold mb-3 text-left">
-          Form Penilaian Ujian
-        </h2>
-
-        {/* Identitas */}
-        <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
-          <div>
-            <Label className="mb-2">Nama Mahasiswa</Label>
-            <Input value={ujian.mahasiswa?.nama ?? ""} readOnly />
-          </div>
-          <div>
-            <Label className="mb-2">NIM</Label>
-            <Input value={ujian.mahasiswa?.nim ?? ""} readOnly />
-          </div>
-          <div>
-            <Label className="mb-2">Prodi</Label>
-            <Input value={ujian.mahasiswa?.prodi?.namaProdi ?? ""} readOnly />
-          </div>
-          <div>
-            <Label className="mb-2">Peran Penguji</Label>
-            <Input value={formatPeran(pengujiInfo?.peran)} readOnly />
-          </div>
+        <div className="flex items-center justify-between px-6 pt-6 pb-2 border-b ">
+          <h2 className="text-xl font-bold tracking-tight">
+            Form Penilaian Ujian
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full "
+            onClick={onClose}
+            aria-label="Tutup"
+          >
+            <X size={20} />
+          </Button>
         </div>
 
         {/* Tabel Penilaian */}
-        <form action={formAction}>
-          <div className="border rounded-md overflow-hidden">
-            <Table className="w-full text-sm ">
-              <TableHeader className="border-b">
-                <TableRow>
-                  <TableHead>Kriteria</TableHead>
-                  <TableHead>Bobot</TableHead>
-                  <TableHead>Skor</TableHead>
-                  <TableHead>Bobot × Skor</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {komponen.map((k) => (
-                  <TableRow key={k.id}>
-                    <TableCell>{k.namaKomponen}</TableCell>
-                    <TableCell>{k.bobot}</TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min={0}
-                        max={100}
-                        // tampilkan empty string jika null (belum diisi)
-                        value={nilai[k.id] ?? ""}
-                        onChange={(e) =>
-                          handleNilaiChange(k.id, e.target.value)
-                        }
-                        className="w-16 text-center"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {getBobotSkor(k.id, k.bobot).toFixed(2)}
-                    </TableCell>
+        <form
+          action={formAction}
+          className="flex-1 flex flex-col overflow-auto"
+        >
+          <div className="flex-1 px-6 py-4 overflow-auto">
+            <div className="border rounded-xl overflow-hidden  bg-white dark:bg-[#23232a]">
+              <Table className="w-full text-sm">
+                <TableHeader className="border-b bg-gray-50 dark:bg-[#202024]">
+                  <TableRow>
+                    <TableHead className="font-semibold">Kriteria</TableHead>
+                    <TableHead className="font-semibold">Bobot</TableHead>
+                    <TableHead className="font-semibold">Skor</TableHead>
+                    <TableHead className="font-semibold">
+                      Bobot × Skor
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-
-            <div className="px-4 py-2 border-t text-right text-sm font-semibold bg-gray-50 dark:bg-[#171717]">
-              Total Skor: {totalSkor.toFixed(2)}
+                </TableHeader>
+                <TableBody>
+                  {komponen.map((k) => (
+                    <TableRow key={k.id}>
+                      <TableCell>{k.namaKomponen}</TableCell>
+                      <TableCell>{k.bobot}</TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={nilai[k.id] ?? ""}
+                          onChange={(e) =>
+                            handleNilaiChange(k.id, e.target.value)
+                          }
+                          className="w-16 text-center rounded-md border border-muted"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {getBobotSkor(k.id, k.bobot).toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="px-4 py-2 border-t text-right text-base font-bold bg-gray-50 dark:bg-[#202024]">
+                Total Skor:{" "}
+                <span className="text-blue-600 dark:text-blue-400">
+                  {totalSkor.toFixed(2)}
+                </span>
+              </div>
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className={`w-full mt-4 bg-blue-500 text-white ${
-              isSudahNilai || isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={isSudahNilai || !isAllFilled || isLoading}
-            aria-disabled={isSudahNilai || !isAllFilled || isLoading}
-            title={
-              isSudahNilai ? "Anda sudah memberikan penilaian." : undefined
-            }
-          >
-            {isLoading ? "Menyimpan..." : "Simpan Penilaian"}
-          </Button>
+          <div className="px-6 pb-6">
+            <Button
+              type="submit"
+              className={`w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-xl shadow ${
+                isSudahNilai || isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={isSudahNilai || !isAllFilled || isLoading}
+              aria-disabled={isSudahNilai || !isAllFilled || isLoading}
+              title={
+                isSudahNilai ? "Anda sudah memberikan penilaian." : undefined
+              }
+            >
+              {isLoading ? "Menyimpan..." : "Simpan Penilaian"}
+            </Button>
 
-          {isSudahNilai && (
-            <p className="text-xs text-red-600 mt-2 text-center">
-              Anda sudah memberikan penilaian.
-            </p>
-          )}
+            {isSudahNilai && (
+              <p className="text-xs text-red-600 mt-2 text-center">
+                Anda sudah memberikan penilaian.
+              </p>
+            )}
 
-          {!isAllFilled && (
-            <p className="text-xs text-orange-600 mt-2 text-center">
-              Harap isi semua skor sebelum menyimpan.
-            </p>
-          )}
+            {!isAllFilled && (
+              <p className="text-xs text-orange-600 mt-2 text-center">
+                Harap isi semua skor sebelum menyimpan.
+              </p>
+            )}
 
-          {state.error && (
-            <p className="text-red-600 text-sm mt-2 text-center">
-              {state.error}
-            </p>
-          )}
+            {state.error && (
+              <p className="text-red-600 text-sm mt-2 text-center">
+                {state.error}
+              </p>
+            )}
+          </div>
         </form>
       </div>
     </div>

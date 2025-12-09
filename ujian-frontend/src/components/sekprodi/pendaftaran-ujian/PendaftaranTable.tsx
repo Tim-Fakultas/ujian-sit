@@ -173,6 +173,58 @@ export default function PendaftaranUjianTable({
       setMahasiswaDetail(null);
       setWaktuMulai("");
       setWaktuSelesai("");
+      setRuangan("");
+    }
+  }, [selected]);
+
+  // Prefill form fields if ujian already scheduled
+  useEffect(() => {
+    if (selected) {
+      // Prefill waktu mulai, selesai, tanggal, ruangan
+      setWaktuMulai(selected.waktuMulai ?? "");
+      setWaktuSelesai(selected.waktuSelesai ?? "");
+      setRuangan(
+        selected.ruangan?.id
+          ? String(selected.ruangan.id)
+          : selected.ruangan.id
+          ? String(selected.ruangan.id)
+          : ""
+      );
+      // Prefill penguji1, penguji2, ketua, sekretaris dari selected.penguji
+      if (Array.isArray(selected.penguji)) {
+        const penguji1Obj = selected.penguji.find(
+          (p) => p.peran === "penguji_1"
+        );
+        const penguji2Obj = selected.penguji.find(
+          (p) => p.peran === "penguji_2"
+        );
+        setPenguji1(penguji1Obj ? String(penguji1Obj.id) : "");
+        setPenguji2(penguji2Obj ? String(penguji2Obj.id) : "");
+
+        // Prefill ketua dan sekretaris penguji ke mahasiswaDetail jika ada
+        const ketuaObj = selected.penguji.find(
+          (p) => p.peran === "ketua_penguji"
+        );
+        const sekretarisObj = selected.penguji.find(
+          (p) => p.peran === "sekretaris_penguji"
+        );
+        setMahasiswaDetail((prev) =>
+          prev
+            ? {
+                ...prev,
+                pembimbing1: ketuaObj
+                  ? { id: ketuaObj.id, nama: ketuaObj.nama }
+                  : prev.pembimbing1,
+                pembimbing2: sekretarisObj
+                  ? { id: sekretarisObj.id, nama: sekretarisObj.nama }
+                  : prev.pembimbing2,
+              }
+            : prev
+        );
+      } else {
+        setPenguji1("");
+        setPenguji2("");
+      }
     }
   }, [selected]);
 
@@ -661,6 +713,11 @@ export default function PendaftaranUjianTable({
                         name="jadwalUjian"
                         required
                         placeholder="Pilih tanggal"
+                        defaultValue={
+                          selected.jadwalUjian
+                            ? selected.jadwalUjian.slice(0, 10)
+                            : ""
+                        }
                       />
                     </div>
                     <div className="flex gap-2">
@@ -782,7 +839,6 @@ export default function PendaftaranUjianTable({
           </div>
         </div>
       )}
-      
     </div>
   );
 }

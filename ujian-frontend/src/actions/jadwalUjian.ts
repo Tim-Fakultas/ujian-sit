@@ -90,14 +90,12 @@ export async function getJadwalUjianByProdiByDosen({
 
         const statusMatch = ujian.pendaftaranUjian?.status !== "menunggu";
 
-        // 🔥 CARI penguji yang perannya cocok dengan dosen ini
         const pengujiFound = ujian.penguji?.find(
           (p) => Number(p.id) === Number(dosenId)
         );
 
         return prodiMatch && statusMatch && pengujiFound;
       })
-      // Sort by pendaftaran ujian date (descending, terbaru di atas)
       .sort((a, b) => {
         const dateA = new Date(
           a.pendaftaranUjian?.tanggalPengajuan ?? 0
