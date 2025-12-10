@@ -27,6 +27,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface PDFPreviewModalProps {
   isOpen: boolean;
@@ -53,6 +55,7 @@ export default function PDFPreviewModal({
     null
   );
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [keterangan, setKeterangan] = useState<string>("");
   const firstSelectRef = useRef<HTMLButtonElement | null>(null);
 
   const { user } = useAuthStore.getState();
@@ -78,6 +81,9 @@ export default function PDFPreviewModal({
       setSelectedPembimbing1(p1);
       setSelectedPembimbing2(p2);
       setValidationError(null);
+
+      // Prefill keterangan jika sudah ada
+      setKeterangan(pengajuan.keterangan ?? "");
 
       // fokus ke select pertama untuk akses keyboard
       setTimeout(() => {
@@ -179,6 +185,7 @@ export default function PDFPreviewModal({
       });
       await updateStatusPengajuanRanpel(pengajuan.mahasiswa.id, pengajuan.id, {
         status: "diterima",
+        keterangan: keterangan,
       });
       await revalidateAction("/kaprodi/pengajuan-ranpel"); // tambahkan ini agar kaprodi juga revalidate
       setShowPembimbingModal(false);
@@ -329,6 +336,9 @@ export default function PDFPreviewModal({
                           ? "Memproses..."
                           : user?.roles?.[0]?.name === "dosen"
                           ? "Verifikasi"
+                          : pengajuan.mahasiswa.pembimbing1?.id ||
+                            pengajuan.mahasiswa.pembimbing2?.id
+                          ? "Edit Pembimbing"
                           : "Tentukan Pembimbing"}
                       </Button>
                       <Button
@@ -376,6 +386,9 @@ export default function PDFPreviewModal({
                   ? "Memproses..."
                   : user?.roles?.[0]?.name === "dosen"
                   ? "Verifikasi"
+                  : pengajuan.mahasiswa.pembimbing1?.id ||
+                    pengajuan.mahasiswa.pembimbing2?.id
+                  ? "Edit Pembimbing"
                   : "Tentukan Pembimbing"}
               </Button>
               <Button
@@ -408,10 +421,13 @@ export default function PDFPreviewModal({
         open={showPembimbingModal}
         onOpenChange={setShowPembimbingModal}
       >
-        <AlertDialogContent className="max-w-md dark:bg-[#1f1f1f]">
+        <AlertDialogContent className="max-w-md dark:bg-neutral-900">
           <AlertDialogHeader>
             <AlertDialogTitle className="dark:text-gray-100">
-              Pilih Pembimbing 1 & 2
+              {pengajuan.mahasiswa.pembimbing1?.id ||
+              pengajuan.mahasiswa.pembimbing2?.id
+                ? "Edit Pembimbing & Keterangan"
+                : "Pilih Pembimbing & Tambah Keterangan"}
             </AlertDialogTitle>
           </AlertDialogHeader>
           <form onSubmit={handlePembimbingSubmit} className="space-y-4">
@@ -480,6 +496,24 @@ export default function PDFPreviewModal({
                     ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label className="block mb-1 dark:text-gray-200">
+                Keterangan (opsional)
+              </Label>
+              <Textarea
+                className="w-full rounded border px-2 py-1 dark:bg-[#1f1f1f] dark:text-gray-100"
+                value={keterangan}
+                onChange={(e) => setKeterangan(e.target.value)}
+                placeholder="Isi keterangan jika diperlukan"
+                rows={2}
+              />
+              {/* Tampilkan keterangan sebelumnya jika ada dan tidak sedang mengedit */}
+              {pengajuan.keterangan && !showPembimbingModal && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  Keterangan sebelumnya: {pengajuan.keterangan}
+                </div>
+              )}
             </div>
             <div className="mt-2">
               {validationError && (

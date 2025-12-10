@@ -40,9 +40,23 @@ export default function PDFPreviewModal({
         </div>
 
         {/* PDF Content */}
-        <div className="flex-1 overflow-auto p-4 bg-white dark:bg-[#1f1f1f]">
-          <div className="bg-white shadow-lg dark:bg-[#1f1f1f]">
+        <div className="flex-1 overflow-auto p-4 bg-white dark:bg-[#1f1f1f] flex flex-col md:flex-row gap-4">
+          {/* Left: PDF */}
+          <div className="bg-white shadow-lg dark:bg-[#1f1f1f] flex-1">
             <PDFDocument pengajuan={pengajuan} />
+          </div>
+          {/* Right: Keterangan */}
+          <div className="w-full md:w-72 flex-shrink-0 mt-4 md:mt-0">
+            <div className="font-semibold mb-1">Keterangan</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300 border rounded p-2 bg-gray-50 dark:bg-neutral-900 min-h-[40px]">
+              {pengajuan.keterangan ? (
+                pengajuan.keterangan
+              ) : (
+                <span className="italic text-gray-400">
+                  Tidak ada keterangan
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>

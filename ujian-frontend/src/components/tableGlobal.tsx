@@ -32,16 +32,16 @@ export default function TableGlobal({
 
   return (
     <div className="w-full">
-      <div className="overflow-x-auto rounded-xl border bg-white dark:bg-neutral-800 shadow-sm">
-        <Table className="min-w-[700px] sm:min-w-full">
+      <div className="overflow-hidden rounded-md border">
+        <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup: any) => (
-              <TableRow key={headerGroup.id}>
+            {table.getHeaderGroups().map((headerGroup: any, idx: number) => (
+              <TableRow
+                key={headerGroup.id}
+                className={`${idx === 0 ? "text-center" : ""}`}
+              >
                 {headerGroup.headers.map((header: any) => (
-                  <TableHead
-                    key={header.id}
-                    className="bg-gray-50 dark:bg-neutral-900 text-xs font-semibold uppercase tracking-wide py-3 px-2"
-                  >
+                  <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -61,10 +61,10 @@ export default function TableGlobal({
                   data-state={row.getIsSelected() && "selected"}
                   className="hover:bg-gray-50 dark:hover:bg-neutral-900 transition"
                 >
-                  {row.getVisibleCells().map((cell: any) => (
+                  {row.getVisibleCells().map((cell: any, idx: number) => (
                     <TableCell
                       key={cell.id}
-                      className="py-3 px-2 text-sm align-middle"
+                      className={`text-sm ${idx === 0 ? "text-center" : ""}`}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

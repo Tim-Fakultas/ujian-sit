@@ -175,7 +175,7 @@ export default function BeritaAcaraUjianTable({
             (table.getState().pagination?.pageSize ?? 10) +
           row.index +
           1;
-        return <div className="text-center">{index}</div>;
+        return <div>{index}</div>;
       },
       size: 36,
     },

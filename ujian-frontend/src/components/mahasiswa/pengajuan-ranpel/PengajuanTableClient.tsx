@@ -124,13 +124,6 @@ export default function PengajuanTableClient({
   const cols: ColumnDef<PengajuanRanpel>[] = React.useMemo(
     () => [
       {
-        id: "select",
-        header: () => null,
-        cell: () => null,
-        enableSorting: false,
-        enableHiding: false,
-      },
-      {
         id: "no",
         header: "No",
         cell: ({ row, table }) => {
@@ -140,7 +133,7 @@ export default function PengajuanTableClient({
               (table.getState().pagination?.pageSize ?? 10) +
             row.index +
             1;
-          return <div className="text-center">{index}</div>;
+          return <div>{index}</div>;
         },
       },
       {

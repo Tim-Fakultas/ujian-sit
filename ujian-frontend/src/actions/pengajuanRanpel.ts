@@ -145,7 +145,7 @@ export async function getPengajuanRanpelByProdi(prodiId?: number) {
 export async function updateStatusPengajuanRanpel(
   mahasiswaId: number,
   pengajuanId: number,
-  data: Status
+  data: { status: Status["status"]; keterangan?: string }
 ) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -157,7 +157,10 @@ export async function updateStatusPengajuanRanpel(
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          status: data.status,
+          ...(data.keterangan ? { keterangan: data.keterangan } : {}),
+        }),
         cache: "no-store",
       }
     );
