@@ -155,7 +155,7 @@ export default function PengajuanUjianForm({
         const errorMessage = (err as { message: string }).message;
         if (errorMessage.includes("Body exceeded 1 MB limit")) {
           msg =
-            "Gagal submit pendaftaran ujian: File yang diunggah terlalu besar (maksimal 1 MB per file). Silakan kompres file PDF Anda atau upload file yang lebih kecil.";
+            "Gagal submit pendaftaran ujian: File yang diunggah terlalu besar (maksimal 5 MB per file). Silakan kompres file PDF Anda atau upload file yang lebih kecil.";
         } else {
           msg += " " + errorMessage;
         }
@@ -428,7 +428,7 @@ export default function PengajuanUjianForm({
       </div>
 
       <div className="text-xs text-muted-foreground mt-1">
-        Tips: Unggah file dalam format PDF. Maks. 1 MB per file. Periksa kembali
+        Tips: Unggah file dalam format PDF. Maks. 5 MB per file. Periksa kembali
         nama file agar mudah dikenali.
       </div>
 

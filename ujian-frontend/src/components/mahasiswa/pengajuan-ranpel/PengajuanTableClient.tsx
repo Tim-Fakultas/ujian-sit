@@ -60,7 +60,6 @@ export default function PengajuanTableClient({
 
   // Controls
   const [search, setSearch] = useState("");
-  const [filterJenis, setFilterJenis] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [openFilter, setOpenFilter] = useState(false);
 
@@ -125,13 +124,6 @@ export default function PengajuanTableClient({
   const cols: ColumnDef<PengajuanRanpel>[] = React.useMemo(
     () => [
       {
-        id: "select",
-        header: ({ table }) => null,
-        cell: ({ row }) => null,
-        enableSorting: false,
-        enableHiding: false,
-      },
-      {
         id: "no",
         header: "No",
         cell: ({ row, table }) => {
@@ -141,13 +133,13 @@ export default function PengajuanTableClient({
               (table.getState().pagination?.pageSize ?? 10) +
             row.index +
             1;
-          return <div className="text-center">{index}</div>;
+          return <div>{index}</div>;
         },
       },
       {
         accessorFn: (row) => row.mahasiswa?.nama ?? "-",
         id: "nama",
-        header: ({ column }) => (
+        header: () => (
           <div className="flex items-center gap-1">
             <span>Nama Mahasiswa</span>
           </div>

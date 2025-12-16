@@ -22,10 +22,7 @@ export default async function JadwalUjianPage() {
 
   return (
     <div className="p-6">
-      <Header
-        title="Jadwal Ujian Mahasiswa"
-        desc="Daftar jadwal ujian mahasiswa bimbingan anda."
-      />
+      <Header title="Jadwal Ujian Mahasiswa" desc="Disini anda dapat melihat jadwal ujian dan melakukan penilaian." />
       <Suspense fallback={<Loading />}>
         <JadwalUjianTable jadwalUjian={jadwalUjian} currentDosenId={user?.id} />
       </Suspense>

@@ -192,6 +192,20 @@ export default function JadwalUjianTable({
     }
   }, [openRekapitulasi, selected?.id]);
 
+  // Tambahkan fungsi untuk menghitung nilai akhir total ujian
+  function nilaiAkhirTotalUjian(ujian: Ujian) {
+    // Ambil semua penilaian untuk penguji pada ujian ini
+    const pengujiIds = ujian.penguji?.map((p) => p.id) ?? [];
+    const nilaiPerPenguji = pengujiIds.map((dosenId) =>
+      nilaiAkhirDosen(ujian, dosenId)
+    );
+    // Hitung rata-rata nilai akhir penguji (hanya yang ada nilainya)
+    const validNilai = nilaiPerPenguji.filter((n) => typeof n === "number");
+    if (validNilai.length === 0) return null;
+    const total = validNilai.reduce((acc, n) => acc + (n ?? 0), 0);
+    return Number((total / validNilai.length).toFixed(2));
+  }
+
   // Tambahkan fungsi untuk styling badge status
   function statusBadge(status: string) {
     let color =
@@ -274,6 +288,19 @@ export default function JadwalUjianTable({
         );
       },
     }),
+    // Tambahkan kolom Nilai Akhir
+    columnHelper.display({
+      id: "nilaiAkhir",
+      header: "Nilai Akhir",
+      cell: (info) => {
+        const nilai = nilaiAkhirTotalUjian(info.row.original);
+        return (
+          <span>
+            {nilai !== null ? nilai : <span className="text-gray-400">-</span>}
+          </span>
+        );
+      },
+    }),
     columnHelper.display({
       id: "status",
       header: "Status",
@@ -312,18 +339,7 @@ export default function JadwalUjianTable({
                   <Eye size={16} />
                   <span>Lihat Penguji</span>
                 </DropdownMenuItem>
-                {ujian.mahasiswa?.id === userId && (
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setSelected(ujian);
-                      setOpenRekapitulasi(true);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg"
-                  >
-                    <IconClipboardText size={16} />
-                    <span>Rekapitulasi Nilai</span>
-                  </DropdownMenuItem>
-                )}
+                {/* Hapus menu Rekapitulasi Nilai */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -468,9 +484,7 @@ export default function JadwalUjianTable({
 
       {/* Table/Card view */}
       {viewMode === "table" ? (
-        <div className="overflow-x-auto rounded-lg bg-white dark:bg-neutral-900 w-full">
-          <TableGlobal table={table} cols={columns} />
-        </div>
+        <TableGlobal table={table} cols={columns} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
           {paginatedData.map((ujian, idx) => {
@@ -489,6 +503,7 @@ export default function JadwalUjianTable({
               " - " +
               (ujian.waktuSelesai?.slice(0, 5) || "-");
             const status = ujian.pendaftaranUjian?.status ?? "-";
+            const nilaiAkhir = nilaiAkhirTotalUjian(ujian);
             return (
               <div
                 key={ujian.id ?? idx}
@@ -514,6 +529,14 @@ export default function JadwalUjianTable({
                   <div className="text-sm text-muted-foreground">
                     Waktu: {waktu}
                   </div>
+                  <div className="text-sm text-muted-foreground">
+                    Nilai Akhir:{" "}
+                    {nilaiAkhir !== null ? (
+                      <span className="font-semibold">{nilaiAkhir}</span>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-4 flex items-center justify-end gap-2">
                   <DropdownMenu>
@@ -533,18 +556,7 @@ export default function JadwalUjianTable({
                         <Eye size={16} />
                         <span>Lihat Penguji</span>
                       </DropdownMenuItem>
-                      {ujian.mahasiswa?.id === userId && (
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelected(ujian);
-                            setOpenRekapitulasi(true);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2"
-                        >
-                          <IconClipboardText size={16} />
-                          <span>Rekapitulasi Nilai</span>
-                        </DropdownMenuItem>
-                      )}
+                      {/* Hapus menu Rekapitulasi Nilai */}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -583,50 +595,7 @@ export default function JadwalUjianTable({
           )}
         </div>
       </Modal>
-
-      {/* Modal Rekapitulasi Nilai */}
-      <Modal open={openRekapitulasi} onClose={() => setOpenRekapitulasi(false)}>
-        <div>
-          <div className="text-lg font-semibold mb-2">Rekapitulasi Nilai</div>
-          {loadingPenilaian ? (
-            <div className="text-center py-4">Memuat data...</div>
-          ) : penilaianData && penilaianData.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="px-3 py-2 border">Penguji</th>
-                    <th className="px-3 py-2 border">Peran</th>
-                    <th className="px-3 py-2 border">Nilai Akhir</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selected?.penguji?.map((penguji, idx) => (
-                    <tr key={penguji.id ?? idx}>
-                      <td className="px-3 py-2 border">
-                        {penguji.nama ?? "-"}
-                      </td>
-                      <td className="px-3 py-2 border">
-                        {roleLabel(penguji.peran)}
-                      </td>
-                      <td className="px-3 py-2 border">
-                        {(() => {
-                          const nilai = nilaiAkhirDosen(selected, penguji.id);
-                          return nilai !== null ? nilai : "-";
-                        })()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">
-              Belum ada data penilaian.
-            </div>
-          )}
-        </div>
-      </Modal>
+      {/* Modal Rekapitulasi Nilai dihapus */}
     </div>
   );
 }

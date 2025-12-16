@@ -37,10 +37,11 @@ async function getTotalPendaftaranUjianByProdi(prodiId?: number) {
 }
 
 async function getTotalJadwalUjianByProdi(prodiId?: number) {
-  const res = await fetch(
-    `http://localhost:8000/api/jadwal-ujian?prodiId=${prodiId}`,
-    { cache: "no-store" }
-  );
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  const res = await fetch(`${apiUrl}/jadwal-ujian?prodiId=${prodiId}`, {
+    cache: "no-store",
+  });
   if (!res.ok) return 0;
   const data = await res.json();
   return data?.data?.length ?? 0;

@@ -700,7 +700,7 @@ export default function PendaftaranUjianTable({
                   <div className="space-y-3">
                     {selected.berkas && selected.berkas.length > 0 ? (
                       selected.berkas.map((file, idx) => {
-                        const apiUrl = "http://localhost:8000";
+                        const apiUrl = process.env.NEXT_PUBLIC_STORAGE_URL || "";
                         const fileUrl = `${apiUrl}/storage/${file.filePath}`;
                         let label = "";
                         if (idx === 0) label = "Transkrip Nilai";
