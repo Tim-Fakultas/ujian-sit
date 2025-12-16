@@ -10,6 +10,7 @@ import {
   TableBody,
   TableCell,
 } from "../../../../components/ui/table";
+import { showToast } from "@/components/ui/custom-toast";
 import { Input } from "../../../../components/ui/input";
 import { Label } from "../../../../components/ui/label";
 import { Button } from "../../../../components/ui/button";
@@ -177,9 +178,7 @@ export default function PenilaianModal({
   // Tampilkan toast HANYA ketika state.success berubah dari false -> true
   useEffect(() => {
     if (state.success && !prevSuccessRef.current) {
-      import("sonner").then(({ toast }) =>
-        toast.success("Penilaian berhasil disimpan!")
-      );
+      showToast.success("Penilaian berhasil disimpan!");
       // close modal & revalidate
       onClose();
       revalidateAction("/dosen/jadwal-ujian");

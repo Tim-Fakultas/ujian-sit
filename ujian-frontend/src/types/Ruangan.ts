@@ -1,4 +1,4 @@
-interface Ruangan {
+export interface Ruangan {
   id: number;
   namaRuangan: string;
   prodiId: number;

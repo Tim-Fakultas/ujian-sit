@@ -1,8 +1,7 @@
-import { getDosen } from "@/actions/data-master/dosen";
-import { getPendaftaranUjianDiterimaByProdi } from "@/actions/pendaftaranUjian";
+import {
+  getPendaftaranUjianByProdi,
+} from "@/actions/pendaftaranUjian";
 import PendaftaranUjianTable from "@/components/sekprodi/pendaftaran-ujian/PendaftaranTable";
-import { Dosen } from "@/types/Dosen";
-import { Ujian } from "@/types/Ujian";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { getCurrentUserAction } from "@/actions/auth";
@@ -14,13 +13,16 @@ import {
 } from "@/components/ui/card";
 import { FileText } from "lucide-react";
 
+
 export default async function PendaftaranUjianPage() {
   const { user } = await getCurrentUserAction();
-  const ujianList: Ujian[] = await getPendaftaranUjianDiterimaByProdi(
+
+
+  const pendaftaranUjianList = await getPendaftaranUjianByProdi(
     user?.prodi?.id || 0
   );
 
-  const dosen: Dosen[] = await getDosen(user?.prodi?.id || 0);
+
 
   return (
     <div className="p-6">
@@ -38,7 +40,9 @@ export default async function PendaftaranUjianPage() {
         </CardHeader>
       </Card>
       <Suspense fallback={<Loading />}>
-        <PendaftaranUjianTable ujianList={ujianList} dosen={dosen} />
+        <PendaftaranUjianTable
+          pendaftaranUjianList={pendaftaranUjianList}
+        />
       </Suspense>
     </div>
   );

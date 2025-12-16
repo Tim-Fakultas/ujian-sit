@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { User, Lock, Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
+import { showToast } from "@/components/ui/custom-toast";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,7 +16,7 @@ export default function LoginForm() {
     startTransition(async () => {
       const result = await loginAction(formData);
       if (!result?.success) {
-        toast.error(result?.message || "Failed to login. Please try again.");
+        showToast.error(result?.message || "Failed to login. Please try again.");
       }
     });
   }

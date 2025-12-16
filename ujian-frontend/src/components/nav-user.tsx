@@ -27,7 +27,7 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { showToast } from "@/components/ui/custom-toast";
 import { logoutAction } from "@/actions/auth";
 import {
   Dialog,
@@ -90,7 +90,7 @@ export function NavUser({ user: serverUser }: { user?: User }) {
   const handleLogout = () => {
     startTransition(async () => {
       await logoutAction();
-      toast.success("Berhasil logout");
+      showToast.success("Berhasil logout");
       router.replace("/login");
     });
   };
@@ -124,92 +124,109 @@ export function NavUser({ user: serverUser }: { user?: User }) {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            className="min-w-56 rounded-lg"
+            className="min-w-56 rounded-xl shadow-lg border-border/50"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-full flex-shrink-0">
+              <div className="flex items-center gap-3 px-3 py-3 text-left text-sm bg-muted/30">
+                <Avatar className="h-9 w-9 rounded-full flex-shrink-0">
                   <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-medium">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="grid flex-1 text-left text-xs leading-tight">
-                  <span className="truncate font-medium">
+                  <span className="truncate font-semibold text-foreground">
                     {currentUser.nama}
                   </span>
                   <span className="text-muted-foreground truncate text-xs">
                     {currentUser.email}
                   </span>
-                  <span className="text-muted-foreground truncate text-xs capitalize">
-                    Role: {userRole}
-                  </span>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 capitalize">
+                      {userRole}
+                    </span>
+                  </div>
                 </div>
               </div>
             </DropdownMenuLabel>
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
+            <DropdownMenuGroup className="p-1">
+              <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
                 <Link
                   href={`/${userRole
                     .replace(/\s+/g, "-")
                     .toLowerCase()}/profile`}
                 >
-                  <IconUserCircle className="mr-2 h-4 w-4" />
+                  <IconUserCircle className="mr-2 h-4 w-4 text-muted-foreground" />
                   Profile
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem>
-                <IconNotification className="mr-2 h-4 w-4" />
+              <DropdownMenuItem className="rounded-lg cursor-pointer">
+                <IconNotification className="mr-2 h-4 w-4 text-muted-foreground" />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
             <DropdownMenuSeparator />
 
-            {/* buka dialog konfirmasi saat klik logout */}
-            <DropdownMenuItem
-              onClick={() => setConfirmOpen(true)}
-              className="w-full flex items-center text-red-500 hover:bg-red-50"
-            >
-              <IconLogout className="mr-2 h-4 w-4" />
-              Log out
-            </DropdownMenuItem>
+            <div className="p-1">
+              <DropdownMenuItem
+                onClick={() => setConfirmOpen(true)}
+                className="w-full flex items-center text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg cursor-pointer focus:bg-red-50 focus:text-red-700 dark:focus:bg-red-900/20 dark:focus:text-red-400"
+              >
+                <IconLogout className="mr-2 h-4 w-4" />
+                Log out
+              </DropdownMenuItem>
+            </div>
           </DropdownMenuContent>
+        </DropdownMenu>
 
-          {/* Dialog konfirmasi logout */}
-          <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Keluar dari Akun</DialogTitle>
-                <DialogDescription>
-                  Apakah Anda yakin ingin logout dari akun ini?
+        {/* Dialog konfirmasi logout - Premium & Mobile Friendly */}
+        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <DialogContent className="w-[90vw] max-w-[400px] rounded-2xl p-0 overflow-hidden border-none shadow-2xl gap-0 font-sans">
+            <div className="flex flex-col items-center justify-center pt-8 pb-6 px-6 bg-white dark:bg-neutral-900">
+              <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center mb-6 ring-8 ring-red-50 dark:ring-red-900/10">
+                <IconLogout size={32} stroke={2} />
+              </div>
+              
+              <DialogHeader className="text-center sm:text-center space-y-2">
+                <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                  Keluar dari Akun?
+                </DialogTitle>
+                <DialogDescription className="text-gray-500 dark:text-gray-400 text-base max-w-[280px] mx-auto leading-relaxed">
+                  Apakah Anda yakin ingin mengakhiri sesi ini? Anda harus login kembali untuk mengakses akun.
                 </DialogDescription>
               </DialogHeader>
-              <DialogFooter className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
-                  Batal
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    setConfirmOpen(false);
-                    handleLogout();
-                  }}
-                  disabled={isPending}
-                >
-                  {isPending ? "Logging out..." : "Logout"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </DropdownMenu>
+            </div>
+
+            <DialogFooter className="grid grid-cols-2 gap-3 p-6 bg-gray-50/50 dark:bg-neutral-800/50 border-t border-gray-100 dark:border-neutral-800">
+              <Button 
+                variant="outline" 
+                onClick={() => setConfirmOpen(false)}
+                className="w-full h-11 rounded-xl border-gray-200 dark:border-neutral-700 hover:bg-white dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-gray-100 font-medium transition-colors"
+              >
+                Batal
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => {
+                  setConfirmOpen(false);
+                  handleLogout();
+                }} 
+                disabled={isPending}
+                className="w-full h-11 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-200 dark:shadow-none font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                {isPending ? "Keluar..." : "Ya, Keluar"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </SidebarMenuItem>
     </SidebarMenu>
   );

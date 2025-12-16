@@ -4,8 +4,8 @@ export default function Loading() {
   return (
     <div className="p-6">
       <div className="flex justify-end gap-2 mb-2">
-        <Skeleton className="h-10 w-64" /> {/* Search */}
-        <Skeleton className="h-10 w-24" /> {/* Filter */}
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-10 w-24" />
       </div>
       <div className="rounded-xl border ">
         <table className="w-full">

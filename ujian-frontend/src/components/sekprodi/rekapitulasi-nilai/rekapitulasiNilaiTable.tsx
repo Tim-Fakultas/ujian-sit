@@ -1,175 +1,133 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import TableGlobal from "@/components/tableGlobal";
+import React, { useEffect, useState } from "react";
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { BeritaUjian } from "@/types/BeritaUjian";
+import { Button } from "../../ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Search,
-  ListFilter,
-  ChevronDown,
-  Eye,
-  MoreHorizontal,
-  File,
-  DownloadIcon,
   X,
+  Search,
+  MoreHorizontal,
+  Check,
+  LayoutGrid,
+  List,
   Settings2,
 } from "lucide-react";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { SuratKeteranganLulusPDF } from "@/components/pdf/SuratKeteranganLulus";
-import { Card, CardContent } from "@/components/ui/card";
-import { BeritaUjian } from "@/types/BeritaUjian";
-import { useState, useMemo, useEffect } from "react";
+import { truncateTitle } from "@/lib/utils";
+
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TableGlobal from "@/components/tableGlobal";
+import { getPenilaianByUjianId } from "@/actions/penilaian";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-type Props = {
+export default function RekapitulasiNilaiTable({
+  ujian,
+}: {
   ujian: BeritaUjian[];
-};
+}) {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selected, setSelected] = useState<BeritaUjian | null>(null);
+  const [penilaian, setPenilaian] = useState<any[]>([]);
 
-const bobot: Record<"proposal" | "hasil" | "skripsi", number> = {
-  proposal: 0.2,
-  hasil: 0.5,
-  skripsi: 0.3,
-};
+  // Ambil penilaian ketika modal detail dibuka
+  useEffect(() => {
+    if (openDialog && selected?.id) {
+      getPenilaianByUjianId(selected.id).then((data) => setPenilaian(data));
+    }
+  }, [openDialog, selected?.id]);
 
-const jenisList: Array<keyof typeof bobot> = ["proposal", "hasil", "skripsi"];
+  // Tambah state untuk search
+  const [search, setSearch] = useState("");
+  // Tambah state untuk filter jenis ujian
+  const [jenisFilter, setJenisFilter] = useState<
+    "all" | "proposal" | "hasil" | "skripsi"
+  >("all");
 
-const jenisUjianOptions = ["Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"];
-const nilaiOrderOptions = [
-  { label: "Nilai Tertinggi", value: "desc" },
-  { label: "Nilai Terendah", value: "asc" },
-];
+  const [hasilFilter, setHasilFilter] = useState<
+    "all" | "lulus" | "tidak lulus"
+  >("all");
 
-function getJenisUjian(ujian: BeritaUjian): keyof typeof bobot | "" {
-  if (ujian.jenisUjian.namaJenis === "Ujian Proposal") return "proposal";
-  if (ujian.jenisUjian.namaJenis === "Ujian Hasil") return "hasil";
-  if (ujian.jenisUjian.namaJenis === "Ujian Skripsi") return "skripsi";
-  return "";
-}
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
 
-function groupByMahasiswa(ujian: BeritaUjian[]) {
-  const map: Record<number, BeritaUjian[]> = {};
-  ujian.forEach((item) => {
-    const mhsId = item.mahasiswa.id;
-    if (!map[mhsId]) map[mhsId] = [];
-    map[mhsId].push(item);
+  // Tambah state untuk filter bulan dan tahun
+  const [filterBulan, setFilterBulan] = useState<string>("all");
+  const [filterTahun, setFilterTahun] = useState<string>("all");
+
+  // Filter data berdasarkan search, jenis ujian, hasil, bulan, tahun
+  const filteredData = ujian.filter((item) => {
+    const nama = item.mahasiswa?.nama?.toLowerCase() ?? "";
+    const judul = item.judulPenelitian?.toLowerCase() ?? "";
+    const q = search.toLowerCase();
+    const matchSearch = nama.includes(q) || judul.includes(q);
+
+    let matchJenis = true;
+    if (jenisFilter !== "all") {
+      const jenis = item.jenisUjian?.namaJenis?.toLowerCase() ?? "";
+      matchJenis = jenis.includes(jenisFilter);
+    }
+
+    let matchHasil = true;
+    if (hasilFilter !== "all") {
+      matchHasil = (item.hasil?.toLowerCase() ?? "") === hasilFilter;
+    }
+
+    // Filter bulan
+    let matchBulan = true;
+    if (filterBulan !== "all") {
+      if (!item.jadwalUjian) matchBulan = false;
+      else {
+        const bulan = String(new Date(item.jadwalUjian).getMonth() + 1);
+        matchBulan = bulan === filterBulan;
+      }
+    }
+    // Filter tahun
+    let matchTahun = true;
+    if (filterTahun !== "all") {
+      if (!item.jadwalUjian) matchTahun = false;
+      else {
+        const tahun = String(new Date(item.jadwalUjian).getFullYear());
+        matchTahun = tahun === filterTahun;
+      }
+    }
+    return matchSearch && matchJenis && matchHasil && matchBulan && matchTahun;
   });
-  return Object.values(map);
-}
 
-function hitungNilaiAkhir(ujianMhs: BeritaUjian[]) {
-  let total = 0;
-  const detail: {
-    jenis: keyof typeof bobot;
-    skor: number;
-    bobot: number;
-    nilai: number;
-  }[] = [];
-
-  jenisList.forEach((jenis) => {
-    const ujian = ujianMhs.find((u) => getJenisUjian(u) === jenis);
-    const skor = ujian?.nilaiAkhir ?? 0;
-    const bbt = bobot[jenis] ?? 0;
-    const nilai = skor * bbt;
-
-    detail.push({ jenis, skor, bobot: bbt, nilai });
-    total += nilai;
-  });
-
-  return { total, detail };
-}
-
-// Helper: cek apakah mahasiswa sudah lulus semua ujian
-function sudahLulusSemua(ujianMhs: BeritaUjian[]) {
-  // Harus ada 3 jenis ujian dan semuanya hasil === "lulus"
-  return jenisList.every((jenis) =>
-    ujianMhs.some(
-      (u) => getJenisUjian(u) === jenis && u.hasil?.toLowerCase() === "lulus"
-    )
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const totalPage = Math.ceil(filteredData.length / pageSize);
+  const paginatedData = filteredData.slice(
+    (page - 1) * pageSize,
+    page * pageSize
   );
-}
 
-export default function RekapitulasiNilaiTable({ ujian }: Props) {
-  const [selected, setSelected] = useState<{
-    mhs: BeritaUjian["mahasiswa"];
-    judul: string;
-    detail: {
-      jenis: keyof typeof bobot;
-      skor: number;
-      bobot: number;
-      nilai: number;
-    }[];
-    total: number;
-  } | null>(null);
+  // Reset page ke 1 saat search atau filter berubah
+  useEffect(() => {
+    setPage(1);
+  }, [search, jenisFilter, hasilFilter, filterBulan, filterTahun]);
 
-  const [open, setOpen] = useState(false);
-  const [openSurat, setOpenSurat] = useState(false);
-  const [suratData, setSuratData] = useState<{
-    nama: string;
-    nim: string;
-    nilaiHuruf: string;
-    total: number;
-    judul: string;
-    waktuMulai?: string;
-    waktuSelesai?: string;
-    dosenPembimbing1?: string;
-    dosenPembimbing2?: string;
-    ketuaPenguji?: string;
-    sekretarisPenguji?: string;
-    penguji1?: string;
-    penguji2?: string;
-  } | null>(null);
+  const handleDetail = (ujian: BeritaUjian) => {
+    setSelected(ujian);
+    setOpenDialog(true);
+  };
 
-  // Search & filter state
-  const [filterNama, setFilterNama] = useState("");
-  const [filterJenis, setFilterJenis] = useState("all");
-  const [openFilter, setOpenFilter] = useState(false);
-  const [nilaiOrder, setNilaiOrder] = useState<"asc" | "desc">("desc");
-
-  // Per-row popover state
-  const [aksiOpenArr, setAksiOpenArr] = useState<boolean[]>([]);
-
-  // Filtered & sorted data
-  const grouped = useMemo(() => groupByMahasiswa(ujian), [ujian]);
-  const filteredData = useMemo(() => {
-    let data = grouped
-      // Filter: hanya tampilkan jika sudah lulus semua ujian
-      .filter((ujianMhs) => sudahLulusSemua(ujianMhs))
-      .filter((ujianMhs) => {
-        const nama = ujianMhs[0].mahasiswa.nama.toLowerCase();
-        const matchNama = nama.includes(filterNama.toLowerCase());
-        let matchJenis = true;
-        if (filterJenis !== "all") {
-          matchJenis = ujianMhs.some(
-            (u) => u.jenisUjian.namaJenis === filterJenis
-          );
-        }
-        return matchNama && matchJenis;
-      });
-
-    // Sort by total nilai akhir
-    data = [...data].sort((a, b) => {
-      const totalA = hitungNilaiAkhir(a).total;
-      const totalB = hitungNilaiAkhir(b).total;
-      return nilaiOrder === "desc" ? totalB - totalA : totalA - totalB;
-    });
-    return data;
-  }, [grouped, filterNama, filterJenis, nilaiOrder]);
-
-  // TableGlobal columns
+  // Kolom untuk TableGlobal
   const cols = [
     {
       id: "no",
@@ -180,183 +138,110 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
             (table.getState().pagination?.pageSize ?? 10) +
           row.index +
           1;
-        return <div className="text-center">{index}</div>;
+        return <div>{index}</div>;
       },
       size: 36,
     },
     {
-      accessorFn: (row: BeritaUjian[]) => row[0].mahasiswa.nama,
-      id: "nama",
-      header: "Nama Mahasiswa",
+      accessorFn: (row: BeritaUjian) => row.mahasiswa?.nama ?? "-",
+      id: "mahasiswa",
+      header: "Mahasiswa",
       cell: ({ row }: any) => (
         <div>
-          {row.original[0].mahasiswa.nama}
-          <div className="text-gray-500">{row.original[0].mahasiswa.nim}</div>
+          {row.getValue("mahasiswa")}
+          <br />
+          <span className="text-xs text-gray-500">
+            {row.original.mahasiswa?.nim ?? "-"}
+          </span>
         </div>
       ),
       size: 120,
     },
     {
-      accessorFn: (row: BeritaUjian[]) => row[0].judulPenelitian,
+      accessorFn: (row: BeritaUjian) => row.judulPenelitian ?? "-",
       id: "judul",
-      header: "Judul Skripsi",
+      header: "Judul",
       cell: ({ row }: any) => (
-        <div className="whitespace-pre-line break-all">
-          {row.original[0].judulPenelitian}
+        <div className="whitespace-pre-line break-words max-w-[240px] text-xs">
+          {row.getValue("judul")}
         </div>
       ),
       size: 180,
     },
     {
-      accessorFn: (row: BeritaUjian[]) => hitungNilaiAkhir(row).total,
-      id: "hasilAkhir",
-      header: "Hasil Akhir",
+      accessorFn: (row: BeritaUjian) => row.jenisUjian?.namaJenis ?? "-",
+      id: "jenis",
+      header: "Jenis",
       cell: ({ row }: any) => {
-        const total = hitungNilaiAkhir(row.original).total;
-        return <span>{total.toFixed(2)}</span>;
+        const jenis = row.getValue("jenis")?.toLowerCase() ?? "";
+        const badgeClass = jenis.includes("proposal")
+          ? "bg-blue-100 text-blue-700"
+          : jenis.includes("hasil")
+          ? "bg-yellow-100 text-yellow-700"
+          : jenis.includes("skripsi")
+          ? "bg-green-100 text-green-700"
+          : "bg-gray-100";
+        return (
+          <span className={`px-2 py-1 rounded font-medium ${badgeClass}`}>
+            {row.getValue("jenis")}
+          </span>
+        );
       },
-      size: 70,
+      size: 90,
     },
+    // {
+    //   accessorFn: (row: BeritaUjian) => row.nilaiAkhir ?? "-",
+    //   id: "nilaiAkhir",
+    //   header: "Nilai Akhir",
+    //   cell: ({ row }: any) => (
+    //     <div className="text-center">{row.getValue("nilaiAkhir")}</div>
+    //   ),
+    //   size: 70,
+    // },
+    // {
+    //   accessorFn: (row: BeritaUjian) => row.hasil ?? "-",
+    //   id: "hasil",
+    //   header: "Hasil",
+    //   cell: ({ row }: any) => {
+    //     const hasil = row.getValue("hasil")?.toLowerCase();
+    //     const badgeClass =
+    //       hasil === "lulus"
+    //         ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
+    //         : hasil === "tidak lulus"
+    //         ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
+    //         : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200";
+    //     return hasil && hasil !== "-" ? (
+    //       <span className={`px-2 py-1 rounded font-semibold ${badgeClass}`}>
+    //         {row.getValue("hasil")}
+    //       </span>
+    //     ) : (
+    //       "-"
+    //     );
+    //   },
+    //   size: 70,
+    // },
     {
       id: "actions",
       header: "Aksi",
-      cell: ({ row, table }: any) => {
-        const idx = table
-          .getRowModel()
-          .rows.findIndex((r: any) => r.id === row.id);
-        const ujianMhs = row.original;
-        const mhs = ujianMhs[0].mahasiswa;
-        const judul = ujianMhs[0].judulPenelitian;
-        const { total, detail } = hitungNilaiAkhir(ujianMhs);
-        const nilaiHuruf =
-          total >= 85
-            ? "A"
-            : total >= 75
-            ? "B"
-            : total >= 65
-            ? "C"
-            : total >= 55
-            ? "D"
-            : "E";
-
-        const [openPopover, setOpenPopover] = useState(false);
-
-        return (
-          <div className="flex justify-center">
-            <Popover open={openPopover} onOpenChange={setOpenPopover}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="p-1"
-                  aria-label="Aksi"
-                  tabIndex={0}
-                  onClick={() => setOpenPopover((v) => !v)}
-                >
-                  <MoreHorizontal size={16} />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-2 w-[230px]" align="end">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full flex items-center gap-2 justify-start"
-                  onClick={() => {
-                    setSelected({ mhs, judul, detail, total });
-                    setOpen(true);
-                    setOpenPopover(false);
-                  }}
-                >
-                  <Eye size={14} />
-                  Lihat Detail
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full flex items-center gap-2 justify-start  whitespace-normal"
-                  onClick={() => {
-                    const ujianProposal = ujianMhs.find(
-                      (u: any) => getJenisUjian(u) === "proposal"
-                    );
-                    const ujianHasil = ujianMhs.find(
-                      (u: any) => getJenisUjian(u) === "hasil"
-                    );
-                    const ujianSkripsi = ujianMhs.find(
-                      (u: any) => getJenisUjian(u) === "skripsi"
-                    );
-                    const ujianUtama =
-                      ujianSkripsi || ujianHasil || ujianProposal;
-                    setSuratData({
-                      nama: mhs.nama,
-                      nim: mhs.nim,
-                      nilaiHuruf,
-                      total,
-                      judul,
-                      waktuMulai: ujianUtama?.waktuMulai ?? "-",
-                      waktuSelesai: ujianUtama?.waktuSelesai ?? "-",
-                      dosenPembimbing1:
-                        ujianUtama?.mahasiswa.pembimbing1?.nama ?? "-",
-                      dosenPembimbing2:
-                        ujianUtama?.mahasiswa.pembimbing2?.nama ?? "-",
-                      ketuaPenguji:
-                        ujianUtama?.penguji.find(
-                          (p: any) => p.peran === "ketua_penguji"
-                        )?.nama ?? "-",
-                      sekretarisPenguji:
-                        ujianUtama?.penguji.find(
-                          (p: any) => p.peran === "sekretaris_penguji"
-                        )?.nama ?? "-",
-                      ...(() => {
-                        const pengujiLain = (ujianUtama?.penguji ?? [])
-                          .filter(
-                            (p: any) =>
-                              p?.nama &&
-                              p.peran !== "ketua_penguji" &&
-                              p.peran !== "sekretaris_penguji"
-                          )
-                          .map((p: any) => p.nama);
-                        return {
-                          penguji1: pengujiLain[0] ?? "-",
-                          penguji2: pengujiLain[1] ?? "-",
-                        };
-                      })(),
-                    });
-                    setOpenSurat(true);
-                    setOpenPopover(false);
-                  }}
-                >
-                  <span role="img" aria-label="Cetak">
-                    <File size={16} />
-                  </span>
-                  Surat Keterangan Lulus
-                </Button>
-              </PopoverContent>
-            </Popover>
-          </div>
-        );
-      },
-      size: 80,
+      cell: ({ row }: any) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleDetail(row.original)}
+          className="hover:bg-gray-200"
+        >
+          <MoreHorizontal size={16} />
+        </Button>
+      ),
+      size: 60,
     },
   ];
 
   // TableGlobal setup
-  const pageSize = 10;
-  const [page, setPage] = useState(1);
-  const totalPage = Math.ceil(filteredData.length / pageSize);
-  const paginatedData = filteredData.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
-
-  // Sync aksiOpenArr with filteredData length
-  useEffect(() => {
-    setAksiOpenArr(Array(filteredData.length).fill(false));
-  }, [filteredData.length]);
-
   const table = {
     getRowModel: () => ({
       rows: paginatedData.map((item, idx) => ({
-        id: item[0].mahasiswa.id,
+        id: item.id,
         index: idx,
         original: item,
         getVisibleCells: () =>
@@ -369,6 +254,7 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
                 original: item,
                 getValue: (key: string) => {
                   if (col.accessorFn) return col.accessorFn(item);
+                  // Hindari akses dinamis ke properti tanpa index signature
                   return (item as any)[key];
                 },
               },
@@ -395,7 +281,7 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
     getCanNextPage: () => page < totalPage,
     getFilteredRowModel: () => ({
       rows: filteredData.map((item, idx) => ({
-        id: item[0].mahasiswa.id,
+        id: item.id,
         index: idx,
         original: item,
         getVisibleCells: () =>
@@ -408,6 +294,7 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
                 original: item,
                 getValue: (key: string) => {
                   if (col.accessorFn) return col.accessorFn(item);
+                  // Hindari akses dinamis ke properti tanpa index signature
                   return (item as any)[key];
                 },
               },
@@ -418,8 +305,8 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
       })),
     }),
     getPreFilteredRowModel: () => ({
-      rows: filteredData.map((item, idx) => ({
-        id: item[0].mahasiswa.id,
+      rows: ujian.map((item, idx) => ({
+        id: item.id,
         index: idx,
         original: item,
         getVisibleCells: () =>
@@ -432,6 +319,7 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
                 original: item,
                 getValue: (key: string) => {
                   if (col.accessorFn) return col.accessorFn(item);
+                  // Hindari akses dinamis ke properti tanpa index signature
                   return (item as any)[key];
                 },
               },
@@ -446,536 +334,476 @@ export default function RekapitulasiNilaiTable({ ujian }: Props) {
     }),
   };
 
+  // Modern minimalist penguji rekap
+  function renderRekapPenilaian() {
+    if (!penilaian || penilaian.length === 0) {
+      return (
+        <div className="text-sm text-gray-400 italic">
+          Tidak ada data penilaian.
+        </div>
+      );
+    }
+    const pengujiMap: Record<
+      number,
+      { nama: string; nidn: string; total: number }
+    > = {};
+    penilaian.forEach((p) => {
+      if (!pengujiMap[p.dosenId]) {
+        pengujiMap[p.dosenId] = {
+          nama: p.dosen?.nama || "-",
+          nidn: p.dosen?.nidn || "-",
+          total: 0,
+        };
+      }
+      const bobot = p.komponenPenilaian?.bobot ?? 0;
+      pengujiMap[p.dosenId].total += ((p.nilai ?? 0) * bobot) / 100;
+    });
+
+    return (
+      <div className="flex flex-col gap-4">
+        {Object.values(pengujiMap).map((penguji, idx) => (
+          <div
+            key={penguji.nidn + idx}
+            className="rounded-2xl bg-gradient-to-br from-gray-50 to-white dark:from-neutral-800 dark:to-neutral-900 border border-gray-100 dark:border-neutral-800 px-6 py-4 flex flex-col gap-1 shadow-sm"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-semibold text-base text-gray-900 dark:text-white">
+                {penguji.nama}
+              </span>
+              <span className="ml-2 text-xs text-gray-400 font-normal">
+                NIDN: {penguji.nidn}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs text-gray-500">Total Nilai:</span>
+              <span className="font-extrabold text-lg text-blue-600 dark:text-blue-400 tracking-wide">
+                {penguji.total.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Helper untuk konversi nilai ke huruf
+  function getNilaiHuruf(n: number): string {
+    if (n >= 80) return "A";
+    if (n >= 70) return "B";
+    if (n >= 60) return "C";
+    if (n >= 56) return "D";
+    return "E";
+  }
+
   return (
-    <div className="bg-white p-6 rounded-lg dark:bg-neutral-900 border">
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
-        <div className="flex gap-2 w-full ">
+    <div className="p-3 sm:p-6 bg-white dark:bg-neutral-900 rounded-2xl border ">
+      {/* Detail Modal */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="max-w-sm p-0 overflow-hidden h-[90vh]">
+          <DialogHeader className="border-b px-6 pt-6 pb-3 bg-gradient-to-br from-gray-50 to-white dark:from-neutral-900 dark:to-neutral-950">
+            <DialogTitle className="flex items-center gap-2">
+              <span>Rekapitulasi Nilai</span>
+            </DialogTitle>
+            <DialogDescription>Rekap penilaian penguji</DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[70vh] px-6 py-4">
+            {selected && (
+              <div className="flex flex-col gap-5">
+                {/* Mahasiswa & NIM */}
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">Mahasiswa</div>
+                  <div className="font-semibold text-lg text-gray-900 dark:text-white">
+                    {selected.mahasiswa?.nama ?? "-"}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    NIM: {selected.mahasiswa?.nim ?? "-"}
+                  </div>
+                </div>
+                {/* Judul */}
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">
+                    Judul Penelitian
+                  </div>
+                  <div className="text-sm font-medium whitespace-pre-line break-words">
+                    {selected.judulPenelitian ?? "-"}
+                  </div>
+                </div>
+                {/* Jenis, Nilai Akhir, Hasil */}
+                <div className="flex flex-wrap gap-4">
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">
+                      Jenis Ujian
+                    </div>
+                    <span
+                      className={`px-2 py-1 rounded font-medium text-xs
+                        ${
+                          selected.jenisUjian?.namaJenis
+                            ?.toLowerCase()
+                            .includes("proposal")
+                            ? "bg-blue-100 text-blue-700"
+                            : selected.jenisUjian?.namaJenis
+                                ?.toLowerCase()
+                                .includes("hasil")
+                            ? "bg-yellow-100 text-yellow-700"
+                            : selected.jenisUjian?.namaJenis
+                                ?.toLowerCase()
+                                .includes("skripsi")
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100"
+                        }
+                      `}
+                    >
+                      {selected.jenisUjian?.namaJenis ?? "-"}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">
+                      Nilai Akhir
+                    </div>
+                    <span className="font-extrabold text-blue-600 text-lg">
+                      {selected.nilaiAkhir ?? "-"}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Hasil</div>
+                    {selected.hasil ? (
+                      <span
+                        className={`px-2 py-1 rounded font-semibold text-xs
+                          ${
+                            selected.hasil.toLowerCase() === "lulus"
+                              ? "bg-green-100 text-green-700"
+                              : selected.hasil.toLowerCase() === "tidak lulus"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-gray-100 text-gray-700"
+                          }
+                        `}
+                      >
+                        {selected.hasil}
+                      </span>
+                    ) : (
+                      "-"
+                    )}
+                  </div>
+                </div>
+                {/* Rekap Penilaian Penguji */}
+                <div>
+                  <div className="text-xs text-gray-500 mb-2 font-semibold">
+                    Rekap Penilaian Penguji
+                  </div>
+                  {renderRekapPenilaian()}
+                </div>
+                {/* Total, Rata-rata, Nilai Huruf */}
+                <div className="mt-2 rounded-xl border bg-gray-50 dark:bg-neutral-800 p-4 flex flex-col gap-2">
+                  <div className="font-semibold text-xs text-gray-500 mb-1">
+                    Rekapitulasi Nilai Akhimmr
+                  </div>
+                  {(() => {
+                    // Hitung total nilai penguji
+                    const pengujiMap: Record<number, { total: number }> = {};
+                    penilaian.forEach((p) => {
+                      if (!pengujiMap[p.dosenId])
+                        pengujiMap[p.dosenId] = { total: 0 };
+                      const bobot = p.komponenPenilaian?.bobot ?? 0;
+                      pengujiMap[p.dosenId].total +=
+                        ((p.nilai ?? 0) * bobot) / 100;
+                    });
+                    const totalNilai = Object.values(pengujiMap).reduce(
+                      (acc, cur) => acc + cur.total,
+                      0
+                    );
+                    const jumlahPenguji = Object.keys(pengujiMap).length || 1;
+                    const rataRata = totalNilai / jumlahPenguji;
+                    const nilaiHuruf = getNilaiHuruf(rataRata);
+
+                    return (
+                      <table className="w-full text-sm">
+                        <tbody>
+                          <tr>
+                            <td className="py-1 text-gray-600 dark:text-gray-300">
+                              Total Angka Nilai
+                            </td>
+                            <td className="py-1 font-bold text-right">
+                              {totalNilai.toFixed(2)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-1 text-gray-600 dark:text-gray-300">
+                              Nilai Rata-rata
+                            </td>
+                            <td className="py-1 font-bold text-right">
+                              {rataRata.toFixed(2)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="py-1 text-gray-600 dark:text-gray-300">
+                              Nilai Huruf
+                            </td>
+                            <td className="py-1 font-bold text-right">
+                              {nilaiHuruf}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    );
+                  })()}
+                </div>
+                {/* Interval Nilai */}
+                <div className="mt-2 rounded-xl border bg-white dark:bg-neutral-900 p-4">
+                  <div className="font-semibold text-xs text-gray-500 mb-2">
+                    Catatan interval nilai:
+                  </div>
+                  <table className="text-xs w-full">
+                    <tbody>
+                      <tr>
+                        <td className="pr-2">A</td>
+                        <td>: 80.00 – 100</td>
+                      </tr>
+                      <tr>
+                        <td>B</td>
+                        <td>: 70.00 – 79.99</td>
+                      </tr>
+                      <tr>
+                        <td>C</td>
+                        <td>: 60.00 – 69.99</td>
+                      </tr>
+                      <tr>
+                        <td>D</td>
+                        <td>: 56.00 – 59.99</td>
+                      </tr>
+                      <tr>
+                        <td>E</td>
+                        <td>: {"<"} 55.99</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </ScrollArea>
+          <DialogFooter className="px-6 pb-4 pt-2">
+            <DialogClose asChild>
+              <Button variant="outline">Tutup</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Search, Filter, and Tabs in one row (tabs below on mobile) */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end sm:gap-4 gap-2 mb-4">
+        {/* Search and Filter */}
+
+        <div className="flex w-full  items-center gap-2 sm:gap-2">
           <div className="relative w-full ">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <Search size={16} />
             </span>
             <Input
+              type="text"
               placeholder="Search"
-              value={filterNama}
-              onChange={(e) => setFilterNama(e.target.value)}
-              className="pl-10 w-full bg-white text-sm dark:bg-[#1f1f1f]"
-              inputMode="text"  
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border rounded-lg pl-10 pr-3 py-2 w-full bg-white dark:bg-neutral-800 text-sm"
             />
           </div>
 
-          {/* Ubah filter menjadi Popover */}
-          <Popover open={openFilter} onOpenChange={setOpenFilter}>
-            <PopoverTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-9 flex items-center rounded-lg px-4 py-1 bg-white hover:bg-gray-50 font-medium"
-              >
-                <Settings2 size={16} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="min-w-[220px] p-3" align="end">
-              <div className="font-semibold mb-2 text-xs text-muted-foreground">
-                Jenis Ujian
-              </div>
-              <div className="flex flex-col gap-1 mb-2">
-                <Button
-                  variant={filterJenis === "all" ? "secondary" : "ghost"}
-                  size="sm"
-                  className="justify-start"
-                  onClick={() => {
-                    setFilterJenis("all");
-                    // Jangan tutup popover
-                  }}
-                >
-                  Semua
-                </Button>
-                {jenisUjianOptions.map((jenis) => (
-                  <Button
-                    key={jenis}
-                    variant={filterJenis === jenis ? "secondary" : "ghost"}
-                    size="sm"
-                    className="justify-start"
-                    onClick={() => {
-                      setFilterJenis(jenis);
-                      // Jangan tutup popover
-                    }}
-                  >
-                    {jenis}
-                  </Button>
-                ))}
-              </div>
-              <div className="font-semibold text-xs mb-2 text-muted-foreground">
-                Urutkan Nilai Akhir
-              </div>
-              <div className="flex flex-col gap-1">
-                {nilaiOrderOptions.map((opt) => (
-                  <Button
-                    key={opt.value}
-                    variant={nilaiOrder === opt.value ? "secondary" : "ghost"}
-                    size="sm"
-                    className="justify-start"
-                    onClick={() => {
-                      setNilaiOrder(opt.value as "asc" | "desc");
-                      // Jangan tutup popover
-                    }}
-                  >
-                    {opt.label}
-                  </Button>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-
-      {/* TableGlobal rendering */}
-      <TableGlobal table={table} cols={cols} />
-
-      {/* Mobile list (small screens) */}
-      <div className="sm:hidden mt-2">
-        {filteredData.map((ujianMhs, idx) => {
-          const mhs = ujianMhs[0].mahasiswa;
-          const judul = ujianMhs[0].judulPenelitian;
-          const { total, detail } = hitungNilaiAkhir(ujianMhs);
-          const nilaiHuruf =
-            total >= 85
-              ? "A"
-              : total >= 75
-              ? "B"
-              : total >= 65
-              ? "C"
-              : total >= 55
-              ? "D"
-              : "E";
-
-          return (
-            <div
-              key={mhs.id}
-              className="border rounded-lg p-3 mb-3 bg-white dark:bg-[#121212]"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1">
-                  <div className="font-medium">{mhs.nama}</div>
-                  <div className="text-sm text-gray-500">{mhs.nim}</div>
-                  <div className="mt-2 text-sm text-gray-700 dark:text-gray-300 break-words">
-                    {judul}
-                  </div>
-                </div>
-                <div className="flex flex-col items-end ml-2">
-                  <div className="font-semibold">{total.toFixed(2)}</div>
-                  <div className="text-xs text-gray-500">{nilaiHuruf}</div>
-                </div>
-              </div>
-              <div className="flex items-center justify-end mt-3 gap-2">
+          <div className="flex items-center gap-2 shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-2"
-                  onClick={() => {
-                    setSelected({ mhs, judul, detail, total });
-                    setOpen(true);
-                  }}
+                  className="h-9 w-9 p-0 grid place-items-center"
+                  aria-label="Filter status"
+                  title="Filter status"
                 >
-                  <Eye size={14} />
-                  Lihat Detail
+                  <Settings2 size={16} />
                 </Button>
-                <Popover
-                  open={aksiOpenArr[idx]}
-                  onOpenChange={(open) => {
-                    setAksiOpenArr((prev) =>
-                      prev.map((v, i) => (i === idx ? open : false))
-                    );
-                  }}
-                >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="p-1"
-                      aria-label="Aksi"
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[220px] p-3">
+                <div className="mb-2 font-semibold text-xs text-muted-foreground">
+                  Jenis Ujian
+                </div>
+                {["all", "proposal", "hasil", "skripsi"].map((opt) => {
+                  const isActive = jenisFilter === opt;
+                  return (
+                    <DropdownMenuItem
+                      key={opt}
+                      onClick={() => setJenisFilter(opt as any)}
+                      className="flex items-center justify-between gap-2"
                     >
-                      <MoreHorizontal size={16} />
-                      Lihat detail
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="p-2 w-full max-w-xs" align="end">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full flex items-center gap-2 justify-start"
-                      onClick={() => {
-                        setSelected({ mhs, judul, detail, total });
-                        setOpen(true);
-                        setAksiOpenArr((prev) =>
-                          prev.map((v, i) => (i === idx ? false : v))
-                        );
-                      }}
+                      <span className="text-sm">{opt}</span>
+                      {isActive && (
+                        <Check size={14} className="text-emerald-600" />
+                      )}
+                    </DropdownMenuItem>
+                  );
+                })}
+                <div className="mt-3 font-semibold text-xs text-muted-foreground">
+                  Hasil
+                </div>
+                {["all", "lulus", "tidak lulus"].map((opt) => {
+                  const isActive = hasilFilter === opt;
+                  return (
+                    <DropdownMenuItem
+                      key={opt}
+                      onClick={() => setHasilFilter(opt as any)}
+                      className="flex items-center justify-between gap-2"
                     >
-                      <Eye size={14} />
-                      Lihat Detail
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full flex items-center gap-2 justify-start whitespace-normal"
-                      onClick={() => {
-                        const ujianProposal = ujianMhs.find(
-                          (u) => getJenisUjian(u) === "proposal"
-                        );
-                        const ujianHasil = ujianMhs.find(
-                          (u) => getJenisUjian(u) === "hasil"
-                        );
-                        const ujianSkripsi = ujianMhs.find(
-                          (u) => getJenisUjian(u) === "skripsi"
-                        );
-                        const ujianUtama =
-                          ujianSkripsi || ujianHasil || ujianProposal;
-                        setSuratData({
-                          nama: mhs.nama,
-                          nim: mhs.nim,
-                          nilaiHuruf,
-                          total,
-                          judul,
-                          waktuMulai: ujianUtama?.waktuMulai ?? "-",
-                          waktuSelesai: ujianUtama?.waktuSelesai ?? "-",
-                          dosenPembimbing1:
-                            ujianUtama?.mahasiswa.pembimbing1?.nama ?? "-",
-                          dosenPembimbing2:
-                            ujianUtama?.mahasiswa.pembimbing2?.nama ?? "-",
-                          ketuaPenguji:
-                            ujianUtama?.penguji.find(
-                              (p: any) => p.peran === "ketua_penguji"
-                            )?.nama ?? "-",
-                          sekretarisPenguji:
-                            ujianUtama?.penguji.find(
-                              (p: any) => p.peran === "sekretaris_penguji"
-                            )?.nama ?? "-",
-                          // Loop penguji (selain ketua & sekretaris)
-                          ...(() => {
-                            const pengujiLain = (ujianUtama?.penguji ?? [])
-                              .filter(
-                                (p: any) =>
-                                  p?.nama &&
-                                  p.peran !== "ketua_penguji" &&
-                                  p.peran !== "sekretaris_penguji"
-                              )
-                              .map((p: any) => p.nama);
-                            return {
-                              penguji1: pengujiLain[0] ?? "-",
-                              penguji2: pengujiLain[1] ?? "-",
-                            };
-                          })(),
-                        });
-                        setOpenSurat(true);
-                        setAksiOpenArr((prev) =>
-                          prev.map((v, i) => (i === idx ? false : v))
-                        );
-                      }}
-                    >
-                      <File size={16} />
-                      Surat Keterangan Lulus
-                    </Button>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-          );
-        })}
+                      <span className="text-sm capitalize">
+                        {opt === "all" ? "Semua" : opt}
+                      </span>
+                      {isActive && (
+                        <Check size={14} className="text-emerald-600" />
+                      )}
+                    </DropdownMenuItem>
+                  );
+                })}
+                <div className="mt-3 font-semibold text-xs text-muted-foreground">
+                  Bulan
+                </div>
+                <div className="flex flex-col gap-1 mb-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={12}
+                    value={filterBulan === "all" ? "" : filterBulan}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFilterBulan(val === "" ? "all" : val);
+                    }}
+                    placeholder="Bulan (1-12)"
+                    className="w-full px-2 py-1 border rounded text-sm"
+                  />
+                </div>
+                <div className="font-semibold text-xs text-muted-foreground">
+                  Tahun
+                </div>
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="number"
+                    min={2000}
+                    max={2100}
+                    value={filterTahun === "all" ? "" : filterTahun}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFilterTahun(val === "" ? "all" : val);
+                    }}
+                    placeholder="Tahun"
+                    className="w-full px-2 py-1 border rounded text-sm"
+                  />
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="">
+            <Tabs
+              value={viewMode}
+              onValueChange={(v) => setViewMode(v as any)}
+              className="sm:mb-0 h-9"
+            >
+              <TabsList>
+                <TabsTrigger value="table">
+                  <LayoutGrid size={16} />
+                </TabsTrigger>
+                <TabsTrigger value="card">
+                  <List />
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        </div>
+        {/* Tabs for view mode */}
       </div>
 
-      {/* Dialog Detail Nilai */}
-      {open && selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <Card className="max-w-2xl w-full relative shadow-2xl rounded-2xl border-none bg-white text-gray-900 dark:bg-[#232323] dark:text-white h-[90vh] flex flex-col">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              onClick={() => setOpen(false)}
-            >
-              <X size={16} />
-            </Button>
-            <CardContent className="flex-1 flex flex-col px-8 py-8 overflow-y-auto">
-              <div className="mb-6">
-                <div className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-                  Rekapitulasi Nilai Skripsi
-                </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:gap-8 mb-2">
-                  <div className="flex gap-2">
-                    <span className="font-semibold text-gray-700 dark:text-gray-200 min-w-[90px]">
-                      Nama: {selected.mhs.nama}
+      {/* Table Mode */}
+      {viewMode === "table" && <TableGlobal table={table} cols={cols} />}
+
+      {/* Card Mode */}
+      {viewMode === "card" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {paginatedData.length > 0 ? (
+            paginatedData.map((ujian) => (
+              <div
+                key={ujian.id}
+                className="border rounded-lg bg-white dark:bg-neutral-800 shadow-xs p-4 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-semibold">
+                      {ujian.mahasiswa?.nama ?? "-"}
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {ujian.mahasiswa.nim ?? "-"}
                     </span>
                   </div>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-700 dark:text-gray-200">
-                    Judul Skripsi:
-                  </span>
-                  <div className="font-normal italic text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-line break-words">
-                    {selected.judul}
+                  <div className="mb-2 text-sm font-medium">
+                    {truncateTitle(ujian.judulPenelitian ?? "-", 50)}
                   </div>
-                </div>
-              </div>
-              <div className=" dark:border-gray-700 mb-6" />
-              <div className="border rounded-xl overflow-hidden  dark:bg-neutral-900 ">
-                <Table className="w-full text-gray-900 dark:text-white">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-center border px-3 py-2 bg-gray-100 dark:bg-[#232323] font-semibold">
-                        No.
-                      </TableHead>
-                      <TableHead className="border px-3 py-2 bg-gray-100 dark:bg-[#232323] font-semibold">
-                        Komponen
-                      </TableHead>
-                      <TableHead className="border px-3 py-2 bg-gray-100 dark:bg-[#232323] font-semibold">
-                        Bobot %
-                      </TableHead>
-                      <TableHead className="border px-3 py-2 bg-gray-100 dark:bg-[#232323] font-semibold">
-                        Skor
-                      </TableHead>
-                      <TableHead className="border px-3 py-2 bg-gray-100 dark:bg-[#232323] font-semibold">
-                        Bobot × Skor
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selected.detail.map((d, i) => (
-                      <TableRow
-                        key={i}
-                        className="hover:bg-gray-100 dark:hover:bg-[#222]"
-                      >
-                        <TableCell className="text-center border px-3 py-2">
-                          {i + 1}
-                        </TableCell>
-                        <TableCell className="border px-3 py-2">
-                          {d.jenis === "proposal"
-                            ? "Seminar Proposal"
-                            : d.jenis === "hasil"
-                            ? "Ujian Hasil"
-                            : "Ujian Skripsi"}
-                        </TableCell>
-                        <TableCell className="border px-3 py-2 text-center">
-                          {d.bobot * 100}
-                        </TableCell>
-                        <TableCell className="border px-3 py-2 text-center">
-                          {d.skor}
-                        </TableCell>
-                        <TableCell className="border px-3 py-2 text-center">
-                          {d.nilai.toFixed(2)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow>
-                      <TableCell
-                        colSpan={4}
-                        className="font-bold text-right border px-3 py-2"
-                      >
-                        Total Angka Nilai
-                      </TableCell>
-                      <TableCell className="font-bold border px-3 py-2 text-lg text-blue-700 dark:text-blue-300 text-center">
-                        {selected.total.toFixed(2)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell
-                        colSpan={4}
-                        className="font-bold text-right border px-3 py-2"
-                      >
-                        Nilai Huruf
-                      </TableCell>
-                      <TableCell className="font-bold border px-3 py-2 text-lg text-green-700 dark:text-green-300 tracking-wider text-center">
-                        {selected.total >= 85
-                          ? "A"
-                          : selected.total >= 75
-                          ? "B"
-                          : selected.total >= 65
-                          ? "C"
-                          : selected.total >= 55
-                          ? "D"
-                          : "E"}
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Modal Preview Surat Keterangan Lulus - gunakan Card saja, tanpa Dialog */}
-      {openSurat && suratData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <Card className="max-w-2xl h-[90vh] overflow-auto w-full border-none bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700 text-white relative shadow-2xl rounded-2xl">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-3 right-3 text-gray-400 hover:text-white"
-              onClick={() => setOpenSurat(false)}
-            >
-              <X size={16} />
-            </Button>
-            <CardContent className="p-8">
-              <div className="text-2xl font-bold mb-6 tracking-wide">
-                Keterangan Lulus Ujian Skripsi
-              </div>
-              <div className="space-y-6">
-                <p className="text-base">
-                  Pada hari ini, tanggal{" "}
-                  <span className="underline font-semibold text-blue-300">
-                    {new Date().toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </span>
-                  , telah berlangsung ujian skripsi mahasiswa:
-                </p>
-                <div className="rounded-xl border border-neutral-700 bg-neutral-800 p-4 mb-2">
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="flex items-center justify-between border-b border-neutral-700 pb-2">
-                      <span className="font-semibold text-neutral-300 w-40">
-                        Nama
-                      </span>
-                      <span className="font-medium">{suratData.nama}</span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-neutral-700 pb-2">
-                      <span className="font-semibold text-neutral-300 w-40">
-                        NIM
-                      </span>
-                      <span className="font-medium">{suratData.nim}</span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-neutral-700 pb-2">
-                      <span className="font-semibold text-neutral-300 w-40">
-                        Program Studi
-                      </span>
-                      <span className="font-medium">SISTEM INFORMASI</span>
-                    </div>
-                    <div className="flex items-start justify-between">
-                      <span className="font-semibold text-neutral-300 w-40">
-                        Judul Skripsi
-                      </span>
-                      <span className="font-medium whitespace-pre-line break-words text-right">
-                        {suratData.judul}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-base">
-                  Ujian berlangsung dari pukul{" "}
-                  <span className="underline font-semibold text-blue-300">
-                    {suratData.waktuMulai ?? "-"}
-                  </span>
-                  , sampai dengan{" "}
-                  <span className="underline font-semibold text-blue-300">
-                    {suratData.waktuSelesai ?? "-"}
-                  </span>{" "}
-                  WIB
-                </p>
-                <div className="rounded-xl border border-neutral-700 bg-neutral-800 p-4 mb-2">
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="flex items-center justify-between border-b border-neutral-700 pb-2">
-                      <span className="font-semibold text-neutral-300 w-40">
-                        Dosen Pembimbing I
-                      </span>
-                      <span className="font-medium">
-                        {suratData.dosenPembimbing1 ?? "-"}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-neutral-700 pb-2">
-                      <span className="font-semibold text-neutral-300 w-40">
-                        Dosen Pembimbing II
-                      </span>
-                      <span className="font-medium">
-                        {suratData.dosenPembimbing2 ?? "-"}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-neutral-700 pb-2">
-                      <span className="font-semibold text-neutral-300 w-40">
-                        Ketua Penguji
-                      </span>
-                      <span className="font-medium">
-                        {suratData.ketuaPenguji ?? "-"}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-neutral-700 pb-2">
-                      <span className="font-semibold text-neutral-300 w-40">
-                        Sekretaris Penguji
-                      </span>
-                      <span className="font-medium">
-                        {suratData.sekretarisPenguji ?? "-"}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-neutral-700 pb-2">
-                      <span className="font-semibold text-neutral-300 w-40">
-                        Penguji I
-                      </span>
-                      <span className="font-medium">
-                        {suratData.penguji1 ?? "-"}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-neutral-300 w-40">
-                        Penguji II
-                      </span>
-                      <span className="font-medium">
-                        {suratData.penguji2 ?? "-"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-center font-bold text-lg mt-4">
-                  <span className="text-green-400">LULUS</span> dengan nilai:{" "}
-                  <span className="tracking-wider text-blue-300 font-mono text-xl">
-                    {suratData.total?.toFixed(2) ?? "............."}
-                  </span>{" "}
-                  (
-                  <span className="underline text-green-400">
-                    {suratData.nilaiHuruf}
-                  </span>
-                  )
-                </div>
-                <p className="text-base mt-4 text-neutral-300">
-                  Demikian Surat Keterangan ini dibuat sebagai bukti dari hasil
-                  Ujian Skripsi
-                </p>
-              </div>
-              <div className="flex items-center justify-end gap-2 mt-8">
-                <PDFDownloadLink
-                  document={
-                    <SuratKeteranganLulusPDF {...(suratData ?? ({} as any))} />
-                  }
-                  fileName={`Surat_Lulus_${suratData?.nim ?? "data"}.pdf`}
-                >
-                  {({ loading }) => (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="bg-neutral-900 border-neutral-700 text-white hover:bg-neutral-800"
+                  <div className="mb-2">
+                    <span
+                      className={`px-2 py-1 rounded font-medium text-xs
+                        ${
+                          ujian.jenisUjian?.namaJenis
+                            ?.toLowerCase()
+                            .includes("proposal")
+                            ? "bg-blue-100 text-blue-700"
+                            : ujian.jenisUjian?.namaJenis
+                                ?.toLowerCase()
+                                .includes("hasil")
+                            ? "bg-yellow-100 text-yellow-700"
+                            : ujian.jenisUjian?.namaJenis
+                                ?.toLowerCase()
+                                .includes("skripsi")
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100"
+                        }
+                      `}
                     >
-                      {loading ? (
-                        "Menyiapkan..."
-                      ) : (
-                        <>
-                          <DownloadIcon size={14} />
-                          &nbsp;Download PDF
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </PDFDownloadLink>
-                <Button
-                  size="sm"
-                  className="bg-neutral-900 border-neutral-700 text-white hover:bg-neutral-800"
-                  onClick={() => setOpenSurat(false)}
-                >
-                  Tutup
-                </Button>
+                      {ujian.jenisUjian?.namaJenis ?? "-"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs">Nilai Akhir:</span>
+                    <span className="font-bold">{ujian.nilaiAkhir ?? "-"}</span>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs">Hasil:</span>
+                    {ujian.hasil ? (
+                      <span
+                        className={`px-2 py-1 rounded font-semibold text-xs
+                          ${
+                            ujian.hasil.toLowerCase() === "lulus"
+                              ? "bg-green-100 text-green-700"
+                              : ujian.hasil.toLowerCase() === "tidak lulus"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-gray-100 text-gray-700"
+                          }
+                        `}
+                      >
+                        {ujian.hasil}
+                      </span>
+                    ) : (
+                      "-"
+                    )}
+                  </div>
+                </div>
+                <div className="flex justify-end mt-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDetail(ujian)}
+                    className="hover:bg-gray-200"
+                  >
+                    <MoreHorizontal size={16} />
+                  </Button>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            ))
+          ) : (
+            <div className="col-span-full text-center text-gray-500 italic py-6">
+              Tidak ada berita acara ujian
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -79,22 +79,22 @@ export default function JadwalUjianTable({
     if (!open) return null;
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-black/50 backdrop-blur-sm p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4"
         onClick={onClose}
       >
         <Card
-          className={`relative bg-white dark:bg-[#1f1f1f] rounded-lg shadow-lg p-6 ${className}`}
+          className={`relative bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-800 max-w-md w-full ${className}`}
           onClick={(e) => e.stopPropagation()}
         >
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 text-gray-500"
+            className="absolute top-3 right-3 text-gray-400 hover:text-gray-900 dark:hover:text-white"
             onClick={onClose}
           >
-            <X size={16} />
+            <X size={18} />
           </Button>
-          <CardContent className="p-4">{children}</CardContent>
+          <CardContent className="p-6">{children}</CardContent>
         </Card>
       </div>
     );
@@ -272,11 +272,7 @@ export default function JadwalUjianTable({
         );
       },
     }),
-    columnHelper.display({
-      id: "status",
-      header: "Status",
-      cell: (info) => statusBadge(info.row.original.pendaftaranUjian.status),
-    }),
+
     columnHelper.display({
       id: "aksi",
       header: "Aksi",
@@ -517,19 +513,28 @@ export default function JadwalUjianTable({
       {/* Modal Lihat Penguji */}
       <Modal open={openDaftarHadir} onClose={() => setOpenDaftarHadir(false)}>
         <div>
-          <div className="text-lg font-semibold mb-2">Daftar Penguji</div>
+          <div className="text-xl font-bold mb-4 tracking-tight flex items-center gap-2">
+            Daftar Penguji
+          </div>
           {selected?.penguji && selected.penguji.length > 0 ? (
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {selected.penguji.map((penguji, idx) => (
-                <li key={penguji.id ?? idx} className="flex items-center gap-2">
-                  <span className="font-medium">{penguji.nama ?? "-"}</span>
-                  <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground">
+                <li
+                  key={penguji.id ?? idx}
+                  className="flex flex-wrap items-center gap-2 text-base"
+                >
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    {penguji.nama ?? "-"}
+                  </span>
+                  <span className="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-gray-300 border border-gray-200 dark:border-neutral-700 font-medium">
                     {roleLabel(penguji.peran)}
                   </span>
                   {getHadirStatus(selected, penguji.id) ? (
-                    <span className="text-green-600 text-xs ml-2">Hadir</span>
+                    <span className="text-green-600 text-xs font-semibold ml-2">
+                      Hadir
+                    </span>
                   ) : (
-                    <span className="text-red-600 text-xs ml-2">
+                    <span className="text-red-500 text-xs font-semibold ml-2">
                       Tidak Hadir
                     </span>
                   )}

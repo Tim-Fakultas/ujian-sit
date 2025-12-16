@@ -5,9 +5,7 @@ import {
   useEffect,
   useActionState,
   useMemo,
-  useTransition,
 } from "react";
-import { getRuangan } from "@/actions/data-master/ruangan";
 
 import TableGlobal from "@/components/tableGlobal";
 import {
@@ -23,59 +21,46 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
+
 import {
   Search,
-  CalendarPlus,
-  ListFilter,
-  ChevronDown,
-  MoreHorizontal,
-  ArrowUpDown,
   X,
+ 
   CheckCircle2,
   Settings2,
-  Layout,
   List,
   LayoutGrid,
+  Eye,
+  FileText,
 } from "lucide-react";
 import { getMahasiswaById } from "@/actions/data-master/mahasiswa";
-import { getJenisUjianColor, getStatusColor, truncateTitle } from "@/lib/utils";
-import { jadwalkanUjianAction } from "@/actions/jadwalUjian";
-import { Ujian } from "@/types/Ujian";
+import { getJenisUjianColor, getStatusColor } from "@/lib/utils";
 import revalidateAction from "@/actions/revalidate";
-import { Dosen } from "@/types/Dosen";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
+import { showToast } from "@/components/ui/custom-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { PendaftaranUjian } from "@/types/PendaftaranUjian";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { updateStatusPendaftaranUjian } from "@/actions/pendaftaranUjian";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function PendaftaranUjianTable({
-  ujianList,
-  dosen,
+  pendaftaranUjianList,
 }: {
-  ujianList: Ujian[];
-  dosen: Dosen[];
+  pendaftaranUjianList: PendaftaranUjian[];
 }) {
-  const [selected, setSelected] = useState<Ujian | null>(null);
+  const [selected, setSelected] = useState<PendaftaranUjian | null>(null);
 
   type MahasiswaDetail = {
     id: number | string;
@@ -86,26 +71,9 @@ export default function PendaftaranUjianTable({
 
   const [mahasiswaDetail, setMahasiswaDetail] =
     useState<MahasiswaDetail | null>(null);
-  const [penguji1, setPenguji1] = useState<string>("");
-  const [penguji2, setPenguji2] = useState<string>("");
 
-  // State for ruangan
-  const [ruanganList, setRuanganList] = useState<
-    { id: number; namaRuangan: string }[]
-  >([]);
-
-  const [ruangan, setRuangan] = useState<string>("");
-  // State untuk waktu mulai dan selesai
-  const [waktuMulai, setWaktuMulai] = useState("");
-  const [waktuSelesai, setWaktuSelesai] = useState("");
-
-  useEffect(() => {
-    getRuangan().then((res) => {
-      if (res && Array.isArray(res.data)) {
-        setRuanganList(res.data);
-      }
-    });
-  }, []);
+  
+  const [showBerkasModal, setShowBerkasModal] = useState(false);
 
   useEffect(() => {
     if (selected) {
@@ -115,116 +83,9 @@ export default function PendaftaranUjianTable({
     }
   }, [selected]);
 
-  type JadwalkanUjianState = {
-    success: boolean;
-    message: string;
-  };
+ 
 
-  const jadwalkanUjianReducer = async (
-    state: JadwalkanUjianState,
-    formData: FormData
-  ): Promise<JadwalkanUjianState> => {
-    const result = await jadwalkanUjianAction(formData);
-    revalidateAction("/sekprodi/daftar-ujian");
-    return {
-      success: result?.success ?? false,
-      message:
-        result && "message" in result && typeof result.message === "string"
-          ? result.message
-          : "",
-    };
-  };
 
-  const [state, formAction] = useActionState(jadwalkanUjianReducer, {
-    success: false,
-    message: "",
-  });
-
-  const [isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    if (!state) return;
-    (async () => {
-      if (state.success) {
-        toast.success("Ujian berhasil dijadwalkan!");
-        setSelected(null);
-      } else if (state.message) {
-        // Mapping pesan error agar lebih user-friendly
-        let userMessage = state.message;
-        if (
-          userMessage.includes(
-            "waktu selesai field must be a date after waktu mulai"
-          ) ||
-          userMessage.includes("waktuSelesai") ||
-          userMessage.toLowerCase().includes("must be a date after waktu mulai")
-        ) {
-          userMessage = "Waktu selesai ujian harus setelah waktu mulai.";
-        }
-        toast.error(userMessage);
-      }
-    })();
-  }, [state]);
-
-  // Bersihkan field saat card ditutup (selected = null)
-  useEffect(() => {
-    if (selected === null) {
-      setPenguji1("");
-      setPenguji2("");
-      setMahasiswaDetail(null);
-      setWaktuMulai("");
-      setWaktuSelesai("");
-      setRuangan("");
-    }
-  }, [selected]);
-
-  // Prefill form fields if ujian already scheduled
-  useEffect(() => {
-    if (selected) {
-      // Prefill waktu mulai, selesai, tanggal, ruangan
-      setWaktuMulai(selected.waktuMulai ?? "");
-      setWaktuSelesai(selected.waktuSelesai ?? "");
-      setRuangan(
-        selected.ruangan && selected.ruangan.id
-          ? String(selected.ruangan.id)
-          : ""
-      );
-      // Prefill penguji1, penguji2, ketua, sekretaris dari selected.penguji
-      if (Array.isArray(selected.penguji)) {
-        const penguji1Obj = selected.penguji.find(
-          (p) => p.peran === "penguji_1"
-        );
-        const penguji2Obj = selected.penguji.find(
-          (p) => p.peran === "penguji_2"
-        );
-        setPenguji1(penguji1Obj ? String(penguji1Obj.id) : "");
-        setPenguji2(penguji2Obj ? String(penguji2Obj.id) : "");
-
-        // Prefill ketua dan sekretaris penguji ke mahasiswaDetail jika ada
-        const ketuaObj = selected.penguji.find(
-          (p) => p.peran === "ketua_penguji"
-        );
-        const sekretarisObj = selected.penguji.find(
-          (p) => p.peran === "sekretaris_penguji"
-        );
-        setMahasiswaDetail((prev) =>
-          prev
-            ? {
-                ...prev,
-                pembimbing1: ketuaObj
-                  ? { id: ketuaObj.id, nama: ketuaObj.nama }
-                  : prev.pembimbing1,
-                pembimbing2: sekretarisObj
-                  ? { id: sekretarisObj.id, nama: sekretarisObj.nama }
-                  : prev.pembimbing2,
-              }
-            : prev
-        );
-      } else {
-        setPenguji1("");
-        setPenguji2("");
-      }
-    }
-  }, [selected]);
 
   // Tutup popup dengan Escape
   useEffect(() => {
@@ -248,25 +109,12 @@ export default function PendaftaranUjianTable({
   // Status options
   const statusOptions = [
     { value: "all", label: "Semua" },
-    { value: "diterima", label: "Diterima" },
+    { value: "belum dijadwalkan", label: "Belum dijadwalkan" },
     { value: "ditolak", label: "Ditolak" },
     { value: "dijadwalkan", label: "Dijadwalkan" },
     { value: "selesai", label: "Selesai" },
   ];
 
-  // Gabungan status dan jenis ujian untuk filter
-  const combinedFilterOptions = [
-    ...statusOptions.map((opt) => ({
-      type: "status",
-      value: opt.value,
-      label: opt.label,
-    })),
-    ...jenisUjianOptions.map((opt) => ({
-      type: "jenis",
-      value: opt.value,
-      label: `Jenis: ${opt.label}`,
-    })),
-  ];
 
   // State untuk filter gabungan
   const [filterOption, setFilterOption] = useState<{
@@ -296,25 +144,10 @@ export default function PendaftaranUjianTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   // helper: tampilkan label sorting saat ini
-  const currentSortLabel = (() => {
-    if (!sorting || sorting.length === 0) return "Sort";
-    const s = sorting[0];
-    const col = String(s.id);
-    const dir = s.desc ? "↓" : "↑";
-    const map: Record<string, string> = {
-      nama: "Nama",
-      jenis: "Jenis",
-      status: "Status",
-    };
-    return `${map[col] ?? col} ${dir}`;
-  })();
-  const applySort = (id: string, desc: boolean) => {
-    setSorting([{ id, desc }]);
-  };
 
   // Filtered data
   const filteredData = useMemo(() => {
-    return ujianList.filter((u) => {
+    return pendaftaranUjianList.filter((u) => {
       const matchNama = u.mahasiswa.nama
         .toLowerCase()
         .includes(filterNama.toLowerCase());
@@ -328,18 +161,33 @@ export default function PendaftaranUjianTable({
         filterOption.type === "status"
           ? filterOption.value === "all"
             ? true
-            : u.pendaftaranUjian?.status === filterOption.value
+            : u.status === filterOption.value
           : true;
       return matchNama && matchJenis && matchStatus;
     });
-  }, [ujianList, filterNama, filterOption]);
+  }, [filterNama, filterOption]);
 
-  // helper to open modal from table action
-  const handleDetail = (u: Ujian) => {
-    setSelected(u);
+  // Ambil berkas dari pendaftaranUjianList yang cocok dengan mahasiswa & jenis ujian
+  const getBerkasForSelected = () => {
+    if (!selected) return [];
+    // Cari pendaftaran ujian yang cocok
+    const found = pendaftaranUjianList.find(
+      (p) =>
+        p.mahasiswa.id === selected.mahasiswa.id &&
+        p.jenisUjian.id === selected.jenisUjian.id
+    );
+    return found?.berkas ?? [];
   };
 
-  const cols: ColumnDef<Ujian>[] = useMemo(
+
+  
+  // helper to open modal from table action
+  const handleBerkas = (u: PendaftaranUjian) => {
+    setSelected(u);
+    setShowBerkasModal(true);
+  };
+
+  const cols: ColumnDef<PendaftaranUjian>[] = useMemo(
     () => [
       {
         id: "no",
@@ -359,16 +207,16 @@ export default function PendaftaranUjianTable({
         id: "nama",
         header: "Nama Mahasiswa",
         cell: ({ row }) => <div>{row.getValue("nama")}</div>,
-        size: 160, // kurangi lebar kolom nama
+        size: 160, 
       },
       {
-        accessorFn: (row) => row.judulPenelitian ?? "-",
+        accessorFn: (row) => row.ranpel.judulPenelitian ?? "-",
         id: "judul",
         header: "Judul",
         cell: ({ row }) => (
           <div className="max-w-[180px] truncate">{row.getValue("judul")}</div>
         ),
-        size: 200, // kurangi lebar kolom judul
+        size: 200, 
       },
       {
         accessorFn: (row) => row.jenisUjian.namaJenis ?? "-",
@@ -383,10 +231,10 @@ export default function PendaftaranUjianTable({
             {row.getValue("jenis")}
           </span>
         ),
-        size: 110, // kurangi lebar kolom jenis
+        size: 110, 
       },
       {
-        accessorFn: (row) => row.pendaftaranUjian?.status ?? "-",
+        accessorFn: (row) => row.status ?? "-",
         id: "status",
         header: "Status",
         cell: ({ row }) => (
@@ -398,39 +246,53 @@ export default function PendaftaranUjianTable({
             {row.getValue("status")}
           </span>
         ),
-        size: 100, // kurangi lebar kolom status
+        size: 100, 
       },
       {
-        id: "actions",
+        accessorFn: (row) => {
+          const found = pendaftaranUjianList.find(
+            (p) =>
+              p.mahasiswa.id === row.mahasiswa.id &&
+              p.jenisUjian.id === row.jenisUjian.id
+          );
+          return found?.berkas ?? [];
+        },
+        id: "berkas",
+        header: () => <div className="text-center w-full">Berkas</div>,
         cell: ({ row }) => {
           const u = row.original;
+          const found = pendaftaranUjianList.find(
+            (p) =>
+              p.mahasiswa.id === u.mahasiswa.id &&
+              p.jenisUjian.id === u.jenisUjian.id
+          );
+          const berkas = found?.berkas ?? [];
           return (
-            <div className="text-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="mx-auto">
-                    <MoreHorizontal size={18} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleDetail(u)}>
-                    <CalendarPlus className="mr-2" size={16} />
-                    Jadwalkan
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+            <div className="flex items-center justify-center gap-2">
+              {berkas.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="p-1"
+                  onClick={() => handleBerkas(u)}
+                  aria-label="Lihat Berkas"
+                >
+                  <Eye size={16} />
+                </Button>
+              )}
             </div>
           );
         },
-        size: 60, // kurangi lebar kolom aksi
+        size: 80,
       },
+    
     ],
-    []
+    [pendaftaranUjianList]
   );
 
   // create react-table instance used by TableGlobal
   const table = useReactTable({
-    data: filteredData,
+    data: pendaftaranUjianList,
     columns: cols,
     state: {
       sorting,
@@ -451,6 +313,7 @@ export default function PendaftaranUjianTable({
   // Add viewMode state
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
 
+  
   return (
     <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow">
       {/* Filter Bar - match admin design */}
@@ -552,291 +415,291 @@ export default function PendaftaranUjianTable({
                 Tidak ada data.
               </div>
             ) : (
-              filteredData.map((ujian) => (
-                <div
-                  key={ujian.id}
-                  className="border rounded-lg bg-white dark:bg-neutral-800 shadow-sm flex flex-col"
-                >
-                  <div className="p-4 flex flex-col gap-2">
-                    <div className="font-semibold text-base leading-tight">
-                      {ujian.mahasiswa.nama}
-                    </div>
-                    <div className="text-xs text-muted-foreground mb-1 leading-none">
-                      {ujian.mahasiswa.nim}
-                    </div>
-                    <div>
-                      <span className="font-medium block mb-1">Judul:</span>
-                      <div className="whitespace-pre-line break-words text-sm leading-relaxed max-h-16 overflow-hidden">
-                        {ujian.judulPenelitian}
+              filteredData.map((p) => {
+                const status =
+                  pendaftaranUjianList.find(
+                    (p) =>
+                      p.mahasiswa.id === p.mahasiswa.id &&
+                      p.jenisUjian.id === p.jenisUjian.id
+                  )?.status ??
+                  p.status   ??
+                  "";
+                return (
+                  <div
+                    key={p.id}
+                    className="border rounded-lg bg-white dark:bg-neutral-800 shadow-sm flex flex-col"
+                  >
+                    <div className="p-4 flex flex-col gap-2">
+                      <div className="font-semibold text-base leading-tight">
+                        {p.mahasiswa.nama}
+                      </div>
+                      <div className="text-xs text-muted-foreground mb-1 leading-none">
+                        {p.mahasiswa.nim}
+                      </div>
+                      <div>
+                        <span className="font-medium block mb-1">Judul:</span>
+                        <div className="whitespace-pre-line break-words text-sm leading-relaxed max-h-16 overflow-hidden">
+                          {p.ranpel.judulPenelitian}
+                        </div>
+                      </div>
+                      <div className="flex flex-row items-center gap-2 mt-2">
+                        <span className="font-medium">Jenis:</span>
+                        <span
+                          className={`px-2 py-0.5 text-xs rounded font-semibold ${getJenisUjianColor(
+                            p.jenisUjian.namaJenis
+                          )}`}
+                        >
+                          {p.jenisUjian.namaJenis}
+                        </span>
+                      </div>
+                      <div className="flex flex-row items-center gap-2">
+                        <span className="font-medium">Status:</span>
+                        <span
+                          className={`px-2 py-0.5 text-xs rounded font-semibold ${getStatusColor(
+                            status
+                          )}`}
+                        >
+                          {status}
+                        </span>
                       </div>
                     </div>
-                    <div className="flex flex-row items-center gap-2 mt-2">
-                      <span className="font-medium">Jenis:</span>
-                      <span
-                        className={`px-2 py-0.5 text-xs rounded font-semibold ${getJenisUjianColor(
-                          ujian.jenisUjian.namaJenis
-                        )}`}
-                      >
-                        {ujian.jenisUjian.namaJenis}
-                      </span>
-                    </div>
-                    <div className="flex flex-row items-center gap-2">
-                      <span className="font-medium">Status:</span>
-                      <span
-                        className={`px-2 py-0.5 text-xs rounded font-semibold ${getStatusColor(
-                          ujian.pendaftaranUjian?.status
-                        )}`}
-                      >
-                        {ujian.pendaftaranUjian?.status}
-                      </span>
-                    </div>
+
                   </div>
-                  <div className="border-t px-4 py-2 flex justify-end items-center gap-2 bg-gray-50 dark:bg-neutral-900 rounded-b-lg">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDetail(ujian)}
-                      aria-label="Jadwalkan"
-                      className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-neutral-800 px-2 py-1"
-                    >
-                      <CalendarPlus size={16} />
-                      <span className="text-xs font-medium text-muted-foreground">
-                        Jadwalkan
-                      </span>
-                    </Button>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </TabsContent>
       </Tabs>
 
-      {/* Popup Card Jadwal */}
-      {selected && mahasiswaDetail && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          aria-modal="true"
-          role="dialog"
-        >
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setSelected(null)}
-          />
-          {/* Card container — klik di sini tidak menutup popup */}
-          <div
-            className="relative z-10 w-full max-w-2xl mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Ganti Card dengan shadcn Card */}
-            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl border border-muted">
-              <div className="flex items-center justify-between px-6 py-4 border-b dark:border-neutral-800">
-                <div>
-                  <div className="text-lg font-semibold">Jadwalkan Ujian</div>
-                  <div className="text-sm font-normal text-muted-foreground">
-                    {selected.mahasiswa.nama} &mdash;{" "}
-                    {selected.jenisUjian.namaJenis}
-                  </div>
+   
+
+      {/* Modal Berkas */}
+      <Dialog
+        open={showBerkasModal}
+        onOpenChange={(open) => {
+          setShowBerkasModal(open);
+          if (!open) setSelected(null);
+        }}
+      >
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden sm:rounded-xl">
+          <DialogHeader className="px-6 py-5 border-b bg-white dark:bg-neutral-900 border-gray-100 dark:border-neutral-800 z-10">
+            <div className="flex flex-row items-start justify-between gap-4">
+              <div className="flex flex-col gap-4 w-full">
+                <div className="flex flex-col gap-1">
+                  <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    Berkas Persyaratan
+                  </DialogTitle>
+                  {selected && (
+                    <div className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+                      <span className="font-semibold text-gray-700 dark:text-gray-300">
+                        {selected.mahasiswa.nama}
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-neutral-600" />
+                      <span>{selected.jenisUjian.namaJenis}</span>
+                    </div>
+                  )}
                 </div>
+
+                {/* Buttons Action in Header */}
+                <div className="flex flex-row gap-2">
+                   <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all font-medium h-8 text-xs"
+                      onClick={async () => {
+                        const found = pendaftaranUjianList.find(
+                          (p) =>
+                            p.mahasiswa.id === selected?.mahasiswa.id &&
+                            p.jenisUjian.id === selected?.jenisUjian.id
+                        );
+                        if (found) {
+                          const tId = showToast.loading("Menolak berkas...");
+                          try {
+                            await updateStatusPendaftaranUjian(found.id, "ditolak");
+                            showToast.dismiss(tId);
+                            showToast.success("Berkas ditolak");
+                            revalidateAction("/sekprodi/daftar-ujian");
+                            setShowBerkasModal(false);
+                          } catch (error) {
+                            showToast.dismiss(tId);
+                            showToast.error("Gagal menolak berkas");
+                          }
+                        } else {
+                          showToast.error("Data pendaftaran tidak ditemukan");
+                        }
+                      }}
+                    >
+                      Tolak
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 dark:shadow-none transition-all font-medium h-8 text-xs"
+                      onClick={async () => {
+                        const found = pendaftaranUjianList.find(
+                          (p) =>
+                            p.mahasiswa.id === selected?.mahasiswa.id &&
+                            p.jenisUjian.id === selected?.jenisUjian.id
+                        );
+                        if (found) {
+                          const tId = showToast.loading("Memverifikasi berkas...");
+                          try {
+                            await updateStatusPendaftaranUjian(
+                              found.id,
+                              "belum dijadwalkan"
+                            );
+                            showToast.dismiss(tId);
+                            showToast.success("Berkas terverifikasi");
+                            revalidateAction("/sekprodi/daftar-ujian");
+                            setShowBerkasModal(false);
+                          } catch (error) {
+                            showToast.dismiss(tId);
+                            showToast.error("Gagal memverifikasi berkas");
+                          }
+                        } else {
+                          showToast.error("Data pendaftaran tidak ditemukan");
+                        }
+                      }}
+                    >
+                      Verifikasi
+                    </Button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 self-start">
                 <Button
                   variant="ghost"
-                  size="sm"
-                  onClick={() => setSelected(null)}
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg"
+                  onClick={() => setShowBerkasModal(false)}
                 >
-                  <X size={16} />
+                  <X size={20} />
                 </Button>
               </div>
-              <div className="px-6 py-4">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!penguji1 || !penguji2 || !ruangan) {
-                      toast.error("Lengkapi semua field penguji dan ruangan.");
-                      return;
-                    }
-                    if (penguji1 === penguji2) {
-                      toast.error("Pilih penguji yang berbeda.");
-                      return;
-                    }
-                    const formElem = e.currentTarget as HTMLFormElement;
-                    const fd = new FormData(formElem);
-                    fd.set("penguji1", penguji1);
-                    fd.set("penguji2", penguji2);
-                    fd.set("ruanganId", ruangan);
-                    startTransition(() => {
-                      formAction(fd);
-                    });
-                  }}
-                  className="space-y-4"
-                >
-                  <input
-                    type="hidden"
-                    name="ujianId"
-                    value={String(selected?.id ?? "")}
-                  />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="mb-2 block">Ketua Penguji</Label>
-                      <Input
-                        type="text"
-                        value={mahasiswaDetail.pembimbing1?.nama || ""}
-                        disabled
-                      />
-                      <input
-                        type="hidden"
-                        name="ketuaPenguji"
-                        value={String(mahasiswaDetail.pembimbing1?.id ?? "")}
-                      />
-                    </div>
-                    <div>
-                      <Label className="mb-2 block">Sekretaris Penguji</Label>
-                      <Input
-                        type="text"
-                        value={mahasiswaDetail.pembimbing2?.nama || ""}
-                        disabled
-                      />
-                      <input
-                        type="hidden"
-                        name="sekretarisPenguji"
-                        value={String(mahasiswaDetail.pembimbing2?.id ?? "")}
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="mb-2 block">Tanggal Ujian</Label>
-                      <Input
-                        type="date"
-                        name="jadwalUjian"
-                        required
-                        placeholder="Pilih tanggal"
-                        defaultValue={
-                          selected.jadwalUjian
-                            ? selected.jadwalUjian.slice(0, 10)
-                            : ""
+            </div>
+          </DialogHeader>
+
+          {selected && (
+            <>
+                <div className="p-6 overflow-y-auto">
+                  <div className="space-y-3">
+                    {getBerkasForSelected().length > 0 ? (
+                      getBerkasForSelected().map((file, idx) => {
+                        const apiUrl =
+                          process.env.NEXT_PUBLIC_STORAGE_URL || "";
+                        const fileUrl = `${apiUrl}/storage/${file.filePath}`;
+                        // Tentukan label berdasarkan jenis ujian
+                        const jenis =
+                          selected.jenisUjian.namaJenis.toLowerCase();
+                        let label = "";
+                        if (jenis.includes("proposal")) {
+                          label =
+                            LABELS_PROPOSAL[idx] ||
+                            file.namaBerkas ||
+                            fileUrl.split("/").pop() ||
+                            "";
+                        } else if (jenis.includes("hasil")) {
+                          label =
+                            LABELS_HASIL[idx] ||
+                            file.namaBerkas ||
+                            fileUrl.split("/").pop() ||
+                            "";
+                        } else {
+                          label =
+                            file.namaBerkas || fileUrl.split("/").pop() || "";
                         }
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="w-1/2">
-                        <Label className="mb-2 block">Waktu Mulai</Label>
-                        <Input
-                          type="time"
-                          name="waktuMulai"
-                          required
-                          value={waktuMulai}
-                          onChange={(e) => setWaktuMulai(e.target.value)}
-                          placeholder="08:00"
-                        />
-                      </div>
-                      <div className="w-1/2">
-                        <Label className="mb-2 block">Waktu Selesai</Label>
-                        <Input
-                          type="time"
-                          name="waktuSelesai"
-                          required
-                          value={waktuSelesai}
-                          onChange={(e) => setWaktuSelesai(e.target.value)}
-                          placeholder="10:00"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="mb-2 block">Ruangan</Label>
-                    <Select
-                      value={ruangan}
-                      onValueChange={(val) => setRuangan(val)}
-                      name="ruanganId"
-                      required
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih Ruangan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ruanganList.map((r) => (
-                          <SelectItem key={r.id} value={String(r.id)}>
-                            {r.namaRuangan}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                    <div>
-                      <Label className="mb-2 block">Dosen Penguji 1</Label>
-                      <Select
-                        value={penguji1}
-                        onValueChange={setPenguji1}
-                        name="penguji1"
-                        required
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Pilih Dosen" />
-                        </SelectTrigger>
-                        <SelectContent className="w-full">
-                          {dosen
-                            .filter((d) => String(d.id) !== penguji2)
-                            .map((d) => (
-                              <SelectItem key={d.id} value={String(d.id)}>
-                                {d.nama}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label className="mb-2 block">Dosen Penguji 2</Label>
-                      <Select
-                        value={penguji2}
-                        onValueChange={setPenguji2}
-                        name="penguji2"
-                        required
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Pilih Dosen" />
-                        </SelectTrigger>
-                        <SelectContent className="w-full">
-                          {dosen
-                            .filter((d) => String(d.id) !== penguji1)
-                            .map((d) => (
-                              <SelectItem key={d.id} value={String(d.id)}>
-                                {d.nama}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="pt-2">
-                    {penguji1 === penguji2 && penguji1 !== "" && (
-                      <div className="text-sm text-red-600 mb-2">
-                        Pilih penguji yang berbeda.
+                        return (
+                          <div
+                            key={file.id ?? idx}
+                            className="group flex items-center justify-between gap-4 p-4 rounded-xl bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200"
+                          >
+                            <div className="flex items-center gap-4 min-w-0">
+                              <div className="h-10 w-10 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                                <FileText size={20} />
+                              </div>
+                              <div className="min-w-0 flex flex-col gap-0.5">
+                                <span className="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-1">
+                                  {label}
+                                </span>
+                                <a
+                                  href={fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 truncate max-w-[300px] hover:underline"
+                                  title={
+                                    file.namaBerkas || fileUrl.split("/").pop()
+                                  }
+                                >
+                                  {file.namaBerkas || fileUrl.split("/").pop()}
+                                </a>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-900 dark:text-gray-100 font-medium shrink-0"
+                              onClick={() => window.open(fileUrl, "_blank")}
+                            >
+                              Lihat
+                            </Button>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="h-12 w-12 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center mb-3">
+                          <FileText
+                            size={24}
+                            className="text-gray-400 dark:text-gray-500"
+                          />
+                        </div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Tidak ada berkas
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Mahasiswa belum mengunggah berkas persyaratan.
+                        </p>
                       </div>
                     )}
-                    <Button
-                      type="submit"
-                      className="w-full mt-1"
-                      disabled={
-                        !penguji1 ||
-                        !penguji2 ||
-                        !ruangan ||
-                        penguji1 === "" ||
-                        penguji2 === "" ||
-                        ruangan === "" ||
-                        penguji1 === penguji2
-                      }
-                    >
-                      Simpan Jadwal
-                    </Button>
                   </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+                </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
+// Tambahkan mapping label untuk semua jenis berkas proposal & hasil
+const LABELS_PROPOSAL = [
+  "Transkrip Nilai",
+  "Pengesahan Proposal",
+  "Surat Keterangan Lulus Plagiasi",
+  "Proposal Skripsi",
+  "Form Perbaikan Proposal untuk ujian ke-2, 3 dst.",
+  "Lulus mata kuliah Metodologi Penelitian (minimal C)",
+  "SKS yang telah ditempuh minimal >= 100 sks",
+  "IPK >= 2.00",
+  "Transkrip nilai sementara yang dilegalisir",
+  "Formulir pengajuan judul dan pembimbing skripsi yang telah ditandatangani Koordinator Skripsi dan Ketua Program Studi",
+  "Halaman pengesahan proposal skripsi yang di tanda tangani Pembimbing dan Ketua Program Studi",
+];
+
+const LABELS_HASIL = [
+  "Surat Keterangan Lulus Cek Plagiat",
+  "File Hasil Skripsi Lengkap (PDF, email si@radenfatah.ac.id, Nama-NIM-Hasil)",
+  "Formulir Perbaikan Proposal Skripsi",
+  "Form Perbaikan Hasil untuk ujian ke-2, 3 dst.",
+  "Bukti hafalan 10 surat Juz 'Amma",
+  "Ijazah SMA/MA",
+  "Sertifikat KKN",
+  "Bukti hadir dalam seminar proposal",
+  "Halaman Pengesahan Skripsi untuk ujian hasil yang ditanda tangani Pembimbing dan Ketua Program Studi",
+  "Formulir Mengikuti Ujian Hasil",
+  "Bukti pembayaran SPP semester berjalan",
+  "KST yang tercantum Skripsi",
+  "Transkrip nilai sementara yang dilegalisir",
+  "Surat Keterangan Lulus Ujian Seminar Proposal",
+  "Bukti lulus ujian BTA (sertifikat BTA)",
+  "Bukti lulus TOEFL >= 400",
+];

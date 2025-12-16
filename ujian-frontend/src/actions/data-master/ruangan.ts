@@ -1,3 +1,5 @@
+import { RuanganResponse } from "@/types/Ruangan";
+
 export async function getRuangan() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
@@ -12,8 +14,8 @@ export async function getRuangan() {
       console.error("❌ Gagal fetch ruangan:", text);
       throw new Error(text);
     }
-    const result = await res.json();
-    return result;
+    const result: RuanganResponse = await res.json();
+    return result.data;
   } catch (err) {
     console.error("💥 Error getRuangan:", err);
     throw err;

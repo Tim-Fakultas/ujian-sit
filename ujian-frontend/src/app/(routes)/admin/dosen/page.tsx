@@ -4,12 +4,14 @@ import Loading from "./Loading";
 import { getDosen } from "@/actions/data-master/dosen";
 import { Dosen } from "@/types/Dosen";
 import { DosenTable } from "./DosenTable";
+import Header from "@/components/Header";
 
 export default async function Page() {
   const { user } = await getCurrentUserAction();
   const dosen: Dosen[] = await getDosen(user?.prodi?.id);
   return (
     <div className="p-6 ">
+      <Header title="Data Dosen" desc="Kelola data dosen di sini." />
       <Suspense fallback={<Loading />}>
         <DosenTable dosen={dosen} user={user} />
       </Suspense>

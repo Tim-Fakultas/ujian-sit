@@ -41,7 +41,7 @@ import React, { useState, useTransition, useMemo, useEffect } from "react";
 import { updateStatusPendaftaranUjian } from "@/actions/pendaftaranUjian";
 import { Input } from "../ui/input";
 import revalidateAction from "@/actions/revalidate";
-import { toast } from "sonner";
+import { showToast } from "@/components/ui/custom-toast";
 import {
   Dialog,
   DialogContent,
@@ -50,6 +50,7 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
 
 export default function PendaftaranUjianTable({
   pendaftaranUjian,
@@ -363,15 +364,7 @@ export default function PendaftaranUjianTable({
       await updateStatusPendaftaranUjian(id, "diterima");
       setShowModal(false);
       // custom sonner toast dengan icon dan teks
-      toast(
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="text-emerald-500" size={18} />
-          <div>
-            <div className="font-semibold">Berhasil</div>
-            <div className="">Pendaftaran ujian berhasil diterima.</div>
-          </div>
-        </div>
-      );
+      showToast.success("Berhasil", "Pendaftaran ujian berhasil diterima.");
       revalidateAction("admin/pendaftaran-ujian");
     } catch (err) {
       alert("Gagal memperbarui status pendaftaran ujian.");
@@ -383,15 +376,7 @@ export default function PendaftaranUjianTable({
     try {
       await updateStatusPendaftaranUjian(id, "ditolak");
       setShowModal(false);
-      toast(
-        <div className="flex items-center gap-2">
-          <X className="text-rose-500" size={18} />
-          <div>
-            <div className="font-semibold">Ditolak</div>
-            <div className="">Pendaftaran ujian telah ditolak.</div>
-          </div>
-        </div>
-      );
+      showToast.error("Ditolak", "Pendaftaran ujian telah ditolak.");
       revalidateAction("admin/pendaftaran-ujian");
     } catch (err) {
       alert("Gagal memperbarui status pendaftaran ujian.");
@@ -439,9 +424,9 @@ export default function PendaftaranUjianTable({
             </span>
           </div>
 
-          {/* Gabungan filter status/jenis */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          {/* Gabungan filter status/jenis pakai Popover */}
+          <Popover>
+            <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className="h-9 px-3 rounded-lg border flex items-center gap-2"
@@ -449,46 +434,60 @@ export default function PendaftaranUjianTable({
               >
                 <Settings2 size={16} />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-[160px]">
-              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+            </PopoverTrigger>
+            <PopoverContent align="end" className="max-w-[180px]  p-2">
+              <div className="text-xs font-semibold text-muted-foreground mb-1">
                 Status
               </div>
               {statusOptions.map((opt) => (
-                <DropdownMenuItem
+                <Button
                   key={"status-" + opt.value}
+                  variant={
+                    filterOption.type === "status" &&
+                    filterOption.value === opt.value
+                      ? "secondary"
+                      : "ghost"
+                  }
+                  size="sm"
+                  className="w-full justify-between"
                   onClick={() =>
                     setFilterOption({ type: "status", value: opt.value })
                   }
-                  className="flex items-center justify-between gap-2"
                 >
                   <span className="text-sm">{opt.label}</span>
                   {filterOption.type === "status" &&
                     filterOption.value === opt.value && (
                       <CheckCircle2 size={14} className="text-emerald-500" />
                     )}
-                </DropdownMenuItem>
+                </Button>
               ))}
-              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t border-muted">
+              <div className="text-xs font-semibold text-muted-foreground border-t border-muted mt-2 pt-2 mb-1">
                 Jenis Ujian
               </div>
               {jenisUjianOptions.map((opt) => (
-                <DropdownMenuItem
+                <Button
                   key={"jenis-" + opt.value}
+                  variant={
+                    filterOption.type === "jenis" &&
+                    filterOption.value === opt.value
+                      ? "secondary"
+                      : "ghost"
+                  }
+                  size="sm"
+                  className="w-full justify-between"
                   onClick={() =>
                     setFilterOption({ type: "jenis", value: opt.value })
                   }
-                  className="flex items-center justify-between gap-2"
                 >
                   <span className="text-sm">{opt.label}</span>
                   {filterOption.type === "jenis" &&
                     filterOption.value === opt.value && (
                       <CheckCircle2 size={14} className="text-emerald-500" />
                     )}
-                </DropdownMenuItem>
+                </Button>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </PopoverContent>
+          </Popover>
 
           {/* View mode */}
           <Tabs
@@ -613,18 +612,40 @@ export default function PendaftaranUjianTable({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 ">
           <div className="w-full max-w-3xl bg-white dark:bg-neutral-950 rounded-xl shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b dark:border-neutral-700">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 border-b dark:border-neutral-700 gap-4">
               <h3 className="text-lg font-semibold">
                 Detail Pendaftaran Ujian
               </h3>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                {selected.status === "menunggu" && (
+                  <>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={isPending}
+                      onClick={() => handleConfirm("reject")}
+                    >
+                      Tolak
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      disabled={isPending}
+                      onClick={() => handleConfirm("accept")}
+                      className="bg-emerald-600 text-white hover:bg-emerald-700"
+                    >
+                      {isPending ? "Proses..." : "Terima"}
+                    </Button>
+                  </>
+                )}
                 <Button
                   variant="ghost"
+                  size="icon"
                   onClick={() => {
                     setShowModal(false);
                     setSelected(null);
                   }}
-                  className="px-3 py-1"
+                  className="h-8 w-8"
                 >
                   <X size={16} />
                 </Button>
@@ -700,7 +721,8 @@ export default function PendaftaranUjianTable({
                   <div className="space-y-3">
                     {selected.berkas && selected.berkas.length > 0 ? (
                       selected.berkas.map((file, idx) => {
-                        const apiUrl = process.env.NEXT_PUBLIC_STORAGE_URL || "";
+                        const apiUrl =
+                          process.env.NEXT_PUBLIC_STORAGE_URL || "";
                         const fileUrl = `${apiUrl}/storage/${file.filePath}`;
                         let label = "";
                         if (idx === 0) label = "Transkrip Nilai";
@@ -760,31 +782,7 @@ export default function PendaftaranUjianTable({
               </div>
             </div>
 
-            {/* Footer actions */}
-            <div className="border-t px-6 py-4 flex flex-col sm:flex-row gap-3 sm:justify-end sm:items-center">
-              <div className="flex gap-2 w-full sm:w-auto">
-                {selected.status === "menunggu" && (
-                  <>
-                    <Button
-                      variant="destructive"
-                      disabled={isPending}
-                      onClick={() => handleConfirm("reject")}
-                      className="w-full sm:w-auto"
-                    >
-                      Tolak
-                    </Button>
-                    <Button
-                      variant="default"
-                      disabled={isPending}
-                      onClick={() => handleConfirm("accept")}
-                      className="w-full sm:w-auto bg-emerald-600 text-white hover:bg-emerald-700"
-                    >
-                      {isPending ? "Menyimpan..." : "Terima"}
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
+
           </div>
         </div>
       )}

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Sheet,
   SheetClose,
@@ -29,9 +30,12 @@ export default function KeputusanSheet({
   setKeputusanChoice: (v: number) => void;
   handleSetKeputusan: (ujianId: number, keputusan: number) => void;
 }) {
+  // Cek apakah keputusan sudah pernah di-set sebelumnya
+  const keputusanSudahAda =
+    !!ujian.keputusan && typeof ujian.keputusan.id === "number";
+
   return (
     <>
-      {/* Sheet Keputusan (Lulus / Tidak Lulus) */}
       <Sheet
         open={openKeputusan && selected?.id === ujian.id}
         onOpenChange={(v) => {
@@ -46,22 +50,41 @@ export default function KeputusanSheet({
             </SheetDescription>
           </SheetHeader>
           <div className="px-4 py-2">
-            <div className="flex flex-col gap-3 mt-3">
-              {keputusanOptions.map((opt) => (
-                <label key={opt.id} className="inline-flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="keputusan"
-                    checked={keputusanChoice === opt.id}
-                    onChange={() => setKeputusanChoice(opt.id)}
-                  />
-
-                  <div className="text-sm text-muted-foreground">
-                    {opt.label}
-                  </div>
-                </label>
-              ))}
-            </div>
+            {keputusanSudahAda ? (
+              <div className="mt-4 mb-4">
+                <div className="text-sm text-muted-foreground mb-2">
+                  Keputusan sudah ditetapkan:
+                </div>
+                <div className="font-semibold text-base">
+                  {ujian.keputusan?.namaKeputusan}
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3 mt-3">
+                {keputusanOptions.map((opt) => (
+                  <Label
+                    key={opt.id}
+                    className="inline-flex items-center gap-2"
+                  >
+                    <input
+                      type="radio"
+                      name="keputusan"
+                      checked={keputusanChoice === opt.id}
+                      onChange={() => setKeputusanChoice(opt.id)}
+                      disabled={keputusanSudahAda}
+                    />
+                    <div className="text-sm text-muted-foreground">
+                      {opt.label}
+                    </div>
+                  </Label>
+                ))}
+              </div>
+            )}
+            {keputusanSudahAda && (
+              <div className="mt-4 text-xs text-amber-500">
+                Keputusan sudah pernah di-set dan tidak dapat diubah lagi.
+              </div>
+            )}
           </div>
           <SheetFooter>
             <Button
@@ -71,7 +94,7 @@ export default function KeputusanSheet({
                 }
                 setOpenKeputusan(false);
               }}
-              disabled={keputusanChoice === null}
+              disabled={keputusanChoice === null || keputusanSudahAda}
             >
               Simpan
             </Button>

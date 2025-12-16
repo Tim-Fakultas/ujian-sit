@@ -65,7 +65,7 @@ export default function DetailDialog({
                     Judul Penelitian
                   </div>
                   <div className="mt-1 text-sm font-medium whitespace-pre-wrap break-words break-all max-w-full">
-                    {ujian.judulPenelitian ?? "-"}
+                    {ujian?.judulPenelitian ?? "-"}
                   </div>
                 </div>
                 <div>

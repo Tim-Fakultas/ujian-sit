@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import TableGlobal from "@/components/tableGlobal";
 import { Ujian } from "@/types/Ujian";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { showToast } from "@/components/ui/custom-toast";
 import {
   Eye,
   Search,
@@ -13,14 +13,10 @@ import {
   LayoutGrid,
   List,
   Settings2,
+  CalendarClock,
+  X,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { daftarKehadiran } from "@/types/DaftarKehadiran";
 import { Input } from "@/components/ui/input";
 
@@ -47,6 +43,49 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
+/** 🔹 Modal Wrapper (Custom implementation) */
+const Modal = ({
+  open,
+  onClose,
+  children,
+  title,
+  width = "max-w-3xl",
+}: {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+  title?: string;
+  width?: string;
+}) => {
+  if (!open) return null;
+  return (
+    <div
+      className="fixed inset-0 z-50 dark:bg-neutral-900/80 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        className={`bg-white dark:bg-neutral-900 w-full ${width} mx-4 rounded-xl shadow-2xl border dark:border-neutral-800 animate-in slide-in-from-bottom-4 duration-300 flex flex-col max-h-[90vh]`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-4 border-b dark:border-neutral-800 bg-gray-50/50 dark:bg-[#1f1f1f] shrink-0 rounded-t-xl">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            {title}
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            onClick={onClose}
+          >
+            <X size={18} />
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-6">{children}</div>
+      </div>
+    </div>
+  );
+};
+
 export default function JadwalUjianTable({
   jadwalUjian,
   daftarHadir,
@@ -54,8 +93,9 @@ export default function JadwalUjianTable({
   jadwalUjian: Ujian[];
   daftarHadir: daftarKehadiran[] | null;
 }) {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selected, setSelected] = useState<Ujian | null>(null);
+  /* State for detail dialog (modern) */
+  const [openDetailDialog, setOpenDetailDialog] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState<Ujian | null>(null);
 
   const [openDaftarHadir, setOpenDaftarHadir] = useState(false);
   const [selectedDaftarHadir, setSelectedDaftarHadir] = useState<Ujian | null>(
@@ -80,8 +120,30 @@ export default function JadwalUjianTable({
 
   const [viewMode, setViewMode] = useState<string>("table");
 
+  // Ubah state statusTab ke "all" | "dijadwalkan" | "selesai"
+  const [statusTab, setStatusTab] = useState<"all" | "dijadwalkan" | "selesai">(
+    "all"
+  );
+
   const filteredData = useMemo(() => {
     let data = jadwalUjian.filter((ujian) => {
+      // Filter status ujian sesuai tab
+      if (statusTab === "dijadwalkan") {
+        if (
+          completedIds.includes(ujian.id) ||
+          ujian.pendaftaranUjian.status === "selesai"
+        )
+          return false;
+      } else if (statusTab === "selesai") {
+        if (
+          !(
+            completedIds.includes(ujian.id) ||
+            ujian.pendaftaranUjian.status === "selesai"
+          )
+        )
+          return false;
+      }
+
       const matchNama = ujian.mahasiswa.nama
         .toLowerCase()
         .includes(filterNama.toLowerCase());
@@ -151,6 +213,8 @@ export default function JadwalUjianTable({
     filterTahun,
     sortField,
     sortOrder,
+    statusTab,
+    completedIds,
   ]);
 
   // ===========================================
@@ -172,42 +236,24 @@ export default function JadwalUjianTable({
     }
   }, [totalPage, page]);
 
-  // ===========================================
-  // Handlers
-  // ===========================================
-  function handleDetail(ujian: Ujian) {
-    setSelected(ujian);
-    setOpenDialog(true);
-  }
-
   async function handleToggleStatusUjian(ujian: Ujian) {
-    const { toast } = await import("sonner");
     try {
       if (completedIds.includes(ujian.id)) {
         await setUjianDijadwalkan(ujian.pendaftaranUjian.id);
         setCompletedIds((prev) => prev.filter((id) => id !== ujian.id));
-        toast.success("Status ujian dikembalikan ke Dijadwalkan");
+        showToast.success("Status ujian dikembalikan ke Dijadwalkan");
       } else {
         await setUjianSelesai(ujian.pendaftaranUjian.id);
         setCompletedIds((prev) => [...prev, ujian.id]);
-        toast.success("Berhasil menandai ujian selesai");
+        showToast.success("Berhasil menandai ujian selesai");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Gagal mengubah status ujian");
+      showToast.error("Gagal mengubah status ujian");
     }
   }
 
-  function cekHadir(dosenId: number) {
-    if (!daftarHadir || !selected) return false;
 
-    return daftarHadir.some(
-      (d) =>
-        d.dosenId === dosenId &&
-        d.statusKehadiran === "hadir" &&
-        d.ujianId === selected.id
-    );
-  }
 
   // Table columns for TableGlobal
   const cols = [
@@ -228,7 +274,14 @@ export default function JadwalUjianTable({
       accessorFn: (row: Ujian) => row.mahasiswa.nama ?? "-",
       id: "nama",
       header: "Nama Mahasiswa",
-      cell: ({ row }: any) => <div>{row.getValue("nama")}</div>,
+      cell: ({ row }: any) => (
+        <div>
+          {row.getValue("nama")}
+          <div className="text-xs text-muted-foreground">
+            {row.original.mahasiswa.nim}
+          </div>
+        </div>
+      ),
       size: 120,
     },
     {
@@ -236,7 +289,7 @@ export default function JadwalUjianTable({
       id: "judul",
       header: "Judul Penelitian",
       cell: ({ row }: any) => (
-        <div className="whitespace-pre-line break-words max-w-[180px]">
+        <div className="whitespace-pre-line break-words max-w-sm text-xs">
           {row.getValue("judul")}
         </div>
       ),
@@ -248,7 +301,7 @@ export default function JadwalUjianTable({
       header: "Jenis Ujian",
       cell: ({ row }: any) => (
         <span
-          className={`px-2 py-1 text-sm rounded font-semibold inline-block ${getJenisUjianColor(
+          className={`px-2 py-1 text-xs rounded font-semibold inline-block ${getJenisUjianColor(
             String(row.getValue("jenis"))
           )}`}
         >
@@ -257,54 +310,14 @@ export default function JadwalUjianTable({
       ),
       size: 90,
     },
-    {
-      accessorFn: (row: Ujian) => ({
-        hari: row.hariUjian
-          ? row.hariUjian[0].toUpperCase() + row.hariUjian.slice(1)
-          : "-",
-        tanggal: (() => {
-          try {
-            return new Date(row.jadwalUjian).toLocaleDateString("id-ID", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            });
-          } catch {
-            return "-";
-          }
-        })(),
-        waktu: `${row.waktuMulai?.slice(0, 5) ?? ""} - ${
-          row.waktuSelesai?.slice(0, 5) ?? ""
-        }`,
-      }),
-      id: "waktu",
-      header: "Waktu",
-      cell: ({ row }: any) => {
-        const val = row.getValue("waktu");
-        return (
-          <div>
-            <div>
-              {val.hari}, {val.tanggal}
-            </div>
-            <div>{val.waktu}</div>
-          </div>
-        );
-      },
-      size: 120,
-    },
-    {
-      accessorFn: (row: Ujian) => row.ruangan?.namaRuangan ?? "-",
-      id: "ruangan",
-      header: "Ruangan",
-      cell: ({ row }: any) => <div>{row.getValue("ruangan")}</div>,
-      size: 70,
-    },
+    // Tambahkan kolom Penguji (icon Eye)
+
     {
       id: "actions",
       header: "",
       cell: ({ row }: any) => {
         const ujian = row.original;
-        const isSelesai = completedIds.includes(ujian.id);
+        
         return (
           <div className="flex items-center justify-center gap-2">
             <DropdownMenu>
@@ -319,19 +332,22 @@ export default function JadwalUjianTable({
                 className="min-w-[140px] py-1"
               >
                 <DropdownMenuItem
-                  onClick={() => handleDetail(ujian)}
+                  onClick={() => {
+                    setSelectedDetail(ujian);
+                    setOpenDetailDialog(true);
+                  }}
                   className="flex items-center gap-1 px-2 py-1"
                 >
-                  <Eye size={15} className="mr-1" />
-                  Penguji
+                  <Eye size={15} className="mr-1"/>
+                  Lihat Detail
                 </DropdownMenuItem>
+                
                 <DropdownMenuItem
                   onClick={() => handleToggleStatusUjian(ujian)}
                   className="flex items-center gap-1 px-2 py-1"
                 >
-                  {isSelesai ? (
+                  {completedIds.includes(ujian.id) ? (
                     <>
-                      {/* Jadwalkan: gunakan icon kalender */}
                       <svg
                         width="15"
                         height="15"
@@ -362,15 +378,19 @@ export default function JadwalUjianTable({
                           strokeLinecap="round"
                         />
                       </svg>
-                      Jadwalkan
+                      Dijadwalkan
                     </>
                   ) : (
                     <>
-                      <Check size={13} className="mr-1 text-emerald-500" />
+                      <Check
+                        size={13}
+                        className="mr-1 text-emerald-500"
+                      />
                       Tandai Selesai
                     </>
                   )}
                 </DropdownMenuItem>
+             
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -479,8 +499,8 @@ export default function JadwalUjianTable({
 
   return (
     <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg  border">
-      {/* Header bar: Tabs, Search, Filter in one row */}
-      <div className="flex items-center sm:justify-end gap-2 mb-4">
+      {/* Header bar: Search, Filter, View Mode */}
+      <div className="flex items-center sm:justify-end gap-2 mb-2">
         <div className="relative w-full">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
             <Search size={16} />
@@ -583,6 +603,7 @@ export default function JadwalUjianTable({
           </TabsList>
         </Tabs>
       </div>
+ 
       {/* Table/Card View */}
       <Tabs value={viewMode} onValueChange={setViewMode}>
         <TabsContent value="table">
@@ -666,15 +687,19 @@ export default function JadwalUjianTable({
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mt-4">
+                    {/* Tombol lihat penguji (Eye) */}
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDetail(ujian)}
-                      aria-label="Lihat Tim Penguji"
+                      onClick={() => {
+                        setSelectedDetail(ujian);
+                        setOpenDetailDialog(true);
+                      }}
+                      aria-label="Lihat Detail"
                       className="flex items-center gap-2"
                     >
                       <Eye size={16} className="mr-1" />
-                      <span>Lihat Tim Penguji</span>
+                      <span>Lihat Detail</span>
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -750,195 +775,184 @@ export default function JadwalUjianTable({
         </TabsContent>
       </Tabs>
 
-      {/* Dialog Detail Penguji */}
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-2xl p-0 max-h-[90vh] overflow-hidden rounded-2xl shadow-sm">
-          <DialogHeader>
-            <DialogTitle className="font-semibold px-6 pt-6 pb-2 text-lg">
-              Tim Penguji
-            </DialogTitle>
-          </DialogHeader>
-          <div className="px-6 pb-6">
-            {selected && (
-              <div className="rounded-xl border bg-white dark:bg-neutral-900 shadow-sm overflow-hidden">
-                <Table className="min-w-full">
-                  <TableHeader>
-                    <TableRow className="bg-muted">
-                      <TableHead className="text-center w-10">No</TableHead>
-                      <TableHead>Nama</TableHead>
-                      <TableHead>Jabatan</TableHead>
-                      <TableHead className="text-center">Kehadiran</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selected.penguji.map((penguji, i) => {
-                      const roleMap: Record<string, string> = {
-                        ketua_penguji: "Ketua Penguji",
-                        sekretaris_penguji: "Sekretaris Penguji",
-                        penguji_1: "Penguji 1",
-                        penguji_2: "Penguji 2",
-                      };
-                      const label = roleMap[penguji.peran];
-                      const hadir = cekHadir(penguji.id);
-                      return (
-                        <TableRow
-                          key={penguji.id}
-                          className="hover:bg-gray-50 dark:hover:bg-neutral-800 transition"
-                        >
-                          <TableCell className="text-center font-semibold">
-                            {i + 1}
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {penguji.nama}
-                          </TableCell>
-                          <TableCell>
-                            <span
-                              className={`inline-block px-2 py-1 rounded text-xs font-semibold
-                                ${
-                                  label === "Ketua Penguji"
-                                    ? "bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100"
-                                    : label === "Sekretaris Penguji"
-                                    ? "bg-pink-100 text-pink-800 dark:bg-pink-800 dark:text-pink-100"
-                                    : label === "Penguji 1"
-                                    ? "bg-cyan-100 text-cyan-800 dark:bg-cyan-800 dark:text-cyan-100"
-                                    : label === "Penguji 2"
-                                    ? "bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100"
-                                    : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
-                                }`}
-                            >
-                              {label}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {hadir ? (
-                              <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-800">
-                                Hadir
-                              </span>
-                            ) : (
-                              <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-400 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
-                                -
-                              </span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
 
-      {/* Dialog Daftar Hadir */}
-      <Dialog open={openDaftarHadir} onOpenChange={setOpenDaftarHadir}>
-        <DialogContent className="sm:max-w-lg p-6">
-          <DialogHeader>
-            <DialogTitle className="font-semibold mb-2">
-              Formulir Daftar Hadir Ujian Skripsi
-            </DialogTitle>
-          </DialogHeader>
 
-          {selectedDaftarHadir && (
-            <div>
-              <div className="mb-4">
-                <div>
-                  <span className="font-medium">Waktu</span>:{" "}
-                  {selectedDaftarHadir.waktuMulai.slice(0, 5)} -{" "}
-                  {selectedDaftarHadir.waktuSelesai.slice(0, 5)}
+
+      {/* ========== MODAL DETAIL (DESAIN MODERN) ========== */}
+      <Modal
+        open={openDetailDialog}
+        onClose={() => setOpenDetailDialog(false)}
+        title="Detail Ujian"
+        width="max-w-4xl"
+      >
+          {selectedDetail && (
+            <div className="space-y-6">
+              {/* Header Section: Mahasiswa & Waktu */}
+              <div className="border-b pb-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md">
+                      <CalendarClock size={14} />
+                      <span>
+                        {selectedDetail.hariUjian
+                          ? selectedDetail.hariUjian.charAt(0).toUpperCase() +
+                            selectedDetail.hariUjian.slice(1)
+                          : "Hari"}
+                        ,{" "}
+                        {selectedDetail.jadwalUjian
+                          ? new Date(selectedDetail.jadwalUjian).toLocaleDateString(
+                              "id-ID",
+                              { day: "numeric", month: "long", year: "numeric" }
+                            )
+                          : "-"}
+                      </span>
+                    </div>
+                    <div className="hidden sm:block text-gray-300">|</div>
+                    <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md">
+                      <LayoutGrid size={14} />
+                      <span>
+                        {selectedDetail.waktuMulai?.slice(0, 5) ?? "-"} —{" "}
+                        {selectedDetail.waktuSelesai?.slice(0, 5) ?? "-"}
+                      </span>
+                    </div>
+                     <div className="hidden sm:block text-gray-300">|</div>
+                     <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md">
+                        <span className="font-medium">{selectedDetail.ruangan?.namaRuangan ?? "-"}</span>
+                     </div>
+                  </div>
+                  <div>
+                     <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase
+                          ${getJenisUjianColor(selectedDetail.jenisUjian.namaJenis)}
+                        `}
+                      >
+                        {selectedDetail.jenisUjian.namaJenis}
+                      </span>
+                  </div>
                 </div>
 
                 <div>
-                  <span className="font-medium">Nama Mahasiswa</span>:{" "}
-                  {selectedDaftarHadir.mahasiswa.nama}
-                </div>
-
-                <div>
-                  <span className="font-medium">NIM</span>:{" "}
-                  {selectedDaftarHadir.mahasiswa.nim}
-                </div>
-
-                <div>
-                  <span className="font-medium">Judul Skripsi</span>:{" "}
-                  {selectedDaftarHadir.judulPenelitian}
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {selectedDetail.mahasiswa.nama}
+                  </h2>
+                  <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <span className="font-mono bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-xs">
+                      {selectedDetail.mahasiswa.nim}
+                    </span>
+                    <span>•</span>
+                    <span>Mahasiswa</span> 
+                  </div>
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <Table className="border w-full">
-                  <TableHeader>
-                    <TableRow className="bg-gray-100">
-                      <TableHead className="border px-2 py-1">No.</TableHead>
-                      <TableHead className="border px-2 py-1">Nama</TableHead>
-                      <TableHead className="border px-2 py-1">
-                        NIP/NIDN
-                      </TableHead>
-                      <TableHead className="border px-2 py-1">
-                        Jabatan
-                      </TableHead>
-                      <TableHead className="border px-2 py-1 text-center">
-                        Kehadiran
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
+              {/* Content Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Column: Details */}
+                <div className="lg:col-span-2 space-y-6">
+                  
+                  {/* Judul Penelitian */}
+                  <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                       Judul Penelitian
+                    </h3>
+                     <p className="text-base font-medium leading-relaxed text-gray-800 dark:text-gray-200">
+                      {selectedDetail.judulPenelitian ?? "-"}
+                    </p>
+                  </div>
 
-                  <TableBody>
-                    {selectedDaftarHadir.penguji.map((penguji, i) => {
-                      const roleMap: Record<string, string> = {
-                        ketua_penguji: "Ketua Penguji",
-                        sekretaris_penguji: "Sekretaris Penguji",
-                        penguji_1: "Penguji I",
-                        penguji_2: "Penguji II",
-                      };
+                  {/* Hasil & Nilai Status */}
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-gray-50 dark:bg-neutral-800 p-4 rounded-xl border text-center">
+                          <span className="text-xs text-gray-500 uppercase font-semibold">Nilai Akhir</span>
+                          <div className="text-3xl font-bold text-emerald-600 mt-1">
+                              {selectedDetail.nilaiAkhir ?? "-"}
+                          </div>
+                      </div>
+                      <div className="bg-gray-50 dark:bg-neutral-800 p-4 rounded-xl border text-center">
+                          <span className="text-xs text-gray-500 uppercase font-semibold">Status Pendaftaran</span>
+                          <div className="text-lg font-bold mt-2 capitalize text-gray-700 dark:text-gray-200">
+                              {selectedDetail.pendaftaranUjian.status}
+                          </div>
+                      </div>
+                   </div>
+                   
+                    {selectedDetail.keputusan && (
+                        <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20">
+                             <span className="text-xs text-blue-600 dark:text-blue-400 uppercase font-semibold">Keputusan Akhir</span>
+                              <div className="text-lg font-medium text-blue-900 dark:text-blue-200 mt-1">
+                                 {selectedDetail.keputusan.namaKeputusan}
+                              </div>
+                        </div>
+                     )}
 
-                      // Cek kehadiran
-                      const hadir = daftarHadir?.some(
-                        (d) =>
-                          d.dosenId === penguji.id &&
-                          d.ujianId === selectedDaftarHadir.id &&
-                          d.statusKehadiran === "hadir"
-                      );
+                   {/* Catatan */}
+                   <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm">
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                          Catatan / Revisi
+                      </h3>
+                      <div className="bg-gray-50 dark:bg-neutral-900/50 p-4 rounded-lg border">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                              {selectedDetail.catatan || "Tidak ada catatan penguji."}
+                          </p>
+                      </div>
+                   </div>
 
-                      return (
-                        <TableRow key={penguji.id}>
-                          <TableCell className="border px-2 py-1 text-center">
-                            {i + 1}
-                          </TableCell>
+                </div>
 
-                          <TableCell className="border px-2 py-1">
-                            {penguji.nama}
-                          </TableCell>
+                {/* Right Column: Dosen Penguji */}
+                <div className="space-y-4">
+                    <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm h-full">
+                         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                              Tim Penguji
+                         </h3>
+                         <div className="space-y-4">
+                            {selectedDetail.penguji.map((p, idx) => {
+                                 const roleMap: Record<string, string> = {
+                                    ketua_penguji: "Ketua Penguji",
+                                    sekretaris_penguji: "Sekretaris Penguji",
+                                    penguji_1: "Penguji I",
+                                    penguji_2: "Penguji II",
+                                  };
+                                  const label = roleMap[p.peran] || p.peran;
+                                 
+                                  const hadir = daftarHadir?.some(
+                                    (d) =>
+                                      d.dosenId === p.id &&
+                                      d.statusKehadiran === "hadir" &&
+                                      d.ujianId === selectedDetail.id
+                                  );
 
-                          <TableCell className="border px-2 py-1">
-                            {penguji.nip || penguji.nidn || "-"}
-                          </TableCell>
-
-                          <TableCell className="border px-2 py-1">
-                            {roleMap[penguji.peran]}
-                          </TableCell>
-
-                          <TableCell className="border px-2 py-1 text-center">
-                            {hadir ? (
-                              <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-800">
-                                Hadir
-                              </span>
-                            ) : (
-                              <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 dark:bg-red-900 dark:text-red-200 dark:border-red-800">
-                                Tidak Hadir
-                              </span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                                 return (
+                                     <div key={idx} className="relative pl-4 border-l-2 border-gray-100 last:border-0 pb-1">
+                                         <div className={`absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full ring-2 ring-white
+                                             ${hadir ? 'bg-green-500' : 'bg-gray-300'}
+                                         `}></div>
+                                         <div>
+                                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
+                                                  {p.nama}
+                                              </p>
+                                              <div className="flex items-center justify-between mt-1">
+                                                  <span className="text-xs text-gray-500 capitalize">{label}</span>
+                                                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium border
+                                                      ${hadir 
+                                                          ? 'bg-green-50 text-green-700 border-green-100' 
+                                                          : 'bg-gray-50 text-gray-600 border-gray-200'}
+                                                  `}>
+                                                      {hadir ? "Hadir" : "Belum Hadir"}
+                                                  </span>
+                                              </div>
+                                         </div>
+                                     </div>
+                                 )
+                            })}
+                         </div>
+                    </div>
+                </div>
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+      </Modal>
+
     </div>
   );
 }
