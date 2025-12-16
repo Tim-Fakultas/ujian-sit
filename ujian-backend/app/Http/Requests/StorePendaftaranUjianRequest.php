@@ -27,11 +27,11 @@ class StorePendaftaranUjianRequest extends FormRequest
             'jenisUjianId' => 'required|exists:jenis_ujian,id',
             'tanggalPengajuan' => 'nullable|date',
             'tanggalDisetujui' => 'nullable|date',
-            'status' => 'in:menunggu, diterima, dijadwalkan, selesai, ditolak',
+            'status' => 'in:menunggu, belum dijadwalkan, dijadwalkan, selesai, ditolak',
             'keterangan' => 'nullable|string',
 
             'berkas' => 'nullable|array',
-            'berkas.*' => 'file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'berkas.*' => 'file|mimes:pdf,jpg,jpeg,png|max:1000000',
         ];
     }
 

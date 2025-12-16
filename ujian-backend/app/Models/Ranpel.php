@@ -39,4 +39,9 @@ class Ranpel extends Model
     {
         return $this->hasMany(PendaftaranUjian::class, 'ranpel_id');
     }
+
+    public function perbaikanJudul()
+    {
+        return $this->hasMany(PerbaikanJudul::class, 'ranpel_id');
+    }
 }

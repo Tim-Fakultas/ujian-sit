@@ -61,7 +61,7 @@ class PendaftaranUjian extends Model
     {
         static::updating(function ($pendaftaran) {
             // Kalau status berubah jadi diterima
-            if ($pendaftaran->isDirty('status') && $pendaftaran->status === 'diterima') {
+            if ($pendaftaran->isDirty('status') && $pendaftaran->status === 'belum dijadwalkan') {
 
                 // Pastikan tanggal_disetujui terisi string
                 if (empty($pendaftaran->tanggal_disetujui)) {
@@ -87,7 +87,7 @@ class PendaftaranUjian extends Model
                 $pendaftaran->tanggal_pengajuan = now()->toDateTimeString();
             }
 
-            if ($pendaftaran->status === 'diterima' && empty($pendaftaran->tanggal_disetujui)) {
+            if ($pendaftaran->status === 'belum dijadwalkan' && empty($pendaftaran->tanggal_disetujui)) {
                 $pendaftaran->tanggal_disetujui = now()->toDateTimeString();
             }
         });

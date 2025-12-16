@@ -14,6 +14,7 @@ use App\Http\Controllers\JudulController;
 use App\Http\Controllers\KomponenPenilaianController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\PejabatController;
+use App\Http\Controllers\PerbaikanJudulController;
 use App\Http\Controllers\PemenuhanSyaratController;
 use App\Http\Controllers\PeminatanController;
 use App\Http\Controllers\PendaftaranUjianController;
@@ -78,6 +79,8 @@ Route::apiResource('jadwal-penguji', JadwalPengujiController::class);
 Route::apiResource('ruangan', RuanganController::class);
 
 Route::apiResource('daftar-hadir', DaftarKehadiranController::class);
+
+Route::apiResource('perbaikan-judul', PerbaikanJudulController::class);
 
 // Route::apiResource('judul', JudulController::class);
 

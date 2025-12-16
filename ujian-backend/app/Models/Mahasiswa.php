@@ -96,4 +96,8 @@ class Mahasiswa extends Model
         return $this->belongsTo(Dosen::class, 'pembimbing_2');
     }
 
+    public function perbaikanJudul()
+    {
+        return $this->hasMany(PerbaikanJudul::class, 'mahasiswa_id');
+    }
 }

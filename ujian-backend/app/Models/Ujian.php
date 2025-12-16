@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -108,25 +109,33 @@ class Ujian extends Model
         return $this->belongsTo(Keputusan::class, 'keputusan_id');
     }
 
-    public function hitungNilaiAkhir()
+   public function hitungNilaiAkhir(): ?self
 {
-    $nilaiPerDosen = $this->penilaian()
+    $subQuery = $this->penilaian()
+        ->getQuery()
         ->join('komponen_penilaian', 'penilaian.komponen_penilaian_id', '=', 'komponen_penilaian.id')
-        ->selectRaw('penilaian.dosen_id, SUM(penilaian.nilai * komponen_penilaian.bobot) / SUM(komponen_penilaian.bobot) as total')
-        ->groupBy('penilaian.dosen_id')
-        ->pluck('total');
+        ->selectRaw('
+            penilaian.dosen_id,
+            (SUM(penilaian.nilai * komponen_penilaian.bobot) * 1.0)
+            / NULLIF(SUM(komponen_penilaian.bobot), 0) AS total
+        ')
+        ->groupBy('penilaian.dosen_id');
 
-    if ($nilaiPerDosen->isEmpty()) {
-        return;
+    $rataRata = DB::query()
+        ->fromSub($subQuery, 't')
+        ->avg('t.total');
+
+    if ($rataRata === null) {
+        return null; // tidak ada data
     }
 
-    // Rata-rata antar semua penguji (ketua, sekretaris, penguji 1, penguji 2)
-    $rataRata = $nilaiPerDosen->avg();
+    $nilaiAkhir = round((float) $rataRata, 2);
 
     $this->update([
-        'nilai_akhir' => round($rataRata, 2),
-        'hasil' => $rataRata >= 70 ? 'lulus' : 'tidak lulus',
+        'nilai_akhir' => $nilaiAkhir,
+        'hasil'       => $nilaiAkhir >= 70 ? 'lulus' : 'tidak lulus',
     ]);
+
     return $this;
 }
 

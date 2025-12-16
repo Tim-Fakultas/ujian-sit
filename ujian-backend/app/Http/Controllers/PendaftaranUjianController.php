@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatePendaftaranUjianRequest;
 use App\Http\Resources\PendaftaranUjianResource;
 use App\Models\PendaftaranUjian;
 use DB;
+use Exception;
 
 class PendaftaranUjianController extends Controller
 {
@@ -205,7 +206,7 @@ class PendaftaranUjianController extends Controller
             }
 
             return new PendaftaranUjianResource($pendaftaran);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Gagal memperbarui pendaftaran ujian.',
                 'error' => $e->getMessage(),

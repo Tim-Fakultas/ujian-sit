@@ -356,7 +356,7 @@ class DosenSeeder extends Seeder
             ],
             [
                 'nidn' => '0002018705',
-                'nip' => '198701022018011001',
+                'nip' =>'198701022018011001',
                 'nama' => 'REZA ADE PUTRA, S.Pd, M.Cs',
                 'no_hp' => null,
                 'alamat' => null,

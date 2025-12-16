@@ -47,11 +47,11 @@ class PenilaianHasil extends Command
         $this->info("Membaca file: {$path}");
 
         // Path log — disimpan di storage/logs/
-// Format: penilaian_hasil_YYYY-MM-DD_HH-MM-SS.log
-$this->logPath = storage_path('logs/penilaian_hasil_' . date('Y-m-d_H-i-s') . '.log');
+        // Format: penilaian_hasil_YYYY-MM-DD_HH-MM-SS.log
+        $this->logPath = storage_path('logs/penilaian_hasil_' . date('Y-m-d_H-i-s') . '.log');
 
-// Bikin file kosong dulu
-file_put_contents($this->logPath, "=== LOG IMPORT PENILAIAN HASIL ===\n" . date('Y-m-d H:i:s') . "\n\n");
+        // Bikin file kosong dulu
+       file_put_contents($this->logPath, "=== LOG IMPORT PENILAIAN HASIL ===\n" . date('Y-m-d H:i:s') . "\n\n");
 
 
         // 0) Build index dosen & mahasiswa di memori
@@ -224,7 +224,7 @@ file_put_contents($this->logPath, "=== LOG IMPORT PENILAIAN HASIL ===\n" . date(
         } catch (\Throwable $e) {
             DB::rollBack();
             fclose($handle);
-            $this->error('Error saat import: ' . $e->getMessage());
+            $this->error(string: 'Error saat import: ' . $e->getMessage());
             return self::FAILURE;
         }
 
