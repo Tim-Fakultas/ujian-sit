@@ -25,7 +25,7 @@ class StorePerbaikanJudulRequest extends FormRequest
         return [
             'ranpel_id' => ['required', 'exists:ranpel,id'],
             'mahasiswa_id' => ['required', 'exists:mahasiswa,id'],
-            'judul_lama' => ['required', 'string', 'max:255'],
+            'judul_lama' => ['prohibited'],
             'judul_baru' => ['required', 'string', 'max:255'],
             'berkas' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:2048'],
             'status' => ['nullable', Rule::in(['menunggu', 'diterima', 'ditolak'])],

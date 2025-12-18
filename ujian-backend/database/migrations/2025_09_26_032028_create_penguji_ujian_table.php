@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('ujian_id')->constrained('ujian')->onDelete('cascade');
             $table->foreignId('dosen_id')->constrained('dosen')->onDelete('cascade');
             $table->enum('peran', ['ketua_penguji', 'sekretaris_penguji', 'penguji_1', 'penguji_2']);
+            $table->unique(['ujian_id', 'peran']);
             $table->timestamps();
         });
     }

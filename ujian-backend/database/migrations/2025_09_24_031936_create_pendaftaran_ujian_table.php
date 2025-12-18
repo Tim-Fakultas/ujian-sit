@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
             $table->foreignId('ranpel_id')->constrained('ranpel')->onDelete('cascade');
             $table->foreignId('jenis_ujian_id')->constrained('jenis_ujian')->onDelete('cascade');
+            $table->string('judul_snapshot')->nullable();
+            $table->foreignId('perbaikan_judul_id')->nullable()->constrained('perbaikan_judul')->onDelete('set null');
             $table->dateTime('tanggal_pengajuan')->default(now());
             $table->dateTime('tanggal_disetujui')->nullable();
             $table->enum('status', ['menunggu','belum dijadwalkan','dijadwalkan', 'selesai', 'ditolak'])->default('menunggu');

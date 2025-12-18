@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,6 +17,8 @@ class PendaftaranUjian extends Model
         'mahasiswa_id',
         'ranpel_id',
         'jenis_ujian_id',
+        'perbaikan_judul_id',
+        'judul_snapshot',
         'tanggal_pengajuan',
         'tanggal_disetujui',
         'status',
@@ -37,11 +40,6 @@ class PendaftaranUjian extends Model
         return $this->hasOne(Ujian::class, 'pendaftaran_ujian_id');
     }
 
-    public function skripsi()
-    {
-        return $this->belongsTo(Skripsi::class, 'skripsi_id');
-    }
-
     public function pemenuhanSyarat()
     {
         return $this->hasMany(PemenuhanSyarat::class, 'pendaftaran_ujian_id');
@@ -57,40 +55,88 @@ class PendaftaranUjian extends Model
         return $this->hasMany(Berkas::class, 'pendaftaran_ujian_id');
     }
 
+    public function perbaikanJudul()
+    {
+        return $this->belongsTo(PerbaikanJudul::class, 'perbaikan_judul_id');
+    }
+
     protected static function booted()
     {
-        static::updating(function ($pendaftaran) {
-            // Kalau status berubah jadi diterima
-            if ($pendaftaran->isDirty('status') && $pendaftaran->status === 'belum dijadwalkan') {
-
-                // Pastikan tanggal_disetujui terisi string
-                if (empty($pendaftaran->tanggal_disetujui)) {
-                    $pendaftaran->tanggal_disetujui = now()->toDateTimeString();
-                }
-
-                // Hindari duplikasi ujian
-                if (!Ujian::where('pendaftaran_ujian_id', $pendaftaran->id)->exists()) {
-                    Ujian::create([
-                        'pendaftaran_ujian_id' => $pendaftaran->id,
-                        'jenis_ujian_id' => $pendaftaran->jenis_ujian_id,
-                        'mahasiswa_id' => $pendaftaran->mahasiswa_id,
-                        'ranpel_id' => $pendaftaran->ranpel_id,
-                        'ketua_penguji' => $pendaftaran->mahasiswa->pembimbing_1,
-                        'sekretaris_penguji' => $pendaftaran->mahasiswa->pembimbing_2,
-                    ]);
-                }
-            }
-        });
 
         static::creating(function ($pendaftaran) {
             if (empty($pendaftaran->tanggal_pengajuan)) {
                 $pendaftaran->tanggal_pengajuan = now()->toDateTimeString();
             }
 
+            if(empty($pendaftaran->judul_snapshot)){
+                $ranpel = Ranpel::query()
+                        ->with(['perbaikanJudulTerakhirDiterima' => function ($q) {
+                            $q->where('status', 'diterima')
+                              ->orderByDesc('tanggal_diterima')
+                              ->orderByDesc('id');
+                        }])
+                        ->find($pendaftaran->ranpel_id);
+
+                if($ranpel) {
+                    $pj = $ranpel->perbaikanJudulTerakhirDiterima;
+
+                    $pendaftaran->perbaikan_judul_id = $pj->id ?? null;
+                    $pendaftaran->judul_snapshot = $pj?->judul_baru ?? $ranpel->judul_penelitian;
+                }
+
+            }
+
             if ($pendaftaran->status === 'belum dijadwalkan' && empty($pendaftaran->tanggal_disetujui)) {
                 $pendaftaran->tanggal_disetujui = now()->toDateTimeString();
             }
+
+
         });
+        static::updating(function ($pendaftaran){
+
+            if(!($pendaftaran->isDirty('status') && ($pendaftaran->status=='belum dijadwalkan'))){
+                return;
+            }
+
+            DB::transaction(function () use ($pendaftaran){
+
+                if(empty($pendaftaran->tanggal_disetujui)){
+                    $pendaftaran->tanggal_disetujui = now()->toDateTimeString();
+                }
+
+                $ujian = Ujian::firstOrCreate([
+                    'pendaftaran_ujian_id' => $pendaftaran->id,
+                ],
+                    [
+                    'jenis_ujian_id' => $pendaftaran->jenis_ujian_id,
+                    'mahasiswa_id' => $pendaftaran->mahasiswa_id
+                ]);
+
+                $mahasiswa = $pendaftaran->mahasiswa()->with(['pembimbing1', 'pembimbing2'])->first();
+
+                if($mahasiswa?->pembimbing1){
+                    PengujiUjian::updateOrCreate([
+                        'ujian_id' => $ujian->id,
+                        'peran' => 'ketua_penguji',
+                    ],
+                [
+                    'dosen_id'=>$mahasiswa->pembimbing1->id,
+                ]);
+                }
+
+                if($mahasiswa?->pembimbing2){
+                    PengujiUjian::updateOrCreate(
+                    [
+                        'ujian_id' => $ujian->id,
+                        'peran' => 'sekretaris_penguji',
+                    ],
+                    [
+                        'dosen_id'=>$mahasiswa->pembimbing2->id,
+                    ]);
+                }
+            });
+        });
+
     }
 
 }

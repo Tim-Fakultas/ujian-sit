@@ -23,10 +23,11 @@ class UpdatePendaftaranUjianRequest extends FormRequest
     {
         return [
             'mahasiswaId' => 'prohibited',
-            'ranpelId' => 'sometimes|exists:ranpel,id',
-            'jenisUjianId' => 'sometimes|exists:jenis_ujian,id',
-            'tanggalPengajuan' => 'nullable|date',
-            'tanggalDisetujui' => 'nullable|date',
+            'mahasiswa_id' => 'prohibited',
+            'ranpel_id' => 'sometimes|exists:ranpel,id',
+            'jenis_ujian_id' => 'sometimes|exists:jenis_ujian,id',
+            'tanggal_pengajuan' => 'nullable|date',
+            'tanggal_disetujui' => 'nullable|date',
             'status' => 'sometimes|in:menunggu,belum dijadwalkan,dijadwalkan,selesai,ditolak',
             'keterangan' => 'nullable|string',
             'berkas' => 'nullable|array',
@@ -37,11 +38,10 @@ class UpdatePendaftaranUjianRequest extends FormRequest
     public function prepareForValidation(): void
     {
         $this->merge([
-            'mahasiswa_id' => $this->mahasiswaId,
-            'ranpel_id' => $this->ranpelId,
-            'jenis_ujian_id' => $this->jenisUjianId,
-            'tanggal_pengajuan' => $this->tanggalPengajuan,
-            'tanggal_disetujui' => $this->tanggalDisetujui,
+            'ranpel_id' => $this->input('ranpelId'),
+            'jenis_ujian_id' => $this->input('jenisUjianId'),
+            'tanggal_pengajuan' => $this->input('tanggalPengajuan'),
+            'tanggal_disetujui' => $this->input('tanggalDisetujui'),
         ]);
     }
 }

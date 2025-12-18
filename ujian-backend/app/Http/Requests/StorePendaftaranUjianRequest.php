@@ -6,43 +6,41 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StorePendaftaranUjianRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            // 'mahasiswaId' => 'required|exists:mahasiswa,id',
-            'ranpelId' => 'required|exists:ranpel,id',
-            'jenisUjianId' => 'required|exists:jenis_ujian,id',
-            'tanggalPengajuan' => 'nullable|date',
-            'tanggalDisetujui' => 'nullable|date',
-            'status' => 'in:menunggu, belum dijadwalkan, dijadwalkan, selesai, ditolak',
-            'keterangan' => 'nullable|string',
+            'mahasiswa_id'   => 'required|exists:mahasiswa,id',
+            'ranpel_id'      => 'required|exists:ranpel,id',
+            'jenis_ujian_id' => 'required|exists:jenis_ujian,id',
 
-            'berkas' => 'nullable|array',
-            'berkas.*' => 'file|mimes:pdf,jpg,jpeg,png|max:1000000',
+            'tanggal_pengajuan' => 'nullable|date',
+            'tanggal_disetujui' => 'nullable|date',
+            'status'            => 'nullable|in:menunggu,belum dijadwalkan,dijadwalkan,selesai,ditolak',
+            'keterangan'        => 'nullable|string',
+
+            'berkas'   => 'nullable|array',
+            'berkas.*' => 'file|mimes:pdf,jpg,jpeg,png|max:2048', // 2MB
         ];
     }
 
     public function prepareForValidation(): void
     {
+        $mahasiswaId = $this->input('mahasiswaId')
+            ?? $this->route('id')
+            ?? $this->route('mahasiswa')
+            ?? $this->route('mahasiswa_id');
+
         $this->merge([
-            // 'mahasiswa_id' => $this->mahasiswaId,
-            'ranpel_id' => $this->ranpelId,
-            'jenis_ujian_id' => $this->jenisUjianId,
-            'tanggal_pengajuan' => $this->tanggalPengajuan,
-            'tanggal_disetujui' => $this->tanggalDisetujui,
+            'mahasiswa_id'      => $mahasiswaId,
+            'ranpel_id'         => $this->input('ranpelId'),
+            'jenis_ujian_id'    => $this->input('jenisUjianId'),
+            'tanggal_pengajuan' => $this->input('tanggalPengajuan'),
+            'tanggal_disetujui' => $this->input('tanggalDisetujui'),
         ]);
     }
 }

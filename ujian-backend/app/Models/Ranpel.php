@@ -22,13 +22,10 @@ class Ranpel extends Model
     ];
 
     protected $casts = [
-        'judulPenelitian' => 'string',
+        'judul_penelitian' => 'string',
+        'created_at' => 'datetime',
+        'updated_at'=> 'datetime',
     ];
-
-    public function skripsi()
-    {
-        return $this->hasOne(Skripsi::class, 'ranpel_id');
-    }
 
     public function pengajuanRanpel()
     {
@@ -43,5 +40,20 @@ class Ranpel extends Model
     public function perbaikanJudul()
     {
         return $this->hasMany(PerbaikanJudul::class, 'ranpel_id');
+    }
+
+    public function perbaikanJudulTerakhirDiterima()
+    {
+        return $this->hasOne(PerbaikanJudul::class, 'ranpel_id')
+                    ->where('status', 'diterima')
+                    ->orderByDesc('tanggal_diterima')
+                    ->orderByDesc('id');
+    }
+
+    public function getJudulAktifAttribute()
+    {
+        $perbaikanJudul = $this->perbaikanJudulTerakhirDiterima;
+
+        return $perbaikanJudul ?->judul_baru ?? $this->judul_penelitian;
     }
 }
