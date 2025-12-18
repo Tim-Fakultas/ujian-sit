@@ -26,4 +26,19 @@ class StoreJenisUjianRequest extends FormRequest
             'deskripsi' => 'nullable|string',
         ];
     }
+
+    public function prepareForValidation(): void
+    {
+        $map = [];
+
+        if ($this->has('namaJenis')) {
+            $map['nama_jenis'] = $this->input('namaJenis');
+        }
+
+        if ($this->has('deskripsi')) {
+            $map['deskripsi'] = $this->input('deskripsi');
+        }
+
+        $this->merge($map);
+    }
 }

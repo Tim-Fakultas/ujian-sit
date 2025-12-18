@@ -58,7 +58,7 @@ class PendaftaranUjianController extends Controller
      */
     public function show($id)
     {
-        $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenisUjian', 'skripsi'])->findOrFail($id);
+        $pendaftaranUjian = PendaftaranUjian::with(['mahasiswa', 'jenisUjian'])->findOrFail($id);
 
         return new PendaftaranUjianResource($pendaftaranUjian);
     }
