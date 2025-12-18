@@ -6,8 +6,6 @@ import { Ujian } from "@/types/Ujian";
 import {
   Eye,
   Search,
-  ChevronDown,
-  ListFilter,
   MoreHorizontal,
   X,
   LayoutGrid,
@@ -16,14 +14,7 @@ import {
 } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationLink,
-} from "@/components/ui/pagination";
+
 import { daftarKehadiran } from "@/types/DaftarKehadiran";
 import { getPenilaianByUjianId } from "@/actions/penilaian";
 import { Input } from "@/components/ui/input";
@@ -64,8 +55,9 @@ export default function JadwalUjianTable({
 }: JadwalUjianTableProps) {
   const [selected, setSelected] = useState<Ujian | null>(null);
 
-  const [openRekapitulasi, setOpenRekapitulasi] = useState(false);
   const [openDaftarHadir, setOpenDaftarHadir] = useState(false);
+  // State untuk modal detail jadwal ujian
+  const [openDetail, setOpenDetail] = useState(false);
 
   function Modal({
     open,
@@ -147,6 +139,11 @@ export default function JadwalUjianTable({
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
+  // Tambahkan state untuk filter status
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "selesai" | "dijadwalkan"
+  >("all");
+
   // Jenis ujian statis
   const jenisUjianOptions = ["Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"];
 
@@ -155,6 +152,12 @@ export default function JadwalUjianTable({
     let data = jadwalUjian;
     if (filterJadwal === "mine" && userId) {
       data = data.filter((ujian) => ujian.mahasiswa?.id === userId);
+    }
+    // Filter status selesai/dijadwalkan jika dipilih
+    if (filterStatus !== "all") {
+      data = data.filter(
+        (ujian) => ujian.pendaftaranUjian?.status === filterStatus
+      );
     }
     return data.filter((ujian) => {
       const matchNama = ujian.mahasiswa?.nama
@@ -166,7 +169,14 @@ export default function JadwalUjianTable({
           : ujian.jenisUjian?.namaJenis === filterJenis;
       return matchNama && matchJenis;
     });
-  }, [jadwalUjian, filterNama, filterJenis, filterJadwal, userId]);
+  }, [
+    jadwalUjian,
+    filterNama,
+    filterJenis,
+    filterJadwal,
+    userId,
+    filterStatus,
+  ]);
 
   // Pagination
   const paginatedData = useMemo(() => {
@@ -180,30 +190,20 @@ export default function JadwalUjianTable({
   }, [filterNama, filterJenis]);
 
   const [penilaianData, setPenilaianData] = useState<any[]>([]);
-  const [loadingPenilaian, setLoadingPenilaian] = useState(false);
 
   // Ambil penilaian saat modal rekap dibuka
   useEffect(() => {
-    if (openRekapitulasi && selected?.id) {
-      setLoadingPenilaian(true);
-      getPenilaianByUjianId(selected.id)
-        .then((data) => setPenilaianData(data))
-        .finally(() => setLoadingPenilaian(false));
-    }
-  }, [openRekapitulasi, selected?.id]);
+    // Fetch penilaian untuk seluruh jadwal ujian yang ditampilkan
+    Promise.all(
+      paginatedData.map((ujian) => getPenilaianByUjianId(ujian.id))
+    ).then((results) => {
+      // Gabungkan semua penilaian
+      setPenilaianData(results.flat());
+    });
+  }, [paginatedData]);
 
-  // Tambahkan fungsi untuk menghitung nilai akhir total ujian
   function nilaiAkhirTotalUjian(ujian: Ujian) {
-    // Ambil semua penilaian untuk penguji pada ujian ini
-    const pengujiIds = ujian.penguji?.map((p) => p.id) ?? [];
-    const nilaiPerPenguji = pengujiIds.map((dosenId) =>
-      nilaiAkhirDosen(ujian, dosenId)
-    );
-    // Hitung rata-rata nilai akhir penguji (hanya yang ada nilainya)
-    const validNilai = nilaiPerPenguji.filter((n) => typeof n === "number");
-    if (validNilai.length === 0) return null;
-    const total = validNilai.reduce((acc, n) => acc + (n ?? 0), 0);
-    return Number((total / validNilai.length).toFixed(2));
+    return ujian.nilaiAkhir;
   }
 
   // Tambahkan fungsi untuk styling badge status
@@ -245,70 +245,74 @@ export default function JadwalUjianTable({
     columnHelper.accessor((row) => row.mahasiswa?.nama ?? "-", {
       id: "nama",
       header: "Nama Mahasiswa",
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor((row) => row.jenisUjian?.namaJenis ?? "-", {
-      id: "jenis",
-      header: "Jenis Ujian",
-      cell: (info) => (
-        <span className="px-2 py-1 rounded font-medium inline-block bg-blue-50 text-blue-600">
-          {info.getValue()}
-        </span>
-      ),
-    }),
-    columnHelper.accessor((row) => row.ruangan?.namaRuangan ?? "-", {
-      id: "ruangan",
-      header: "Ruangan",
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.display({
-      id: "waktu",
-      header: "Waktu",
       cell: (info) => {
-        const ujian = info.row.original;
-        const hari = ujian?.hariUjian
-          ? ujian.hariUjian.charAt(0).toUpperCase() + ujian.hariUjian.slice(1)
-          : "-";
-        const tanggal = ujian.jadwalUjian
-          ? ujian.jadwalUjian.split(/[ T]/)[0]
-          : "-";
+        const row = info.row.original;
         return (
           <div>
-            <div className="font-medium">
-              {hari}
-              <span>, </span>
-              {tanggal}
-            </div>
-            <div className="mt-1">
-              {(ujian.waktuMulai?.slice(0, 5) || "-") +
-                " - " +
-                (ujian.waktuSelesai?.slice(0, 5) || "-")}
+            <div>{row.mahasiswa?.nama ?? "-"}</div>
+            <div className="text-xs text-muted-foreground">
+              {row.mahasiswa?.nim ?? ""}
             </div>
           </div>
         );
       },
     }),
-    // Tambahkan kolom Nilai Akhir
+    // Tambahkan kolom Judul (tampilkan seluruh judul, batasi lebar dengan wrapping)
+    columnHelper.accessor((row) => row.judulPenelitian ?? "-", {
+      id: "judul",
+      header: "Judul",
+      cell: (info) => (
+        <span
+          className="block max-w-[320px] whitespace-normal break-words"
+          title={info.getValue()}
+        >
+          {info.getValue()}
+        </span>
+      ),
+    }),
+    columnHelper.accessor((row) => row.jenisUjian?.namaJenis ?? "-", {
+      id: "jenis",
+      header: "Jenis Ujian",
+      cell: (info) => (
+        <span className=" px-2 py-1 rounded font-medium inline-block bg-blue-50 text-blue-600">
+          {info.getValue()}
+        </span>
+      ),
+    }),
+
+    // Tambahkan aksi lihat penguji dengan icon Eye di tabel
+    columnHelper.display({
+      id: "lihatPenguji",
+      header: "Penguji",
+      cell: (info) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Lihat Penguji"
+          onClick={() => {
+            setSelected(info.row.original);
+            setOpenDaftarHadir(true);
+          }}
+        >
+          <Eye size={18} />
+        </Button>
+      ),
+    }),
     columnHelper.display({
       id: "nilaiAkhir",
       header: "Nilai Akhir",
       cell: (info) => {
         const nilai = nilaiAkhirTotalUjian(info.row.original);
         return (
-          <span>
+          <div className="text-center w-full">
             {nilai !== null ? nilai : <span className="text-gray-400">-</span>}
-          </span>
+          </div>
         );
       },
     }),
     columnHelper.display({
-      id: "status",
-      header: "Status",
-      cell: (info) => statusBadge(info.row.original.pendaftaranUjian.status),
-    }),
-    columnHelper.display({
       id: "aksi",
-      header: "Aksi",
+      header: "",
       cell: (info) => {
         const ujian = info.row.original;
         return (
@@ -329,17 +333,17 @@ export default function JadwalUjianTable({
                 sideOffset={8}
                 className="w-48 p-1 rounded-lg shadow-lg"
               >
+                {/* Hapus Lihat Penguji di dropdown, karena sudah ada tombol khusus */}
                 <DropdownMenuItem
                   onClick={() => {
                     setSelected(ujian);
-                    setOpenDaftarHadir(true);
+                    setOpenDetail(true);
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg"
                 >
-                  <Eye size={16} />
-                  <span>Lihat Penguji</span>
+                  <IconClipboardText size={16} />
+                  <span>Lihat Detail</span>
                 </DropdownMenuItem>
-                {/* Hapus menu Rekapitulasi Nilai */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -357,6 +361,88 @@ export default function JadwalUjianTable({
 
   // Tambahkan state untuk view mode
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
+  // Komponen modal detail jadwal ujian dengan layout lebih bagus
+  function JadwalDetailModal({
+    ujian,
+    open,
+    onClose,
+  }: {
+    ujian: Ujian | null;
+    open: boolean;
+    onClose: () => void;
+  }) {
+    if (!open || !ujian) return null;
+    return (
+      <Modal open={open} onClose={onClose}>
+        <div className="w-full max-w-lg">
+          <div className="flex items-center gap-2 mb-4">
+            <IconClipboardText size={22} className="text-blue-500" />
+            <span className="text-xl font-bold text-gray-900 dark:text-white">
+              Detail Jadwal Ujian
+            </span>
+          </div>
+          <div className="flex flex-col gap-3 text-sm">
+            {/* Judul Penelitian */}
+            <div>
+              <span className="font-semibold text-gray-700 dark:text-gray-200">
+                Judul Penelitian:
+              </span>
+              <span className="ml-1 text-gray-900 dark:text-white">
+                {ujian.judulPenelitian ?? "-"}
+              </span>
+            </div>
+            {/* Mahasiswa dan NIM */}
+            <div>
+              <span className="font-semibold text-gray-700 dark:text-gray-200">
+                Mahasiswa:
+              </span>
+              <span className="ml-1 text-gray-900 dark:text-white">
+                {ujian.mahasiswa?.nama ?? "-"}
+              </span>
+              {ujian.mahasiswa?.nim && (
+                <span className="ml-2 text-xs text-muted-foreground">
+                  ({ujian.mahasiswa.nim})
+                </span>
+              )}
+            </div>
+            {/* Info Ruangan, Hari, Waktu */}
+            <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+              <div>
+                <span className="font-semibold text-gray-700 dark:text-gray-200">
+                  Ruangan:
+                </span>
+                <span className="ml-1 text-gray-900 dark:text-white">
+                  {ujian.ruangan?.namaRuangan ?? "-"}
+                </span>
+              </div>
+              <div>
+                <span className="font-semibold text-gray-700 dark:text-gray-200">
+                  Hari:
+                </span>
+                <span className="ml-1 text-gray-900 dark:text-white">
+                  {ujian.hariUjian
+                    ? ujian.hariUjian.charAt(0).toUpperCase() +
+                      ujian.hariUjian.slice(1)
+                    : "-"}
+                </span>
+              </div>
+              <div>
+                <span className="font-semibold text-gray-700 dark:text-gray-200">
+                  Waktu:
+                </span>
+                <span className="ml-1 text-gray-900 dark:text-white">
+                  {(ujian.waktuMulai?.slice(0, 5) || "-") +
+                    " - " +
+                    (ujian.waktuSelesai?.slice(0, 5) || "-")}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <div className="border bg-white dark:bg-neutral-900 p-3 sm:p-6 rounded-lg w-full max-w-full">
@@ -480,6 +566,36 @@ export default function JadwalUjianTable({
             </TabsList>
           </Tabs>
         </div>
+        {/* Tabs untuk filter status selesai/dijadwalkan */}
+        <div className="flex w-full mt-2">
+          <Tabs
+            value={filterStatus}
+            onValueChange={(v) =>
+              setFilterStatus(v as "all" | "selesai" | "dijadwalkan")
+            }
+          >
+            <TabsList className="bg-muted rounded-md p-1 gap-2">
+              <TabsTrigger
+                value="all"
+                className="px-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Semua
+              </TabsTrigger>
+              <TabsTrigger
+                value="dijadwalkan"
+                className="px-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Dijadwalkan
+              </TabsTrigger>
+              <TabsTrigger
+                value="selesai"
+                className="px-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Selesai
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
 
       {/* Table/Card view */}
@@ -532,7 +648,7 @@ export default function JadwalUjianTable({
                   <div className="text-sm text-muted-foreground">
                     Nilai Akhir:{" "}
                     {nilaiAkhir !== null ? (
-                      <span className="font-semibold">{nilaiAkhir}</span>
+                      <span className="font-semibold ">{nilaiAkhir}</span>
                     ) : (
                       <span className="text-gray-400">-</span>
                     )}
@@ -556,7 +672,16 @@ export default function JadwalUjianTable({
                         <Eye size={16} />
                         <span>Lihat Penguji</span>
                       </DropdownMenuItem>
-                      {/* Hapus menu Rekapitulasi Nilai */}
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelected(ujian);
+                          setOpenDetail(true);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2"
+                      >
+                        <IconClipboardText size={16} />
+                        <span>Lihat Detail</span>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -568,23 +693,39 @@ export default function JadwalUjianTable({
 
       {/* Modal Lihat Penguji */}
       <Modal open={openDaftarHadir} onClose={() => setOpenDaftarHadir(false)}>
-        <div>
-          <div className="text-lg font-semibold mb-2">Daftar Penguji</div>
+        <div className="w-full max-w-md">
+          <div className="text-lg font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+            <Eye size={20} className="text-blue-500" />
+            Daftar Penguji
+          </div>
           {selected?.penguji && selected.penguji.length > 0 ? (
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {selected.penguji.map((penguji, idx) => (
-                <li key={penguji.id ?? idx} className="flex items-center gap-2">
-                  <span className="font-medium">{penguji.nama ?? "-"}</span>
-                  <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground">
-                    {roleLabel(penguji.peran)}
-                  </span>
-                  {getHadirStatus(selected, penguji.id) ? (
-                    <span className="text-green-600 text-xs ml-2">Hadir</span>
-                  ) : (
-                    <span className="text-red-600 text-xs ml-2">
-                      Tidak Hadir
+                <li
+                  key={penguji.id ?? idx}
+                  className="flex items-center justify-between bg-gray-50 dark:bg-neutral-800 rounded-lg px-4 py-3 shadow-sm border border-gray-100 dark:border-neutral-700"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {penguji.nama ?? "-"}
                     </span>
-                  )}
+                    <span className="inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 w-fit">
+                      {roleLabel(penguji.peran)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {getHadirStatus(selected, penguji.id) ? (
+                      <span className="inline-flex items-center gap-1 text-green-600 text-xs font-semibold bg-green-50 dark:bg-green-900 px-2 py-1 rounded">
+                        <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                        Hadir
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-red-600 text-xs font-semibold bg-red-50 dark:bg-red-900 px-2 py-1 rounded">
+                        <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+                        Tidak Hadir
+                      </span>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -595,6 +736,12 @@ export default function JadwalUjianTable({
           )}
         </div>
       </Modal>
+      {/* Modal Detail Jadwal Ujian */}
+      <JadwalDetailModal
+        ujian={selected}
+        open={openDetail}
+        onClose={() => setOpenDetail(false)}
+      />
       {/* Modal Rekapitulasi Nilai dihapus */}
     </div>
   );

@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { cookies } from "next/headers";
 
+// GET JADWAL UJIAN BY MAHASISWA ID
 export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
@@ -32,6 +33,7 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
   }
 }
 
+// GET JADWAL UJIAN BY PRODI
 export async function getJadwalUjianByProdi(prodiId: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -47,7 +49,8 @@ export async function getJadwalUjianByProdi(prodiId: number) {
       .filter(
         (ujian) =>
           ujian.mahasiswa.prodi.id === prodiId &&
-          ujian.pendaftaranUjian.status !== "diterima"
+          (ujian.pendaftaranUjian.status === "belum dijadwalkan" || 
+          ujian.pendaftaranUjian.status === "dijadwalkan")
       )
       .sort((a, b) => {
         // Sort by jadwalUjian (descending, terbaru di atas)
@@ -62,6 +65,34 @@ export async function getJadwalUjianByProdi(prodiId: number) {
   }
 }
 
+// GET JADWAL UJIAN BY DOSEN PENGUJI
+export async function getJadwalUjianDosen(dosenId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const response = await fetch(`${apiUrl}/ujian`, {
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch ujian by dosen");
+    }
+    const data: UjianResponse = await response.json();
+    // Filter where dosen found in penguji list
+    const filteredData = data.data.filter((ujian) =>
+        ujian.penguji?.some((p) => Number(p.id) === Number(dosenId))
+    );
+     // Sort by jadwalUjian
+    return filteredData.sort((a, b) => {
+        const dateA = new Date(a.jadwalUjian ?? 0).getTime();
+        const dateB = new Date(b.jadwalUjian ?? 0).getTime();
+        return dateB - dateA;
+      });
+  } catch (error) {
+     console.error("Error fetching ujian by dosen:", error);
+     return [];
+  }
+}
+
+// GET JADWAL UJIAN BY PRODI & DOSEN
 export async function getJadwalUjianByProdiByDosen({
   prodiId,
   dosenId,
@@ -88,7 +119,7 @@ export async function getJadwalUjianByProdiByDosen({
         const prodiMatch =
           Number(ujian.mahasiswa?.prodi?.id) === Number(prodiId);
 
-        const statusMatch = ujian.pendaftaranUjian?.status !== "menunggu";
+        const statusMatch = ujian.pendaftaranUjian?.status === "dijadwalkan";
 
         const pengujiFound = ujian.penguji?.find(
           (p) => Number(p.id) === Number(dosenId)
@@ -113,10 +144,11 @@ export async function getJadwalUjianByProdiByDosen({
   }
 }
 
+// Jadwal Ujian Schema
 const JadwalUjianSchema = z.object({
   jadwalUjian: z.string().nonempty("Tanggal ujian wajib diisi"),
-  waktuMulai: z.string().nonempty("Waktu mulai wajib diisi"),
-  waktuSelesai: z.string().nonempty("Waktu selesai wajib diisi"),
+  waktuMulai: z.string().optional(),
+  waktuSelesai: z.string().optional(),
   ruanganId: z.coerce.number().min(1, "Ruangan wajib diisi"),
 
   ketuaPenguji: z.coerce.number().min(1, "Ketua penguji wajib diisi"),
@@ -125,6 +157,9 @@ const JadwalUjianSchema = z.object({
   penguji2: z.coerce.number().min(1, "Penguji 2 wajib diisi"),
 });
 
+
+
+// Jadwalkan Ujian Action
 export async function jadwalkanUjianAction(formData: FormData) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -188,22 +223,38 @@ export async function jadwalkanUjianAction(formData: FormData) {
     });
 
     // Error handler
+    // Error handler
     if (!res.ok) {
       const text = await res.text();
+      let errorMessage = "Gagal menjadwalkan ujian";
+
       try {
         const data = JSON.parse(text);
         if (data.errors) {
-          let combined = Object.values(data.errors).flat().join(", ");
+          // Ambil error pertama saja atau gabungkan
+          const errorsVec = Object.values(data.errors).flat();
+          let combined = errorsVec.join(", ");
+          
+          // Translate common field names / messages
           combined = combined
-            .replaceAll("The ", "")
-            .replaceAll(" field and ", " dan ")
-            .replaceAll(" must be different.", " harus berbeda.");
-          throw new Error(combined);
+            .replace(/waktuMulai/gi, "Waktu Mulai")
+            .replace(/waktuSelesai/gi, "Waktu Selesai")
+            .replace(/The\s+/gi, "")
+            .replace(/ field/gi, "")
+            .replace(/ must be a date after /gi, " harus setelah ")
+            .replace(/ must match the format H:i./gi, " format waktu tidak valid.")
+            .replace(/ must be different./gi, " harus berbeda.");
+            
+          errorMessage = combined;
+        } else if (data.message) {
+          errorMessage = data.message;
         }
-        throw new Error(data.message || "Gagal menjadwalkan ujian");
-      } catch {
-        throw new Error("Gagal menjadwalkan ujian: " + text);
+      } catch (e) {
+        console.error("Failed to parse error response:", e);
+        errorMessage = "Gagal menjadwalkan ujian: " + text; 
       }
+      
+      throw new Error(errorMessage);
     }
 
     return { success: true };

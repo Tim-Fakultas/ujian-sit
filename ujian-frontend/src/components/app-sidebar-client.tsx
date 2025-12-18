@@ -18,7 +18,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
+import { X } from "lucide-react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -34,6 +36,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any;
 }) {
+  const { isMobile, setOpenMobile } = useSidebar();
   const pathname = usePathname();
   const { user: storeUser, setUser } = useAuthStore();
 
@@ -90,6 +93,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       icon: IconBook,
       items: [
         { title: "Daftar Ujian", url: "/sekprodi/daftar-ujian" },
+        { title: "Penjadwalan Ujian", url: "/sekprodi/penjadwalan-ujian" },
         { title: "Jadwal Ujian", url: "/sekprodi/jadwal-ujian" },
         { title: "Berita Acara", url: "/sekprodi/berita-ujian" },
         { title: "Rekapitulasi Nilai", url: "/sekprodi/rekapitulasi-nilai" },
@@ -127,7 +131,8 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       icon: IconListDetails,
       items: [
         { title: "Rancangan Penelitian", url: "/mahasiswa/pengajuan-ranpel" },
-        { title: "Daftar Ujian", url: "/mahasiswa/pendaftaran-ujian" },
+        { title: "Perbaikan judul", url: "/mahasiswa/perbaikan-judul" },
+        { title: "Pengajuan Ujian", url: "/mahasiswa/pendaftaran-ujian" },
         { title: "Jadwal Ujian", url: "/mahasiswa/jadwal-ujian" },
         { title: "Berita Ujian", url: "/mahasiswa/berita-ujian" },
         { title: "Rekapitulasi Nilai", url: "/mahasiswa/rekapitulasi-nilai" },
@@ -152,39 +157,51 @@ export const AppSidebarClient = memo(function AppSidebarClient({
   return (
     <Sidebar collapsible="icon" >
       {/* Header */}
-      <SidebarHeader className="p-3">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="py-6 px-1 transition-colors group-data-[collapsible=icon]:justify-center"
-            >
-              <div className="flex items-center gap-3">
-                <div className="relative flex-shrink-0">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shadow-sm">
-                    <Image
-                      src="/images/uin-raden-fatah.webp"
-                      alt="Logo UIN"
-                      width={30}
-                      height={30}
-                      className="object-contain"
-                      priority
-                      unoptimized
-                    />
+      {/* Header */}
+      <SidebarHeader className="p-4">
+        <div className="flex items-center justify-between gap-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                className="py-6 px-1 transition-all hover:bg-transparent group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:!size-auto group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!p-1"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white">
+                      <Image
+                        src="/images/uin-raden-fatah.webp"
+                        alt="Logo UIN"
+                        width={40}
+                        height={40}
+                        className="object-contain"
+                        priority
+                        unoptimized
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
+                    <h1 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+                      E-Skripsi
+                    </h1>
+                    <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">
+                      Fakultas Saintek
+                    </p>
                   </div>
                 </div>
-                <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
-                  <h1 className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">
-                    E-Skripsi
-                  </h1>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
-                    Faculty of Science & Technology
-                  </p>
-                </div>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+
+          {isMobile && (
+            <button
+              onClick={() => setOpenMobile(false)}
+              className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+            >
+              <X size={20} />
+            </button>
+          )}
+        </div>
       </SidebarHeader>
 
       {/* Content */}

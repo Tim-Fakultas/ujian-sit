@@ -26,7 +26,7 @@ export interface PendaftaranUjian {
   jenisUjianId: number;
   tanggalPengajuan: string;
   tanggalDisetujui: string | null;
-  status: "menunggu" | "diterima" | "dijadwalkan" | "selesai";
+  status: "menunggu" | "belum dijadwalkan" | "dijadwalkan" | "selesai" | "ditolak";
 }
 
 export interface Ujian {
@@ -53,6 +53,19 @@ export interface Ujian {
   hasil: string | null;
   nilaiAkhir: number | null;
   catatan: string | null;
+  keputusan: {
+    id: number;
+    kode: string;
+    namaKeputusan: string;
+  } | null;
+  pembimbing1: {
+    id: number;
+    nama: string;
+  } | null;
+  pembimbing2: {
+    id: number;
+    nama: string;
+  } | null;
 }
 
 export interface UjianResponse {

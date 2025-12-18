@@ -12,67 +12,72 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
   id = "pdf-content",
 }) => {
   return (
-    <div
-      id={id}
-      className="max-w-3xl mx-auto bg-transparent rounded-xl h-[70vh] overflow-y-auto p-6"
-      style={{
-        fontFamily: '"Inter", Arial, sans-serif',
-        color: "#222",
-      }}
-    >
-      {/* Header */}
-      <div className="mb-6 text-center">
-        <div className="text-lg md:text-xl font-semibold text-gray-700 dark:text-gray-100 mb-1">
+    <div className="w-full max-w-4xl mx-auto space-y-8 p-4 md:p-8">
+      {/* Header Modern */}
+      <div className="text-center space-y-3 pb-6 border-b dark:border-neutral-800">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
           {pengajuan?.ranpel?.judulPenelitian}
-        </div>
-        <div className="text-sm md:text-base text-gray-500 dark:text-gray-300">
-          {pengajuan?.mahasiswa.nama} ({pengajuan?.mahasiswa?.nim})
+        </h1>
+        <div className="flex flex-wrap justify-center items-center gap-2 text-sm md:text-base text-muted-foreground">
+          <span className="font-medium text-gray-700 dark:text-gray-300">
+            {pengajuan?.mahasiswa.nama}
+          </span>
+          <span className="hidden sm:inline">•</span>
+          <span>{pengajuan?.mahasiswa?.nim}</span>
+          <span className="hidden sm:inline">•</span>
+          <span className="uppercase text-xs tracking-wide bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded">
+            {pengajuan?.mahasiswa?.prodi?.nama ?? "Informatika"}
+          </span>
         </div>
       </div>
 
-      {/* Content - vertical layout */}
+      {/* Content Modern Cards */}
       <div className="space-y-6">
         {[
           {
-            label: "1. Masalah dan Penyebab",
-            value: pengajuan?.ranpel?.masalahDanPenyebab,
+            title: "Latar Belakang & Masalah",
+            content: pengajuan?.ranpel?.masalahDanPenyebab,
+            color: "border-l-blue-500",
           },
           {
-            label: "2. Alternatif Solusi",
-            value: pengajuan?.ranpel?.alternatifSolusi,
+            title: "Alternatif Solusi",
+            content: pengajuan?.ranpel?.alternatifSolusi,
+            color: "border-l-indigo-500",
           },
           {
-            label: "3. Hasil yang Diharapkan",
-            value: pengajuan?.ranpel?.hasilYangDiharapkan,
+            title: "Hasil yang Diharapkan",
+            content: pengajuan?.ranpel?.hasilYangDiharapkan,
+            color: "border-l-emerald-500",
           },
           {
-            label: "4. Kebutuhan Data",
-            value: pengajuan?.ranpel?.kebutuhanData,
+            title: "Kebutuhan Data",
+            content: pengajuan?.ranpel?.kebutuhanData,
+            color: "border-l-orange-500",
           },
           {
-            label: "5. Metode Pelaksanaan",
-            value: pengajuan?.ranpel?.metodePenelitian,
+            title: "Metode Pelaksanaan",
+            content: pengajuan?.ranpel?.metodePenelitian,
+            color: "border-l-purple-500",
           },
-        ].map((item, idx, arr) => (
-          <div key={item.label}>
-            <div className="flex flex-col gap-2 py-1">
-              <span className="font-semibold text-gray-700 dark:text-gray-100 border-l-4 border-primary pl-3 mb-1">
-                {item.label}
-              </span>
-              <div className="bg-gray-50 dark:bg-neutral-900 rounded-lg px-4 py-3 border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100 min-h-[48px] whitespace-pre-line">
-                {item.value ? (
-                  item.value
-                ) : (
-                  <span className="text-gray-400 dark:text-gray-500">-</span>
-                )}
-              </div>
+        ].map((section, idx) => (
+          <div
+            key={idx}
+            className={`bg-white dark:bg-neutral-900 rounded-lg p-5 border shadow-sm ${section.color} border-l-4`}
+          >
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+              {section.title}
+            </h3>
+            <div className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
+              {section.content || (
+                <span className="text-gray-400 italic text-sm">
+                  - Belum diisi -
+                </span>
+              )}
             </div>
-            {idx < arr.length - 1 && (
-              <div className="border-b border-dashed border-gray-200 dark:border-gray-800 my-4" />
-            )}
           </div>
         ))}
       </div>
     </div>
   );
 };
+

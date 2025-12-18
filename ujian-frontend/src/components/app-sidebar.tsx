@@ -5,3 +5,4 @@ export async function AppSidebar() {
   const { user } = await getAuthFromCookies();
   return <AppSidebarClient user={user} />;
 }
+                                                                              

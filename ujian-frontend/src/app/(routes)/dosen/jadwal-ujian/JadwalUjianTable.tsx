@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import TableGlobal from "@/components/tableGlobal";
+import { showToast } from "@/components/ui/custom-toast";
 
 import { useState, useEffect, useReducer } from "react";
 import {
@@ -85,12 +86,10 @@ export default function JadwalUjianTable({
           statusKehadiran: "hadir",
         } as HadirUjian,
       ]);
-      const { toast } = await import("sonner");
-      toast.success("Kehadiran Anda telah tercatat.");
+      showToast.success("Kehadiran Anda telah tercatat.");
     } catch (err) {
       console.error("Error mencatat kehadiran:", err);
-      const { toast } = await import("sonner");
-      toast.error("Terjadi kesalahan saat mencatat kehadiran.");
+      showToast.error("Terjadi kesalahan saat mencatat kehadiran.");
     } finally {
       setHadirLoading(null);
     }
@@ -200,12 +199,7 @@ export default function JadwalUjianTable({
 
   const handleSaveCatatan = async () => {
     await postCatatanByUjianId(modal.selected?.id ?? null, catatanText);
-    try {
-      const { toast } = await import("sonner");
-      toast.success("Catatan disimpan.");
-    } catch {
-      // ignore toast error
-    }
+    showToast.success("Catatan disimpan.");
     dispatchModal({ type: "CLOSE_CATATAN" });
   };
 
@@ -226,14 +220,10 @@ export default function JadwalUjianTable({
 
     try {
       await postKeputusanByUjianId(ujianId, keputusanId);
-      const { toast } = await import("sonner");
-      toast.success("Keputusan berhasil disimpan.");
+      showToast.success("Keputusan berhasil disimpan.");
     } catch (err) {
       console.error("Gagal menyimpan keputusan:", err);
-      try {
-        const { toast } = await import("sonner");
-        toast.error("Gagal menyimpan keputusan.");
-      } catch {}
+      showToast.error("Gagal menyimpan keputusan.");
     }
   };
 
@@ -496,6 +486,8 @@ export default function JadwalUjianTable({
     nextPage: () => setPage((p) => Math.min(totalPage, p + 1)),
     getCanPreviousPage: () => page > 1,
     getCanNextPage: () => page < totalPage,
+    getPageCount: () => totalPage,
+    setPageIndex: (index: number) => setPage(index + 1),
     getFilteredRowModel: () => ({
       rows: filteredData.map((item, idx) => ({
         id: item.id,

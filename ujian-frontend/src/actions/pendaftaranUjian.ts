@@ -59,12 +59,8 @@ export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
     const data = await response.json();
 
     const filteredData = data.data
-      .filter(
-        (ujian: Ujian) =>
-          ujian.mahasiswa?.prodi?.id === prodiId &&
-          ujian.pendaftaranUjian.status !== "menunggu" &&
-          ujian.pendaftaranUjian.status !== "selesai"
-      )
+      .filter((ujian: Ujian) => ujian.mahasiswa?.prodi?.id === prodiId)
+
 
       .sort(
         (a: Ujian, b: Ujian) =>
@@ -75,6 +71,8 @@ export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
             a.pendaftaranUjian.tanggalDisetujui?.replace(" ", "T") || 0
           ).getTime()
       );
+
+      
 
     return filteredData;
   } catch (error) {
@@ -100,7 +98,7 @@ export async function getPendaftaranUjianByProdi(prodiId: number) {
 
     const filteredData = data.data
       .filter((p) => p.mahasiswa?.prodiId?.id === prodiId)
-      .filter((p) => p.status !== "selesai")
+      .filter((p) => p.status === "menunggu")
       .map((pendaftaran) => ({
         ...pendaftaran,
         berkas: Array.isArray(pendaftaran.berkas)
@@ -220,3 +218,6 @@ export async function updateStatusPendaftaranUjian(id: number, status: string) {
     throw error;
   }
 }
+
+
+

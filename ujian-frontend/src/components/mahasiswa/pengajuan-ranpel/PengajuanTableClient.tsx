@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import * as React from "react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -43,6 +43,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 
 export default function PengajuanTableClient({
   data,
@@ -120,6 +121,25 @@ export default function PengajuanTableClient({
 
   const { user } = useAuthStore();
 
+  // State for ganti judul modal
+  const [gantiJudulPengajuan, setGantiJudulPengajuan] =
+    useState<PengajuanRanpel | null>(null);
+  const [judulBaru, setJudulBaru] = useState("");
+  const [fileSurat, setFileSurat] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handler for submit ganti judul
+  async function handleSubmitGantiJudul(e: React.FormEvent) {
+    e.preventDefault();
+    // TODO: Implement API call for ganti judul
+    // Example: await gantiJudulPengajuanAPI(gantiJudulPengajuan.id, judulBaru, fileSurat)
+    setGantiJudulPengajuan(null);
+    setJudulBaru("");
+    setFileSurat(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    // Show toast or feedback
+  }
+
   // Columns definition
   const cols: ColumnDef<PengajuanRanpel>[] = React.useMemo(
     () => [
@@ -154,7 +174,7 @@ export default function PengajuanTableClient({
           const judul = String(row.getValue("judul") ?? "");
           return (
             // single-line truncation to keep rows aligned
-            <div className="max-w-[48ch] truncate">{judul}</div>
+            <div className="max-w-sm truncate">{judul}</div>
           );
         },
       },
@@ -207,6 +227,13 @@ export default function PengajuanTableClient({
                   <DropdownMenuItem onClick={() => handleLihatClick(item)}>
                     <Eye size={14} /> Preview
                   </DropdownMenuItem>
+                  {item.status === "diterima" && (
+                    <DropdownMenuItem
+                      onClick={() => setGantiJudulPengajuan(item)}
+                    >
+                      Ganti Judul
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -313,12 +340,13 @@ export default function PengajuanTableClient({
           </Tabs>
           {/* Tombol tambah pengajuan */}
           <Button
-            className="w-9 bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 flex items-center justify-center rounded-lg h-9"
+            className="w-auto bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 flex items-center justify-center rounded-lg h-9"
             onClick={handleOpenForm}
             title="Tambah pengajuan"
             aria-label="Tambah pengajuan"
           >
             <Plus size={16} />
+            <span className="hidden sm:inline ml-2">Tambah Pengajuan</span>
           </Button>
         </div>
 
@@ -342,7 +370,8 @@ export default function PengajuanTableClient({
             </div>
           </div>
         ) : viewMode === "table" ? (
-          <div className="overflow-x-auto w-full">
+          // Hapus overflow-x-auto agar table tidak scroll ke samping
+          <div className="w-full">
             <TableGlobal table={table} cols={cols} />
           </div>
         ) : (
@@ -419,19 +448,85 @@ export default function PengajuanTableClient({
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-6">
           <div className="max-w-3xl w-full bg-white dark:bg-neutral-800 rounded-xl shadow-2xl relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              onClick={handleCloseForm}
-            >
-              ✕
-            </Button>
-            <div className="p-6 h-[90vh] overflow-y-auto w-full">
+            <div className="h-[90vh] overflow-y-auto w-full rounded-xl">
               {user && (
-                <Form mahasiswaId={user?.id} onSuccess={handleCloseForm} />
+                <Form 
+                    mahasiswaId={user?.id} 
+                    onSuccess={handleCloseForm} 
+                    onClose={handleCloseForm}
+                />
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Ganti Judul */}
+      {gantiJudulPengajuan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-lg p-6 w-full max-w-md relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
+              onClick={() => {
+                setGantiJudulPengajuan(null);
+                setJudulBaru("");
+                setFileSurat(null);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+            >
+              ×
+            </button>
+            <div className="font-semibold text-lg mb-4">
+              Ganti Judul Penelitian
+            </div>
+            <form onSubmit={handleSubmitGantiJudul} className="space-y-4">
+              <div>
+                <Label className="block text-sm mb-1">Judul Sebelumnya</Label>
+                <Input
+                  value={gantiJudulPengajuan.ranpel?.judulPenelitian ?? ""}
+                  disabled
+                  readOnly
+                />
+              </div>
+              <div>
+                <Label className="block text-sm mb-1">Judul Setelah</Label>
+                <Input
+                  value={judulBaru}
+                  onChange={(e) => setJudulBaru(e.target.value)}
+                  required
+                  placeholder="Masukkan judul baru"
+                />
+              </div>
+              <div>
+                <Label className="block text-sm mb-1">
+                  Upload Surat Perbaikan Judul
+                </Label>
+                <Input
+                  type="file"
+                  accept="application/pdf"
+                  ref={fileInputRef}
+                  onChange={(e) => setFileSurat(e.target.files?.[0] || null)}
+                  required
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    setGantiJudulPengajuan(null);
+                    setJudulBaru("");
+                    setFileSurat(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                >
+                  Batal
+                </Button>
+                <Button type="submit" variant="default">
+                  Submit
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       )}

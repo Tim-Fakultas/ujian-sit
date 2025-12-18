@@ -15,7 +15,7 @@ export function sudahHadir(
 }
 
 export function getPengujiList(ujian: Ujian) {
-  if (!Array.isArray(ujian.penguji)) return [];
+  if (!Array.isArray(ujian?.penguji)) return [];
   return ujian.penguji.map((p) => ({
     ...p,
     label:

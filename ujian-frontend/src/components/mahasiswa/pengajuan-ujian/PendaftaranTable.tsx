@@ -391,21 +391,10 @@ export default function PendaftaranTable({
           onClick={() => setShowForm(false)}
         >
           <div
-            className="relative max-w-3xl w-full bg-white dark:bg-[#232323] rounded-xl shadow-2xl overflow-auto"
+            className="relative max-w-3xl w-full bg-white dark:bg-[#232323] rounded-xl shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <Button
-              variant="ghost"
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              onClick={() => setShowForm(false)}
-              aria-label="Tutup Form"
-            >
-              <X size={16} />
-            </Button>
-            <div className="p-4 ">
-              <div className="text-lg font-medium mb-2 ">
-                Form Pengajuan Ujian
-              </div>
+            <div className="w-full">
               {user && (
                 <PengajuanUjianForm
                   user={user}
@@ -533,7 +522,6 @@ export default function PendaftaranTable({
           })}
         </div>
       )}
-      {/* pagination controls are rendered by TableGlobal (previous/next) */}
     </div>
   );
 }

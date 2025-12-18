@@ -12,6 +12,11 @@ import {
   LayoutGrid,
   List,
   Settings2,
+  Calendar,
+  Clock,
+  MapPin,
+  User,
+  FileText,
 } from "lucide-react";
 import { truncateTitle } from "@/lib/utils";
 import { daftarKehadiran } from "@/types/DaftarKehadiran";
@@ -36,6 +41,7 @@ export default function BeritaAcaraUjianTable({
 }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState<BeritaUjian | null>(null);
+
   // Tambah state untuk search
   const [search, setSearch] = useState("");
   // Tambah state untuk filter jenis ujian
@@ -138,10 +144,10 @@ export default function BeritaAcaraUjianTable({
         onClick={onClose}
       >
         <div
-          className={`bg-white dark:bg-neutral-900 w-full ${width} mx-4 rounded-xl shadow-xl border animate-in slide-in-from-bottom duration-200 overflow-y-auto max-h-[90vh]`}
+          className={`bg-white dark:bg-neutral-900 w-full ${width} mx-4 rounded-xl shadow-xl border animate-in slide-in-from-bottom duration-200 flex flex-col max-h-[90vh]`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between p-4 border-b bg-gray-50 rounded-t-xl dark:bg-[#1f1f1f]">
+          <div className="flex items-center justify-between p-4 border-b bg-gray-50 rounded-t-xl dark:bg-[#1f1f1f] shrink-0">
             <h2 className="text-lg font-semibold dark:text-white">{title}</h2>
             <Button
               variant="ghost"
@@ -152,7 +158,7 @@ export default function BeritaAcaraUjianTable({
               <X size={18} />
             </Button>
           </div>
-          <div className="p-6 space-y-6">{children}</div>
+          <div className="p-6 space-y-6 overflow-y-auto">{children}</div>
         </div>
       </div>
     );
@@ -316,6 +322,8 @@ export default function BeritaAcaraUjianTable({
     nextPage: () => setPage((p) => Math.min(totalPage, p + 1)),
     getCanPreviousPage: () => page > 1,
     getCanNextPage: () => page < totalPage,
+    getPageCount: () => totalPage,
+    setPageIndex: (index: number) => setPage(index + 1),
     getFilteredRowModel: () => ({
       rows: filteredData.map((item, idx) => ({
         id: item.id,
@@ -593,7 +601,7 @@ export default function BeritaAcaraUjianTable({
         </div>
       )}
 
-      {/* ========== MODAL DETAIL (DESAIN DITINGKATKAN) ========== */}
+      {/* ========== MODAL DETAIL (DESAIN MODERN) ========== */}
       <Modal
         open={openDialog}
         onClose={() => setOpenDialog(false)}
@@ -602,169 +610,181 @@ export default function BeritaAcaraUjianTable({
       >
         {selected && (
           <div className="space-y-6">
-            {/* header ringkas */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <div className="text-sm text-muted-foreground">
-                  {selected.hariUjian ? capitalize(selected.hariUjian) : "Hari"}
-                  ,{" "}
-                  <span className="font-medium">
-                    {selected.jadwalUjian
-                      ? new Date(selected.jadwalUjian).toLocaleDateString(
-                          "id-ID",
-                          { day: "numeric", month: "long", year: "numeric" }
-                        )
-                      : "-"}
-                  </span>
+            {/* Header Section: Mahasiswa & Waktu */}
+            <div className="border-b pb-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md">
+                    <Calendar size={14} />
+                    <span>
+                      {selected.hariUjian
+                        ? capitalize(selected.hariUjian)
+                        : "Hari"}
+                      ,{" "}
+                      {selected.jadwalUjian
+                        ? new Date(selected.jadwalUjian).toLocaleDateString(
+                            "id-ID",
+                            { day: "numeric", month: "long", year: "numeric" }
+                          )
+                        : "-"}
+                    </span>
+                  </div>
+                  <div className="hidden sm:block text-gray-300">|</div>
+                  <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md">
+                    <Clock size={14} />
+                    <span>
+                      {selected.waktuMulai?.slice(0, 5) ?? "-"} —{" "}
+                      {selected.waktuSelesai?.slice(0, 5) ?? "-"}
+                    </span>
+                  </div>
+                   <div className="hidden sm:block text-gray-300">|</div>
+                   <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md">
+                      <MapPin size={14} />
+                      <span className="font-medium">{selected.ruangan?.namaRuangan ?? "-"}</span>
+                   </div>
                 </div>
-                <div className="mt-2 text-lg font-semibold">
-                  {selected.mahasiswa?.nama ?? "-"}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  NIM: {selected.mahasiswa?.nim ?? "-"}
+                <div>
+                   <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase
+                        ${
+                          selected.jenisUjian?.namaJenis
+                            ?.toLowerCase()
+                            .includes("proposal")
+                            ? "bg-blue-50 text-blue-700 border border-blue-100"
+                            : selected.jenisUjian?.namaJenis
+                                ?.toLowerCase()
+                                .includes("hasil")
+                            ? "bg-yellow-50 text-yellow-700 border border-yellow-100"
+                            : selected.jenisUjian?.namaJenis
+                                ?.toLowerCase()
+                                .includes("skripsi")
+                            ? "bg-green-50 text-green-700 border border-green-100"
+                            : "bg-gray-100 border border-gray-200"
+                        }
+                      `}
+                    >
+                      {selected.jenisUjian?.namaJenis ?? "-"}
+                    </span>
                 </div>
               </div>
-              <div className="text-left sm:text-right">
-                <div className="inline-flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    Jenis Ujian
+
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {selected.mahasiswa?.nama ?? "-"}
+                </h2>
+                <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  <span className="font-mono bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-xs">
+                    {selected.mahasiswa?.nim ?? "-"}
                   </span>
-                  <span className="px-2 py-1 text-sm rounded bg-muted/30 font-medium">
-                    {selected.jenisUjian?.namaJenis ?? "-"}
-                  </span>
-                </div>
-                <div className="mt-3 text-sm text-muted-foreground ">
-                  <div>
-                    <span className="font-medium text-gray-700 dark:text-gray-200">
-                      Ruangan:
-                    </span>{" "}
-                    {selected.ruangan?.namaRuangan ?? "-"}
-                  </div>
-                  <div className="mt-1">
-                    <span className="font-medium text-gray-700 dark:text-gray-200">
-                      Waktu:
-                    </span>{" "}
-                    {selected.waktuMulai?.slice(0, 5) ?? "-"} —{" "}
-                    {selected.waktuSelesai?.slice(0, 5) ?? "-"}
-                  </div>
+                  <span>•</span>
+                  <span>{selected.mahasiswa?.prodi?.namaProdi ?? "Teknologi Informasi"}</span>
                 </div>
               </div>
             </div>
 
-            {/* Responsive grid for modal detail */}
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              {/* Main: Judul & keputusan */}
-              <div className="lg:col-span-2 space-y-4">
-                <div className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-sm">
-                  <h3 className="text-sm text-muted-foreground">
-                    Judul Penelitian
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column: Details */}
+              <div className="lg:col-span-2 space-y-6">
+                
+                {/* Judul Penelitian */}
+                <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <Search size={14} /> Judul Penelitian
                   </h3>
-                  <p className="mt-2 text-sm font-semibold whitespace-pre-wrap break-words leading-relaxed">
+                   <p className="text-base font-medium leading-relaxed text-gray-800 dark:text-gray-200">
                     {selected.judulPenelitian ?? "-"}
                   </p>
                 </div>
 
-                <div className="border rounded-lg p-4 bg-white dark:bg-neutral-800 h-35 shadow-sm">
-                  <h3 className="text-sm text-muted-foreground">Keputusan</h3>
-                  <div className="mt-3">
-                    {selected.jenisUjian?.namaJenis
-                      ?.toLowerCase()
-                      .includes("proposal") ? (
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`px-3 py-1 rounded font-semibold ${
-                            selected?.hasil?.toLowerCase() === "lulus"
-                              ? "bg-green-100 text-green-700"
-                              : selected?.hasil?.toLowerCase() === "tidak lulus"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-gray-100 text-gray-700"
-                          }`}
-                        >
-                          {selected?.hasil?.toUpperCase() || "lulus"}
-                        </span>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className="text-sm font-medium">
-                          {selected.keputusan?.namaKeputusan ??
-                            (selected as any)?.keputusan ??
-                            "-"}
+                {/* Hasil & Nilai */}
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 dark:bg-neutral-800 p-4 rounded-xl border text-center">
+                        <span className="text-xs text-gray-500 uppercase font-semibold">Nilai Akhir</span>
+                        <div className="text-3xl font-bold text-emerald-600 mt-1">
+                            {selected.nilaiAkhir ?? "-"}
                         </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-neutral-800 p-4 rounded-xl border text-center">
+                        <span className="text-xs text-gray-500 uppercase font-semibold">Hasil Ujian</span>
+                        <div className={`text-xl font-bold mt-2 capitalize ${
+                             selected.hasil?.toLowerCase() === 'lulus' ? 'text-green-600' : 
+                             selected.hasil?.toLowerCase() === 'tidak lulus' ? 'text-red-600' : 'text-gray-600'
+                        }`}>
+                            {selected.hasil ?? "-"}
+                        </div>
+                    </div>
+                 </div>
 
-              {/* Right: Penguji & kehadiran */}
-              <div className="space-y-4 w-full">
-                <div className="border rounded-lg p-3 bg-white dark:bg-neutral-800 shadow-sm w-full">
-                  <h4 className="text-sm text-muted-foreground mb-3">
-                    Penguji
-                  </h4>
-                  <div className="space-y-3">
-                    {selected.penguji.map((row, i) => {
-                      // { changed code }
-                      // gunakan id untuk lookup status
-                      const status = getStatusHadir(row.id);
-                      const badge =
-                        status === "hadir"
-                          ? "bg-green-100 text-green-700"
-                          : status === "izin"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-gray-100 text-gray-700";
-                      return (
-                        <div
-                          key={row.id ?? i}
-                          className="flex items-center justify-between gap-3"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div>
-                              {/* tampilkan status di atas nama */}
-                              <div className="mb-1">
-                                <span
-                                  className={`px-2 py-0.5 text-xs rounded-full font-medium ${badge}`}
-                                >
-                                  {status === "hadir"
-                                    ? "Hadir"
-                                    : status === "izin"
-                                    ? "Izin"
-                                    : "Tidak Hadir"}
-                                </span>
-                              </div>
-                              <div className="text-sm font-medium">
-                                {row.nama ?? "-"}
-                              </div>
-                            </div>
+                 {/* Keputusan (Full Width) */}
+                 {selected.keputusan && (
+                    <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20">
+                         <span className="text-xs text-blue-600 dark:text-blue-400 uppercase font-semibold">Keputusan Akhir</span>
+                          <div className="text-lg font-medium text-blue-900 dark:text-blue-200 mt-1">
+                             {selected.keputusan.namaKeputusan}
                           </div>
-                          <div></div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                    </div>
+                 )}
+
+                 {/* Catatan */}
+                 <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <FileText size={14} /> Catatan / Revisi
+                    </h3>
+                    <div className="bg-gray-50 dark:bg-neutral-900/50 p-4 rounded-lg border">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                            {selected.catatan || "Tidak ada catatan penguji."}
+                        </p>
+                    </div>
+                 </div>
+
               </div>
 
-              {/* Catatan / Daftar Revisi (card tersendiri, tampil di bawah grid) */}
-              <div className="lg:col-span-3">
-                <div className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-sm">
-                  <h4 className="text-sm text-muted-foreground mb-2">
-                    Catatan / Daftar Revisi Penguji
-                  </h4>
-                  <div className="overflow-hidden">
-                    <Textarea
-                      className="w-full min-h-[120px] resize-none bg-transparent"
-                      defaultValue={selected.catatan ?? "Tidak ada catatan."}
-                      readOnly
-                    />
+              {/* Right Column: Dosen Penguji */}
+              <div className="space-y-4">
+                  <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm h-full">
+                       <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <User size={14} /> Tim Penguji
+                       </h3>
+                       <div className="space-y-4">
+                          {selected.penguji.map((p, idx) => {
+                               const status = getStatusHadir(p.id);
+                               const isHadir = status === 'hadir';
+                               const isIzin = status === 'izin';
+                               
+                               return (
+                                   <div key={idx} className="relative pl-4 border-l-2 border-gray-100 last:border-0 pb-1">
+                                       <div className={`absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full ring-2 ring-white
+                                           ${isHadir ? 'bg-green-500' : isIzin ? 'bg-yellow-500' : 'bg-gray-300'}
+                                       `}></div>
+                                       <div>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
+                                                {p.nama}
+                                            </p>
+                                            <div className="flex items-center justify-between mt-1">
+                                                <span className="text-xs text-gray-500 capitalize">{p.peran.replace(/_/g, " ")}</span>
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium border
+                                                    ${isHadir 
+                                                        ? 'bg-green-50 text-green-700 border-green-100' 
+                                                        : isIzin
+                                                        ? 'bg-yellow-50 text-yellow-700 border-yellow-100'
+                                                        : 'bg-gray-50 text-gray-600 border-gray-200'}
+                                                `}>
+                                                    {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Belum Isi"}
+                                                </span>
+                                            </div>
+                                       </div>
+                                   </div>
+                               )
+                          })}
+                       </div>
                   </div>
-                </div>
               </div>
             </div>
 
-            {/* actions */}
-            <div className="flex justify-end pt-6 border-t mt-6">
-              <Button variant="outline" onClick={() => setOpenDialog(false)}>
+            {/* Footer Actions */}
+            <div className="flex justify-end pt-4 border-t mt-4">
+              <Button onClick={() => setOpenDialog(false)}>
                 Tutup
               </Button>
             </div>
