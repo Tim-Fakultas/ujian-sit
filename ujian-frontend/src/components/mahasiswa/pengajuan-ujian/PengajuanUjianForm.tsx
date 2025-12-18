@@ -27,7 +27,6 @@ import {
   GraduationCap, 
   Info,
   Loader2,
-  Trash2
 } from "lucide-react";
 import { showToast } from "@/components/ui/custom-toast";
 
@@ -272,11 +271,11 @@ export default function PengajuanUjianForm({
 
          {/* Form Controls */}
          <div className="bg-white dark:bg-neutral-900 border dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
+            <div className="flex flex-col gap-6">
+                <div className="space-y-3 w-full">
                     <Label className="font-semibold">Jenis Ujian</Label>
                     <Select value={selectedJenisUjian ? String(selectedJenisUjian) : ""} onValueChange={(v) => handleJenisUjianSelect(Number(v))}>
-                        <SelectTrigger className="h-12 rounded-xl">
+                        <SelectTrigger className="h-12 rounded-xl w-full">
                             <SelectValue placeholder="Pilih Jenis Ujian" />
                         </SelectTrigger>
                         <SelectContent>
@@ -311,11 +310,11 @@ export default function PengajuanUjianForm({
                     </Select>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 w-full">
                     <Label className="font-semibold">Judul Penelitian</Label>
                     {pengajuanRanpel && pengajuanRanpel.length > 1 ? (
                         <Select value={selectedRanpelId ? String(selectedRanpelId) : ""} onValueChange={(v) => setSelectedRanpelId(Number(v))}>
-                             <SelectTrigger className="h-12 rounded-xl">
+                             <SelectTrigger className="h-12 rounded-xl w-full">
                                 <SelectValue placeholder="Pilih Judul" />
                             </SelectTrigger>
                             <SelectContent>
@@ -328,7 +327,7 @@ export default function PengajuanUjianForm({
                          <Input 
                             value={pengajuanRanpel?.[0]?.ranpel?.judulPenelitian ?? ""} 
                             readOnly 
-                            className="h-12 rounded-xl bg-gray-50 dark:bg-neutral-800 text-muted-foreground"
+                            className="h-12 rounded-xl bg-gray-50 dark:bg-neutral-800 text-muted-foreground w-full"
                             placeholder="Tidak ada judul aktif"
                         />
                     )}

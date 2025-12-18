@@ -23,6 +23,7 @@ import {
   LayoutGrid,
   List,
   Settings2,
+  Calendar,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -46,6 +47,7 @@ import PengajuanUjianForm from "./PengajuanUjianForm";
 import { JenisUjian } from "@/types/JenisUjian";
 import Link from "next/link";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DataCard } from "@/components/common/DataCard";
 
 export default function PendaftaranTable({
   pendaftaranUjian,
@@ -273,7 +275,7 @@ export default function PendaftaranTable({
   const [openFilter, setOpenFilter] = useState(false);
 
   return (
-    <div className="border bg-white dark:bg-neutral-900 p-3 sm:p-6 rounded-lg shadow-sm w-full max-w-full">
+    <DataCard className="w-full max-w-full">
       {/* Filter/Search/Add Bar */}
       <div className="flex flex-row items-center gap-2 mb-4 w-full sm:justify-end">
         {/* Search */}
@@ -436,92 +438,94 @@ export default function PendaftaranTable({
           <TableGlobal table={table} cols={cols} />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
           {filteredData.map((item, idx) => {
             const key = item.id ?? idx;
             const judul = item.ranpel.judulPenelitian ?? "-";
             const jenis = item.jenisUjian.namaJenis ?? "-";
             const tanggal = item.tanggalPengajuan ?? "";
             const status = item.status ?? "-";
-            // Simulasi data ruangan dan waktu, ganti sesuai kebutuhan
-            // Format tanggal
+            
             const tanggalStr = tanggal
               ? new Date(String(tanggal)).toLocaleDateString("id-ID", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
+                  day: "numeric", month: "short", year: "numeric"
                 })
               : "-";
+
+
+
+            let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
+            if (status === "menunggu") statusColor = "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800";
+            else if (status === "diterima") statusColor = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
+            else if (status === "ditolak") statusColor = "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800";
+            else if (status === "dijadwalkan") statusColor = "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-800";
+            else if (status === "selesai") statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-700";
+
             return (
               <div
                 key={key}
-                className="relative border rounded-xl p-4 bg-white dark:bg-neutral-900 shadow-sm flex flex-col min-h-[220px]"
+                className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
               >
-                {/* Status di kanan atas */}
-                <span
-                  className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold
-                    max-w-[110px] truncate
-                    ${getStatusColor(status)} ${
-                    status === "menunggu"
-                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                      : status === "diterima"
-                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                      : status === "ditolak"
-                      ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                      : status === "dijadwalkan"
-                      ? "bg-violet-200 text-violet-700 dark:bg-violet-900 dark:text-violet-200"
-                      : status === "selesai"
-                      ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                      : ""
-                  }`}
-                  style={{
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </span>
-                {/* Tanggal di kiri atas */}
-                <div className="text-sm text-muted-foreground mb-2">
-                  {tanggalStr}
-                </div>
-                {/* Judul besar, tambahkan mt-2 */}
-                <div className="font-bold text-base mt-2 mb-2 whitespace-pre-line break-words">
-                  {judul}
-                </div>
-                {/* Info jenis, ruangan, waktu */}
-                <div className="text-sm text-muted-foreground mb-1">
-                  Jenis: {jenis}
-                </div>
-                {/* Tombol aksi di kanan bawah */}
-                <div className="absolute bottom-4 right-4">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="p-2">
-                        <MoreHorizontal size={22} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={`/mahasiswa/jadwal-ujian`}
-                          className="w-full flex items-center justify-between gap-2 text-sm px-3 py-2"
-                        >
-                          <span className="flex items-center gap-2">
-                            Lihat Jadwal Ujian
-                          </span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                  <div className="p-5 flex flex-col gap-4 flex-1">
+                     
+                     {/* Header: Date & Status */}
+                     <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                           <Calendar size={13} />
+                           <span>{tanggalStr}</span>
+                        </div>
+                        
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
+                           {status}
+                        </span>
+                     </div>
+
+                     {/* Content: Title & Type */}
+                     <div className="space-y-2">
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
+                             {judul || "Judul tidak tersedia"}
+                          </h3>
+                          
+                          <div className="pt-2">
+                             <span className={`px-2 py-1 rounded-md text-[11px] font-semibold 
+                                 ${
+                                   jenis.toLowerCase().includes("proposal") ? "bg-blue-100 text-blue-700" :
+                                   jenis.toLowerCase().includes("hasil") ? "bg-yellow-100 text-yellow-700" :
+                                   jenis.toLowerCase().includes("skripsi") ? "bg-green-100 text-green-700" : "bg-gray-100"
+                                 }
+                             `}>
+                               {jenis}
+                             </span>
+                          </div>
+                     </div>
+                  </div>
+
+                  {/* Actions Footer */}
+                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
+                    <DropdownMenu>
+                     <DropdownMenuTrigger asChild>
+                       <Button variant="ghost" size="sm" className="text-xs h-8 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                         <MoreHorizontal size={14} className="mr-1.5" /> Aksi
+                       </Button>
+                     </DropdownMenuTrigger>
+                     <DropdownMenuContent align="end" className="w-48">
+                       <DropdownMenuItem asChild>
+                         <Link
+                           href={`/mahasiswa/jadwal-ujian`}
+                           className="w-full flex items-center gap-2 text-sm px-3 py-2 cursor-pointer"
+                         >
+                           <List size={14} />
+                           <span>Lihat Jadwal Ujian</span>
+                         </Link>
+                       </DropdownMenuItem>
+                     </DropdownMenuContent>
+                   </DropdownMenu>
+                  </div>
               </div>
             );
           })}
         </div>
       )}
-    </div>
+    </DataCard>
   );
 }

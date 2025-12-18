@@ -10,12 +10,7 @@ import { getJadwalUjianByMahasiswaIdByHasil } from "@/actions/ujian";
 import { Ujian } from "@/types/Ujian";
 import { PendaftaranUjian } from "@/types/PendaftaranUjian";
 import { JenisUjian } from "@/types/JenisUjian";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import PageHeader from "@/components/common/PageHeader";
 import { FileText } from "lucide-react";
 
 export default async function DaftarUjianPage() {
@@ -39,19 +34,13 @@ export default async function DaftarUjianPage() {
 
   return (
     <div className="p-6 space-y-8">
-      <Card className="mb-6 dark:bg-neutral-900 bg-white">
-        <CardHeader>
-          <CardTitle>
-            <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Daftar Ujian
-            </div>
-          </CardTitle>
-          <CardDescription>
-            Lihat dan kelola pendaftaran ujian Anda di sini.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <PageHeader
+        title="Daftar Ujian"
+        description="Lihat dan kelola pendaftaran ujian Anda di sini."
+        icon={FileText}
+        variant="emerald"
+        className="mb-6"
+      />
       <Suspense fallback={<Loading />}>
         <PendaftaranTable
           pendaftaranUjian={pendaftaranUjian}

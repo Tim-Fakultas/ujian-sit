@@ -5,12 +5,7 @@ import { BeritaUjian } from "@/types/BeritaUjian";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { getCurrentUserAction } from "@/actions/auth";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import PageHeader from "@/components/common/PageHeader";
 import { FileText } from "lucide-react";
 
 export default async function BeritaUjianPage() {
@@ -21,19 +16,13 @@ export default async function BeritaUjianPage() {
 
   return (
     <div className="p-6">
-      <Card className="mb-6 dark:bg-neutral-900 bg-white">
-        <CardHeader>
-          <CardTitle>
-            <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Berita Acara Ujian
-            </div>
-          </CardTitle>
-          <CardDescription>
-            Lihat berita acara ujian di sini.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <PageHeader
+        title="Berita Acara Ujian"
+        description="Lihat berita acara ujian di sini."
+        icon={FileText}
+        variant="emerald"
+        className="mb-6"
+      />
       <Suspense fallback={<Loading />}>
         <BeritaAcaraUjianTable
           beritaUjian={beritaUjian}

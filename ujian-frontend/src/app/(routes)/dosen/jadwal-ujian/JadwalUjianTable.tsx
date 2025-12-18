@@ -21,6 +21,7 @@ import {
   Settings2,
   LayoutGrid,
   List,
+  Calendar,
 } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { UserCheck } from "lucide-react";
@@ -59,6 +60,7 @@ import {
 } from "@/lib/ujian/constants";
 import DetailDialog from "./DetailDialog";
 import RekapitulasiNilaiModal from "./RekapitulasiNilaiModal";
+import { DataCard } from "@/components/common/DataCard";
 
 export default function JadwalUjianTable({
   jadwalUjian,
@@ -542,7 +544,7 @@ export default function JadwalUjianTable({
   };
 
   return (
-    <div className="bg-white p-6 rounded-md border dark:bg-neutral-900">
+    <DataCard>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         {/* Search bar & filter (right) */}
         <div className="flex w-full gap-3 md:justify-end md:ml-auto">
@@ -656,7 +658,7 @@ export default function JadwalUjianTable({
         </TabsContent>
 
         <TabsContent value="card">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredData.length === 0 ? (
               <div className="col-span-full text-center text-muted-foreground py-8">
                 Tidak ada jadwal ujian
@@ -670,74 +672,82 @@ export default function JadwalUjianTable({
                   return str.charAt(0).toUpperCase() + str.slice(1);
                 }
                 const peranPenguji = getPeranPenguji(ujian, currentDosenId);
+                const resultStatus = ujian.hasil ?? "-";
+
+                // Format Date
+                const tanggalObj = ujian.jadwalUjian ? new Date(ujian.jadwalUjian) : null;
+                const tanggalStr = tanggalObj ? tanggalObj.toLocaleDateString("id-ID", {
+                    day: "numeric", month: "short", year: "numeric"
+                }) : "-";
+
+
+
+                let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
+                if (resultStatus.toLowerCase() === "lulus") statusColor = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
+                else if (resultStatus.toLowerCase() === "tidak lulus") statusColor = "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800";
+
 
                 return (
                   <div
                     key={ujian.id}
-                    className="border rounded-xl p-5 bg-white dark:bg-neutral-900  flex flex-col gap-2 hover:shadow-xl transition-shadow"
+                     className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-semibold text-base">
-                        {ujian.mahasiswa?.nama ?? "-"}
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold
-                          ${
-                            ujian.hasil?.toLowerCase() === "lulus"
-                              ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100"
-                              : ujian.hasil?.toLowerCase() === "tidak lulus"
-                              ? "bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100"
-                              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
-                          }`}
-                      >
-                        {ujian.hasil ?? "-"}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground mb-1">
-                      {ujian.mahasiswa?.nim ?? "-"}
-                    </div>
-                    <div className="mb-1">
-                      <span className="font-medium">Judul:</span>
-                      <div className="whitespace-pre-line break-words text-sm mt-1">
-                        {ujian.judulPenelitian}
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-sm mb-1">
-                      <span className="font-medium">Jenis:</span>
-                      <span
-                        className={`px-2 py-1 text-xs rounded font-semibold ${getStatusUjianClass(
-                          ujian.pendaftaranUjian.status
-                        )}`}
-                      >
-                        {ujian.jenisUjian?.namaJenis ?? "-"}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-sm mb-1">
-                      <span className="font-medium">Waktu:</span>
-                      <span>
-                        {capitalize(ujian.hariUjian ?? "-")}, {tanggal}{" "}
-                        {waktuMulai} - {waktuSelesai}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-sm mb-1">
-                      <span className="font-medium">Peran Anda:</span>
-                      <span
-                        className={`px-2 py-1 text-xs rounded font-semibold ${getPeranPengujiClass(
-                          peranPenguji ?? undefined
-                        )}`}
-                      >
-                        {peranPenguji ?? "-"}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-sm mb-1">
-                      <span className="font-medium">Nilai:</span>
-                      <span>{ujian.nilaiAkhir ?? "-"}</span>
-                    </div>
-                    <div className="flex justify-end mt-2">
+                     <div className="p-5 flex flex-col gap-4 flex-1">
+                         {/* Header: Date & Result Status */}
+                         <div className="flex justify-between items-start">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                    {ujian.jenisUjian?.namaJenis ?? "-"}
+                                </span>
+                                <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                                   <Calendar size={13} />
+                                   <span>{capitalize(ujian.hariUjian ?? "-")}, {tanggalStr}</span>
+                                </div>
+                            </div>
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
+                               {resultStatus}
+                            </span>
+                         </div>
+
+                         {/* Title */}
+                         <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
+                             {ujian.judulPenelitian || "Judul tidak tersedia"}
+                         </h3>
+
+                         {/* Details */}
+                         <div className="flex flex-col gap-2 mt-1">
+                              <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                                  <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
+                                      Mahasiswa
+                                  </span>
+                                  <span className="truncate">{ujian.mahasiswa?.nama ?? "-"}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                                  <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
+                                      Peran
+                                  </span>
+                                  <span className={`text-xs font-bold ${getPeranPengujiClass(peranPenguji ?? undefined)} px-1.5 py-0.5 rounded`}>
+                                      {peranPenguji ?? "-"}
+                                  </span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                                  <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
+                                      Nilai
+                                  </span>
+                                  <span className="font-bold">{ujian.nilaiAkhir ?? "-"}</span>
+                              </div>
+                               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                                  <span>{waktuMulai} - {waktuSelesai}</span>
+                               </div>
+                         </div>
+                     </div>
+
+                    {/* Actions Footer */}
+                    <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" aria-label="Aksi">
-                            <MoreHorizontal size={20} />
+                          <Button variant="ghost" size="sm" className="text-xs h-8 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                            <MoreHorizontal size={14} className="mr-1.5" /> Aksi
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -916,6 +926,6 @@ export default function JadwalUjianTable({
           />
         )}
       </Tabs>
-    </div>
+    </DataCard>
   );
 }

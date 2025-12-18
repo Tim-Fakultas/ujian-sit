@@ -38,7 +38,7 @@ export default async function AdminDashboardPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-            Selamat Datang, {user?.nama?.split(" ")[0]}! 👋
+            Selamat Datang, {user?.nama?.split(" ")[0]}!
           </h1>
           <p className="text-muted-foreground mt-1 text-sm md:text-base">
             Dashboard Admin Prodi {user?.prodi?.nama_prodi || "Sistem"}

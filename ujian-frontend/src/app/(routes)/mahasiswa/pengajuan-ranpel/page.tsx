@@ -2,13 +2,7 @@ import PengajuanTable from "@/components/mahasiswa/pengajuan-ranpel/PengajuanTab
 import { Suspense } from "react";
 import Loading from "./loading";
 import { getCurrentUserAction } from "@/actions/auth";
-// Tambahkan import Card dan icon agar header seragam dengan dosen
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import PageHeader from "@/components/common/PageHeader";
 import { FileText } from "lucide-react";
 
 export default async function Page() {
@@ -16,19 +10,13 @@ export default async function Page() {
 
   return (
     <div className="p-6 flex flex-col">
-      <Card className="mb-6 dark:bg-neutral-900 bg-white">
-        <CardHeader>
-          <CardTitle>
-            <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Pengajuan Rancangan Penelitian
-            </div>
-          </CardTitle>
-          <CardDescription>
-            Kelola pengajuan rancangan penelitian Anda di sini.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <PageHeader
+        title="Pengajuan Rancangan Penelitian"
+        description="Kelola pengajuan rancangan penelitian Anda di sini."
+        icon={FileText}
+        variant="emerald"
+        className="mb-6"
+      />
 
       <Suspense fallback={<Loading />}>
         <PengajuanTable userId={user?.id} />

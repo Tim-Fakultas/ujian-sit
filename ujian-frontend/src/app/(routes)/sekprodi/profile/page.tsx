@@ -1,7 +1,7 @@
 import { getCurrentUserAction } from "@/actions/auth";
 import ProfileCard from "./ProfileCard";
 import { Suspense } from "react";
-import Loading from "./Loading";
+import Loading from "./loading";
 
 export default async function ProfilePage() {
   const { user } = await getCurrentUserAction();

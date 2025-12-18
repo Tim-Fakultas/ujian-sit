@@ -165,16 +165,15 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                                   className={cn(
                                     "flex items-center gap-2 pl-3 py-2 rounded-lg text-sm transition-all relative",
                                     isActive
-                                      ? "bg-blue-50/80 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300 font-medium"
+                                      ? " text-blue-600  dark:text-blue-300 font-medium"
                                       : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
                                   )}
                                 >
-                                  {/* Dot Indicator for Submenu */}
                                   <div className={cn(
                                       "absolute -left-[16px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full border-2 transition-colors z-10",
                                       isActive 
                                         ? "bg-white border-blue-600 dark:border-blue-400" 
-                                        : "bg-slate-200 border-slate-200 dark:bg-slate-700 dark:border-slate-700 group-hover:bg-slate-300 dark:group-hover:bg-slate-600"
+                                        : "bg-slate-200 border-slate-200 group-hover:bg-slate-300 dark:group-hover:bg-slate-600"
                                   )} />
                                   <span className="truncate">{sub.title}</span>
                                 </Link>

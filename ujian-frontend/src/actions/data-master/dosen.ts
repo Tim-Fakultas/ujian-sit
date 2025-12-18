@@ -1,5 +1,48 @@
 import { Dosen, DosenResponse } from "@/types/Dosen";
 
+export async function getAllDosen() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const response = await fetch(`${apiUrl}/dosen`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch all dosen");
+    }
+
+    const data: DosenResponse = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching all dosen:", error);
+    return [];
+  }
+}
+
+export async function createDosen(payload: any) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const response = await fetch(`${apiUrl}/dosen`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create dosen");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating dosen:", error);
+    throw error;
+  }
+}
+
 export async function getDosen(prodiId: number | undefined) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {

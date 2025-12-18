@@ -36,7 +36,7 @@ export default function RekapitulasiNilaiModal({
       aria-modal="true"
     >
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 "
         onClick={() => dispatchModal({ type: "CLOSE_REKAP" })}
       />
       <div

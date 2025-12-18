@@ -12,6 +12,8 @@ import {
   LayoutGrid,
   List,
   Settings2,
+  Calendar,
+  Eye,
 } from "lucide-react";
 import { truncateTitle } from "@/lib/utils";
 
@@ -24,26 +26,62 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TableGlobal from "@/components/tableGlobal";
+import { DataCard } from "@/components/common/DataCard";
 import { getPenilaianByUjianId } from "@/actions/penilaian";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { updateStatusPendaftaranUjian } from "@/actions/pendaftaranUjian";
+import { toast } from "sonner";
+import { User } from "@/types/Auth";
+// Custom Modal Component for wider layout
+const Modal = ({
+  open,
+  onClose,
+  children,
+  title,
+}: {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+  title: string;
+}) => {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 p-4 overflow-y-auto">
+      <div 
+        className="bg-white dark:bg-neutral-900 w-full max-w-[95vw] sm:max-w-[90vw] lg:max-w-7xl rounded-2xl shadow-2xl border dark:border-neutral-800 flex flex-col max-h-[90vh] animate-in slide-in-from-bottom-4 duration-300"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-neutral-800 shrink-0">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            {title}
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800"
+          >
+            <X size={20} />
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function RekapitulasiNilaiTable({
   ujian,
+  user,
 }: {
   ujian: BeritaUjian[];
+  user?: User;
 }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState<BeritaUjian | null>(null);
   const [penilaian, setPenilaian] = useState<any[]>([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Ambil penilaian ketika modal detail dibuka
   useEffect(() => {
@@ -51,6 +89,23 @@ export default function RekapitulasiNilaiTable({
       getPenilaianByUjianId(selected.id).then((data) => setPenilaian(data));
     }
   }, [openDialog, selected?.id]);
+
+  const handleVerifikasi = async (pendaftaranId: number) => {
+      try {
+          setIsUpdating(true);
+          await updateStatusPendaftaranUjian(pendaftaranId, "selesai");
+          toast.success("Nilai berhasil diverifikasi dan status ujian selesai.");
+          setOpenDialog(false);
+          // Optional: You might want to refresh data here using a server action or router.refresh() 
+          // if the parent page doesn't automatically revalidate.
+          window.location.reload(); 
+      } catch (error) {
+          toast.error("Gagal memverifikasi nilai.");
+          console.error(error);
+      } finally {
+          setIsUpdating(false);
+      }
+  };
 
   // Tambah state untuk search
   const [search, setSearch] = useState("");
@@ -189,6 +244,44 @@ export default function RekapitulasiNilaiTable({
       },
       size: 90,
     },
+    {
+      accessorFn: (row: BeritaUjian) => row.nilaiAkhir ?? "-",
+      id: "nilaiAkhir",
+      header: "Nilai Rata-rata",
+      cell: ({ row }: any) => (
+        <div className="font-medium text-gray-900 dark:text-gray-100">
+          {row.getValue("nilaiAkhir")}
+        </div>
+      ),
+      size: 130,
+    },
+    {
+      id: "predikat",
+      header: "Predikat",
+      cell: ({ row }: any) => {
+        const nilai = parseFloat(row.getValue("nilaiAkhir")) || 0;
+        const huruf = getNilaiHuruf(nilai);
+        const colorClass =
+          huruf === "A"
+            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+            : huruf === "B"
+            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+            : huruf === "C"
+            ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+
+        return row.getValue("nilaiAkhir") ? (
+          <span
+            className={`px-2.5 py-0.5 rounded text-xs font-bold ${colorClass}`}
+          >
+            {huruf}
+          </span>
+        ) : (
+          <span className="text-gray-400 text-xs">-</span>
+        );
+      },
+      size: 80,
+    },
     // {
     //   accessorFn: (row: BeritaUjian) => row.nilaiAkhir ?? "-",
     //   id: "nilaiAkhir",
@@ -220,20 +313,22 @@ export default function RekapitulasiNilaiTable({
     //   },
     //   size: 70,
     // },
+
     {
       id: "actions",
       header: "Aksi",
       cell: ({ row }: any) => (
         <Button
-          variant="ghost"
-          size="icon"
+          variant="outline"
+          size="sm"
           onClick={() => handleDetail(row.original)}
-          className="hover:bg-gray-200"
+          className="h-8 text-xs font-medium gap-1.5 text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20"
         >
-          <MoreHorizontal size={16} />
+          <Eye size={14} />
+          Lihat Penilaian
         </Button>
       ),
-      size: 60,
+      size: 140,
     },
   ];
 
@@ -332,53 +427,115 @@ export default function RekapitulasiNilaiTable({
     getState: () => ({
       pagination: { pageIndex: page - 1, pageSize },
     }),
+    getPageCount: () => totalPage,
+    setPageIndex: (p: number) => setPage(p + 1),
   };
 
-  // Modern minimalist penguji rekap
+  // Modern minimalist penguji rekap with criteria breakdown
   function renderRekapPenilaian() {
     if (!penilaian || penilaian.length === 0) {
       return (
-        <div className="text-sm text-gray-400 italic">
-          Tidak ada data penilaian.
+        <div className="flex flex-col items-center justify-center py-8 text-center bg-gray-50 dark:bg-neutral-800/30 rounded-xl border border-dashed border-gray-200 dark:border-neutral-800">
+          <div className="text-sm font-medium text-gray-400">
+            Belum ada data penilaian.
+          </div>
         </div>
       );
     }
+
+    // Grouping by Lecturer
     const pengujiMap: Record<
       number,
-      { nama: string; nidn: string; total: number }
+      {
+        nama: string;
+        nidn: string;
+        total: number;
+        kriteria: { nama: string; nilai: number; bobot: number }[];
+      }
     > = {};
+
     penilaian.forEach((p) => {
       if (!pengujiMap[p.dosenId]) {
         pengujiMap[p.dosenId] = {
           nama: p.dosen?.nama || "-",
           nidn: p.dosen?.nidn || "-",
           total: 0,
+          kriteria: [],
         };
       }
+      
       const bobot = p.komponenPenilaian?.bobot ?? 0;
-      pengujiMap[p.dosenId].total += ((p.nilai ?? 0) * bobot) / 100;
+      const nilai = p.nilai ?? 0;
+      const nilaiBobot = (nilai * bobot) / 100;
+      
+      pengujiMap[p.dosenId].total += nilaiBobot;
+      
+      const rawNama = p.komponenPenilaian?.namaKomponen || "Kriteria";
+      // Remove suffixes like _1, _2
+      const cleanNama = rawNama.replace(/_\d+$/, "").replace(/_/g, " ");
+
+      pengujiMap[p.dosenId].kriteria.push({
+        nama: cleanNama,
+        nilai: nilai,
+        bobot: bobot
+      });
     });
 
     return (
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-6">
         {Object.values(pengujiMap).map((penguji, idx) => (
           <div
             key={penguji.nidn + idx}
-            className="rounded-2xl bg-gradient-to-br from-gray-50 to-white dark:from-neutral-800 dark:to-neutral-900 border border-gray-100 dark:border-neutral-800 px-6 py-4 flex flex-col gap-1 shadow-sm"
+            className="rounded-xl border border-gray-200 dark:border-neutral-800 overflow-hidden bg-white dark:bg-neutral-900 shadow-sm transition-all hover:shadow-md"
           >
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-semibold text-base text-gray-900 dark:text-white">
-                {penguji.nama}
-              </span>
-              <span className="ml-2 text-xs text-gray-400 font-normal">
-                NIDN: {penguji.nidn}
-              </span>
+            {/* Header Penguji */}
+            <div className="bg-gray-50/80 dark:bg-neutral-800/80 border-b border-gray-100 dark:border-neutral-800 p-4 flex items-center justify-between">
+               <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-white dark:bg-neutral-700 flex items-center justify-center text-sm font-bold text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-neutral-600 shadow-sm">
+                      {penguji.nama.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100">{penguji.nama}</h4>
+                    <span className="text-xs text-muted-foreground mr-2">NIDN: {penguji.nidn}</span>
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-medium border border-blue-100 dark:border-blue-800">
+                      Penguji {idx + 1}
+                    </span>
+                  </div>
+               </div>
+               <div className="text-right">
+                  <div className="text-[10px] uppercase text-gray-400 font-bold tracking-wider">Total Nilai</div>
+                  <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                    {penguji.total.toFixed(2)}
+                  </div>
+               </div>
             </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-gray-500">Total Nilai:</span>
-              <span className="font-extrabold text-lg text-blue-600 dark:text-blue-400 tracking-wide">
-                {penguji.total.toFixed(2)}
-              </span>
+
+            {/* Criteria List */}
+            <div className="p-0">
+               <table className="w-full text-sm text-left">
+                  <thead className="bg-white dark:bg-neutral-900 text-gray-500 border-b border-gray-100 dark:border-neutral-800">
+                    <tr>
+                      <th className="px-4 py-3 font-medium text-xs uppercase w-full">Kriteria Penilaian</th>
+                      <th className="px-4 py-3 font-medium text-xs uppercase text-center w-20">Bobot</th>
+                      <th className="px-4 py-3 font-medium text-xs uppercase text-right w-20">Nilai</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-neutral-800">
+                    {penguji.kriteria.map((k, kIdx) => (
+                      <tr key={kIdx} className="hover:bg-gray-50/50 dark:hover:bg-neutral-800/50">
+                        <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                           {k.nama}
+                        </td>
+                        <td className="px-4 py-3 text-center text-gray-500 text-xs">
+                          {k.bobot}%
+                        </td>
+                         <td className="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">
+                          {k.nilai}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+               </table>
             </div>
           </div>
         ))}
@@ -396,197 +553,148 @@ export default function RekapitulasiNilaiTable({
   }
 
   return (
-    <div className="p-3 sm:p-6 bg-white dark:bg-neutral-900 rounded-2xl border ">
-      {/* Detail Modal */}
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="max-w-sm p-0 overflow-hidden h-[90vh]">
-          <DialogHeader className="border-b px-6 pt-6 pb-3 bg-gradient-to-br from-gray-50 to-white dark:from-neutral-900 dark:to-neutral-950">
-            <DialogTitle className="flex items-center gap-2">
-              <span>Rekapitulasi Nilai</span>
-            </DialogTitle>
-            <DialogDescription>Rekap penilaian penguji</DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="max-h-[70vh] px-6 py-4">
-            {selected && (
-              <div className="flex flex-col gap-5">
-                {/* Mahasiswa & NIM */}
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">Mahasiswa</div>
-                  <div className="font-semibold text-lg text-gray-900 dark:text-white">
-                    {selected.mahasiswa?.nama ?? "-"}
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    NIM: {selected.mahasiswa?.nim ?? "-"}
-                  </div>
-                </div>
-                {/* Judul */}
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">
-                    Judul Penelitian
-                  </div>
-                  <div className="text-sm font-medium whitespace-pre-line break-words">
-                    {selected.judulPenelitian ?? "-"}
-                  </div>
-                </div>
-                {/* Jenis, Nilai Akhir, Hasil */}
-                <div className="flex flex-wrap gap-4">
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">
-                      Jenis Ujian
+    <DataCard>
+      {/* Custom Wide Modal */}
+      <Modal 
+        open={openDialog} 
+        onClose={() => setOpenDialog(false)}
+        title="Rekapitulasi Nilai & Detail Penilaian"
+      >
+          {selected && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* LEFT COLUMN: Student Info & Summary (3 columns) */}
+              <div className="lg:col-span-4 space-y-6">
+                 {/* Student Profile Card */}
+                 <div className="bg-gray-50 dark:bg-neutral-800/50 rounded-2xl p-6 border border-gray-100 dark:border-neutral-800">
+                    <div className="flex flex-col items-center text-center space-y-3 mb-6">
+                       <div className="h-20 w-20 rounded-full bg-white dark:bg-neutral-700 flex items-center justify-center text-2xl font-bold text-blue-600 dark:text-blue-400 border-4 border-blue-50 dark:border-neutral-600 shadow-sm">
+                          {selected.mahasiswa?.nama?.charAt(0) ?? "?"}
+                       </div>
+                       <div>
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                            {selected.mahasiswa?.nama ?? "-"}
+                          </h3>
+                          <p className="text-sm text-gray-500 font-medium">
+                            NIM: {selected.mahasiswa?.nim ?? "-"}
+                          </p>
+                       </div>
                     </div>
-                    <span
-                      className={`px-2 py-1 rounded font-medium text-xs
-                        ${
-                          selected.jenisUjian?.namaJenis
-                            ?.toLowerCase()
-                            .includes("proposal")
-                            ? "bg-blue-100 text-blue-700"
-                            : selected.jenisUjian?.namaJenis
-                                ?.toLowerCase()
-                                .includes("hasil")
-                            ? "bg-yellow-100 text-yellow-700"
-                            : selected.jenisUjian?.namaJenis
-                                ?.toLowerCase()
-                                .includes("skripsi")
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100"
-                        }
-                      `}
-                    >
-                      {selected.jenisUjian?.namaJenis ?? "-"}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">
-                      Nilai Akhir
+                    
+                    <div className="space-y-4">
+                       <div className="p-3 bg-white dark:bg-neutral-900 rounded-xl border border-gray-100 dark:border-neutral-800">
+                          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Judul Penelitian</span>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-snug">
+                             {selected.judulPenelitian ?? "-"}
+                          </p>
+                       </div>
+                       
+                       <div className="grid grid-cols-2 gap-3">
+                          <div className="p-3 bg-white dark:bg-neutral-900 rounded-xl border border-gray-100 dark:border-neutral-800">
+                             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Jenis Ujian</span>
+                             <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                {selected.jenisUjian?.namaJenis ?? "-"}
+                             </span>
+                          </div>
+                          <div className="p-3 bg-white dark:bg-neutral-900 rounded-xl border border-gray-100 dark:border-neutral-800">
+                             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Status</span>
+                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold capitalize
+                                ${selected.hasil?.toLowerCase() === "lulus" ? "bg-green-50 text-green-700" : 
+                                  selected.hasil?.toLowerCase() === "tidak lulus" ? "bg-red-50 text-red-700" : "bg-gray-100 text-gray-600"}
+                             `}>
+                                {selected.hasil ?? "Belum"}
+                             </span>
+                          </div>
+                       </div>
                     </div>
-                    <span className="font-extrabold text-blue-600 text-lg">
-                      {selected.nilaiAkhir ?? "-"}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Hasil</div>
-                    {selected.hasil ? (
-                      <span
-                        className={`px-2 py-1 rounded font-semibold text-xs
-                          ${
-                            selected.hasil.toLowerCase() === "lulus"
-                              ? "bg-green-100 text-green-700"
-                              : selected.hasil.toLowerCase() === "tidak lulus"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-gray-100 text-gray-700"
-                          }
-                        `}
-                      >
-                        {selected.hasil}
-                      </span>
-                    ) : (
-                      "-"
-                    )}
-                  </div>
-                </div>
-                {/* Rekap Penilaian Penguji */}
-                <div>
-                  <div className="text-xs text-gray-500 mb-2 font-semibold">
-                    Rekap Penilaian Penguji
-                  </div>
-                  {renderRekapPenilaian()}
-                </div>
-                {/* Total, Rata-rata, Nilai Huruf */}
-                <div className="mt-2 rounded-xl border bg-gray-50 dark:bg-neutral-800 p-4 flex flex-col gap-2">
-                  <div className="font-semibold text-xs text-gray-500 mb-1">
-                    Rekapitulasi Nilai Akhimmr
-                  </div>
-                  {(() => {
-                    // Hitung total nilai penguji
-                    const pengujiMap: Record<number, { total: number }> = {};
-                    penilaian.forEach((p) => {
-                      if (!pengujiMap[p.dosenId])
-                        pengujiMap[p.dosenId] = { total: 0 };
-                      const bobot = p.komponenPenilaian?.bobot ?? 0;
-                      pengujiMap[p.dosenId].total +=
-                        ((p.nilai ?? 0) * bobot) / 100;
-                    });
-                    const totalNilai = Object.values(pengujiMap).reduce(
-                      (acc, cur) => acc + cur.total,
-                      0
-                    );
-                    const jumlahPenguji = Object.keys(pengujiMap).length || 1;
-                    const rataRata = totalNilai / jumlahPenguji;
-                    const nilaiHuruf = getNilaiHuruf(rataRata);
+                 </div>
 
-                    return (
-                      <table className="w-full text-sm">
-                        <tbody>
-                          <tr>
-                            <td className="py-1 text-gray-600 dark:text-gray-300">
-                              Total Angka Nilai
-                            </td>
-                            <td className="py-1 font-bold text-right">
-                              {totalNilai.toFixed(2)}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-1 text-gray-600 dark:text-gray-300">
-                              Nilai Rata-rata
-                            </td>
-                            <td className="py-1 font-bold text-right">
-                              {rataRata.toFixed(2)}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-1 text-gray-600 dark:text-gray-300">
-                              Nilai Huruf
-                            </td>
-                            <td className="py-1 font-bold text-right">
-                              {nilaiHuruf}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    );
-                  })()}
-                </div>
-                {/* Interval Nilai */}
-                <div className="mt-2 rounded-xl border bg-white dark:bg-neutral-900 p-4">
-                  <div className="font-semibold text-xs text-gray-500 mb-2">
-                    Catatan interval nilai:
-                  </div>
-                  <table className="text-xs w-full">
-                    <tbody>
-                      <tr>
-                        <td className="pr-2">A</td>
-                        <td>: 80.00 – 100</td>
-                      </tr>
-                      <tr>
-                        <td>B</td>
-                        <td>: 70.00 – 79.99</td>
-                      </tr>
-                      <tr>
-                        <td>C</td>
-                        <td>: 60.00 – 69.99</td>
-                      </tr>
-                      <tr>
-                        <td>D</td>
-                        <td>: 56.00 – 59.99</td>
-                      </tr>
-                      <tr>
-                        <td>E</td>
-                        <td>: {"<"} 55.99</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                 {/* Final Score Card */}
+                 <div className="rounded-2xl border border-blue-100 dark:border-blue-900/30 p-6 bg-blue-50/30 dark:bg-blue-900/10 space-y-4">
+                      
+                      {(() => {
+                            const pengujiMap: Record<number, { total: number }> = {};
+                            penilaian.forEach((p) => {
+                              if (!pengujiMap[p.dosenId]) pengujiMap[p.dosenId] = { total: 0 };
+                              const bobot = p.komponenPenilaian?.bobot ?? 0;
+                              pengujiMap[p.dosenId].total += ((p.nilai ?? 0) * bobot) / 100;
+                            });
+                            const totalNilai = Object.values(pengujiMap).reduce(
+                              (acc, cur) => acc + cur.total,
+                              0
+                            );
+                            const jumlahPenguji = Object.keys(pengujiMap).length || 1;
+                            const rataRata = totalNilai / jumlahPenguji;
+                            const nilaiHuruf = getNilaiHuruf(rataRata);
+
+                            return (
+                              <>
+                                <div className="text-center">
+                                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Nilai Akhir</span>
+                                    <div className="text-5xl font-black text-gray-900 dark:text-white mt-1 mb-2 tracking-tight">
+                                       {selected.nilaiAkhir ?? rataRata.toFixed(2)}
+                                    </div>
+                                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm
+                                          ${nilaiHuruf === 'A' ? 'bg-green-500 text-white' : 
+                                            nilaiHuruf === 'B' ? 'bg-blue-500 text-white' :
+                                            nilaiHuruf === 'C' ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white'}
+                                    `}>
+                                        Predikat: {nilaiHuruf}
+                                    </div>
+                                 </div>
+                                 
+                                 <div className="pt-4 border-t border-blue-100 dark:border-blue-800/30 grid grid-cols-2 gap-4 text-center">
+                                     <div>
+                                        <div className="text-xs text-gray-500 mb-0.5">Total Angka</div>
+                                        <div className="font-mono font-bold text-gray-700 dark:text-gray-300">{totalNilai.toFixed(2)}</div>
+                                     </div>
+                                     <div>
+                                        <div className="text-xs text-gray-500 mb-0.5">Rata-rata</div>
+                                        <div className="font-mono font-bold text-gray-700 dark:text-gray-300">{rataRata.toFixed(2)}</div>
+                                     </div>
+                                 </div>
+                              </>
+                            );
+                      })()}
+                 </div>
+
+                 {/* Admin Verification Action */}
+                 {user?.role === "admin prodi" && selected?.pendaftaranUjian?.id && (
+                    <div className="pt-2">
+                        <Button 
+                            className={`w-full font-bold ${selected.pendaftaranUjian.status === "selesai" ? "bg-gray-100 text-gray-400 border border-gray-200" : "bg-emerald-600 hover:bg-emerald-700 text-white"}`}
+                            disabled={isUpdating || selected.pendaftaranUjian.status === "selesai"}
+                            onClick={() => selected?.pendaftaranUjian?.id && handleVerifikasi(selected.pendaftaranUjian.id)}
+                        >
+                            {selected.pendaftaranUjian.status === "selesai" ? "Ujian Selesai (Terverifikasi)" : isUpdating ? "Memproses..." : "Verifikasi & Selesaikan Ujian"}
+                        </Button>
+                        <p className="text-[10px] text-gray-400 text-center mt-2">
+                            Tindakan ini akan mengubah status pendaftaran ujian menjadi "Selesai".
+                        </p>
+                    </div>
+                 )}
               </div>
-            )}
-          </ScrollArea>
-          <DialogFooter className="px-6 pb-4 pt-2">
-            <DialogClose asChild>
-              <Button variant="outline">Tutup</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
+              {/* RIGHT COLUMN: Detailed Assessment (9 columns) */}
+              <div className="lg:col-span-8 space-y-5">
+                 <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                       <Settings2 size={18} className="text-blue-500" />
+                       Detail Penilaian Penguji
+                    </h3>
+                    <div className="text-xs text-gray-400 bg-gray-50 dark:bg-neutral-800 px-3 py-1.5 rounded-full border">
+                       Menampilkan detil nilai per kriteria
+                    </div>
+                 </div>
+                 
+                 <div className="space-y-6">
+                    {renderRekapPenilaian()}
+                 </div>
+              </div>
+            </div>
+          )}
+      </Modal>
+
+
       {/* Search, Filter, and Tabs in one row (tabs below on mobile) */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end sm:gap-4 gap-2 mb-4">
         {/* Search and Filter */}
@@ -720,92 +828,116 @@ export default function RekapitulasiNilaiTable({
 
       {/* Card Mode */}
       {viewMode === "card" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {paginatedData.length > 0 ? (
-            paginatedData.map((ujian) => (
+            paginatedData.map((ujian) => {
+
+                 
+                 const hasilColor = ujian.hasil?.toLowerCase() === 'lulus' 
+                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200" 
+                    : ujian.hasil?.toLowerCase() === 'tidak lulus' 
+                    ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200"
+                    : "bg-gray-100 text-gray-700 dark:bg-neutral-800 dark:text-gray-400 border-gray-200";
+
+              return (
               <div
                 key={ujian.id}
-                className="border rounded-lg bg-white dark:bg-neutral-800 shadow-xs p-4 flex flex-col justify-between"
+                className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
               >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="font-semibold">
-                      {ujian.mahasiswa?.nama ?? "-"}
-                    </div>
-                    <span className="text-xs text-gray-500">
-                      {ujian.mahasiswa.nim ?? "-"}
-                    </span>
-                  </div>
-                  <div className="mb-2 text-sm font-medium">
-                    {truncateTitle(ujian.judulPenelitian ?? "-", 50)}
-                  </div>
-                  <div className="mb-2">
-                    <span
-                      className={`px-2 py-1 rounded font-medium text-xs
-                        ${
-                          ujian.jenisUjian?.namaJenis
-                            ?.toLowerCase()
-                            .includes("proposal")
-                            ? "bg-blue-100 text-blue-700"
-                            : ujian.jenisUjian?.namaJenis
-                                ?.toLowerCase()
-                                .includes("hasil")
-                            ? "bg-yellow-100 text-yellow-700"
-                            : ujian.jenisUjian?.namaJenis
-                                ?.toLowerCase()
-                                .includes("skripsi")
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100"
-                        }
-                      `}
+                 <div className="p-5 flex flex-col gap-4 flex-1">
+                     
+                     {/* Header: Date & Result */}
+                     <div className="flex justify-between items-start">
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                <Calendar size={13} />
+                                <span>
+                                    {ujian.jadwalUjian
+                                        ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
+                                            day: "numeric",
+                                            month: "short",
+                                            year: "numeric"
+                                        })
+                                        : "Tgl -"}
+                                </span>
+                            </div>
+                         </div>
+                         
+                         {ujian.hasil ? (
+                             <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${hasilColor}`}>
+                                {ujian.hasil}
+                             </span>
+                         ) : (
+                             <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Belum Dinilai</span>
+                         )}
+                     </div>
+
+                     {/* Content: Title & Name */}
+                     <div className="space-y-2">
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
+                             {ujian.judulPenelitian || "Judul tidak tersedia"}
+                          </h3>
+                          
+                          <div className="flex items-center gap-2 pt-1">
+                             <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
+                                {ujian.mahasiswa?.nama?.charAt(0) ?? "?"}
+                             </div>
+                             <div className="flex flex-col">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                                   {ujian.mahasiswa?.nama ?? "-"}
+                                </span>
+                                <span className="text-[11px] text-gray-400">
+                                   {ujian.mahasiswa?.nim ?? "-"}
+                                </span>
+                             </div>
+                          </div>
+                     </div>
+
+                     {/* Footer Info: Type & Grade */}
+                     <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
+                        <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold 
+                             ${
+                               ujian.jenisUjian?.namaJenis?.toLowerCase().includes("proposal") ? "bg-blue-100 text-blue-700" :
+                               ujian.jenisUjian?.namaJenis?.toLowerCase().includes("hasil") ? "bg-yellow-100 text-yellow-700" :
+                               ujian.jenisUjian?.namaJenis?.toLowerCase().includes("skripsi") ? "bg-green-100 text-green-700" : "bg-gray-100"
+                             }
+                        `}>
+                           {ujian.jenisUjian?.namaJenis ?? "-"}
+                        </span>
+                        
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-400">Nilai:</span>
+                            <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                {ujian.nilaiAkhir ?? "-"}
+                            </span>
+                        </div>
+                     </div>
+                 </div>
+
+                 {/* Actions Footer */}
+                 <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDetail(ujian)}
+                        className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
                     >
-                      {ujian.jenisUjian?.namaJenis ?? "-"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs">Nilai Akhir:</span>
-                    <span className="font-bold">{ujian.nilaiAkhir ?? "-"}</span>
-                  </div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs">Hasil:</span>
-                    {ujian.hasil ? (
-                      <span
-                        className={`px-2 py-1 rounded font-semibold text-xs
-                          ${
-                            ujian.hasil.toLowerCase() === "lulus"
-                              ? "bg-green-100 text-green-700"
-                              : ujian.hasil.toLowerCase() === "tidak lulus"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-gray-100 text-gray-700"
-                          }
-                        `}
-                      >
-                        {ujian.hasil}
-                      </span>
-                    ) : (
-                      "-"
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-end mt-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDetail(ujian)}
-                    className="hover:bg-gray-200"
-                  >
-                    <MoreHorizontal size={16} />
-                  </Button>
-                </div>
+                        <MoreHorizontal size={14} className="mr-1.5" /> Detail
+                    </Button>
+                 </div>
               </div>
-            ))
+              );
+            })
           ) : (
-            <div className="col-span-full text-center text-gray-500 italic py-6">
-              Tidak ada berita acara ujian
+            <div className="col-span-full flex flex-col items-center justify-center py-12 gap-3">
+                <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
+                    <List size={24} className="opacity-50" />
+                </div>
+               <p className="text-muted-foreground">Tidak ada data rekapitulasi nilai.</p>
             </div>
           )}
         </div>
       )}
-    </div>
+    </DataCard>
   );
 }

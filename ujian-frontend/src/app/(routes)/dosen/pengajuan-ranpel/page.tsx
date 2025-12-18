@@ -2,17 +2,20 @@ import { getCurrentUserAction } from "@/actions/auth";
 import PengajuanTable from "@/app/(routes)/dosen/pengajuan-ranpel/PengajuanTable";
 import { Suspense } from "react";
 import Loading from "./loading";
-
-import Header from "@/components/Header";
+import PageHeader from "@/components/common/PageHeader";
+import { FileText } from "lucide-react";
 
 export default async function Page() {
   const { user } = await getCurrentUserAction();
 
   return (
     <div className="p-6">
-      <Header
+      <PageHeader
         title="Pengajuan Rancangan Penelitian"
-        desc="Daftar pengajuan rancangan penelitian mahasiswa anda."
+        description="Daftar pengajuan rancangan penelitian mahasiswa anda."
+        icon={FileText}
+        variant="emerald"
+        className="mb-6"
       />
       <Suspense fallback={<Loading />}>
         <PengajuanTable userId={user?.id} />

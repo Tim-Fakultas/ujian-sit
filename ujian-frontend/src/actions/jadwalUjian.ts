@@ -34,6 +34,38 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
 }
 
 // GET JADWAL UJIAN BY PRODI
+export async function getPenjadwalanUjianByProdi(prodiId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const response = await fetch(`${apiUrl}/ujian`);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch ujian ujian by prodi");
+    }
+
+    const data: UjianResponse = await response.json();
+    const filteredData = data.data
+      .filter(
+        (ujian) =>
+          ujian.mahasiswa.prodi.id === prodiId &&
+          (ujian.pendaftaranUjian.status === "belum dijadwalkan" || 
+          ujian.pendaftaranUjian.status === "dijadwalkan")
+      )
+      .sort((a, b) => {
+        // Sort by jadwalUjian (descending, terbaru di atas)
+        const dateA = new Date(a.jadwalUjian ?? 0).getTime();
+        const dateB = new Date(b.jadwalUjian ?? 0).getTime();
+        return dateB - dateA;
+      });
+    return filteredData;
+  } catch (error) {
+    console.error("Error fetching ujian ujian by prodi:", error);
+    return [];
+  }
+}
+
+
 export async function getJadwalUjianByProdi(prodiId: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -64,6 +96,7 @@ export async function getJadwalUjianByProdi(prodiId: number) {
     return [];
   }
 }
+
 
 // GET JADWAL UJIAN BY DOSEN PENGUJI
 export async function getJadwalUjianDosen(dosenId: number) {
@@ -311,5 +344,29 @@ export async function setUjianDijadwalkan(pendaftaranId: number) {
     return await response.json();
   } catch (error) {
     console.error("Error setting ujian selesai:", error);
+  }
+}
+
+export async function setUjianBelumDijadwalkan(pendaftaranId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const response = await fetch(
+      `${apiUrl}/pendaftaran-ujian/${pendaftaranId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+        body: JSON.stringify({ status: "belum dijadwalkan" }),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to set ujian belum dijadwalkan");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error setting ujian belum dijadwalkan:", error);
   }
 }

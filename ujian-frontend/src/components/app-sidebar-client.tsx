@@ -79,9 +79,9 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       url: "/admin/pendaftaran-ujian",
       icon: IconClipboardList,
       items: [
-        { title: "Daftar Ujian", url: "/admin/pendaftaran-ujian" },
         { title: "Jadwal Ujian", url: "/admin/jadwal-ujian" },
         { title: "Rekapitulasi Nilai", url: "/admin/rekapitulasi-nilai" },
+        { title: "Berita Ujian", url: "/admin/berita-ujian" },
       ],
     },
   ];
@@ -120,6 +120,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       items: [
         { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
         { title: "Jadwal Ujian", url: "/dosen/jadwal-ujian" },
+        { title: "Rekapitulasi Nilai", url: "/dosen/rekapitulasi-nilai" },
       ],
     },
   ];
@@ -132,7 +133,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       items: [
         { title: "Rancangan Penelitian", url: "/mahasiswa/pengajuan-ranpel" },
         { title: "Perbaikan judul", url: "/mahasiswa/perbaikan-judul" },
-        { title: "Pengajuan Ujian", url: "/mahasiswa/pendaftaran-ujian" },
+        { title: "Pendaftaran Ujian", url: "/mahasiswa/pendaftaran-ujian" },
         { title: "Jadwal Ujian", url: "/mahasiswa/jadwal-ujian" },
         { title: "Berita Ujian", url: "/mahasiswa/berita-ujian" },
         { title: "Rekapitulasi Nilai", url: "/mahasiswa/rekapitulasi-nilai" },

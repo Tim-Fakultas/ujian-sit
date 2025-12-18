@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import TableGlobal from "@/components/tableGlobal";
+import { DataTableFilter } from "@/components/common/DataTableFilter";
 import {
   ColumnDef,
   SortingState,
@@ -54,6 +55,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { DataCard } from "@/components/common/DataCard";
 
 export default function PendaftaranUjianTable({
   pendaftaranUjianList,
@@ -148,9 +150,13 @@ export default function PendaftaranUjianTable({
   // Filtered data
   const filteredData = useMemo(() => {
     return pendaftaranUjianList.filter((u) => {
-      const matchNama = u.mahasiswa.nama
-        .toLowerCase()
-        .includes(filterNama.toLowerCase());
+      const searchLower = filterNama.toLowerCase();
+      const matchSearch =
+        (u.mahasiswa.nama && u.mahasiswa.nama.toLowerCase().includes(searchLower)) ||
+        (u.mahasiswa.nim && u.mahasiswa.nim.toLowerCase().includes(searchLower)) ||
+        (u.ranpel?.judulPenelitian &&
+          u.ranpel.judulPenelitian.toLowerCase().includes(searchLower));
+
       const matchJenis =
         filterOption.type === "jenis"
           ? filterOption.value === "all"
@@ -163,7 +169,7 @@ export default function PendaftaranUjianTable({
             ? true
             : u.status === filterOption.value
           : true;
-      return matchNama && matchJenis && matchStatus;
+      return matchSearch && matchJenis && matchStatus;
     });
   }, [filterNama, filterOption]);
 
@@ -292,7 +298,7 @@ export default function PendaftaranUjianTable({
 
   // create react-table instance used by TableGlobal
   const table = useReactTable({
-    data: pendaftaranUjianList,
+    data: filteredData,
     columns: cols,
     state: {
       sorting,
@@ -315,90 +321,25 @@ export default function PendaftaranUjianTable({
 
   
   return (
-    <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow">
+    <DataCard>
       {/* Filter Bar - match admin design */}
-      <div className="flex flex-col gap-2 mb-4">
-        <div className="flex flex-row items-center gap-2 w-full">
-          {/* Search */}
-          <div className="relative flex-1 flex items-center min-w-0">
-            <Input
-              placeholder="Search"
-              value={filterNama}
-              onChange={(e) => setFilterNama(e.target.value)}
-              className="pl-9 w-full bg-white dark:bg-[#1f1f1f]"
-              aria-label="Search"
-            />
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              <Search size={16} />
-            </span>
-          </div>
-          {/* Gabungan filter status/jenis */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-9 px-3 rounded-lg border flex items-center gap-2"
-                aria-label="Filter Status/Jenis"
-              >
-                <Settings2 size={18} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-[180px]">
-              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
-                Status
-              </div>
-              {statusOptions.map((opt) => (
-                <DropdownMenuItem
-                  key={"status-" + opt.value}
-                  onClick={() =>
-                    setFilterOption({ type: "status", value: opt.value })
-                  }
-                  className="flex items-center justify-between gap-2"
-                >
-                  <span className="text-sm">{opt.label}</span>
-                  {filterOption.type === "status" &&
-                    filterOption.value === opt.value && (
-                      <CheckCircle2 size={14} className="text-emerald-500" />
-                    )}
-                </DropdownMenuItem>
-              ))}
-              <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t border-muted">
-                Jenis Ujian
-              </div>
-              {jenisUjianOptions.map((opt) => (
-                <DropdownMenuItem
-                  key={"jenis-" + opt.value}
-                  onClick={() =>
-                    setFilterOption({ type: "jenis", value: opt.value })
-                  }
-                  className="flex items-center justify-between gap-2"
-                >
-                  <span className="text-sm">{opt.label}</span>
-                  {filterOption.type === "jenis" &&
-                    filterOption.value === opt.value && (
-                      <CheckCircle2 size={14} className="text-emerald-500" />
-                    )}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Tabs for view mode */}
-          <Tabs
-            value={viewMode}
-            onValueChange={(v) => setViewMode(v as "table" | "card")}
-          >
-            <TabsList>
-              <TabsTrigger value="table">
-                <LayoutGrid size={16} />
-              </TabsTrigger>
-              <TabsTrigger value="card">
-                <List size={16} />
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      </div>
+      {/* Filter Bar - match admin design */}
+      <DataTableFilter
+        searchValue={filterNama}
+        onSearchChange={setFilterNama}
+        searchPlaceholder="Search Name, NIM, Title..."
+        filterGroups={[
+          { label: "Status", key: "status", options: statusOptions },
+          { label: "Jenis Ujian", key: "jenis", options: jenisUjianOptions },
+        ]}
+        selectedFilterType={filterOption.type}
+        selectedFilterValue={filterOption.value}
+        onFilterChange={(type, value) => {
+          setFilterOption({ type, value });
+        }}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
 
       {/* Table/Card View */}
       <Tabs
@@ -409,59 +350,86 @@ export default function PendaftaranUjianTable({
           <TableGlobal table={table} cols={cols} />
         </TabsContent>
         <TabsContent value="card">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredData.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8 col-span-full">
-                Tidak ada data.
+              <div className="text-center text-muted-foreground py-12 col-span-full flex flex-col items-center gap-3">
+                 <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
+                    <List size={24} className="opacity-50" />
+                 </div>
+                <p>Tidak ada data pendaftaran.</p>
               </div>
             ) : (
               filteredData.map((p) => {
                 const status =
                   pendaftaranUjianList.find(
-                    (p) =>
-                      p.mahasiswa.id === p.mahasiswa.id &&
-                      p.jenisUjian.id === p.jenisUjian.id
+                    (item) =>
+                      item.mahasiswa.id === p.mahasiswa.id &&
+                      item.jenisUjian.id === p.jenisUjian.id
                   )?.status ??
-                  p.status   ??
+                  p.status ??
                   "";
+                
+
+                 
+                 const jenisColor = getJenisUjianColor(p.jenisUjian.namaJenis);
+
                 return (
                   <div
                     key={p.id}
-                    className="border rounded-lg bg-white dark:bg-neutral-800 shadow-sm flex flex-col"
+                    className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                   >
-                    <div className="p-4 flex flex-col gap-2">
-                      <div className="font-semibold text-base leading-tight">
-                        {p.mahasiswa.nama}
-                      </div>
-                      <div className="text-xs text-muted-foreground mb-1 leading-none">
-                        {p.mahasiswa.nim}
-                      </div>
-                      <div>
-                        <span className="font-medium block mb-1">Judul:</span>
-                        <div className="whitespace-pre-line break-words text-sm leading-relaxed max-h-16 overflow-hidden">
-                          {p.ranpel.judulPenelitian}
+                    <div className="p-5 flex flex-col gap-4 flex-1">
+                      
+                       {/* Header: Status & Type */}
+                       <div className="flex justify-between items-start">
+                          <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                              status === 'selesai' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
+                              status === 'dijadwalkan' ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300" :
+                              "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400"
+                          }`}>
+                             {status || "Menunggu"}
+                          </span>
+                       </div>
+
+                       {/* Content: Title & Name */}
+                       <div className="space-y-2">
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={p.ranpel.judulPenelitian}>
+                             {p.ranpel.judulPenelitian || "Judul tidak tersedia"}
+                          </h3>
+                          
+                          <div className="flex items-center gap-2 pt-1">
+                             <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
+                                {p.mahasiswa.nama.charAt(0)}
+                             </div>
+                             <div className="flex flex-col">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                                   {p.mahasiswa.nama}
+                                </span>
+                                <span className="text-[11px] text-gray-400">
+                                   {p.mahasiswa.nim}
+                                </span>
+                             </div>
+                          </div>
+                       </div>
+                       
+                        {/* Type Badge */}
+                        <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
+                           <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}>
+                              {p.jenisUjian.namaJenis}
+                           </span>
                         </div>
-                      </div>
-                      <div className="flex flex-row items-center gap-2 mt-2">
-                        <span className="font-medium">Jenis:</span>
-                        <span
-                          className={`px-2 py-0.5 text-xs rounded font-semibold ${getJenisUjianColor(
-                            p.jenisUjian.namaJenis
-                          )}`}
+                    </div>
+                    
+                    {/* Actions Footer */}
+                    <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleBerkas(p)}
+                          className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
                         >
-                          {p.jenisUjian.namaJenis}
-                        </span>
-                      </div>
-                      <div className="flex flex-row items-center gap-2">
-                        <span className="font-medium">Status:</span>
-                        <span
-                          className={`px-2 py-0.5 text-xs rounded font-semibold ${getStatusColor(
-                            status
-                          )}`}
-                        >
-                          {status}
-                        </span>
-                      </div>
+                           <Eye size={14} className="mr-1.5" /> Lihat Berkas
+                        </Button>
                     </div>
 
                   </div>
@@ -666,7 +634,7 @@ export default function PendaftaranUjianTable({
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </DataCard>
   );
 }
 

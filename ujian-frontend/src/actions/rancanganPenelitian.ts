@@ -28,35 +28,6 @@ export async function createRancanganPenelitian(
   }
 }
 
-export async function updateRancanganPenelitian(
-  mahasiswaId: number,
-  ranpelId: number,
-  data: Partial<RancanganPenelitian>
-) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  try {
-    const response = await fetch(
-      `${apiUrl}/mahasiswa/${mahasiswaId}/ranpel/${ranpelId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        cache: "no-store",
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to update rancangan penelitian");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error updating rancangan penelitian:", error);
-    throw error;
-  }
-}
 
 
 export async function updateJudulRancanganPenelitian(
@@ -88,3 +59,4 @@ export async function updateJudulRancanganPenelitian(
     throw error;
   }
 }
+

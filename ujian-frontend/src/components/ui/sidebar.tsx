@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, VariantProps } from "class-variance-authority";
-import { PanelLeftClose, PanelLeftIcon, PanelRightClose } from "lucide-react";
+import { PanelLeftClose, PanelLeftIcon, PanelRight, PanelRightClose } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -273,7 +273,7 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      {state === "expanded" ? <PanelLeftClose /> : <PanelRightClose />}
+       <PanelRight size={28}/> 
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

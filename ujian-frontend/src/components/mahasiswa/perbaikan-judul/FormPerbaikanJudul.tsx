@@ -30,11 +30,11 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-import { updateRancanganPenelitian } from "@/actions/rancanganPenelitian";
+import { perbaikanJudul } from "@/actions/perbaikanJudul";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 
 import RiwayatPerubahan from "./RiwayatPerubahan";
-import { toast } from "sonner";
+
 
 // Schema validasi
 const formSchema = z.object({
@@ -77,16 +77,13 @@ export default function FormPerbaikanJudul({
 
     setIsLoading(true);
     try {
-      // 1. Update Judul (Real Action)
-      await updateRancanganPenelitian(mahasiswaId, ranpelId, {
-        judulPenelitian: values.judulBaru,
-      });
+      const formData = new FormData();
+      formData.append("ranpelId", ranpelId.toString());
+      formData.append("mahasiswaId", mahasiswaId.toString());
+      formData.append("judulBaru", values.judulBaru);
+      formData.append("berkas", file);
 
-      // 2. Upload File (Mock Action - karena backend belum support)
-      // simulate upload delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      console.log("File uploaded:", file.name); // Mock upload
+      await perbaikanJudul(formData);
 
       showToast.success("Judul berhasil diperbarui dan surat perbaikan telah dikirim.");
       form.reset();
@@ -104,7 +101,7 @@ export default function FormPerbaikanJudul({
     <div className="grid gap-6 md:grid-cols-2 items-stretch">
       {/* Kolom Kiri: Judul Lama */}
       <div className="flex flex-col gap-6 h-full">
-        <Card className="border-l-4 border-l-blue-500 shadow-sm shrink-0">
+        <Card className="shadow-sm shrink-0">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <History className="h-5 w-5 text-blue-500" />
@@ -133,7 +130,7 @@ export default function FormPerbaikanJudul({
 
       {/* Kolom Kanan: Form Perbaikan */}
       <div className="h-full">
-        <Card className="shadow-md border-t-4 border-t-emerald-500 h-full">
+        <Card className="shadow-md h-full">
           <CardHeader>
             <CardTitle className="text-xl">Form Perbaikan Judul</CardTitle>
             <CardDescription>
@@ -182,11 +179,11 @@ export default function FormPerbaikanJudul({
                         const selectedFile = e.target.files?.[0];
                         if (selectedFile) {
                             if (selectedFile.size > 2 * 1024 * 1024) { // 2MB limit
-                                toast.error("Ukuran file maksimal 2MB");
+                                showToast.error("Ukuran file maksimal 2MB");
                                 return;
                             }
                             if (selectedFile.type !== "application/pdf") {
-                                toast.error("File harus berformat PDF");
+                                showToast.error("File harus berformat PDF");
                                 return;
                             }
                             setFile(selectedFile);

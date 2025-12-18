@@ -11,6 +11,10 @@ import {
   LayoutGrid,
   List,
   Settings2,
+  Calendar,
+  Clock,
+  MapPin,
+  User,
 } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +44,7 @@ import {
   getCoreRowModel,
 } from "@tanstack/react-table";
 import TableGlobal from "@/components/tableGlobal";
+import { DataCard } from "@/components/common/DataCard";
 // ...existing code...
 
 interface JadwalUjianTableProps {
@@ -216,7 +221,7 @@ export default function JadwalUjianTable({
     else if (status === "menunggu")
       color =
         "bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-800";
-    else if (status === "diterima")
+    else if (status === "belum diterima")
       color =
         "bg-green-100 text-green-700 border border-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-800";
     else if (status === "selesai")
@@ -445,7 +450,7 @@ export default function JadwalUjianTable({
   }
 
   return (
-    <div className="border bg-white dark:bg-neutral-900 p-3 sm:p-6 rounded-lg w-full max-w-full">
+    <DataCard className="w-full max-w-full">
       {/* Header & Filter Bar */}
       <div className="flex flex-col gap-2  mb-4 w-full">
         <div className="flex flex-row flex-1 items-center gap-2 w-full sm:justify-end">
@@ -602,7 +607,7 @@ export default function JadwalUjianTable({
       {viewMode === "table" ? (
         <TableGlobal table={table} cols={columns} />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
           {paginatedData.map((ujian, idx) => {
             const judul = ujian.judulPenelitian ?? "-";
             const jenis = ujian.jenisUjian?.namaJenis ?? "-";
@@ -612,7 +617,9 @@ export default function JadwalUjianTable({
                 ujian.hariUjian.slice(1)
               : "-";
             const tanggal = ujian.jadwalUjian
-              ? ujian.jadwalUjian.split(/[ T]/)[0]
+              ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
+                 day: "numeric", month: "short", year: "numeric"
+              })
               : "-";
             const waktu =
               (ujian.waktuMulai?.slice(0, 5) || "-") +
@@ -620,70 +627,108 @@ export default function JadwalUjianTable({
               (ujian.waktuSelesai?.slice(0, 5) || "-");
             const status = ujian.pendaftaranUjian?.status ?? "-";
             const nilaiAkhir = nilaiAkhirTotalUjian(ujian);
+
+
+
+            // Status badge color logic
+            let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
+             if (status === "dijadwalkan")
+              statusColor = "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
+            else if (status === "menunggu")
+              statusColor = "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800";
+            else if (status === "belum dijadwalkan")
+              statusColor = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
+            else if (status === "selesai")
+              statusColor = "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800";
+
             return (
               <div
                 key={ujian.id ?? idx}
-                className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-sm flex flex-col h-full relative"
+                className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
               >
-                {/* Status badge kanan atas */}
-                <div className="absolute top-4 right-4">
-                  {statusBadge(status)}
+                {/* Decoration Gradient */}
+                <div className={`absolute top-0 right-0 p-4 opacity-5 pointer-events-none`}>
+                    <Calendar size={100} />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <div className="text-sm text-muted-foreground">
-                    {hari}, {tanggal}
-                  </div>
-                  <div className="font-semibold text-base break-words whitespace-pre-line my-2">
-                    {judul}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Jenis: {jenis}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Ruangan: {ruangan}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Waktu: {waktu}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Nilai Akhir:{" "}
-                    {nilaiAkhir !== null ? (
-                      <span className="font-semibold ">{nilaiAkhir}</span>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center justify-end gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <MoreHorizontal size={16} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setSelected(ujian);
-                          setOpenDaftarHadir(true);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2"
-                      >
-                        <Eye size={16} />
-                        <span>Lihat Penguji</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setSelected(ujian);
-                          setOpenDetail(true);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2"
-                      >
-                        <IconClipboardText size={16} />
-                        <span>Lihat Detail</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                
+                <div className="p-5 flex flex-col gap-4 flex-1 z-10">
+                     {/* Header */}
+                     <div className="flex justify-between items-start">
+                         <div className="flex flex-col gap-1">
+                             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                 {jenis}
+                             </span>
+                             <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                                 <Calendar size={13} />
+                                 <span>{hari}, {tanggal}</span>
+                             </div>
+                         </div>
+                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
+                             {status}
+                         </span>
+                     </div>
+
+                     {/* Title */}
+                     <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
+                         {ujian.judulPenelitian || "Judul tidak tersedia"}
+                     </h3>
+
+                     {/* Details Grid */}
+                     <div className="grid grid-cols-2 gap-3 text-xs mt-1">
+                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg">
+                             <Clock size={14} className="shrink-0 text-blue-500" />
+                             <span className="truncate">{waktu}</span>
+                         </div>
+                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg">
+                             <MapPin size={14} className="shrink-0 text-red-500" />
+                             <span className="truncate">{ruangan}</span>
+                         </div>
+                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg col-span-2">
+                             <User size={14} className="shrink-0 text-green-500" />
+                             <span className="truncate">Mahasiswa: {ujian.mahasiswa?.nama ?? "-"}</span>
+                         </div>
+                     </div>
+                     
+                     {/* Footer: Grade */}
+                      <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
+                        <div className="flex flex-col">
+                             <span className="text-[10px] text-gray-400 font-medium">Nilai Akhir</span>
+                             <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                {nilaiAkhir !== null ? nilaiAkhir : "-"}
+                             </span>
+                        </div>
+                        
+                        {/* Actions Dropdown */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800">
+                                <MoreHorizontal size={16} />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelected(ujian);
+                                  setOpenDaftarHadir(true);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                <Eye className="mr-2 h-4 w-4" />
+                                <span>Lihat Penguji</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelected(ujian);
+                                  setOpenDetail(true);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                <IconClipboardText className="mr-2 h-4 w-4" />
+                                <span>Lihat Detail</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                     </div>
                 </div>
               </div>
             );
@@ -743,6 +788,6 @@ export default function JadwalUjianTable({
         onClose={() => setOpenDetail(false)}
       />
       {/* Modal Rekapitulasi Nilai dihapus */}
-    </div>
+    </DataCard>
   );
 }

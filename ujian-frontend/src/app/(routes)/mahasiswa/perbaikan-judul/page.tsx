@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { getCurrentUserAction } from "@/actions/auth";
 import { getPengajuanRanpelByMahasiswaId } from "@/actions/pengajuanRanpel";
-import { Card, CardDescription, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PageHeader from "@/components/common/PageHeader";
 import { PencilLine, FileWarning } from "lucide-react";
 import FormPerbaikanJudul from "@/components/mahasiswa/perbaikan-judul/FormPerbaikanJudul";
 import Loading from "./loading";
@@ -42,7 +43,7 @@ export default async function Page() {
   if (!activeRanpel) {
       return (
           <div className="p-6">
-               <Card className="border-l-4 border-l-yellow-500 bg-yellow-50/50 dark:bg-yellow-900/10">
+               <Card className="bg-yellow-50/50 dark:bg-yellow-900/10">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-yellow-700 dark:text-yellow-500">
                         <FileWarning className="h-5 w-5" />
@@ -60,19 +61,13 @@ export default async function Page() {
   return (
     <div className="p-6 flex flex-col space-y-6">
       {/* Header Page */}
-      <Card className="bg-white dark:bg-neutral-900 shadow-sm border-none ring-1 ring-gray-200 dark:ring-neutral-800">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold flex items-center gap-2">
-            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-                <PencilLine className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            Perbaikan Judul Skripsi
-          </CardTitle>
-          <CardDescription className="text-base mt-2">
-            Halaman ini digunakan untuk mengajukan perubahan judul skripsi yang telah disetujui sebelumnya.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      {/* Header Page */}
+      <PageHeader 
+        title="Perbaikan Judul Skripsi"
+        description="Halaman ini digunakan untuk mengajukan perubahan judul skripsi yang telah disetujui sebelumnya."
+        icon={PencilLine}
+        variant="emerald"
+      />
 
       <Suspense fallback={<Loading />}>
           <FormPerbaikanJudul 

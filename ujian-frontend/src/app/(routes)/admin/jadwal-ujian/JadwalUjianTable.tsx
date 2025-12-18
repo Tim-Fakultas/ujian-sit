@@ -11,6 +11,7 @@ import {
   LayoutGrid,
   List,
   Settings2,
+  Calendar,
 } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
@@ -428,7 +429,7 @@ export default function JadwalUjianTable({
       {viewMode === "table" ? (
         <TableGlobal table={table} cols={columns} />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
           {paginatedData.map((ujian, idx) => {
             const judul = ujian.judulPenelitian ?? "-";
             const jenis = ujian.jenisUjian?.namaJenis ?? "-";
@@ -445,38 +446,74 @@ export default function JadwalUjianTable({
               " - " +
               (ujian.waktuSelesai?.slice(0, 5) || "-");
             const status = ujian.pendaftaranUjian?.status ?? "-";
+            
+             // Format Date
+            const tanggalObj = ujian.jadwalUjian ? new Date(ujian.jadwalUjian) : null;
+            const tanggalStr = tanggalObj ? tanggalObj.toLocaleDateString("id-ID", {
+                day: "numeric", month: "short", year: "numeric"
+            }) : "-";
+
+
+            
+             let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
+            if (status === "dijadwalkan")
+              statusColor = "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
+            else if (status === "menunggu")
+              statusColor = "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800";
+            else if (status === "belum dijadwalkan")
+              statusColor = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
+            else if (status === "selesai")
+              statusColor = "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800";
+
+
             return (
               <div
                 key={ujian.id ?? idx}
-                className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-sm flex flex-col h-full relative"
+                className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
               >
-                {/* Status badge kanan atas */}
-                <div className="absolute top-4 right-4">
-                  {statusBadge(status)}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <div className="text-sm text-muted-foreground">
-                    {hari}, {tanggal}
+                  <div className="p-5 flex flex-col gap-4 flex-1">
+                      {/* Header: Date & Status */}
+                     <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                           <Calendar size={13} />
+                           <span>{hari}, {tanggalStr}</span>
+                        </div>
+                        
+                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
+                           {status}
+                        </span>
+                     </div>
+
+                      {/* Content: Title & Details */}
+                     <div className="space-y-4">
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
+                             {judul || "Judul tidak tersedia"}
+                          </h3>
+
+                           <div className="grid grid-cols-2 gap-3 text-sm">
+                              <div className="flex flex-col gap-1">
+                                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Jenis</span>
+                                  <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{jenis}</span>
+                              </div>
+                               <div className="flex flex-col gap-1">
+                                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ruangan</span>
+                                  <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{ruangan}</span>
+                              </div>
+                               <div className="flex flex-col gap-1 col-span-2">
+                                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Waktu</span>
+                                  <span className="font-medium text-gray-700 dark:text-gray-300">{waktu}</span>
+                              </div>
+                           </div>
+                     </div>
                   </div>
-                  <div className="font-semibold text-base break-words whitespace-pre-line my-2">
-                    {judul}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Jenis: {jenis}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Ruangan: {ruangan}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Waktu: {waktu}
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center justify-end gap-2">
-                  <DropdownMenu>
+
+                 {/* Actions Footer */}
+                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
+                     <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <MoreHorizontal size={16} />
-                      </Button>
+                      <Button variant="ghost" size="sm" className="text-xs h-8 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                         <MoreHorizontal size={14} className="mr-1.5" /> Aksi
+                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem
@@ -484,7 +521,7 @@ export default function JadwalUjianTable({
                           setSelected(ujian);
                           setOpenDaftarHadir(true);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2"
+                         className="w-full flex items-center gap-2 px-3 py-2 cursor-pointer"
                       >
                         <Eye size={16} />
                         <span>Lihat Penguji</span>
@@ -495,7 +532,7 @@ export default function JadwalUjianTable({
                             setSelected(ujian);
                             setOpenRekapitulasi(true);
                           }}
-                          className="w-full flex items-center gap-2 px-3 py-2"
+                           className="w-full flex items-center gap-2 px-3 py-2 cursor-pointer"
                         >
                           <IconClipboardText size={16} />
                           <span>Rekapitulasi Nilai</span>
@@ -503,7 +540,7 @@ export default function JadwalUjianTable({
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </div>
+                  </div>
               </div>
             );
           })}
@@ -513,37 +550,60 @@ export default function JadwalUjianTable({
       {/* Modal Lihat Penguji */}
       <Modal open={openDaftarHadir} onClose={() => setOpenDaftarHadir(false)}>
         <div>
-          <div className="text-xl font-bold mb-4 tracking-tight flex items-center gap-2">
-            Daftar Penguji
+          <div className="flex items-center justify-between mb-6">
+             <div className="text-xl font-bold tracking-tight">
+               Daftar Penguji
+             </div>
           </div>
+          
           {selected?.penguji && selected.penguji.length > 0 ? (
-            <ul className="space-y-3">
-              {selected.penguji.map((penguji, idx) => (
-                <li
+            <div className="space-y-4">
+              {selected.penguji.map((penguji, idx) => {
+                 const isHadir = getHadirStatus(selected, penguji.id);
+                 return (
+                <div
                   key={penguji.id ?? idx}
-                  className="flex flex-wrap items-center gap-2 text-base"
+                  className="flex items-center gap-4 bg-gray-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-gray-100 dark:border-neutral-800 transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800"
                 >
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    {penguji.nama ?? "-"}
-                  </span>
-                  <span className="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-gray-300 border border-gray-200 dark:border-neutral-700 font-medium">
-                    {roleLabel(penguji.peran)}
-                  </span>
-                  {getHadirStatus(selected, penguji.id) ? (
-                    <span className="text-green-600 text-xs font-semibold ml-2">
-                      Hadir
-                    </span>
-                  ) : (
-                    <span className="text-red-500 text-xs font-semibold ml-2">
-                      Tidak Hadir
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
+                  {/* Avatar Placeholder / Initials */}
+                  <div className="h-10 w-10 rounded-full bg-white dark:bg-neutral-700 border border-gray-200 dark:border-neutral-600 flex items-center justify-center text-sm font-bold text-gray-700 dark:text-gray-200 shrink-0 shadow-sm">
+                      {penguji.nama ? penguji.nama.charAt(0).toUpperCase() : "?"}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
+                        {penguji.nama ?? "-"}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 font-medium border border-blue-100 dark:border-blue-800">
+                             {roleLabel(penguji.peran)}
+                          </span>
+                      </div>
+                  </div>
+
+                  <div className="shrink-0">
+                      {isHadir ? (
+                        <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 rounded-lg text-xs font-bold border border-green-200 dark:border-green-800/50 shadow-sm">
+                           <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                           Hadir
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 rounded-lg text-xs font-bold border border-red-200 dark:border-red-800/50 shadow-sm">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                           Tidak Hadir
+                        </div>
+                      )}
+                  </div>
+                </div>
+              )})}
+            </div>
           ) : (
-            <div className="text-sm text-muted-foreground">
-              Belum ada data penguji.
+            <div className="flex flex-col items-center justify-center py-8 text-center bg-gray-50 dark:bg-neutral-800/30 rounded-xl border border-dashed border-gray-200 dark:border-neutral-800">
+               <div className="p-3 bg-white dark:bg-neutral-800 rounded-full mb-3 shadow-sm">
+                  <Eye size={20} className="text-gray-400" />
+               </div>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-200">Belum ada data penguji</div>
+              <div className="text-xs text-gray-500 mt-1">Data penguji belum ditambahkan untuk ujian ini.</div>
             </div>
           )}
         </div>
@@ -552,42 +612,84 @@ export default function JadwalUjianTable({
       {/* Modal Rekapitulasi Nilai */}
       <Modal open={openRekapitulasi} onClose={() => setOpenRekapitulasi(false)}>
         <div>
-          <div className="text-lg font-semibold mb-2">Rekapitulasi Nilai</div>
+           <div className="flex items-center justify-between mb-6">
+             <div className="text-xl font-bold tracking-tight">
+               Rekapitulasi Nilai
+             </div>
+          </div>
+          
           {loadingPenilaian ? (
-            <div className="text-center py-4">Memuat data...</div>
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+               <span className="text-sm text-muted-foreground">Memuat data penilaian...</span>
+            </div>
           ) : penilaianData && penilaianData.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="px-3 py-2 border">Penguji</th>
-                    <th className="px-3 py-2 border">Peran</th>
-                    <th className="px-3 py-2 border">Nilai Akhir</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selected?.penguji?.map((penguji, idx) => (
-                    <tr key={penguji.id ?? idx}>
-                      <td className="px-3 py-2 border">
-                        {penguji.nama ?? "-"}
-                      </td>
-                      <td className="px-3 py-2 border">
-                        {roleLabel(penguji.peran)}
-                      </td>
-                      <td className="px-3 py-2 border">
-                        {(() => {
-                          const nilai = nilaiAkhirDosen(selected, penguji.id);
-                          return nilai !== null ? nilai : "-";
-                        })()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-4">
+               {selected?.penguji?.map((penguji, idx) => {
+                  const nilai = nilaiAkhirDosen(selected, penguji.id);
+                  const hasNilai = nilai !== null;
+                  
+                  return (
+                    <div 
+                      key={penguji.id ?? idx}
+                      className="flex items-center gap-4 bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 p-4 rounded-xl shadow-sm relative overflow-hidden group"
+                    >
+                         {/* Decorative side bar */}
+                         <div className={`absolute left-0 top-0 bottom-0 w-1 ${hasNilai ? 'bg-blue-500' : 'bg-gray-300 dark:bg-neutral-700'}`}></div>
+                         
+                         <div className="flex-1 pl-2">
+                             <div className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                                {penguji.nama ?? "-"}
+                             </div>
+                             <div className="text-xs text-muted-foreground mt-0.5">
+                                {roleLabel(penguji.peran)}
+                             </div>
+                         </div>
+                         
+                         <div className="text-right">
+                             <div className="text-[10px] uppercase font-bold text-gray-400 mb-0.5 tracking-wider">Nilai Akhir</div>
+                             {hasNilai ? (
+                                <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                                   {nilai}
+                                </div>
+                             ) : (
+                                <div className="text-sm font-medium text-gray-400 italic">
+                                   Belum dinilai
+                                </div>
+                             )}
+                         </div>
+                    </div>
+                  );
+               })}
+                
+                {/* Summary Section (Optional) */}
+               {selected?.penguji && selected.penguji.length > 0 && (
+                   <div className="mt-6 pt-4 border-t border-gray-100 dark:border-neutral-800 flex justify-between items-center">
+                       <span className="text-sm font-medium text-gray-500">Rata-rata Nilai</span>
+                       <span className="text-lg font-bold text-gray-900 dark:text-white">
+                          {(() => {
+                              let total = 0;
+                              let count = 0;
+                              selected.penguji.forEach(p => {
+                                  const n = nilaiAkhirDosen(selected, p.id);
+                                  if (n !== null) {
+                                      total += n;
+                                      count++;
+                                  }
+                              });
+                              return count > 0 ? (total / count).toFixed(2) : "-";
+                          })()}
+                       </span>
+                   </div>
+               )}
             </div>
           ) : (
-            <div className="text-sm text-muted-foreground">
-              Belum ada data penilaian.
+             <div className="flex flex-col items-center justify-center py-8 text-center bg-gray-50 dark:bg-neutral-800/30 rounded-xl border border-dashed border-gray-200 dark:border-neutral-800">
+               <div className="p-3 bg-white dark:bg-neutral-800 rounded-full mb-3 shadow-sm">
+                  <IconClipboardText size={20} className="text-gray-400" />
+               </div>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-200">Belum ada data penilaian</div>
+              <div className="text-xs text-gray-500 mt-1">Penilaian belum tersedia untuk ujian ini.</div>
             </div>
           )}
         </div>

@@ -43,13 +43,7 @@ export interface Ujian {
     id: number;
     namaRuangan: string;
   };
-  penguji: {
-    id: number;
-    nama: string;
-    nip: string;
-    nidn: string;
-    peran: "ketua_penguji" | "sekretaris_penguji" | "penguji_1" | "penguji_2";
-  }[];
+  penguji: Penguji[];
   hasil: string | null;
   nilaiAkhir: number | null;
   catatan: string | null;
@@ -70,4 +64,12 @@ export interface Ujian {
 
 export interface UjianResponse {
   data: Ujian[];
+}
+
+export interface Penguji {
+  id: number;
+  nama: string;
+  nip: string;
+  nidn: string;
+  peran: "ketua_penguji" | "sekretaris_penguji" | "penguji_1" | "penguji_2";
 }

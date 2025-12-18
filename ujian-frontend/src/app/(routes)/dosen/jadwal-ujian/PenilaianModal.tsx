@@ -2,14 +2,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "../../../../components/ui/table";
+
 import { showToast } from "@/components/ui/custom-toast";
 import { Input } from "../../../../components/ui/input";
 import { Label } from "../../../../components/ui/label";
@@ -21,7 +14,7 @@ import { KomponenPenilaian } from "@/types/KomponenPenilaian";
 import { Ujian } from "@/types/Ujian";
 import { useActionState } from "react";
 import revalidateAction from "@/actions/revalidate";
-import { X } from "lucide-react";
+import { X, ClipboardList, CheckCircle2, AlertCircle, Save, Loader2 } from "lucide-react";
 
 interface PenilaianModalProps {
   open: boolean;
@@ -186,116 +179,208 @@ export default function PenilaianModal({
     prevSuccessRef.current = !!state.success;
   }, [state.success, onClose]);
 
+  // Calculate grade text based on score
+  const getGrade = (score: number) => {
+    if (score >= 85) return { label: "A", color: "text-emerald-500 bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800" };
+    if (score >= 80) return { label: "A-", color: "text-emerald-600 bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800" };
+    if (score >= 75) return { label: "B+", color: "text-blue-500 bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-800" };
+    if (score >= 70) return { label: "B", color: "text-blue-600 bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-800" };
+    if (score >= 65) return { label: "B-", color: "text-cyan-600 bg-cyan-50 border-cyan-100 dark:bg-cyan-900/20 dark:border-cyan-800" };
+    if (score >= 60) return { label: "C+", color: "text-yellow-600 bg-yellow-50 border-yellow-100 dark:bg-yellow-900/20 dark:border-yellow-800" };
+    if (score >= 55) return { label: "C", color: "text-yellow-600 bg-yellow-50 border-yellow-100 dark:bg-yellow-900/20 dark:border-yellow-800" };
+    if (score >= 40) return { label: "D", color: "text-orange-600 bg-orange-50 border-orange-100 dark:bg-orange-900/20 dark:border-orange-800" };
+    return { label: "E", color: "text-red-600 bg-red-50 border-red-100 dark:bg-red-900/20 dark:border-red-800" };
+  };
+
+  const gradeInfo = getGrade(totalSkor);
+
   if (!open || !ujian) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80 p-4 transition-all duration-300 "
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-[#18181c] rounded-2xl shadow-2xl p-0 relative w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden "
+        className="bg-white dark:bg-[#121212] rounded-xl shadow-2xl relative w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-300 border border-gray-100 dark:border-neutral-800"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 pt-6 pb-2 border-b ">
-          <h2 className="text-xl font-bold tracking-tight">
-            Form Penilaian Ujian
-          </h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full "
-            onClick={onClose}
-            aria-label="Tutup"
-          >
-            <X size={20} />
-          </Button>
+        {/* Header with decorative elements */}
+        <div className="relative px-8 py-6 border-b dark:border-neutral-800 overflow-hidden bg-white dark:bg-[#121212]">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+          
+          <div className="relative flex items-center justify-between z-10 pb-6">
+            <div className="flex items-center gap-4">
+               <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                  <ClipboardList strokeWidth={1.5} size={24} />
+               </div>
+               <div>
+                  <h2 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    Penilaian Ujian
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-neutral-400 font-medium">
+                    {formatPeran(peranPenguji)} • {ujian.mahasiswa?.nama}
+                  </p>
+               </div>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+              onClick={onClose}
+              aria-label="Tutup"
+            >
+              <X size={20} />
+            </Button>
+          </div>
         </div>
 
-        {/* Tabel Penilaian */}
+        {/* Content */}
         <form
           action={formAction}
-          className="flex-1 flex flex-col overflow-auto"
+          className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-[#0a0a0a]/50"
         >
-          <div className="flex-1 px-6 py-4 overflow-auto">
-            <div className="border rounded-xl overflow-hidden  bg-white dark:bg-[#23232a]">
-              <Table className="w-full text-sm">
-                <TableHeader className="border-b bg-gray-50 dark:bg-[#202024]">
-                  <TableRow>
-                    <TableHead className="font-semibold">Kriteria</TableHead>
-                    <TableHead className="font-semibold">Bobot</TableHead>
-                    <TableHead className="font-semibold">Skor</TableHead>
-                    <TableHead className="font-semibold">
-                      Bobot × Skor
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {komponen.map((k) => (
-                    <TableRow key={k.id}>
-                      <TableCell>{k.namaKomponen}</TableCell>
-                      <TableCell>{k.bobot}</TableCell>
-                      <TableCell>
-                        <Input
-                          type="number"
-                          min={0}
-                          max={100}
-                          value={nilai[k.id] ?? ""}
-                          onChange={(e) =>
-                            handleNilaiChange(k.id, e.target.value)
-                          }
-                          className="w-16 text-center rounded-md border border-muted"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {getBobotSkor(k.id, k.bobot).toFixed(2)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <div className="px-4 py-2 border-t text-right text-base font-bold bg-gray-50 dark:bg-[#202024]">
-                Total Skor:{" "}
-                <span className="text-blue-600 dark:text-blue-400">
-                  {totalSkor.toFixed(2)}
-                </span>
+          <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
+            
+            {/* Score Cards Grid for Mobile / List for Desktop */}
+            <div className="space-y-4">
+              <div className="hidden sm:grid grid-cols-12 gap-4 px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider dark:text-neutral-500">
+                <div className="col-span-6">Kriteria Penilaian</div>
+                <div className="col-span-2 text-center">Bobot (%)</div>
+                <div className="col-span-2 text-center">Skor (0-100)</div>
+                <div className="col-span-2 text-right">Nilai Akhir</div>
               </div>
+
+              {komponen.map((k, idx) => (
+                <div 
+                  key={k.id} 
+                  className="group bg-white dark:bg-[#18181b] rounded-2xl p-4 sm:p-0 sm:grid sm:grid-cols-12 sm:gap-4 sm:items-center border border-transparent hover:border-blue-100 dark:hover:border-blue-900/30 shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                    {/* Component Name */}
+                    <div className="col-span-6 flex items-start gap-4 sm:pl-6 sm:py-4 mb-3 sm:mb-0">
+                      <span className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 flex items-center justify-center text-sm font-medium border dark:border-neutral-700">
+                        {idx + 1}
+                      </span>
+                      <div>
+                        <p className="font-semibold text-gray-900 dark:text-gray-200 text-sm sm:text-base leading-tight">
+                          {k.namaKomponen.replace(/_\d+$/, "").replace(/_/g, " ")}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1 sm:hidden">Bobot: {k.bobot}%</p>
+                      </div>
+                    </div>
+
+                    {/* Weight Display */}
+                    <div className="col-span-2 hidden sm:flex justify-center">
+                       <span className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 text-sm font-medium">
+                          {k.bobot}%
+                       </span>
+                    </div>
+
+                    {/* Score Input */}
+                    <div className="col-span-2 flex items-center justify-between sm:justify-center gap-4">
+                       <span className="text-sm font-medium sm:hidden text-gray-600">Skor:</span>
+                       <div className="relative">
+                          <Input
+                              type="number"
+                              min={0}
+                              max={100}
+                              value={nilai[k.id] ?? ""}
+                              onChange={(e) => handleNilaiChange(k.id, e.target.value)}
+                              placeholder="0"
+                              className={`w-20 text-center font-bold text-lg h-12 rounded-xl border-2 transition-all duration-200 focus:ring-4 ${
+                                (nilai[k.id] !== null && Number(nilai[k.id]) >= 0) 
+                                  ? "border-blue-100 bg-blue-50/50 text-blue-700 focus:border-blue-500 focus:ring-blue-500/20 dark:bg-blue-900/10 dark:border-blue-900/30 dark:text-blue-400" 
+                                  : "border-gray-200 bg-white focus:border-gray-400 dark:bg-neutral-900 dark:border-neutral-700"
+                              }`}
+                          />
+                       </div>
+                    </div>
+
+                    {/* Calculated Value */}
+                    <div className="col-span-2 flex items-center justify-between sm:justify-end sm:pr-6 mt-3 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-dashed border-gray-200 dark:border-neutral-800">
+                        <span className="text-sm font-medium sm:hidden text-gray-600">Total:</span>
+                        <div className="text-right">
+                           <span className="text-lg font-bold text-gray-900 dark:text-white">
+                              {getBobotSkor(k.id, k.bobot).toFixed(2)}
+                           </span>
+                        </div>
+                    </div>
+                </div>
+              ))}
             </div>
+
+            {/* Resume Card */}
+             <div className="bg-white dark:bg-[#18181b] rounded-2xl p-6 shadow-sm border border-blue-100 dark:border-blue-900/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold border-4 ${gradeInfo.color}`}>
+                        {gradeInfo.label}
+                    </div>
+                    <div>
+                        <p className="text-sm text-gray-500 dark:text-neutral-400 font-medium">Total Akumulasi</p>
+                        <h3 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                            {totalSkor.toFixed(2)} <span className="text-lg text-gray-400 font-medium">/ 100</span>
+                        </h3>
+                    </div>
+                </div>
+                
+                <div className="w-full sm:w-auto flex flex-col items-end gap-2">
+                     {!isAllFilled && (
+                        <div className="flex items-center gap-2 text-orange-500 bg-orange-50 dark:bg-orange-900/20 px-3 py-1.5 rounded-lg text-xs font-medium animate-pulse">
+                            <AlertCircle size={14} />
+                            Lengkapi semua skor penilaian
+                        </div>
+                     )}
+                     {isSudahNilai && (
+                        <div className="flex items-center gap-2 text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg text-xs font-medium">
+                            <CheckCircle2 size={14} />
+                            Penilaian telah tersimpan
+                        </div>
+                     )}
+                </div>
+             </div>
           </div>
 
-          <div className="px-6 pb-6">
+          {/* Footer Actions */}
+          <div className="px-8 py-5 bg-white dark:bg-[#121212] border-t dark:border-neutral-800 flex justify-end gap-3 z-10">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="h-11 px-6 rounded-xl border-gray-200 dark:border-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-800 text-gray-700 dark:text-neutral-300 font-medium"
+            >
+              Batal
+            </Button>
             <Button
               type="submit"
-              className={`w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-xl shadow ${
-                isSudahNilai || isLoading ? "opacity-50 cursor-not-allowed" : ""
+              className={`h-11 px-8 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all hover:translate-y-[-1px] ${
+                isSudahNilai 
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none dark:bg-neutral-800 dark:text-neutral-600" 
+                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
               }`}
               disabled={isSudahNilai || !isAllFilled || isLoading}
-              aria-disabled={isSudahNilai || !isAllFilled || isLoading}
-              title={
-                isSudahNilai ? "Anda sudah memberikan penilaian." : undefined
-              }
             >
-              {isLoading ? "Menyimpan..." : "Simpan Penilaian"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                  Menyimpan...
+                </>
+              ) : isSudahNilai ? (
+                "Sudah Dinilai"
+              ) : (
+                <>
+                  <Save className="mr-2 h-5 w-5" />
+                  Simpan Nilai
+                </>
+              )}
             </Button>
-
-            {isSudahNilai && (
-              <p className="text-xs text-red-600 mt-2 text-center">
-                Anda sudah memberikan penilaian.
-              </p>
-            )}
-
-            {!isAllFilled && (
-              <p className="text-xs text-orange-600 mt-2 text-center">
-                Harap isi semua skor sebelum menyimpan.
-              </p>
-            )}
-
-            {state.error && (
-              <p className="text-red-600 text-sm mt-2 text-center">
-                {state.error}
-              </p>
-            )}
           </div>
+          
+          {state.error && (
+             <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-red-50 dark:bg-red-900/90 text-red-600 dark:text-red-200 px-4 py-2 rounded-full shadow-lg text-sm font-medium animate-in slide-in-from-bottom-5 fade-in">
+                {state.error}
+             </div>
+          )}
         </form>
       </div>
     </div>

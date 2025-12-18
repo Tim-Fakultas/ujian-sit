@@ -27,6 +27,7 @@ import {
   Check,
   Search,
   Settings2,
+  Calendar,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -333,54 +334,71 @@ export default function PengajuanRanpelClient({
         ) : viewMode === "table" ? (
           <TableGlobal table={table} cols={cols} />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredData.map((item, idx) => {
               const key = (item as any).id ?? idx;
               const nama = item.mahasiswa?.nama ?? "-";
               const judul = item.ranpel?.judulPenelitian ?? "-";
               const tanggal = item.tanggalPengajuan ?? "";
               const status = item.status ?? "-";
+              
+              const tanggalStr = tanggal
+              ? new Date(String(tanggal)).toLocaleDateString("id-ID", {
+                  day: "numeric", month: "short", year: "numeric"
+                })
+              : "-";
+
+              let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
+
+
+
               return (
                 <div
                   key={key}
-                  className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-xs "
+                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">
-                        {new Date(String(tanggal)).toLocaleDateString?.(
-                          "id-ID"
-                        ) || tanggal}
-                      </div>
-                      <div className="font-medium">{nama}</div>
-                      <div className="text-sm text-muted-foreground mt-2">
-                        {truncateTitle(String(judul), 80)}
-                      </div>
-                    </div>
-                    <div className="ml-3 text-right">
-                      <div
-                        className={`px-2 py-1 rounded text-sm ${
-                          status === "menunggu"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : status === "diterima"
-                            ? "bg-green-100 text-green-800"
-                            : status === "ditolak"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}
-                      >
-                        {status}
-                      </div>
-                    </div>
+                  <div className="p-5 flex flex-col gap-4 flex-1">
+                     
+                     {/* Header: Date & Status */}
+                     <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                           <Calendar size={13} />
+                           <span>{tanggalStr}</span>
+                        </div>
+                        
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
+                           {status}
+                        </span>
+                     </div>
+
+                     {/* Content: Title & Name */}
+                     <div className="space-y-2">
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
+                             {judul || "Judul tidak tersedia"}
+                          </h3>
+                          
+                          <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
+                             <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
+                                {nama.charAt(0)}
+                             </div>
+                             <div className="flex flex-col mt-2">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                                   {nama}
+                                </span>
+                             </div>
+                          </div>
+                     </div>
                   </div>
 
-                  <div className="mt-4 flex items-center justify-end gap-2">
-                    <Button
+                  {/* Actions Footer */}
+                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
+                     <Button
                       size="sm"
                       variant="outline"
+                      className="text-xs h-8"
                       onClick={() => handleLihatClick(item)}
                     >
-                      Preview
+                      <Eye size={14} className="mr-1.5" /> Preview
                     </Button>
                   </div>
                 </div>

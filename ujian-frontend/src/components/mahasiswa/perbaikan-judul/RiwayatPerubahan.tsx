@@ -52,7 +52,7 @@ export default function RiwayatPerubahan({ currentJudul, updatedAt, className }:
     ];
 
   return (
-    <Card className={`border-l-4 border-l-indigo-500 shadow-sm bg-white dark:bg-neutral-900 flex flex-col ${className}`}>
+    <Card className={`shadow-sm bg-white dark:bg-neutral-900 flex flex-col ${className}`}>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <History className="h-5 w-5 text-indigo-500" />

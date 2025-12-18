@@ -2,6 +2,7 @@
 "use client";
 
 import TableGlobal from "@/components/tableGlobal";
+import { DataTableFilter } from "@/components/common/DataTableFilter";
 import {
   ColumnDef,
   SortingState,
@@ -27,6 +28,7 @@ import {
   List,
   Settings,
   Settings2,
+  Calendar,
 } from "lucide-react";
 import { PendaftaranUjian } from "@/types/PendaftaranUjian";
 import { Button } from "../ui/button";
@@ -51,6 +53,7 @@ import {
 } from "../ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
+import { DataCard } from "@/components/common/DataCard";
 
 export default function PendaftaranUjianTable({
   pendaftaranUjian,
@@ -406,119 +409,30 @@ export default function PendaftaranUjianTable({
   }
 
   return (
-    <div className="dark:bg-neutral-900 border p-6 rounded-lg bg-white">
+    <DataCard>
       {/* Filter bar: gabungan status/jenis, view mode, search, sort */}
-      <div className="flex flex-col gap-2 mb-4">
-        <div className="flex flex-row items-center gap-2 w-full">
-          {/* Search */}
-          <div className="relative flex-1 flex items-center min-w-0">
-            <Input
-              placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 w-full bg-white dark:bg-[#2a2a2a]"
-              aria-label="Search"
-            />
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              <Search size={16} />
-            </span>
-          </div>
-
-          {/* Gabungan filter status/jenis pakai Popover */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-9 px-3 rounded-lg border flex items-center gap-2"
-                aria-label="Filter Status/Jenis"
-              >
-                <Settings2 size={16} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="max-w-[180px]  p-2">
-              <div className="text-xs font-semibold text-muted-foreground mb-1">
-                Status
-              </div>
-              {statusOptions.map((opt) => (
-                <Button
-                  key={"status-" + opt.value}
-                  variant={
-                    filterOption.type === "status" &&
-                    filterOption.value === opt.value
-                      ? "secondary"
-                      : "ghost"
-                  }
-                  size="sm"
-                  className="w-full justify-between"
-                  onClick={() =>
-                    setFilterOption({ type: "status", value: opt.value })
-                  }
-                >
-                  <span className="text-sm">{opt.label}</span>
-                  {filterOption.type === "status" &&
-                    filterOption.value === opt.value && (
-                      <CheckCircle2 size={14} className="text-emerald-500" />
-                    )}
-                </Button>
-              ))}
-              <div className="text-xs font-semibold text-muted-foreground border-t border-muted mt-2 pt-2 mb-1">
-                Jenis Ujian
-              </div>
-              {jenisUjianOptions.map((opt) => (
-                <Button
-                  key={"jenis-" + opt.value}
-                  variant={
-                    filterOption.type === "jenis" &&
-                    filterOption.value === opt.value
-                      ? "secondary"
-                      : "ghost"
-                  }
-                  size="sm"
-                  className="w-full justify-between"
-                  onClick={() =>
-                    setFilterOption({ type: "jenis", value: opt.value })
-                  }
-                >
-                  <span className="text-sm">{opt.label}</span>
-                  {filterOption.type === "jenis" &&
-                    filterOption.value === opt.value && (
-                      <CheckCircle2 size={14} className="text-emerald-500" />
-                    )}
-                </Button>
-              ))}
-            </PopoverContent>
-          </Popover>
-
-          {/* View mode */}
-          <Tabs
-            value={viewMode}
-            onValueChange={(v) => setViewMode(v as "table" | "card")}
-            className="h-8"
-          >
-            <TabsList className="rounded-md bg-muted p-1 gap-1">
-              <TabsTrigger
-                value="table"
-                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                aria-label="Table view"
-              >
-                <LayoutGrid size={16} />
-              </TabsTrigger>
-              <TabsTrigger
-                value="card"
-                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                aria-label="Card view"
-              >
-                <List size={16} />
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      </div>
+      {/* Filter bar: gabungan status/jenis, view mode, search, sort */}
+      <DataTableFilter
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search Name or Title..."
+        filterGroups={[
+          { label: "Status", key: "status", options: statusOptions },
+          { label: "Jenis Ujian", key: "jenis", options: jenisUjianOptions },
+        ]}
+        selectedFilterType={filterOption.type}
+        selectedFilterValue={filterOption.value}
+        onFilterChange={(type, value) => {
+          setFilterOption({ type, value });
+        }}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
       {/* Table/Card view */}
       {viewMode === "table" ? (
         <TableGlobal table={table} cols={cols} />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
           {filteredData.length === 0 ? (
             <div className="col-span-full text-center text-muted-foreground py-8">
               Tidak ada data.
@@ -531,66 +445,70 @@ export default function PendaftaranUjianTable({
               const status = item.status ?? "-";
               const nama = item.mahasiswa?.nama ?? "-";
               const nim = item.mahasiswa?.nim ?? "-";
+              
               const tanggalStr = tanggal
                 ? new Date(String(tanggal)).toLocaleDateString("id-ID", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
+                    day: "numeric", month: "short", year: "numeric"
                   })
                 : "-";
+
+
+
+              let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
+              if (status === "menunggu") statusColor = "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800";
+              else if (status === "diterima") statusColor = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
+              else if (status === "ditolak") statusColor = "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800";
+              else if (status === "dijadwalkan") statusColor = "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-800";
+              else if (status === "selesai") statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-700";
+
+
               return (
                 <div
                   key={item.id ?? idx}
-                  className="relative border rounded-xl p-4 bg-white dark:bg-neutral-900 shadow-sm flex flex-col min-h-[220px]"
+                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                 >
-                  {/* Status di kanan atas */}
-                  <span
-                    className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold
-                      max-w-[110px] truncate
-                      ${getStatusColor(status)} ${
-                      status === "menunggu"
-                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                        : status === "diterima"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                        : status === "ditolak"
-                        ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                        : status === "dijadwalkan"
-                        ? "bg-violet-200 text-violet-700 dark:bg-violet-900 dark:text-violet-200"
-                        : status === "selesai"
-                        ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                        : ""
-                    }`}
-                    style={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </span>
-                  {/* Tanggal di kiri atas */}
-                  <div className="text-sm text-muted-foreground mb-2">
-                    {tanggalStr}
+                  <div className="p-5 flex flex-col gap-4 flex-1">
+                     
+                     {/* Header: Date & Status */}
+                     <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                           <Calendar size={13} />
+                           <span>{tanggalStr}</span>
+                        </div>
+                        
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
+                           {status}
+                        </span>
+                     </div>
+
+                     {/* Content: Title & Name */}
+                     <div className="space-y-2">
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
+                             {judul || "Judul tidak tersedia"}
+                          </h3>
+                          
+                          <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
+                             <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
+                                {nama.charAt(0)}
+                             </div>
+                             <div className="flex flex-col mt-2">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                                   {nama}
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                   {nim}
+                                </span>
+                             </div>
+                          </div>
+                     </div>
                   </div>
-                  {/* Judul besar */}
-                  <div className="font-bold text-base mt-2 mb-2 whitespace-pre-line break-words">
-                    {judul}
-                  </div>
-                  {/* Info mahasiswa */}
-                  <div className="text-sm text-muted-foreground mb-1">
-                    {nama} ({nim})
-                  </div>
-                  {/* Info jenis */}
-                  <div className="text-sm text-muted-foreground mb-1">
-                    Jenis: {jenis}
-                  </div>
-                  {/* Tombol aksi di kanan bawah */}
-                  <div className="absolute bottom-4 right-4">
+
+                  {/* Actions Footer */}
+                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="p-2">
-                          <MoreHorizontal size={22} />
+                        <Button variant="ghost" size="sm" className="text-xs h-8 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                          <MoreHorizontal size={14} className="mr-1.5" /> Aksi
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48">
@@ -826,6 +744,6 @@ export default function PendaftaranUjianTable({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DataCard>
   );
 }

@@ -57,6 +57,10 @@ export interface PengajuanRanpel {
   tanggalDiterima?: string | null;
   keterangan?: string | null;
   status: "menunggu" | "diverifikasi" | "diterima" | "ditolak";
+  perbaikanJudul?: {
+    judulBaru?: string;
+    fileSurat?: string;
+  } | null;
   createdAt?: string | null;
   updatedAt?: string | null;
 }

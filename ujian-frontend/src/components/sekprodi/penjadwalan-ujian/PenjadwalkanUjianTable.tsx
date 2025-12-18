@@ -2,6 +2,7 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import TableGlobal from "@/components/tableGlobal";
+import { DataTableFilter } from "@/components/common/DataTableFilter";
 import { Ujian } from "@/types/Ujian";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +14,7 @@ import {
   List,
   Settings2,
   CalendarClock,
+  ArrowLeftRight,
 } from "lucide-react";
 import {
   Dialog,
@@ -34,8 +36,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { setUjianSelesai, setUjianDijadwalkan } from "@/actions/jadwalUjian";
+import { setUjianSelesai, setUjianDijadwalkan, setUjianBelumDijadwalkan } from "@/actions/jadwalUjian";
 import {
   Table,
   TableBody,
@@ -44,6 +50,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DataCard } from "@/components/common/DataCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useActionState, useTransition } from "react";
 import { jadwalkanUjianAction } from "@/actions/jadwalUjian";
@@ -357,6 +364,30 @@ export default function PenjadwalkanUjianTable({
     }
   }
 
+  async function handleStatusChange(ujian: Ujian, status: "belum dijadwalkan" | "dijadwalkan" | "selesai") {
+    try {
+      if (status === "belum dijadwalkan") {
+         await setUjianBelumDijadwalkan(ujian.pendaftaranUjian.id);
+         // Remove from completed if needed
+         setCompletedIds((prev) => prev.filter((id) => id !== ujian.id));
+         showToast.success("Status diubah menjadi Belum Dijadwalkan");
+      } else if (status === "dijadwalkan") {
+         await setUjianDijadwalkan(ujian.pendaftaranUjian.id);
+         setCompletedIds((prev) => prev.filter((id) => id !== ujian.id)); 
+         showToast.success("Status diubah menjadi Dijadwalkan");
+      } else if (status === "selesai") {
+         await setUjianSelesai(ujian.pendaftaranUjian.id);
+         if (!completedIds.includes(ujian.id)) {
+            setCompletedIds((prev) => [...prev, ujian.id]);
+         }
+         showToast.success("Status diubah menjadi Selesai");
+      }
+    } catch (error) {
+      console.error(error);
+      showToast.error("Gagal mengubah status ujian");
+    }
+  }
+
   function cekHadir(dosenId: number) {
     if (!daftarHadir || !selected) return false;
 
@@ -390,12 +421,12 @@ export default function PenjadwalkanUjianTable({
       cell: ({ row }: any) => (
         <div>
           {row.getValue("nama")}
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs  text-muted-foreground">
             {row.original.mahasiswa.nim}
           </div>
         </div>
       ),
-      size: 120,
+      size: 10,
     },
     {
       accessorFn: (row: Ujian) => row.judulPenelitian ?? "-",
@@ -447,45 +478,46 @@ export default function PenjadwalkanUjianTable({
         const isSelesai =
           completedIds.includes(ujian.id) ||
           ujian.pendaftaranUjian.status === "selesai";
-        // Tampilkan aksi sesuai tab: jika tab selesai, hanya tampilkan "Jadwalkan"
-        const showJadwalkanOnly = statusTab === "selesai";
         return (
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleJadwal(ujian)}
+              className="hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 gap-1.5 px-2"
+              aria-label={isSelesai || ujian.pendaftaranUjian.status === "dijadwalkan" ? "Edit Jadwal" : "Jadwalkan"}
+            >
+              <CalendarClock size={14} />
+              <span className="text-xs font-medium">
+                {isSelesai || ujian.pendaftaranUjian.status === "dijadwalkan" ? "Edit" : "Jadwalkan"}
+              </span>
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Aksi">
-                  <MoreHorizontal size={16} />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-gray-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+                  title="Ubah Status Manual"
+                >
+                  <ArrowLeftRight size={14} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="top"
-                align="end"
-                className="min-w-[140px] py-1"
-              >
-
-                {showJadwalkanOnly ? (
-                  <DropdownMenuItem
-                    onClick={() => handleJadwal(ujian)}
-                    className="flex items-center gap-1 px-2 py-1"
-                  >
-                    <span className="mr-1 text-blue-500">
-                      <CalendarClock size={16} className="text-blue-500" />
-                    </span>
-                    Edit Jadwal
+              <DropdownMenuContent align="end" className="w-[180px]">
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-gray-50 dark:bg-neutral-800/50 mb-1 rounded-sm">
+                    Ubah Status ke:
+                  </div>
+                  <DropdownMenuItem onClick={() => handleStatusChange(ujian, "belum dijadwalkan")}>
+                      <span className="text-xs">Belum Dijadwalkan</span>
                   </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem
-                    onClick={() => handleJadwal(ujian)}
-                    className="flex items-center gap-1 px-2 py-1"
-                  >
-                     <span className="mr-1 text-blue-500">
-                      <CalendarClock size={16} className="text-blue-500" />
-                    </span>
-                    {isSelesai || ujian.pendaftaranUjian.status === "dijadwalkan"
-                      ? "Edit Jadwal"
-                      : "Jadwalkan"}
+                  <DropdownMenuItem onClick={() => handleStatusChange(ujian, "dijadwalkan")}>
+                      <span className="text-xs">Dijadwalkan</span>
                   </DropdownMenuItem>
-                )}
+                  <DropdownMenuSeparator />
+                   <DropdownMenuItem onClick={() => handleStatusChange(ujian, "selesai")} className="text-blue-600 focus:text-blue-700">
+                      <span className="text-xs font-semibold">Tandai Selesai</span>
+                  </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -590,152 +622,125 @@ export default function PenjadwalkanUjianTable({
     getState: () => ({
       pagination: { pageIndex: page - 1, pageSize },
     }),
+    getPageCount: () => totalPage,
+    setPageIndex: (p: number) => setPage(p + 1),
   };
 
   return (
-    <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg  border">
+    <DataCard>
       {/* Header bar: Search, Filter, View Mode */}
-      <div className="flex items-center sm:justify-end gap-2 mb-2">
-        <div className="relative w-full">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            <Search size={16} />
-          </span>
-          <Input
-            placeholder="Search"
-            value={filterNama}
-            onChange={(e) => setFilterNama(e.target.value)}
-            className="pl-10 w-full bg-white dark:bg-[#2a2a2a]"
-          />
-        </div>
-
-
-
-        {/* Tombol filter Jenis, Bulan, Tahun */}
-        <Popover open={openFilter} onOpenChange={setOpenFilter}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant={filterJenis !== "all" ? "secondary" : "outline"}
-              className="h-9 border rounded-lg px-4 py-1 bg-white hover:bg-gray-50 font-medium shadow-sm"
-            >
-              <Settings2 size={16} />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="min-w-[220px] p-0 rounded-lg " align="end">
-            <div className="p-3">
-              <div className="font-semibold text-xs mb-2 text-muted-foreground">
-                Status
-              </div>
-              <div className="flex flex-col gap-1 mb-3">
-                {["all", "dijadwalkan", "selesai", "belum_dijadwalkan"].map(
-                  (item) => (
-                    <Button
-                      key={item}
-                      variant={statusTab === item ? "secondary" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-between rounded-md text-left ${
-                        statusTab === item ? "font-semibold" : ""
-                      }`}
-                      onClick={() => {
-                        setStatusTab(
-                          item as
-                            | "all"
-                            | "dijadwalkan"
-                            | "selesai"
-                            | "belum_dijadwalkan"
-                        );
-                        // setOpenFilter(false); // Optional: keep open for multiple filters
-                      }}
-                    >
-                      <span className="text-sm">
-                        {item === "all"
-                          ? "Semua"
-                          : item === "belum_dijadwalkan"
-                          ? "Belum Dijadwalkan"
-                          : item.charAt(0).toUpperCase() + item.slice(1)}
-                      </span>
-                    {statusTab === item && <Check size={14} className="ml-2" />}
-                  </Button>
-                ))}
-              </div>
-
-              <div className="font-semibold text-xs mb-2 text-muted-foreground">
-                Jenis Ujian
-              </div>
-              <div className="flex flex-col gap-1 mb-3">
-                {["all", "Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"].map(
-                  (item) => (
-                    <Button
-                      key={item}
-                      variant={filterJenis === item ? "secondary" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-between rounded-md text-left ${
-                        filterJenis === item ? "font-semibold" : ""
-                      }`}
-                      onClick={() => {
-                        setFilterJenis(item);
-                        // setOpenFilter(false);
-                      }}
-                    >
-                      <span className="text-sm">
-                        {item === "all" ? "Semua" : item}
-                      </span>
-                      {filterJenis === item && (
-                        <Check size={14} className="ml-2" />
-                      )}
-                    </Button>
-                  )
-                )}
-              </div>
-              <div className="font-semibold text-xs mb-2 text-muted-foreground">
-                Bulan
-              </div>
-              <div className="flex flex-col gap-1 mb-3">
-                <input
-                  type="number"
-                  min={1}
-                  max={12}
-                  value={filterBulan === "all" ? "" : filterBulan}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setFilterBulan(val === "" ? "all" : val);
-                  }}
-                  placeholder="Bulan (1-12)"
-                  className="w-full px-2 py-1 border rounded text-sm"
-                />
-              </div>
-              <div className="font-semibold text-xs mb-2 text-muted-foreground">
-                Tahun
-              </div>
-              <div className="flex flex-col gap-1">
-                <input
-                  type="number"
-                  min={2000}
-                  max={2100}
-                  value={filterTahun === "all" ? "" : filterTahun}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setFilterTahun(val === "" ? "all" : val);
-                  }}
-                  placeholder="Tahun"
-                  className="w-full px-2 py-1 border rounded text-sm"
-                />
-              </div>
+      <DataTableFilter
+        searchValue={filterNama}
+        onSearchChange={setFilterNama}
+        viewMode={viewMode as "table" | "card"}
+        onViewModeChange={setViewMode}
+        searchPlaceholder="Search Name..."
+        className="mb-2"
+      >
+        <div className="p-3 space-y-3">
+          <div>
+            <div className="font-semibold text-xs mb-2 text-muted-foreground">
+              Status
             </div>
-          </PopoverContent>
-        </Popover>
+            <div className="flex flex-col gap-1">
+              {["all", "dijadwalkan", "selesai", "belum_dijadwalkan"].map(
+                (item) => (
+                  <Button
+                    key={item}
+                    variant={statusTab === item ? "secondary" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-md text-left h-8 px-2 ${
+                      statusTab === item ? "font-semibold bg-gray-100 dark:bg-neutral-800" : ""
+                    }`}
+                    onClick={() => {
+                      setStatusTab(
+                        item as
+                          | "all"
+                          | "dijadwalkan"
+                          | "selesai"
+                          | "belum_dijadwalkan"
+                      );
+                    }}
+                  >
+                    <span className="text-sm">
+                      {item === "all"
+                        ? "Semua"
+                        : item === "belum_dijadwalkan"
+                        ? "Belum Dijadwalkan"
+                        : item.charAt(0).toUpperCase() + item.slice(1)}
+                    </span>
+                    {statusTab === item && <Check size={14} className="ml-2 text-emerald-500" />}
+                  </Button>
+                )
+              )}
+            </div>
+          </div>
 
-        <Tabs value={viewMode} onValueChange={setViewMode}>
-          <TabsList>
-            <TabsTrigger value="table">
-              <LayoutGrid size={16} />
-            </TabsTrigger>
-            <TabsTrigger value="card">
-              <List size={16} />
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+          <div>
+            <div className="font-semibold text-xs mb-2 text-muted-foreground">
+              Jenis Ujian
+            </div>
+            <div className="flex flex-col gap-1">
+              {["all", "Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"].map(
+                (item) => (
+                  <Button
+                    key={item}
+                    variant={filterJenis === item ? "secondary" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-md text-left h-8 px-2 ${
+                      filterJenis === item ? "font-semibold bg-gray-100 dark:bg-neutral-800" : ""
+                    }`}
+                    onClick={() => setFilterJenis(item)}
+                  >
+                    <span className="text-sm">
+                      {item === "all" ? "Semua" : item}
+                    </span>
+                    {filterJenis === item && (
+                      <Check size={14} className="ml-2 text-emerald-500" />
+                    )}
+                  </Button>
+                )
+              )}
+            </div>
+          </div>
+
+          <div>
+            <div className="font-semibold text-xs mb-2 text-muted-foreground">
+              Bulan
+            </div>
+            <Input
+              type="number"
+              min={1}
+              max={12}
+              value={filterBulan === "all" ? "" : filterBulan}
+              onChange={(e) => {
+                const val = e.target.value;
+                setFilterBulan(val === "" ? "all" : val);
+              }}
+              placeholder="Bulan (1-12)"
+              className="h-8 text-sm"
+            />
+          </div>
+
+          <div>
+            <div className="font-semibold text-xs mb-2 text-muted-foreground">
+              Tahun
+            </div>
+            <Input
+              type="number"
+              min={2000}
+              max={2100}
+              value={filterTahun === "all" ? "" : filterTahun}
+              onChange={(e) => {
+                const val = e.target.value;
+                setFilterTahun(val === "" ? "all" : val);
+              }}
+              placeholder="Tahun"
+              className="h-8 text-sm"
+            />
+          </div>
+        </div>
+      </DataTableFilter>
 
       {/* Table/Card View */}
       <Tabs value={viewMode} onValueChange={setViewMode}>
@@ -743,85 +748,136 @@ export default function PenjadwalkanUjianTable({
           <TableGlobal table={table} cols={cols} />
         </TabsContent>
         <TabsContent value="card">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedData.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8 col-span-full">
-                Tidak ada data.
+              <div className="text-center text-muted-foreground py-12 col-span-full flex flex-col items-center gap-3">
+                 <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
+                    <List size={24} className="opacity-50" />
+                 </div>
+                <p>Tidak ada data ujian yang ditemukan.</p>
               </div>
             ) : (
-              paginatedData.map((ujian) => (
+              paginatedData.map((ujian) => {
+                 const isSelesai = completedIds.includes(ujian.id) || ujian.pendaftaranUjian.status === "selesai";
+                 const jenisColor = getJenisUjianColor(ujian.jenisUjian.namaJenis); 
+                 
+
+
+                 return (
                 <div
                   key={ujian.id}
-                  className="border rounded-xl p-5 bg-white dark:bg-neutral-800 shadow flex flex-col gap-3 relative transition hover:shadow-md"
+                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                 >
-                  <div className="flex flex-col gap-1 mb-2">
-                    <div className="font-semibold text-lg text-gray-800 dark:text-gray-100 truncate">
-                      {ujian.mahasiswa.nama}
+                  <div className="p-5 flex flex-col gap-4 flex-1">
+                    
+                    {/* Header: Date & Status */}
+                    <div className="flex justify-between items-start">
+                       <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                             <CalendarClock size={13} />
+                             <span>
+                                {ujian.jadwalUjian
+                                  ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
+                                      weekday: "short",
+                                      day: "numeric",
+                                      month: "short",
+                                      year: "numeric"
+                                    })
+                                  : "Belum dijadwalkan"}
+                             </span>
+                          </div>
+                          <div className="text-xs font-medium text-gray-400">
+                             {ujian.waktuMulai?.slice(0, 5)} - {ujian.waktuSelesai?.slice(0, 5)} WIB
+                          </div>
+                       </div>
+                       
+                       {isSelesai ? (
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                             Selesai
+                          </span>
+                       ) : (
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                              ujian.pendaftaranUjian.status === 'dijadwalkan' 
+                              ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300 border-blue-100 dark:border-blue-800"
+                              : "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400 border-gray-200 dark:border-neutral-700"
+                          }`}>
+                             {ujian.pendaftaranUjian.status}
+                          </span>
+                       )}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {ujian.mahasiswa.nim}
+
+                    {/* Content: Title & Name */}
+                    <div className="space-y-2">
+                       <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
+                          {ujian.judulPenelitian || "Judul belum tersedia"}
+                       </h3>
+                       
+                       <div className="flex items-center gap-2 pt-1">
+                          <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
+                             {ujian.mahasiswa.nama.charAt(0)}
+                          </div>
+                          <div className="flex flex-col">
+                             <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                                {ujian.mahasiswa.nama}
+                             </span>
+                             <span className="text-[11px] text-gray-400">
+                                {ujian.mahasiswa.nim}
+                             </span>
+                          </div>
+                       </div>
                     </div>
+
+                    {/* Exam Type & Room */}
+                    <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
+                       <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}>
+                          {ujian.jenisUjian.namaJenis}
+                       </span>
+                       <span className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
+                          {ujian.ruangan?.namaRuangan || "Ruangan -"}
+                       </span>
+                    </div>
+
                   </div>
-                  <div className="border-t my-2" />
-                  <div className="mb-1">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
-                      Judul
-                    </div>
-                    <div className="whitespace-pre-line break-words text-sm font-medium text-gray-700 dark:text-gray-200 ">
-                      {ujian.judulPenelitian}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        Jenis:
-                      </span>
-                      <span
-                        className={`px-2 py-0.5 text-xs rounded font-semibold ${getJenisUjianColor(
-                          ujian.jenisUjian.namaJenis
-                        )}`}
+                  
+                  {/* Actions Footer - Adapting for Scheduling Context */}
+                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-between border-t border-gray-100 dark:border-neutral-800">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleJadwal(ujian)}
+                        className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
                       >
-                        {ujian.jenisUjian.namaJenis}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        Ruangan:
-                      </span>
-                      <span className="text-xs font-medium text-gray-700 dark:text-gray-200">
-                        {ujian.ruangan?.namaRuangan ?? "-"}
-                      </span>
-                    </div>
+                         <CalendarClock size={14} className="mr-1.5" /> 
+                         {ujian.pendaftaranUjian.status === "dijadwalkan" ? "Edit Jadwal" : "Jadwalkan"}
+                      </Button>
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                            <MoreHorizontal size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {/* Scheduling actions usually don't have View Detail or Mark Complete here based on table logic, but Table view has Mark Complete. 
+                                Checking table logic: it DOES have Mark Complete in Dropdown. */}
+                            <DropdownMenuItem onClick={() => handleToggleStatusUjian(ujian)}>
+                               {isSelesai ? (
+                                  <>
+                                    <span className="mr-2 text-blue-500">↩</span> Set Dijadwalkan
+                                  </>
+                               ) : (
+                                  <>
+                                    <Check size={14} className="mr-2 text-emerald-500" /> Tandai Selesai
+                                  </>
+                               )}
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                   </div>
-                  <div className="flex flex-col gap-1 mt-2">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        Waktu:
-                      </span>
-                      <span className="text-xs font-medium text-gray-700 dark:text-gray-200">
-                        {ujian.hariUjian
-                          ? ujian.hariUjian[0].toUpperCase() +
-                            ujian.hariUjian.slice(1)
-                          : "-"}
-                        {", "}
-                        {ujian.jadwalUjian
-                          ? new Date(ujian.jadwalUjian).toLocaleDateString(
-                              "id-ID",
-                              {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              }
-                            )
-                          : "-"}{" "}
-                        {ujian.waktuMulai?.slice(0, 5)} -{" "}
-                        {ujian.waktuSelesai?.slice(0, 5)}
-                      </span>
-                    </div>
-                  </div>
-            
                 </div>
-              ))
+              );
+             })
             )}
           </div>
         </TabsContent>
@@ -1146,99 +1202,113 @@ export default function PenjadwalkanUjianTable({
       {/* Modal Jadwal Ujian */}
       {showJadwalModal && selected && mahasiswaDetail && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
           aria-modal="true"
           role="dialog"
         >
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => {
               setShowJadwalModal(false);
-              // setSelected(null); // Optional: if we want to keep selected for other modals
             }}
           />
           <div
-            className="relative z-10 w-full max-w-2xl mx-4"
+            className="relative z-10 w-full max-w-4xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-neutral-800 flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-left"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-2xl border border-muted flex flex-col h-fit">
-              <div className="flex items-center justify-between px-6 py-4 border-b dark:border-neutral-800">
-                <div>
-                  <div className="text-lg font-semibold">
-                    {selected.pendaftaranUjian?.status === "dijadwalkan"
-                      ? "Edit Jadwal Ujian"
-                      : "Jadwalkan Ujian"}
-                  </div>
-                  <div className="text-sm font-normal text-muted-foreground">
-                    {selected.mahasiswa.nama} &mdash;{" "}
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-neutral-800 bg-gray-50/50 dark:bg-neutral-900/50">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                  {selected.pendaftaranUjian?.status === "dijadwalkan"
+                    ? "Edit Jadwal Ujian"
+                    : "Jadwalkan Ujian"}
+                </h2>
+                <div className="flex flex-wrap items-center gap-2 mt-1.5 text-sm text-muted-foreground">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {selected.mahasiswa.nama}
+                  </span>
+                  <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
+                  <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 text-xs font-semibold">
                     {selected.jenisUjian.namaJenis}
-                  </div>
+                  </span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setShowJadwalModal(false);
-                  }}
-                >
-                  <X size={16} />
-                </Button>
               </div>
-              <ScrollArea className="flex-1">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (
-                      !penguji1 ||
-                      !penguji2 ||
-                      !ruangan ||
-                      !ketuaPenguji ||
-                      !sekretarisPenguji
-                    ) {
-                      showToast.error(
-                        "Lengkapi semua field penguji, ketua, sekretaris, dan ruangan."
-                      );
-                      return;
-                    }
-                    if (
-                      penguji1 === penguji2 ||
-                      ketuaPenguji === sekretarisPenguji
-                    ) {
-                      showToast.error("Pilih dosen yang berbeda untuk setiap peran.");
-                      return;
-                    }
-                    const formElem = e.currentTarget as HTMLFormElement;
-                    const fd = new FormData(formElem);
-                    fd.set("penguji1", penguji1);
-                    fd.set("penguji2", penguji2);
-                    fd.set("ruanganId", ruangan);
-                    fd.set("ketuaPenguji", ketuaPenguji);
-                    fd.set("sekretarisPenguji", sekretarisPenguji);
-                    startTransition(() => {
-                      formAction(fd);
-                    });
-                  }}
-                  className="space-y-4 p-4 pb-0"
-                  style={{ minHeight: 0 }}
-                >
-                  <input
-                    type="hidden"
-                    name="ujianId"
-                    value={String(selected?.id ?? "")}
-                  />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="mb-2 block">Ketua Penguji</Label>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+                onClick={() => setShowJadwalModal(false)}
+              >
+                <X size={18} className="text-gray-500" />
+              </Button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (
+                    !penguji1 ||
+                    !penguji2 ||
+                    !ruangan ||
+                    !ketuaPenguji ||
+                    !sekretarisPenguji
+                  ) {
+                    showToast.error(
+                      "Mohon lengkapi semua field yang wajib diisi."
+                    );
+                    return;
+                  }
+                  if (
+                    penguji1 === penguji2 ||
+                    ketuaPenguji === sekretarisPenguji
+                  ) {
+                    showToast.error("Pilih dosen yang berbeda untuk setiap peran.");
+                    return;
+                  }
+                  const formElem = e.currentTarget as HTMLFormElement;
+                  const fd = new FormData(formElem);
+                  fd.set("penguji1", penguji1);
+                  fd.set("penguji2", penguji2);
+                  fd.set("ruanganId", ruangan);
+                  fd.set("ketuaPenguji", ketuaPenguji);
+                  fd.set("sekretarisPenguji", sekretarisPenguji);
+                  startTransition(() => {
+                    formAction(fd);
+                  });
+                }}
+                className="p-6 space-y-6"
+              >
+                <input
+                  type="hidden"
+                  name="ujianId"
+                  value={String(selected?.id ?? "")}
+                />
+
+                {/* Section 1: Penguji Utama */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-1 border-b border-gray-100 dark:border-neutral-800">
+                     <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold">1</span>
+                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Penguji Utama</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Ketua Penguji
+                      </Label>
                       <Select
                         value={ketuaPenguji}
                         onValueChange={setKetuaPenguji}
                         name="ketuaPenguji"
                         required
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200 focus:ring-blue-500">
                           <SelectValue placeholder="Pilih Ketua Penguji" />
                         </SelectTrigger>
-                        <SelectContent className="w-full">
+                        <SelectContent className="max-h-[200px]">
                           {dosen.map((d) => (
                             <SelectItem key={d.id} value={String(d.id)}>
                               {d.nama}
@@ -1246,24 +1316,30 @@ export default function PenjadwalkanUjianTable({
                           ))}
                         </SelectContent>
                       </Select>
-                      <div className="mt-2 text-xs text-neutral-700 font-medium dark:text-neutral-400">
-                        {mahasiswaDetail?.pembimbing1?.nama
-                          ? `Pembimbing 1: ${mahasiswaDetail.pembimbing1.nama}`
-                          : "Pembimbing 1: -"}
+                      <div className="flex items-start gap-1.5 px-2 py-1.5 bg-gray-50 dark:bg-neutral-800/50 rounded text-xs text-gray-600 dark:text-gray-400">
+                         <span className="font-semibold shrink-0">Info:</span>
+                         <span className="leading-snug">
+                           {mahasiswaDetail?.pembimbing1?.nama
+                             ? `Pembimbing 1 adalah ${mahasiswaDetail.pembimbing1.nama}`
+                             : "Data Pembimbing 1 tidak tersedia"}
+                         </span>
                       </div>
                     </div>
-                    <div>
-                      <Label className="mb-2 block">Sekretaris Penguji</Label>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Sekretaris Penguji
+                      </Label>
                       <Select
                         value={sekretarisPenguji}
                         onValueChange={setSekretarisPenguji}
                         name="sekretarisPenguji"
                         required
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200 focus:ring-blue-500">
                           <SelectValue placeholder="Pilih Sekretaris Penguji" />
                         </SelectTrigger>
-                        <SelectContent className="w-full">
+                        <SelectContent className="max-h-[200px]">
                           {dosen.map((d) => (
                             <SelectItem key={d.id} value={String(d.id)}>
                               {d.nama}
@@ -1271,148 +1347,201 @@ export default function PenjadwalkanUjianTable({
                           ))}
                         </SelectContent>
                       </Select>
-                      <div className="mt-2 text-xs text-neutral-700 font-medium dark:text-neutral-400">
-                        {mahasiswaDetail?.pembimbing2?.nama
-                          ? `Pembimbing 2: ${mahasiswaDetail.pembimbing2.nama}`
-                          : "Pembimbing 2: -"}
+                      <div className="flex items-start gap-1.5 px-2 py-1.5 bg-gray-50 dark:bg-neutral-800/50 rounded text-xs text-gray-600 dark:text-gray-400">
+                         <span className="font-semibold shrink-0">Info:</span>
+                         <span className="leading-snug">
+                           {mahasiswaDetail?.pembimbing2?.nama
+                             ? `Pembimbing 2 adalah ${mahasiswaDetail.pembimbing2.nama}`
+                             : "Data Pembimbing 2 tidak tersedia"}
+                         </span>
                       </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="mb-2 block">Tanggal Ujian</Label>
-                      <Input
-                        type="date"
-                        name="jadwalUjian"
-                        required
-                        placeholder="Pilih tanggal"
-                        defaultValue={
-                          selected.jadwalUjian
-                            ? selected.jadwalUjian.slice(0, 10)
-                            : ""
-                        }
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="w-1/2">
-                        <Label className="mb-2 block">Waktu Mulai</Label>
+                </div>
+
+                {/* Section 2: Waktu & Tempat */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-1 border-b border-gray-100 dark:border-neutral-800">
+                     <span className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold">2</span>
+                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Waktu & Tempat</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Tanggal Ujian
+                      </Label>
+                      <div className="relative">
                         <Input
-                          type="time"
-                          name="waktuMulai"
-                          value={waktuMulai}
-                          onChange={(e) => setWaktuMulai(e.target.value)}
-                          placeholder="08:00"
+                            type="date"
+                            name="jadwalUjian"
+                            required
+                            className="pl-9 bg-white dark:bg-neutral-900 border-gray-200"
+                            defaultValue={
+                              selected.jadwalUjian
+                                ? selected.jadwalUjian.slice(0, 10)
+                                : ""
+                            }
                         />
+                        <CalendarClock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       </div>
-                      <div className="w-1/2">
-                        <Label className="mb-2 block">Waktu Selesai</Label>
+                    </div>
+
+                    <div className="flex gap-3">
+                       <div className="w-1/2 space-y-1.5">
+                        <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                           Mulai
+                        </Label>
                         <Input
-                          type="time"
-                          name="waktuSelesai"
-                          value={waktuSelesai}
-                          onChange={(e) => setWaktuSelesai(e.target.value)}
-                          placeholder="09:00"
+                           type="time"
+                           name="waktuMulai"
+                           value={waktuMulai}
+                           onChange={(e) => setWaktuMulai(e.target.value)}
+                           className="bg-white dark:bg-neutral-900 border-gray-200 text-center"
+                           placeholder="00:00"
                         />
-                      </div>
+                       </div>
+                       <div className="w-1/2 space-y-1.5">
+                        <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                           Selesai
+                        </Label>
+                        <Input
+                           type="time"
+                           name="waktuSelesai"
+                           value={waktuSelesai}
+                           onChange={(e) => setWaktuSelesai(e.target.value)}
+                           className="bg-white dark:bg-neutral-900 border-gray-200 text-center"
+                           placeholder="00:00"
+                        />
+                       </div>
+                    </div>
+
+                    <div className="col-span-1 md:col-span-2 space-y-1.5">
+                       <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          Ruangan
+                       </Label>
+                       <Select
+                          value={ruangan}
+                          onValueChange={setRuangan}
+                          name="ruanganId"
+                          required
+                       >
+                          <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200">
+                             <div className="flex items-center gap-2">
+                                <LayoutGrid size={16} className="text-gray-400" />
+                                <SelectValue placeholder="Pilih Ruangan Ujian" />
+                             </div>
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[200px]">
+                             {ruanganList.map((r) => (
+                                <SelectItem key={r.id} value={String(r.id)}>
+                                   {r.namaRuangan}
+                                </SelectItem>
+                             ))}
+                          </SelectContent>
+                       </Select>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="mb-2 block">Dosen Penguji 1</Label>
-                      <Select
-                        value={penguji1}
-                        onValueChange={setPenguji1}
-                        name="penguji1"
-                        required
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Pilih Dosen" />
-                        </SelectTrigger>
-                        <SelectContent className="w-full">
-                          {dosen
-                            .filter((d) => String(d.id) !== penguji2)
-                            .map((d) => (
-                              <SelectItem key={d.id} value={String(d.id)}>
-                                {d.nama}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label className="mb-2 block">Dosen Penguji 2</Label>
-                      <Select
-                        value={penguji2}
-                        onValueChange={setPenguji2}
-                        name="penguji2"
-                        required
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Pilih Dosen" />
-                        </SelectTrigger>
-                        <SelectContent className="w-full">
-                          {dosen
-                            .filter((d) => String(d.id) !== penguji1)
-                            .map((d) => (
-                              <SelectItem key={d.id} value={String(d.id)}>
-                                {d.nama}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                </div>
+
+                {/* Section 3: Dosen Penguji Anggota */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-1 border-b border-gray-100 dark:border-neutral-800">
+                     <span className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold">3</span>
+                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Anggota Penguji</h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="mb-2 block">Ruangan</Label>
-                      <Select
-                        value={ruangan}
-                        onValueChange={setRuangan}
-                        name="ruanganId"
-                        required
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Pilih Ruangan" />
-                        </SelectTrigger>
-                        <SelectContent className="w-full">
-                          {ruanganList.map((r) => (
-                            <SelectItem key={r.id} value={String(r.id)}>
-                              {r.namaRuangan}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                     <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                           Dosen Penguji 1
+                        </Label>
+                        <Select
+                           value={penguji1}
+                           onValueChange={setPenguji1}
+                           name="penguji1"
+                           required
+                        >
+                           <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200">
+                              <SelectValue placeholder="Pilih Penguji 1" />
+                           </SelectTrigger>
+                           <SelectContent className="max-h-[200px]">
+                              {dosen
+                                 .filter((d) => String(d.id) !== penguji2)
+                                 .map((d) => (
+                                 <SelectItem key={d.id} value={String(d.id)}>
+                                    {d.nama}
+                                 </SelectItem>
+                                 ))}
+                           </SelectContent>
+                        </Select>
+                     </div>
+                     <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                           Dosen Penguji 2
+                        </Label>
+                        <Select
+                           value={penguji2}
+                           onValueChange={setPenguji2}
+                           name="penguji2"
+                           required
+                        >
+                           <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200">
+                              <SelectValue placeholder="Pilih Penguji 2" />
+                           </SelectTrigger>
+                           <SelectContent className="max-h-[200px]">
+                              {dosen
+                                 .filter((d) => String(d.id) !== penguji1)
+                                 .map((d) => (
+                                 <SelectItem key={d.id} value={String(d.id)}>
+                                    {d.nama}
+                                 </SelectItem>
+                                 ))}
+                           </SelectContent>
+                        </Select>
+                     </div>
                   </div>
-                  <div className="pt-2">
-                    {penguji1 === penguji2 && penguji1 !== "" && (
-                      <div className="text-sm text-red-600 mb-2">
-                        Pilih penguji yang berbeda.
-                      </div>
-                    )}
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full mb-4"
-                    disabled={
-                      !penguji1 ||
-                      !penguji2 ||
-                      !ruangan ||
-                      penguji1 === "" ||
-                      penguji2 === "" ||
-                      ruangan === "" ||
-                      penguji1 === penguji2 ||
-                      isPending
-                    }
-                  >
-                    {isPending ? "Menyimpan..." : "Simpan Jadwal"}
-                  </Button>
-                </form>
-              </ScrollArea>
+                </div>
+
+                {/* Validation Info */}
+                {penguji1 === penguji2 && penguji1 !== "" && (
+                   <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 text-red-600 border border-red-100 text-sm">
+                      <Settings2 size={16} />
+                      <p>Dosen penguji 1 dan 2 tidak boleh sama.</p>
+                   </div>
+                )}
+                
+                {/* Submit Action */}
+                <div className="pt-4 mt-6 border-t border-gray-100 dark:border-neutral-800">
+                   <Button
+                     type="submit"
+                     className="w-full h-11 bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl"
+                     disabled={
+                       !penguji1 ||
+                       !penguji2 ||
+                       !ruangan ||
+                       penguji1 === "" ||
+                       penguji2 === "" ||
+                       ruangan === "" ||
+                       penguji1 === penguji2 ||
+                       isPending
+                     }
+                   >
+                     {isPending ? (
+                        <div className="flex items-center gap-2">
+                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                           <span>Menyimpan Jadwal...</span>
+                        </div>
+                     ) : (
+                        "Simpan Jadwal Ujian"
+                     )}
+                   </Button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </DataCard>
   );
 }

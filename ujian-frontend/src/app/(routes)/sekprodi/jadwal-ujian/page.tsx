@@ -4,8 +4,9 @@ import { Suspense } from "react";
 import { getCurrentUserAction } from "@/actions/auth";
 import { getHadirUjian } from "@/actions/daftarHadirUjian";
 import Loading from "./loading";
-import Header from "@/components/Header";
-import JadwalUjianTable from "@/components/sekprodi/pendaftaran-ujian/jadwalUjianTable";
+import PageHeader from "@/components/common/PageHeader";
+import { FileText } from "lucide-react";
+import JadwalUjianTable from "@/components/jadwalUjianTable";
 
 export default async function JadwalUjianPage() {
   const { user } = await getCurrentUserAction();
@@ -17,7 +18,13 @@ export default async function JadwalUjianPage() {
 
   return (
     <div className="p-6">
-      <Header title="Jadwal Ujian" desc="Kelola jadwal ujian di sini." />
+      <PageHeader 
+        title="Jadwal Ujian" 
+        description="Kelola jadwal ujian di sini." 
+        icon={FileText}
+        variant="emerald"
+        className="mb-6"
+      />
       <Suspense fallback={<Loading />}>
         <JadwalUjianTable
           jadwalUjian={jadwalUjian}

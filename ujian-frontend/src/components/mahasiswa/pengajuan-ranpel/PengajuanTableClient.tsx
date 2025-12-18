@@ -27,6 +27,7 @@ import {
   List,
   Check,
   Settings2,
+  Calendar,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -44,6 +45,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
+import { DataCard } from "@/components/common/DataCard";
 
 export default function PengajuanTableClient({
   data,
@@ -121,24 +123,6 @@ export default function PengajuanTableClient({
 
   const { user } = useAuthStore();
 
-  // State for ganti judul modal
-  const [gantiJudulPengajuan, setGantiJudulPengajuan] =
-    useState<PengajuanRanpel | null>(null);
-  const [judulBaru, setJudulBaru] = useState("");
-  const [fileSurat, setFileSurat] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Handler for submit ganti judul
-  async function handleSubmitGantiJudul(e: React.FormEvent) {
-    e.preventDefault();
-    // TODO: Implement API call for ganti judul
-    // Example: await gantiJudulPengajuanAPI(gantiJudulPengajuan.id, judulBaru, fileSurat)
-    setGantiJudulPengajuan(null);
-    setJudulBaru("");
-    setFileSurat(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    // Show toast or feedback
-  }
 
   // Columns definition
   const cols: ColumnDef<PengajuanRanpel>[] = React.useMemo(
@@ -227,13 +211,7 @@ export default function PengajuanTableClient({
                   <DropdownMenuItem onClick={() => handleLihatClick(item)}>
                     <Eye size={14} /> Preview
                   </DropdownMenuItem>
-                  {item.status === "diterima" && (
-                    <DropdownMenuItem
-                      onClick={() => setGantiJudulPengajuan(item)}
-                    >
-                      Ganti Judul
-                    </DropdownMenuItem>
-                  )}
+                 
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -271,7 +249,7 @@ export default function PengajuanTableClient({
 
   return (
     <>
-      <div className="bg-white dark:bg-neutral-900 border p-2 sm:p-6 rounded-md shadow-sm w-full max-w-full">
+      <DataCard className="w-full max-w-full">
         {/* Header controls: search/filter/add/tabs */}
         <div className="flex flex-row gap-2 mb-4 w-full items-center">
           {/* Search input */}
@@ -375,57 +353,76 @@ export default function PengajuanTableClient({
             <TableGlobal table={table} cols={cols} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
             {filteredData.map((item, idx) => {
               const key = (item as any).id ?? idx;
               const nama = item.mahasiswa?.nama ?? "-";
               const judul = item.ranpel?.judulPenelitian ?? "-";
               const tanggal = item.tanggalPengajuan ?? "";
               const status = item.status ?? "-";
-              // Status badge style
-              const statusClass =
-                status === "menunggu"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : status === "diterima"
-                  ? "bg-green-100 text-green-800"
-                  : status === "ditolak"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-blue-100 text-blue-800";
+              
+              const statusColor =
+                status === "menunggu" ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800" :
+                status === "diterima" ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800" :
+                status === "ditolak" ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800" :
+                status === "diverifikasi" ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800" :
+                "bg-gray-100 text-gray-800 border-gray-200 dark:bg-neutral-800 dark:text-gray-400";
+
+
+
               return (
                 <div
                   key={key}
-                  className="border rounded-lg p-4 bg-white dark:bg-neutral-800 shadow-sm flex flex-col h-full"
+                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                 >
-                  <div className="flex flex-row flex-wrap justify-between items-start gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm text-muted-foreground mb-1">
-                        {new Date(String(tanggal)).toLocaleDateString?.(
-                          "id-ID"
-                        ) || tanggal}
-                      </div>
-                      <div className="font-medium break-words max-w-[20ch]">
-                        {nama}
-                      </div>
-                      <div className="text-sm text-muted-foreground mt-2 truncate max-w-[32ch]">
-                        {judul}
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0">
-                      <span
-                        className={`px-2 py-1 rounded text-sm block ${statusClass}`}
-                        style={{ wordBreak: "break-word", maxWidth: "100px" }}
-                      >
-                        {status}
-                      </span>
-                    </div>
+                  <div className="p-5 flex flex-col gap-4 flex-1">
+                     
+                     {/* Header: Date & Status */}
+                     <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                           <Calendar size={13} />
+                           <span>
+                             {new Date(String(tanggal)).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                             })}
+                           </span>
+                        </div>
+                        
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
+                           {status}
+                        </span>
+                     </div>
+
+                     {/* Content: Title & Name */}
+                     <div className="space-y-2">
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
+                             {judul || "Judul tidak tersedia"}
+                          </h3>
+                          
+                          <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
+                             <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
+                                {nama.charAt(0)}
+                             </div>
+                             <div className="flex flex-col mt-2">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                                   {nama}
+                                </span>
+                             </div>
+                          </div>
+                     </div>
                   </div>
-                  <div className="mt-4 flex items-center justify-end gap-2">
+
+                  {/* Actions Footer */}
+                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant="ghost"
                       onClick={() => handleLihatClick(item)}
+                      className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
                     >
-                      Preview
+                      <Eye size={14} className="mr-1.5" /> Preview
                     </Button>
                   </div>
                 </div>
@@ -433,7 +430,7 @@ export default function PengajuanTableClient({
             })}
           </div>
         )}
-      </div>
+      </DataCard>
 
       {/* PDF Preview Modal */}
       {selectedPengajuan && (
@@ -461,75 +458,7 @@ export default function PengajuanTableClient({
         </div>
       )}
 
-      {/* Modal Ganti Judul */}
-      {gantiJudulPengajuan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-lg p-6 w-full max-w-md relative">
-            <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
-              onClick={() => {
-                setGantiJudulPengajuan(null);
-                setJudulBaru("");
-                setFileSurat(null);
-                if (fileInputRef.current) fileInputRef.current.value = "";
-              }}
-            >
-              ×
-            </button>
-            <div className="font-semibold text-lg mb-4">
-              Ganti Judul Penelitian
-            </div>
-            <form onSubmit={handleSubmitGantiJudul} className="space-y-4">
-              <div>
-                <Label className="block text-sm mb-1">Judul Sebelumnya</Label>
-                <Input
-                  value={gantiJudulPengajuan.ranpel?.judulPenelitian ?? ""}
-                  disabled
-                  readOnly
-                />
-              </div>
-              <div>
-                <Label className="block text-sm mb-1">Judul Setelah</Label>
-                <Input
-                  value={judulBaru}
-                  onChange={(e) => setJudulBaru(e.target.value)}
-                  required
-                  placeholder="Masukkan judul baru"
-                />
-              </div>
-              <div>
-                <Label className="block text-sm mb-1">
-                  Upload Surat Perbaikan Judul
-                </Label>
-                <Input
-                  type="file"
-                  accept="application/pdf"
-                  ref={fileInputRef}
-                  onChange={(e) => setFileSurat(e.target.files?.[0] || null)}
-                  required
-                />
-              </div>
-              <div className="flex gap-2 justify-end">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => {
-                    setGantiJudulPengajuan(null);
-                    setJudulBaru("");
-                    setFileSurat(null);
-                    if (fileInputRef.current) fileInputRef.current.value = "";
-                  }}
-                >
-                  Batal
-                </Button>
-                <Button type="submit" variant="default">
-                  Submit
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+    
     </>
   );
 }
