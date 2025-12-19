@@ -66,7 +66,7 @@ export default async function Page() {
         title="Perbaikan Judul Skripsi"
         description="Halaman ini digunakan untuk mengajukan perubahan judul skripsi yang telah disetujui sebelumnya."
         icon={PencilLine}
-        variant="emerald"
+        variant="blue"
       />
 
       <Suspense fallback={<Loading />}>

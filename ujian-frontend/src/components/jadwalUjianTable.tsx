@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DataCard } from "@/components/common/DataCard";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 /** 🔹 Modal Wrapper (Custom implementation) */
 const Modal = ({
@@ -520,8 +521,8 @@ export default function JadwalUjianTable({
   return (
     <DataCard>
       {/* Header bar: Search, Filter, View Mode */}
-      <div className="flex items-center sm:justify-end gap-2 mb-2">
-        <div className="relative w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4 w-full">
+        <div className="relative flex-1 w-full">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
             <Search size={16} />
           </span>
@@ -529,99 +530,110 @@ export default function JadwalUjianTable({
             placeholder="Search"
             value={filterNama}
             onChange={(e) => setFilterNama(e.target.value)}
-            className="pl-10 w-full bg-white dark:bg-[#2a2a2a]"
+            className="pl-10 w-full bg-white dark:bg-neutral-800"
           />
         </div>
 
-        {/* Tombol filter Jenis, Bulan, Tahun */}
-        <Popover open={openFilter} onOpenChange={setOpenFilter}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant={filterJenis !== "all" ? "secondary" : "outline"}
-              className="h-9 border rounded-lg px-4 py-1 bg-white hover:bg-gray-50 font-medium shadow-sm"
-            >
-              <Settings2 size={16} />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="min-w-[220px] p-0 rounded-lg " align="end">
-            <div className="p-3">
-              <div className="font-semibold text-xs mb-2 text-muted-foreground">
-                Jenis Ujian
-              </div>
-              <div className="flex flex-col gap-1 mb-3">
-                {["all", "Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"].map(
-                  (item) => (
-                    <Button
-                      key={item}
-                      variant={filterJenis === item ? "secondary" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-between rounded-md text-left ${
-                        filterJenis === item ? "font-semibold" : ""
-                      }`}
-                      onClick={() => {
-                        setFilterJenis(item);
-                        setOpenFilter(false);
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          {/* Tombol filter Jenis, Bulan, Tahun */}
+          <Popover open={openFilter} onOpenChange={setOpenFilter}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-9 w-9 flex items-center justify-center rounded-md"
+              >
+                <Settings2 size={16} />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0 rounded-lg" align="end">
+              <ScrollArea className="max-h-[300px] p-1">
+                <div className="p-1">
+                  <div className="font-semibold text-xs mb-2 text-muted-foreground px-2 pt-1">
+                    Jenis Ujian
+                  </div>
+                  <div className="flex flex-col gap-1 mb-3">
+                    {["all", "Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"].map(
+                      (item) => (
+                        <Button
+                          key={item}
+                          variant={filterJenis === item ? "secondary" : "ghost"}
+                          size="sm"
+                          className={`w-full justify-between rounded-md text-left ${
+                            filterJenis === item ? "font-semibold bg-accent text-accent-foreground" : ""
+                          }`}
+                          onClick={() => {
+                            setFilterJenis(item);
+                            setOpenFilter(false);
+                          }}
+                        >
+                          <span className="text-sm">
+                            {item === "all" ? "Semua" : item}
+                          </span>
+                          {filterJenis === item && (
+                            <Check size={14} className="ml-2" />
+                          )}
+                        </Button>
+                      )
+                    )}
+                  </div>
+                  <div className="font-semibold text-xs mb-2 text-muted-foreground px-2">
+                    Bulan
+                  </div>
+                  <div className="flex flex-col gap-1 mb-3 px-2">
+                    <input
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={filterBulan === "all" ? "" : filterBulan}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFilterBulan(val === "" ? "all" : val);
                       }}
-                    >
-                      <span className="text-sm">
-                        {item === "all" ? "Semua" : item}
-                      </span>
-                      {filterJenis === item && (
-                        <Check size={14} className="ml-2" />
-                      )}
-                    </Button>
-                  )
-                )}
-              </div>
-              <div className="font-semibold text-xs mb-2 text-muted-foreground">
-                Bulan
-              </div>
-              <div className="flex flex-col gap-1 mb-3">
-                <input
-                  type="number"
-                  min={1}
-                  max={12}
-                  value={filterBulan === "all" ? "" : filterBulan}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setFilterBulan(val === "" ? "all" : val);
-                  }}
-                  placeholder="Bulan (1-12)"
-                  className="w-full px-2 py-1 border rounded text-sm"
-                />
-              </div>
-              <div className="font-semibold text-xs mb-2 text-muted-foreground">
-                Tahun
-              </div>
-              <div className="flex flex-col gap-1">
-                <input
-                  type="number"
-                  min={2000}
-                  max={2100}
-                  value={filterTahun === "all" ? "" : filterTahun}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setFilterTahun(val === "" ? "all" : val);
-                  }}
-                  placeholder="Tahun"
-                  className="w-full px-2 py-1 border rounded text-sm"
-                />
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+                      placeholder="Bulan (1-12)"
+                      className="w-full px-2 py-1 border rounded text-sm bg-background"
+                    />
+                  </div>
+                  <div className="font-semibold text-xs mb-2 text-muted-foreground px-2">
+                    Tahun
+                  </div>
+                  <div className="flex flex-col gap-1 px-2 pb-2">
+                    <input
+                      type="number"
+                      min={2000}
+                      max={2100}
+                      value={filterTahun === "all" ? "" : filterTahun}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFilterTahun(val === "" ? "all" : val);
+                      }}
+                      placeholder="Tahun"
+                      className="w-full px-2 py-1 border rounded text-sm bg-background"
+                    />
+                  </div>
+                </div>
+              </ScrollArea>
+            </PopoverContent>
+          </Popover>
 
-        <Tabs value={viewMode} onValueChange={setViewMode}>
-          <TabsList>
-            <TabsTrigger value="table">
-              <LayoutGrid size={16} />
-            </TabsTrigger>
-            <TabsTrigger value="card">
-              <List size={16} />
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+          <Tabs value={viewMode} onValueChange={setViewMode} className="h-9">
+            <TabsList className="rounded-md bg-muted p-1 gap-1 h-9">
+              <TabsTrigger
+                value="table"
+                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
+              >
+                <LayoutGrid size={16} />
+              </TabsTrigger>
+              <TabsTrigger
+                value="card"
+                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
+              >
+                <List size={16} />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
  
       {/* Table/Card View */}

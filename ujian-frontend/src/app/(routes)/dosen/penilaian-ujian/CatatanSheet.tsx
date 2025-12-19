@@ -76,8 +76,7 @@ export default function CatatanSheet({
         <Separator />
 
         {/* Content Wrapper */}
-        <ScrollArea className="flex-1">
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6 overflow-y-auto">
             
             {/* Student Info Card */}
             <div className="p-4 rounded-xl border border-border/50 bg-slate-50/50 dark:bg-slate-900/50 space-y-4">
@@ -130,7 +129,6 @@ export default function CatatanSheet({
               </p>
             </div>
           </div>
-        </ScrollArea>
 
         <Separator />
 

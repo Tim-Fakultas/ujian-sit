@@ -29,13 +29,20 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
       );
     }
 
-    const data = await response.json();
+    const data: PendaftaranUjianResponse = await response.json();
+    const sortedData = data.data.sort((a, b) => {
+      return (
+        new Date(b.tanggalPengajuan.replace(" ", "T")).getTime() -
+        new Date(a.tanggalPengajuan.replace(" ", "T")).getTime()
+      );
+    });
+    
 
-    if (!data || !data.data) {
+    if (!sortedData && !data.data) {
       return [];
     }
 
-    return data.data;
+    return sortedData;
   } catch (error) {
     console.error("Error fetching pendaftaran ujian:", error);
     return [];
@@ -169,7 +176,6 @@ export async function createPendaftaranUjian({
 
     if (!response.ok) {
       const errorText = await response.text();
-      // Deteksi error body size (ubah jadi 5 MB)
       if (
         errorText.includes("Body exceeded 5 MB limit") ||
         response.status === 413
@@ -186,8 +192,7 @@ export async function createPendaftaranUjian({
     const result = await response.json();
     return result;
   } catch (error: unknown) {
-    // Lempar error ke frontend agar bisa ditampilkan
-    throw error;
+    console.log(error);
   }
 }
 
@@ -198,24 +203,23 @@ export async function updateStatusPendaftaranUjian(id: number, status: string) {
 
   try {
     const response = await fetch(`${API_URL}/pendaftaran-ujian/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status}),
       cache: "no-store",
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Gagal update status: ${response.status} - ${errorText}`);
+      console.log(errorText);
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Error update status pendaftaran ujian:", error);
-    throw error;
+    console.log("Error update status pendaftaran ujian:", error);
   }
 }
 

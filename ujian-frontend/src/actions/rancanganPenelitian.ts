@@ -60,3 +60,20 @@ export async function updateJudulRancanganPenelitian(
   }
 }
 
+export async function getRanpelByMahasiswaId(mahasiswaId: number ) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const res = await fetch(`${apiUrl}/mahasiswa/${mahasiswaId}/ranpel`);
+
+    if(!res.ok) {
+      throw new Error("Failed to fetch rancangan penelitian");
+    }
+
+    const data: RancanganPenelitian = await res.json();
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching rancangan penelitian:", error);
+    throw error;
+  }
+}

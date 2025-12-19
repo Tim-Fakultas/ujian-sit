@@ -11,10 +11,7 @@ export interface PendaftaranUjian {
       namaProdi: string;
     };
   };
-  ranpel: {
-    id: number;
-    judulPenelitian: string;
-  };
+  judulPenelitian: string;
   jenisUjian: {
     id: number;
     namaJenis: string;
@@ -48,10 +45,7 @@ export interface PendaftaranUjianResponse {
         namaProdi: string;
       };
     };
-    ranpel: {
-      id: number;
-      judulPenelitian: string;
-    };
+    judulPenelitian: string
     jenisUjian: {
       id: number;
       namaJenis: string;

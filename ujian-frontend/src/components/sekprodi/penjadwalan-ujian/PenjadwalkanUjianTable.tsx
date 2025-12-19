@@ -637,7 +637,7 @@ export default function PenjadwalkanUjianTable({
         searchPlaceholder="Search Name..."
         className="mb-2"
       >
-        <div className="p-3 space-y-3">
+        <div className="p-1 space-y-3">
           <div>
             <div className="font-semibold text-xs mb-2 text-muted-foreground">
               Status

@@ -185,13 +185,13 @@ export default function PDFPreviewModal({
                 {/* Section: Pembimbing */}
                 <div className="space-y-4">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
                       Dosen Pembimbing
                    </h3>
                    
                    <div className="space-y-3">
                       <div className="flex gap-3 items-start">
-                         <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0">1</div>
+                         <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">1</div>
                          <div>
                             <p className="text-xs text-gray-500 mb-0.5">Pembimbing Utama</p>
                             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -200,7 +200,7 @@ export default function PDFPreviewModal({
                          </div>
                       </div>
                       <div className="flex gap-3 items-start">
-                         <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0">2</div>
+                         <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">2</div>
                          <div>
                             <p className="text-xs text-gray-500 mb-0.5">Pembimbing Pendamping</p>
                             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">

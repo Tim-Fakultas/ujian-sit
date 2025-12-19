@@ -36,12 +36,17 @@ class UpdatePendaftaranUjianRequest extends FormRequest
     }
 
     public function prepareForValidation(): void
-    {
-        $this->merge([
-            'ranpel_id' => $this->input('ranpelId'),
-            'jenis_ujian_id' => $this->input('jenisUjianId'),
-            'tanggal_pengajuan' => $this->input('tanggalPengajuan'),
-            'tanggal_disetujui' => $this->input('tanggalDisetujui'),
-        ]);
+{
+    // Kita hanya mengambil input yang benar-benar ada di request
+    $inputs = array_filter([
+        'ranpel_id' => $this->input('ranpelId'),
+        'jenis_ujian_id' => $this->input('jenisUjianId'),
+        'tanggal_pengajuan' => $this->input('tanggalPengajuan'),
+        'tanggal_disetujui' => $this->input('tanggalDisetujui'),
+    ], fn($value) => !is_null($value));
+
+    if (!empty($inputs)) {
+        $this->merge($inputs);
     }
+}
 }

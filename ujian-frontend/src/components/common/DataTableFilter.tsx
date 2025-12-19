@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export interface FilterOption {
   label: string;
@@ -102,32 +103,34 @@ export function DataTableFilter({
                 <span className="hidden sm:inline text-xs font-medium">Filter</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-[180px]">
-              {children ? (
-                children
-              ) : (
-                filterGroups.map((group, index) => (
-                  <div key={group.key}>
-                    {index > 0 && <div className="h-px bg-gray-100 dark:bg-neutral-800 my-1" />}
-                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      {group.label}
+            <DropdownMenuContent align="end" className="w-[200px] p-0">
+              <ScrollArea className="max-h-[300px] p-1">
+                {children ? (
+                  children
+                ) : (
+                  filterGroups.map((group, index) => (
+                    <div key={group.key}>
+                      {index > 0 && <div className="h-px bg-gray-100 dark:bg-neutral-800 my-1" />}
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        {group.label}
+                      </div>
+                      {group.options.map((opt) => (
+                        <DropdownMenuItem
+                          key={`${group.key}-${opt.value}`}
+                          onClick={() => onFilterChange?.(group.key, opt.value)}
+                          className="flex items-center justify-between gap-2 cursor-pointer"
+                        >
+                          <span className="text-sm">{opt.label}</span>
+                          {selectedFilterType === group.key &&
+                            selectedFilterValue === opt.value && (
+                              <CheckCircle2 size={14} className="text-emerald-500" />
+                            )}
+                        </DropdownMenuItem>
+                      ))}
                     </div>
-                    {group.options.map((opt) => (
-                      <DropdownMenuItem
-                        key={`${group.key}-${opt.value}`}
-                        onClick={() => onFilterChange?.(group.key, opt.value)}
-                        className="flex items-center justify-between gap-2 cursor-pointer"
-                      >
-                        <span className="text-sm">{opt.label}</span>
-                        {selectedFilterType === group.key &&
-                          selectedFilterValue === opt.value && (
-                            <CheckCircle2 size={14} className="text-emerald-500" />
-                          )}
-                      </DropdownMenuItem>
-                    ))}
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </ScrollArea>
             </DropdownMenuContent>
           </DropdownMenu>
         )}

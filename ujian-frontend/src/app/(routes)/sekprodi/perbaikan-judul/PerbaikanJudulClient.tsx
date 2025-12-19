@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import * as React from "react";
-import { useState, useMemo, useEffect } from "react";
+
+import React, { useState, useMemo, useEffect } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,7 +14,6 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import TableGlobal from "@/components/tableGlobal";
-
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,21 +23,18 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-
 import {
   Eye,
   Search,
   ListFilter,
   ArrowUpDown,
-  MoreHorizontal,
+  Calendar,
+  Check,
   LayoutGrid,
   List,
-  Check,
-  Calendar,
 } from "lucide-react";
-import { truncateTitle } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PDFPreviewModal from "../../dosen/jadwal-ujian/PDFPreviewModal";
 import {
   Dialog,
   DialogContent,
@@ -48,219 +44,257 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import PDFPreviewModal from "@/components/mahasiswa/pengajuan-ranpel/PDFPreviewModal";
 
-export default function PerbaikanJudulTableClient({
-  pengajuanRanpel,
-}: {
+interface PerbaikanJudulClientProps {
   pengajuanRanpel: PengajuanRanpel[];
-}) {
-  // preview modal
+}
+
+export default function PerbaikanJudulClient({
+  pengajuanRanpel,
+}: PerbaikanJudulClientProps) {
+  const [data, setData] = useState<PengajuanRanpel[]>(pengajuanRanpel);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
+  // Modal states
   const [selectedPengajuan, setSelectedPengajuan] =
     useState<PengajuanRanpel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // view mode + sorting state for react-table
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-
-  // controls
-  const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-
-  const statusOptions = [
-    { value: "all", label: "Semua" },
-    { value: "menunggu", label: "Menunggu" },
-    { value: "diterima", label: "Diterima" },
-    { value: "diverifikasi", label: "Diverifikasi" },
-    { value: "ditolak", label: "Ditolak" },
-  ];
-
-  const sortOptions = [
-    { value: "tanggal:desc", label: "Tanggal terbaru" },
-    { value: "tanggal:asc", label: "Tanggal terlama" },
-    { value: "nama:asc", label: "Nama A–Z" },
-    { value: "nama:desc", label: "Nama Z–A" },
-  ];
-  const isSortActive = (val: string) => {
-    if (!sorting?.length) return false;
-    const s = sorting[0] as any;
-    return `${s.id}:${s.desc ? "desc" : "asc"}` === val;
-  };
-  const handleSortSelect = (val: string) => {
-    if (val === "none") {
-      setSorting([]);
-      return;
-    }
-    const [id, order] = val.split(":");
-    setSorting([{ id, desc: order === "desc" }]);
-  };
-
-  //* filtered data (global search across nama, judul, status, tanggal)
-  const filteredData = useMemo(() => {
-    const q = (search || "").trim().toLowerCase();
-    return (pengajuanRanpel || []).filter((p) => {
-      const nama = (p.mahasiswa?.nama ?? "").toLowerCase();
-      const judul = (p.ranpel?.judulPenelitian ?? "").toLowerCase();
-      const status = (p.status ?? "").toLowerCase();
-      const tanggal = (p.tanggalPengajuan ?? "").toString().toLowerCase();
-      const statusMatch =
-        filterStatus === "all" ? true : status === filterStatus;
-      const qEmpty = q === "";
-      const matchesQ =
-        qEmpty ||
-        nama.includes(q) ||
-        judul.includes(q) ||
-        status.includes(q) ||
-        tanggal.includes(q);
-      return matchesQ && statusMatch;
-    });
-  }, [pengajuanRanpel, search, filterStatus]);
-
-  // table state (sorting state already declared above)
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-
-  // handlers
-  const handleLihatClick = React.useCallback((p: PengajuanRanpel) => {
-    setSelectedPengajuan(p);
-    setIsModalOpen(true);
-  }, []);
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedPengajuan(null);
-  };
-
-  // State for detail modal
   const [detailPengajuan, setDetailPengajuan] =
     useState<PengajuanRanpel | null>(null);
 
-  // columns
-  const cols: ColumnDef<PengajuanRanpel>[] = useMemo(
+  const statusOptions = [
+    { value: "all", label: "Semua Status" },
+    { value: "menunggu", label: "Menunggu" },
+    { value: "diterima", label: "Diterima" },
+    { value: "ditolak", label: "Ditolak" },
+    { value: "diverifikasi", label: "Diverifikasi" },
+  ];
+
+  const sortOptions = [
+    { value: "date-desc", label: "Terbaru" },
+    { value: "date-asc", label: "Terlama" },
+    { value: "name-asc", label: "Nama (A-Z)" },
+    { value: "name-desc", label: "Nama (Z-A)" },
+  ];
+
+  // Filter & Search Logic
+  const filteredData = useMemo(() => {
+    let result = [...data];
+
+    // Search
+    if (search) {
+      const lower = search.toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.mahasiswa?.nama?.toLowerCase().includes(lower) ||
+          item.ranpel?.judulPenelitian?.toLowerCase().includes(lower) ||
+          item.mahasiswa?.nim?.includes(lower)
+      );
+    }
+
+    // Filter Status
+    if (filterStatus !== "all") {
+      result = result.filter((item) => item.status === filterStatus);
+    }
+
+    return result;
+  }, [data, search, filterStatus]);
+
+  // Sorting Handler
+  const handleSortSelect = (val: string) => {
+    switch (val) {
+      case "date-desc":
+        setSorting([{ id: "tanggalPengajuan", desc: true }]);
+        break;
+      case "date-asc":
+        setSorting([{ id: "tanggalPengajuan", desc: false }]);
+        break;
+      case "name-asc":
+        setSorting([{ id: "mahasiswa_nama", desc: false }]);
+        break;
+      case "name-desc":
+        setSorting([{ id: "mahasiswa_nama", desc: true }]);
+        break;
+      case "none":
+        setSorting([]);
+        break;
+    }
+  };
+
+  const isSortActive = (val: string) => {
+    if (val === "none" && sorting.length === 0) return true;
+    if (val === "date-desc" && sorting[0]?.id === "tanggalPengajuan" && sorting[0]?.desc)
+      return true;
+    if (val === "date-asc" && sorting[0]?.id === "tanggalPengajuan" && !sorting[0]?.desc)
+      return true;
+    if (val === "name-asc" && sorting[0]?.id === "mahasiswa_nama" && !sorting[0]?.desc)
+      return true;
+    if (val === "name-desc" && sorting[0]?.id === "mahasiswa_nama" && sorting[0]?.desc)
+      return true;
+    return false;
+  };
+
+  // Actions
+  const handleLihatClick = (item: PengajuanRanpel) => {
+    setSelectedPengajuan(item);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedPengajuan(null);
+    setIsModalOpen(false);
+  };
+
+  const handleDetail = (item: PengajuanRanpel) => {
+    setDetailPengajuan(item);
+  };
+
+  // Columns Configuration
+  const cols = useMemo<ColumnDef<PengajuanRanpel>[]>(
     () => [
       {
         id: "no",
         header: "No",
-        cell: ({ row, table }) => {
-          const index =
-            (table.getState().pagination?.pageIndex ?? 0) *
-              (table.getState().pagination?.pageSize ?? 10) +
-            row.index +
-            1;
-          return <div className="text-center">{index}</div>;
-        },
+        cell: ({ row, table }) =>
+          (table.getState().pagination.pageIndex ) *
+            table.getState().pagination.pageSize +
+          row.index +
+          1,
+        size: 50,
       },
       {
-        accessorFn: (row) => row.mahasiswa?.nama ?? "-",
-        id: "nama",
-        header: () => (
-          <div className="flex items-center gap-1">
-            <span>Nama Mahasiswa</span>
-          </div>
-        ),
-        cell: ({ row }) => {
-          const mhs = row.original.mahasiswa;
-          return (
-            <div>
-              <div className="font-medium">{mhs?.nama ?? "-"}</div>
-              <div className="text-xs text-muted-foreground">
-                {mhs?.nim ?? ""}
-              </div>
-            </div>
-          );
+        accessorFn: (row) => row.tanggalPengajuan,
+        id: "tanggalPengajuan",
+        header: "Tanggal",
+        cell: ({ getValue }) => {
+          const val = getValue() as string;
+          if (!val) return "-";
+          return new Date(val).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          });
         },
+        size: 120,
       },
       {
-        accessorFn: (row) => row.ranpel?.judulPenelitian ?? "-",
-        id: "judul",
-        header: "Judul Skripsi",
+        accessorFn: (row) => row.mahasiswa?.nama,
+        id: "mahasiswa_nama",
+        header: "Mahasiswa",
         cell: ({ row }) => (
-          <div className="max-w-[48ch] ">
-            {truncateTitle(String(row.getValue("judul")), 40)}
+          <div>
+            <div className="font-medium">{row.original.mahasiswa?.nama}</div>
+            <div className="text-xs text-muted-foreground">
+              {row.original.mahasiswa?.nim}
+            </div>
           </div>
         ),
+        size: 180,
       },
       {
-        id: "actions",
-        header: () => <div className="text-center">Aksi</div>,
+        accessorFn: (row) => row.ranpel?.judulPenelitian,
+        id: "judul",
+        header: "Judul",
+        cell: ({ row }) => (
+           <div className="max-w-[250px] line-clamp-2" title={row.original.ranpel?.judulPenelitian}>
+                {row.original.ranpel?.judulPenelitian}
+           </div>
+        ),
+        size: 250,
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
         cell: ({ row }) => {
-          const item = row.original;
+          const status = row.original.status;
+          const color =
+            status === "menunggu"
+              ? "bg-yellow-100 text-yellow-800"
+              : status === "diterima"
+              ? "bg-green-100 text-green-800"
+              : status === "ditolak"
+              ? "bg-red-100 text-red-800"
+              : status === "diverifikasi"
+              ? "bg-blue-100 text-blue-800"
+              : "bg-gray-100 text-gray-800";
+
           return (
-            <div className="flex justify-center items-center h-full">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleLihatClick(item)}>
-                    <Eye size={14} /> Preview
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setDetailPengajuan(item)}>
-                    <List size={14} className="mr-2" /> Lihat Detail
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${color}`}
+            >
+              {status}
+            </span>
           );
         },
+        size: 100,
+      },
+      {
+        id: "aksi",
+        header: "Aksi",
+        cell: ({ row }) => (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleLihatClick(row.original)}
+              className="h-8 w-8 p-0"
+              title="Preview PDF"
+            >
+              <Eye size={14} />
+            </Button>
+            {/* Example action: Detail Perbaikan if logic exists */}
+            {row.original.perbaikanJudul && (
+                 <Button
+                    variant="default"
+                    size="sm"
+                    className="h-8 text-xs"
+                    onClick={() => handleDetail(row.original)}
+                 >
+                    Detail
+                 </Button>
+            )}
+          </div>
+        ),
+        size: 100,
       },
     ],
-    [handleLihatClick]
+    []
   );
 
   const table = useReactTable({
     data: filteredData,
     columns: cols,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
+      columnFilters: [],
     },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
-  // reset page when search/filter change
-  useEffect(() => {
-    try {
-      table.setPageIndex?.(0);
-    } catch {}
-  }, [search, filterStatus]); // eslint-disable-line
-
   return (
-    <>
-      <div className="bg-white dark:bg-neutral-900 p-4 md:p-6 rounded-md shadow-sm">
-        {/* Header */}
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Search */}
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Cari mahasiswa atau judul..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
 
-        {/* Controls: search, status filter (with colored dots), sort dropdown, view tabs */}
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          <div className="flex-1 min-w-0">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={16} className="text-muted-foreground" />
-              </div>
-              <Input
-                placeholder="Search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 bg-white dark:bg-neutral-800"
-              />
-            </div>
-          </div>
-
-          {/* status filter as DropdownMenu with colored dots */}
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          {/* Status Filter */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -269,42 +303,45 @@ export default function PerbaikanJudulTableClient({
                 className="h-9 px-3 flex items-center gap-2"
               >
                 <ListFilter size={16} />
+                <span className="hidden sm:inline">Filter</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
-              {statusOptions.map((opt) => {
-                const color =
-                  opt.value === "menunggu"
-                    ? "bg-yellow-500"
-                    : opt.value === "diterima"
-                    ? "bg-green-500"
-                    : opt.value === "ditolak"
-                    ? "bg-red-500"
-                    : opt.value === "diverifikasi"
-                    ? "bg-blue-500"
-                    : "bg-gray-500";
-                const active = filterStatus === opt.value;
-                return (
-                  <DropdownMenuItem
-                    key={opt.value}
-                    onClick={() => setFilterStatus(opt.value)}
-                    className="flex items-center justify-between gap-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`w-2 h-2 rounded-full ${color} inline-block`}
-                        aria-hidden
-                      />
-                      <span className="text-sm">{opt.label}</span>
-                    </div>
-                    {active && <Check size={14} />}
-                  </DropdownMenuItem>
-                );
-              })}
+            <DropdownMenuContent align="end" className="w-[200px] p-0">
+              <ScrollArea className="max-h-[300px] p-1">
+                {statusOptions.map((opt) => {
+                  const color =
+                    opt.value === "menunggu"
+                      ? "bg-yellow-500"
+                      : opt.value === "diterima"
+                      ? "bg-green-500"
+                      : opt.value === "ditolak"
+                      ? "bg-red-500"
+                      : opt.value === "diverifikasi"
+                      ? "bg-blue-500"
+                      : "bg-gray-500";
+                  const active = filterStatus === opt.value;
+                  return (
+                    <DropdownMenuItem
+                      key={opt.value}
+                      onClick={() => setFilterStatus(opt.value)}
+                      className="flex items-center justify-between gap-2"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`w-2 h-2 rounded-full ${color} inline-block`}
+                          aria-hidden
+                        />
+                        <span className="text-sm">{opt.label}</span>
+                      </div>
+                      {active && <Check size={14} />}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </ScrollArea>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* sort dropdown */}
+          {/* Sort Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -315,75 +352,82 @@ export default function PerbaikanJudulTableClient({
                 <ArrowUpDown size={16} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {sortOptions.map((opt) => (
-                <DropdownMenuItem
-                  key={opt.value}
-                  onClick={() => handleSortSelect(opt.value)}
-                  className={`flex items-center justify-between gap-2 ${
-                    isSortActive(opt.value) ? "bg-muted/30" : ""
-                  }`}
-                >
-                  <span className="text-sm">{opt.label}</span>
-                  {isSortActive(opt.value) && <Check size={14} />}
+            <DropdownMenuContent align="end" className="w-[200px] p-0">
+              <ScrollArea className="max-h-[300px] p-1">
+                {sortOptions.map((opt) => (
+                  <DropdownMenuItem
+                    key={opt.value}
+                    onClick={() => handleSortSelect(opt.value)}
+                    className={`flex items-center justify-between gap-2 ${
+                      isSortActive(opt.value) ? "bg-muted/30" : ""
+                    }`}
+                  >
+                    <span className="text-sm">{opt.label}</span>
+                    {isSortActive(opt.value) && <Check size={14} />}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuItem onClick={() => handleSortSelect("none")}>
+                  Reset sorting
                 </DropdownMenuItem>
-              ))}
-              <DropdownMenuItem onClick={() => handleSortSelect("none")}>
-                Reset sorting
-              </DropdownMenuItem>
+              </ScrollArea>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* view tabs */}
-          <div>
-            <Tabs
-              value={viewMode}
-              onValueChange={(v) => setViewMode(v as "table" | "card")}
-              className="h-8"
-            >
-              <TabsList className="rounded-md bg-muted p-1 gap-1">
-                <TabsTrigger value="table" className="h-7 px-2 rounded-md">
-                  <LayoutGrid size={14} />
-                </TabsTrigger>
-                <TabsTrigger value="card" className="h-7 px-2 rounded-md">
-                  <List size={14} />
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        </div>
-
-        {/* Table or Card view */}
-        {filteredData.length === 0 ? (
-          <div className="p-6 flex flex-col items-center justify-center gap-3">
-            <div className="text-sm text-muted-foreground text-center">
-              Tidak ada data pengajuan rancangan penelitian
-            </div>
-            <div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setFilterStatus("all");
-                  setSearch("");
-                }}
+          {/* View Mode Tabs */}
+          <Tabs
+            value={viewMode}
+            onValueChange={(v) => setViewMode(v as "table" | "card")}
+            className="h-9"
+          >
+            <TabsList className="h-9 p-1 bg-muted/50 rounded-lg">
+              <TabsTrigger
+                value="table"
+                className="h-7 px-2.5 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
-                Reset filter
-              </Button>
-            </div>
+                <LayoutGrid size={14} />
+              </TabsTrigger>
+              <TabsTrigger
+                value="card"
+                className="h-7 px-2.5 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              >
+                <List size={14} />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      {filteredData.length === 0 ? (
+        <div className="p-12 flex flex-col items-center justify-center gap-3 border rounded-xl bg-gray-50/50 dark:bg-neutral-900/10 border-dashed">
+          <div className="text-sm text-muted-foreground text-center">
+            Tidak ada data pengajuan rancangan penelitian
           </div>
-        ) : viewMode === "table" ? (
-          <TableGlobal table={table} cols={cols} />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {filteredData.map((item, idx) => {
-              const key = (item as any).id ?? idx;
-              const nama = item.mahasiswa?.nama ?? "-";
-              const judul = item.ranpel?.judulPenelitian ?? "-";
-              const tanggal = item.tanggalPengajuan ?? "";
-              const status = item.status ?? "-";
-              
-              const statusColor =
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setFilterStatus("all");
+              setSearch("");
+            }}
+          >
+            Reset Filter
+          </Button>
+        </div>
+      ) : viewMode === "table" ? (
+        <div className="bg-white dark:bg-neutral-900 rounded-xl border shadow-sm items-center">
+             <TableGlobal table={table} cols={cols} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {filteredData.map((item, idx) => {
+            const key = (item as any).id ?? idx;
+            const nama = item.mahasiswa?.nama ?? "-";
+            const judul = item.ranpel?.judulPenelitian ?? "-";
+            const tanggal = item.tanggalPengajuan ?? "";
+            const status = item.status ?? "-";
+            
+            const statusColor =
                 status === "menunggu" ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800" :
                 status === "diterima" ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800" :
                 status === "ditolak" ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800" :
@@ -391,8 +435,7 @@ export default function PerbaikanJudulTableClient({
                 "bg-gray-100 text-gray-800 border-gray-200 dark:bg-neutral-800 dark:text-gray-400";
 
 
-
-              return (
+            return (
                 <div
                   key={key}
                   className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
@@ -446,13 +489,22 @@ export default function PerbaikanJudulTableClient({
                     >
                       <Eye size={14} className="mr-1.5" /> Preview
                     </Button>
+                    {item.perbaikanJudul && (
+                         <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs h-8 text-gray-600 hover:text-gray-900 ml-2"
+                            onClick={() => handleDetail(item)}
+                         >
+                            Detail
+                         </Button>
+                    )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* PDF Preview Modal */}
       {selectedPengajuan && (
@@ -476,30 +528,32 @@ export default function PerbaikanJudulTableClient({
             <div className="space-y-4">
               <div>
                 <Label className="text-xs">Judul Lama</Label>
-                <div className="border rounded px-2 py-1 bg-muted">
+                <div className="border rounded px-2 py-1 bg-muted/50 text-sm">
                   {detailPengajuan.ranpel?.judulPenelitian || "-"}
                 </div>
               </div>
               <div>
                 <Label className="text-xs">Judul Perbaikan</Label>
-                <div className="border rounded px-2 py-1 bg-muted">
+                <div className="border rounded px-2 py-1 bg-muted/50 text-sm">
                   {detailPengajuan.perbaikanJudul?.judulBaru || "-"}
                 </div>
               </div>
               <div>
                 <Label className="text-xs">Surat Perbaikan Judul</Label>
+                <div className="mt-1">
                 {detailPengajuan.perbaikanJudul?.fileSurat ? (
                   <a
                     href={detailPengajuan.perbaikanJudul.fileSurat}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 underline"
+                    className="text-blue-600 underline text-sm"
                   >
                     Lihat Surat
                   </a>
                 ) : (
-                  <span className="text-muted-foreground">Tidak ada file</span>
+                  <span className="text-muted-foreground text-sm">Tidak ada file</span>
                 )}
+                </div>
               </div>
             </div>
           )}
@@ -509,12 +563,13 @@ export default function PerbaikanJudulTableClient({
                 Tutup
               </Button>
             </DialogClose>
-            <Button type="button" variant="default">
+            {/* Logic verifikasi belum ada, jadi hanya tombol tutup/verifikasi placeholder */}
+            <Button type="button" variant="default" disabled title="Fungsi belum  implementasi">
               Verifikasi
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

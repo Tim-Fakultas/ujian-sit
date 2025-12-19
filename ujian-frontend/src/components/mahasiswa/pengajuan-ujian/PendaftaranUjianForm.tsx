@@ -209,11 +209,11 @@ export default function PengajuanUjianForm({
   };
 
   return (
-    <form className="w-full h-[85vh] flex flex-col bg-gray-50/50 dark:bg-[#0a0a0a]" onSubmit={handleSubmit}>
+    <form className="w-full h-[90vh] flex flex-col bg-gray-50/50 dark:bg-[#0a0a0a]" onSubmit={handleSubmit}>
       {/* Sticky Header */}
       <div className="sticky top-0 z-40 bg-white/95 dark:bg-neutral-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b dark:border-neutral-800 px-6 py-4 flex items-center justify-between gap-4 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl text-white shadow-lg shadow-emerald-500/20">
+          <div className="p-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl text-white shadow-lg shadow-blue-500/20">
              <GraduationCap className="h-5 w-5" />
           </div>
           <div>
@@ -250,19 +250,19 @@ export default function PengajuanUjianForm({
                  <div>
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status Akademik</div>
                     <div className="flex gap-4 mt-1">
-                        <div><span className="text-sm text-gray-500">IPK:</span> <span className={`font-bold ${ipk >= 2 ? 'text-emerald-600' : 'text-red-500'}`}>{ipk}</span></div>
-                        <div><span className="text-sm text-gray-500">Semester:</span> <span className={`font-bold ${semester >= 6 ? 'text-emerald-600' : 'text-red-500'}`}>{semester}</span></div>
+                        <div><span className="text-sm text-gray-500">IPK:</span> <span className={`font-bold ${ipk >= 2 ? 'text-blue-600' : 'text-red-500'}`}>{ipk}</span></div>
+                        <div><span className="text-sm text-gray-500">Semester:</span> <span className={`font-bold ${semester >= 6 ? 'text-blue-600' : 'text-red-500'}`}>{semester}</span></div>
                     </div>
                  </div>
              </div>
 
-             <div className={`border p-5 rounded-2xl shadow-sm flex items-center gap-4 ${canDaftarProposal() ? 'bg-emerald-50/50 border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-900/30' : 'bg-red-50/50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30'}`}>
-                 <div className={`p-3 rounded-xl ${canDaftarProposal() ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30' : 'bg-red-100 text-red-600 dark:bg-red-900/30'}`}>
+             <div className={`border p-5 rounded-2xl shadow-sm flex items-center gap-4 ${canDaftarProposal() ? 'bg-blue-50/50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/30' : 'bg-red-50/50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30'}`}>
+                 <div className={`p-3 rounded-xl ${canDaftarProposal() ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30' : 'bg-red-100 text-red-600 dark:bg-red-900/30'}`}>
                     {canDaftarProposal() ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
                  </div>
                  <div>
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Kelayakan</div>
-                    <div className={`font-bold ${canDaftarProposal() ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
+                    <div className={`font-bold ${canDaftarProposal() ? 'text-blue-700 dark:text-blue-400' : 'text-red-700 dark:text-red-400'}`}>
                         {canDaftarProposal() ? "Memenuhi Syarat" : "Belum Memenuhi Syarat"}
                     </div>
                  </div>
@@ -432,7 +432,7 @@ export default function PengajuanUjianForm({
              <Button 
                 type="submit" 
                 disabled={isSubmitting || (!isProposal && !isHasil && !(selectedJenis?.namaJenis?.toLowerCase().includes("skripsi") ?? false))}
-                className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white h-11 rounded-xl px-8 shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white h-11 rounded-xl px-8 shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5"
              >
                 {isSubmitting ? (
                     <>

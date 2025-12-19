@@ -17,7 +17,7 @@ export default async function JadwalUjianPage() {
         title="Jadwal Ujian"
         description="Lihat jadwal ujian di sini."
         icon={FileText}
-        variant="emerald"
+        variant="blue"
         className="mb-6"
       />
       <JadwalUjianTable

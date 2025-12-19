@@ -6,6 +6,7 @@ import {
   useActionState,
   useMemo,
 } from "react";
+import { useRouter } from "next/navigation";
 
 import TableGlobal from "@/components/tableGlobal";
 import { DataTableFilter } from "@/components/common/DataTableFilter";
@@ -56,14 +57,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DataCard } from "@/components/common/DataCard";
+import { getRanpelByMahasiswaId } from "@/actions/rancanganPenelitian";
 
 export default function PendaftaranUjianTable({
   pendaftaranUjianList,
 }: {
   pendaftaranUjianList: PendaftaranUjian[];
 }) {
+  const router = useRouter();
   const [selected, setSelected] = useState<PendaftaranUjian | null>(null);
-
+  const [ranpelId, setRanpelId] = useState<number | null>(0);
   type MahasiswaDetail = {
     id: number | string;
     nama: string;
@@ -85,7 +88,7 @@ export default function PendaftaranUjianTable({
     }
   }, [selected]);
 
- 
+
 
 
 
@@ -154,8 +157,8 @@ export default function PendaftaranUjianTable({
       const matchSearch =
         (u.mahasiswa.nama && u.mahasiswa.nama.toLowerCase().includes(searchLower)) ||
         (u.mahasiswa.nim && u.mahasiswa.nim.toLowerCase().includes(searchLower)) ||
-        (u.ranpel?.judulPenelitian &&
-          u.ranpel.judulPenelitian.toLowerCase().includes(searchLower));
+        (u.judulPenelitian &&
+          u.judulPenelitian.toLowerCase().includes(searchLower));
 
       const matchJenis =
         filterOption.type === "jenis"
@@ -216,13 +219,15 @@ export default function PendaftaranUjianTable({
         size: 160, 
       },
       {
-        accessorFn: (row) => row.ranpel.judulPenelitian ?? "-",
+        accessorFn: (row) => row.judulPenelitian ?? "-",
         id: "judul",
         header: "Judul",
         cell: ({ row }) => (
-          <div className="max-w-[180px] truncate">{row.getValue("judul")}</div>
+          <div className="min-w-[250px] whitespace-normal leading-relaxed py-1">
+            {row.getValue("judul")}
+          </div>
         ),
-        size: 200, 
+        size: 300, 
       },
       {
         accessorFn: (row) => row.jenisUjian.namaJenis ?? "-",
@@ -393,8 +398,8 @@ export default function PendaftaranUjianTable({
 
                        {/* Content: Title & Name */}
                        <div className="space-y-2">
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={p.ranpel.judulPenelitian}>
-                             {p.ranpel.judulPenelitian || "Judul tidak tersedia"}
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={p.judulPenelitian}>
+                             {p.judulPenelitian || "Judul tidak tersedia"}
                           </h3>
                           
                           <div className="flex items-center gap-2 pt-1">
@@ -469,69 +474,6 @@ export default function PendaftaranUjianTable({
                   )}
                 </div>
 
-                {/* Buttons Action in Header */}
-                <div className="flex flex-row gap-2">
-                   <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all font-medium h-8 text-xs"
-                      onClick={async () => {
-                        const found = pendaftaranUjianList.find(
-                          (p) =>
-                            p.mahasiswa.id === selected?.mahasiswa.id &&
-                            p.jenisUjian.id === selected?.jenisUjian.id
-                        );
-                        if (found) {
-                          const tId = showToast.loading("Menolak berkas...");
-                          try {
-                            await updateStatusPendaftaranUjian(found.id, "ditolak");
-                            showToast.dismiss(tId);
-                            showToast.success("Berkas ditolak");
-                            revalidateAction("/sekprodi/daftar-ujian");
-                            setShowBerkasModal(false);
-                          } catch (error) {
-                            showToast.dismiss(tId);
-                            showToast.error("Gagal menolak berkas");
-                          }
-                        } else {
-                          showToast.error("Data pendaftaran tidak ditemukan");
-                        }
-                      }}
-                    >
-                      Tolak
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 dark:shadow-none transition-all font-medium h-8 text-xs"
-                      onClick={async () => {
-                        const found = pendaftaranUjianList.find(
-                          (p) =>
-                            p.mahasiswa.id === selected?.mahasiswa.id &&
-                            p.jenisUjian.id === selected?.jenisUjian.id
-                        );
-                        if (found) {
-                          const tId = showToast.loading("Memverifikasi berkas...");
-                          try {
-                            await updateStatusPendaftaranUjian(
-                              found.id,
-                              "belum dijadwalkan"
-                            );
-                            showToast.dismiss(tId);
-                            showToast.success("Berkas terverifikasi");
-                            revalidateAction("/sekprodi/daftar-ujian");
-                            setShowBerkasModal(false);
-                          } catch (error) {
-                            showToast.dismiss(tId);
-                            showToast.error("Gagal memverifikasi berkas");
-                          }
-                        } else {
-                          showToast.error("Data pendaftaran tidak ditemukan");
-                        }
-                      }}
-                    >
-                      Verifikasi
-                    </Button>
-                </div>
               </div>
               <div className="flex items-center gap-2 self-start">
                 <Button
@@ -546,9 +488,10 @@ export default function PendaftaranUjianTable({
             </div>
           </DialogHeader>
 
+                  {/* Berkas pendaftaran */}
           {selected && (
             <>
-                <div className="p-6 overflow-y-auto">
+                <div className="p-6 overflow-y-auto flex-1 ">
                   <div className="space-y-3">
                     {getBerkasForSelected().length > 0 ? (
                       getBerkasForSelected().map((file, idx) => {
@@ -632,6 +575,73 @@ export default function PendaftaranUjianTable({
                 </div>
             </>
           )}
+
+              {/* Buttons Action in Header */}
+                <div className="flex flex-row gap-2 relative z-2 bg-white shadow-neutral-800 shadow-lg h-20 dark:bg-neutral-800 p-4 justify-end">
+                   <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all font-medium h-8 text-xs"
+                      onClick={async () => {
+                        const found = pendaftaranUjianList.find(
+                          (p) =>
+                            p.mahasiswa.id === selected?.mahasiswa.id &&
+                            p.jenisUjian.id === selected?.jenisUjian.id
+                        );
+                        if (found) {
+                          const tId = showToast.loading("Menolak berkas...");
+                          try {
+                            await updateStatusPendaftaranUjian(found.id, "ditolak");
+                            showToast.dismiss(tId);
+                            showToast.success("Berkas ditolak");
+                            await revalidateAction("/sekprodi/daftar-ujian");
+                            router.refresh();
+                            setShowBerkasModal(false);
+                          } catch (error) {
+                            showToast.dismiss(tId);
+                            showToast.error("Gagal menolak berkas");
+                          }
+                        } else {
+                          showToast.error("Data pendaftaran tidak ditemukan");
+                        }
+                      }}
+                    >
+                      Tolak
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 dark:shadow-none transition-all font-medium h-8 text-xs"
+                      onClick={async () => {
+                        const found = pendaftaranUjianList.find(
+                          (p) =>
+                            p.mahasiswa.id === selected?.mahasiswa.id &&
+                            p.jenisUjian.id === selected?.jenisUjian.id
+                        );
+                        if (found) {
+                          const tId = showToast.loading("Memverifikasi berkas...");
+                          try {
+                            await updateStatusPendaftaranUjian(
+                              found.id,
+                              "belum dijadwalkan",
+                          
+                            );
+                            showToast.dismiss(tId);
+                            showToast.success(`Berkas berhasil diverifikasi ${ranpelId}`);
+                            await revalidateAction("/sekprodi/daftar-ujian");
+                            router.refresh(); // Force refresh data on client
+                            setShowBerkasModal(false);
+                          } catch (error) {
+                            showToast.dismiss(tId);
+                            showToast.error("Gagal memverifikasi berkas");
+                          }
+                        } else {
+                          showToast.error("Data pendaftaran tidak ditemukan");
+                        }
+                      }}
+                    >
+                      Verifikasi
+                    </Button>
+                </div>
         </DialogContent>
       </Dialog>
     </DataCard>

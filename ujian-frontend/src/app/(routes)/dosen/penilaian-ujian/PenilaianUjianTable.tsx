@@ -3,13 +3,19 @@
 import TableGlobal from "@/components/tableGlobal";
 import { showToast } from "@/components/ui/custom-toast";
 
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer, useRef } from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../../../../components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Pencil,
   Eye,
@@ -22,6 +28,8 @@ import {
   LayoutGrid,
   List,
   Calendar,
+  MoreVertical,
+  AlertCircle,
 } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { UserCheck } from "lucide-react";
@@ -62,7 +70,136 @@ import DetailDialog from "./DetailDialog";
 import RekapitulasiNilaiModal from "./RekapitulasiNilaiModal";
 import { DataCard } from "@/components/common/DataCard";
 
-export default function JadwalUjianTable({
+function ActionCell({
+  ujian,
+  dispatchModal,
+  currentDosenId,
+}: {
+  ujian: any;
+  dispatchModal: any;
+  currentDosenId: any;
+}) {
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Aksi"
+            className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-neutral-100 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white transition-all"
+          >
+            <MoreVertical size={16} />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="w-56 p-2 rounded-xl border border-muted/20 shadow-xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
+        >
+          <div className="text-[10px] uppercase font-bold text-muted-foreground px-2 py-1.5 mb-1">
+            Menu Aksi
+          </div>
+          <DropdownMenuItem
+            onClick={() => dispatchModal({ type: "OPEN_DETAIL", ujian })}
+            className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+          >
+            <Eye
+              size={18}
+              className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
+            />
+            Detail
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => dispatchModal({ type: "OPEN_REKAP", ujian })}
+            className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+          >
+            <IconClipboardText
+              size={18}
+              className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
+            />
+            Rekapitulasi Nilai
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => dispatchModal({ type: "OPEN_DAFTAR_HADIR", ujian })}
+            className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+          >
+            <UserCheck
+              size={18}
+              className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
+            />
+            Daftar Hadir
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => dispatchModal({ type: "OPEN_PENILAIAN", ujian })}
+            className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+          >
+            <Pencil
+              size={18}
+              className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
+            />
+            Penilaian
+          </DropdownMenuItem>
+          {/* role check */}
+          {(() => {
+            const isKetuaAtauSek = ujian.penguji?.some(
+              (p: any) =>
+                p.id === Number(currentDosenId) &&
+                (p.peran === "ketua_penguji" ||
+                  p.peran === "sekretaris_penguji")
+            );
+            const jenis = ujian.jenisUjian?.namaJenis ?? "";
+            const isJenisUntukKeputusan =
+              jenis === "Ujian Hasil" || jenis === "Ujian Skripsi";
+            return (
+              isKetuaAtauSek && (
+                <>
+                  <div className="h-[1px] bg-muted/20 my-1 mx-2" />
+                  <DropdownMenuItem
+                    onClick={() =>
+                      dispatchModal({ type: "OPEN_CATATAN", ujian })
+                    }
+                    className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+                  >
+                    <NotebookPen
+                      size={18}
+                      className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
+                    />
+                    Catatan
+                  </DropdownMenuItem>
+                  {isJenisUntukKeputusan && (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        const initId =
+                          (ujian as any).keputusanId ??
+                          keputusanOptions.find((o) => o.label === ujian.hasil)
+                            ?.id ??
+                          null;
+                        dispatchModal({
+                          type: "OPEN_KEPUTUSAN",
+                          ujian,
+                          keputusanChoice: initId,
+                        });
+                      }}
+                      className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+                    >
+                      <Gavel
+                        size={18}
+                        className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
+                      />
+                      <span className="mr-2">Keputusan</span>
+                    </DropdownMenuItem>
+                  )}
+                </>
+              )
+            );
+          })()}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
+export default function PenilaianUjianTable({
   jadwalUjian,
   currentDosenId,
 }: JadwalUjianTableProps) {
@@ -233,7 +370,7 @@ export default function JadwalUjianTable({
   const cols = [
     {
       id: "no",
-      header: "No",
+      header: () => <div className="text-center">No</div>,
       cell: ({ row, table }: any) => {
         const index =
           (table.getState().pagination?.pageIndex ?? 0) *
@@ -272,31 +409,7 @@ export default function JadwalUjianTable({
       ),
       size: 90,
     },
-    {
-      accessorFn: (row: any) => ({
-        hari: row.hariUjian
-          ? row.hariUjian[0].toUpperCase() + row.hariUjian.slice(1)
-          : "-",
-        tanggal: row.jadwalUjian?.split(/[ T]/)[0] ?? "-",
-        waktu: `${row.waktuMulai?.slice(0, 5) ?? ""} - ${
-          row.waktuSelesai?.slice(0, 5) ?? ""
-        }`,
-      }),
-      id: "waktu",
-      header: "Waktu",
-      cell: ({ row }: any) => {
-        const val = row.getValue("waktu");
-        return (
-          <div>
-            <div>
-              {val.hari}, {val.tanggal}
-            </div>
-            <div>{val.waktu}</div>
-          </div>
-        );
-      },
-      size: 120,
-    },
+    
     {
       accessorFn: (row: any) => {
         const peran = getPeranPenguji(row, currentDosenId);
@@ -321,120 +434,39 @@ export default function JadwalUjianTable({
     {
       accessorFn: (row: any) => row.nilaiAkhir ?? "-",
       id: "nilai",
-      header: "Nilai",
-      cell: ({ row }: any) => <div>{row.getValue("nilai")}</div>,
-      size: 70,
-    },
-    {
-      accessorFn: (row: any) => row.hasil ?? "-",
-      id: "hasil",
-      header: "Hasil",
+      header: () => (
+        <div className="flex items-center justify-center gap-1">
+          Nilai Akhir
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <AlertCircle size={14} className="text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-[200px] text-center">
+                  Nilai ini merupakan total keseluruhan dari penilaian seluruh
+                  penguji, bukan per dosen.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      ),
       cell: ({ row }: any) => (
-        <span
-          className={`px-2 py-1 rounded font-semibold ${
-            row.getValue("hasil")?.toLowerCase() === "lulus"
-              ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100"
-              : row.getValue("hasil")?.toLowerCase() === "tidak lulus"
-              ? "bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100"
-              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
-          }`}
-        >
-          {row.getValue("hasil")}
-        </span>
+        <div className="text-center">{row.getValue("nilai")}</div>
       ),
       size: 70,
     },
     {
       id: "actions",
-      header: "",
-      cell: ({ row }: any) => {
-        const ujian = row.original;
-        return (
-          <div className="flex items-center justify-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Aksi">
-                  <MoreHorizontal size={20} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => dispatchModal({ type: "OPEN_DETAIL", ujian })}
-                  className=""
-                >
-                  <Eye size={16} className="mr-2" /> Detail
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => dispatchModal({ type: "OPEN_REKAP", ujian })}
-                  className=""
-                >
-                  <IconClipboardText size={16} className="mr-2" /> Rekapitulasi
-                  Nilai
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() =>
-                    dispatchModal({ type: "OPEN_DAFTAR_HADIR", ujian })
-                  }
-                >
-                  <UserCheck size={16} className="mr-2" /> Daftar Hadir
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() =>
-                    dispatchModal({ type: "OPEN_PENILAIAN", ujian })
-                  }
-                >
-                  <Pencil size={16} className="mr-2" /> Penilaian
-                </DropdownMenuItem>
-                {/* role check */}
-                {(() => {
-                  const isKetuaAtauSek = ujian.penguji?.some(
-                    (p: any) =>
-                      p.id === Number(currentDosenId) &&
-                      (p.peran === "ketua_penguji" ||
-                        p.peran === "sekretaris_penguji")
-                  );
-                  const jenis = ujian.jenisUjian?.namaJenis ?? "";
-                  const isJenisUntukKeputusan =
-                    jenis === "Ujian Hasil" || jenis === "Ujian Skripsi";
-                  return (
-                    isKetuaAtauSek && (
-                      <>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            dispatchModal({ type: "OPEN_CATATAN", ujian })
-                          }
-                        >
-                          <NotebookPen size={16} className="mr-2" /> Catatan
-                        </DropdownMenuItem>
-                        {isJenisUntukKeputusan && (
-                          <DropdownMenuItem
-                            onClick={() => {
-                              const initId =
-                                (ujian as any).keputusanId ??
-                                keputusanOptions.find(
-                                  (o) => o.label === ujian.hasil
-                                )?.id ??
-                                null;
-                              dispatchModal({
-                                type: "OPEN_KEPUTUSAN",
-                                ujian,
-                                keputusanChoice: initId,
-                              });
-                            }}
-                          >
-                            <Gavel size={16} className="mr-2" />{" "}
-                            <span className="mr-2">Keputusan</span>
-                          </DropdownMenuItem>
-                        )}
-                      </>
-                    )
-                  );
-                })()}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        );
-      },
+      header: () => <div className="text-center">Aksi</div>,
+      cell: ({ row }: any) => (
+        <ActionCell
+          ujian={row.original}
+          dispatchModal={dispatchModal}
+          currentDosenId={currentDosenId}
+        />
+      ),
       size: 90,
     },
   ];
@@ -545,31 +577,31 @@ export default function JadwalUjianTable({
 
   return (
     <DataCard>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        {/* Search bar & filter (right) */}
-        <div className="flex w-full gap-3 md:justify-end md:ml-auto">
-          <div className="relative w-full max-w-full">
-            <Input
-              placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full text-sm px-10 rounded-lg shadow-none bg-white dark:bg-neutral-800 border border-muted"
-            />
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none ">
-              <SearchIcon size={16} />
-            </span>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4 w-full">
+        {/* Search bar */}
+        <div className="relative flex-1 w-full">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <SearchIcon size={16} className="text-muted-foreground" />
           </div>
+          <Input
+            placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 bg-white dark:bg-neutral-800"
+          />
+        </div>
 
+        {/* Controls */}
+        <div className="flex items-center gap-2 self-end sm:self-auto">
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-3 flex items-center gap-2 rounded-lg font-normal shadow-none border border-muted"
+                className="h-9 w-9 flex items-center justify-center rounded-md"
                 aria-label="Filter"
               >
                 <Settings2 size={16} />
-                <span className="hidden md:inline text-xs">Filter</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent
@@ -625,24 +657,22 @@ export default function JadwalUjianTable({
           <Tabs
             value={viewMode}
             onValueChange={(v) => setViewMode(v as "table" | "card")}
-            className="h-8"
+            className="h-9"
           >
-            <TabsList className="rounded-lg bg-muted p-1 gap-1 border border-muted">
+            <TabsList className="rounded-md bg-muted p-1 gap-1 h-9">
               <TabsTrigger
                 value="table"
-                className="inline-flex items-center gap-2 h-7 px-3 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
                 aria-label="Table view"
               >
                 <LayoutGrid size={16} />
-                <span className="hidden md:inline text-xs">Table</span>
               </TabsTrigger>
               <TabsTrigger
                 value="card"
-                className="inline-flex items-center gap-2 h-7 px-3 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
                 aria-label="Card view"
               >
                 <List size={16} />
-                <span className="hidden md:inline text-xs">Card</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>

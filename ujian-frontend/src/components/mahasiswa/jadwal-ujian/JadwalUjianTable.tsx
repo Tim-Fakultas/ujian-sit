@@ -15,6 +15,7 @@ import {
   Clock,
   MapPin,
   User,
+  Check,
 } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ import {
 } from "@tanstack/react-table";
 import TableGlobal from "@/components/tableGlobal";
 import { DataCard } from "@/components/common/DataCard";
+import { ScrollArea } from "@/components/ui/scroll-area";
 // ...existing code...
 
 interface JadwalUjianTableProps {
@@ -481,60 +483,65 @@ export default function JadwalUjianTable({
                 <Settings2 size={18} />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64 p-3" align="end">
-              <div className="flex flex-col gap-3">
-                {/* Jenis Ujian Filter */}
-                <div>
-                  <div className="text-xs font-semibold mb-1 text-muted-foreground">
-                    Jenis Ujian
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant={filterJenis === "all" ? "secondary" : "ghost"}
-                      size="sm"
-                      className="rounded"
-                      onClick={() => setFilterJenis("all")}
-                    >
-                      Semua
-                    </Button>
-                    {jenisUjianOptions.map((jenis) => (
-                      <Button
-                        key={jenis}
-                        variant={filterJenis === jenis ? "secondary" : "ghost"}
-                        size="sm"
-                        className="rounded"
-                        onClick={() => setFilterJenis(jenis)}
-                      >
-                        {jenis}
-                      </Button>
-                    ))}
-                  </div>
+            <PopoverContent className="w-[200px] p-0" align="end">
+              <ScrollArea className="max-h-[300px] p-1">
+                <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                  Jenis Ujian
                 </div>
-                {/* Jadwal Filter */}
-                <div>
-                  <div className="text-xs font-semibold mb-1 text-muted-foreground">
-                    Jadwal
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={filterJadwal === "all" ? "secondary" : "ghost"}
-                      size="sm"
-                      className="rounded"
-                      onClick={() => setFilterJadwal("all")}
-                    >
-                      Semua Jadwal
-                    </Button>
-                    <Button
-                      variant={filterJadwal === "mine" ? "secondary" : "ghost"}
-                      size="sm"
-                      className="rounded"
-                      onClick={() => setFilterJadwal("mine")}
-                    >
-                      Jadwal Saya
-                    </Button>
-                  </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`w-full justify-between h-8 px-2 font-normal ${
+                    filterJenis === "all" ? "bg-accent text-accent-foreground font-medium" : ""
+                  }`}
+                  onClick={() => setFilterJenis("all")}
+                >
+                  <span className="text-sm">Semua</span>
+                  {filterJenis === "all" && <Check size={14} className="ml-auto" />}
+                </Button>
+                {jenisUjianOptions.map((jenis) => (
+                  <Button
+                    key={jenis}
+                    variant="ghost"
+                    size="sm"
+                    className={`w-full justify-between h-8 px-2 font-normal ${
+                      filterJenis === jenis ? "bg-accent text-accent-foreground font-medium" : ""
+                    }`}
+                    onClick={() => setFilterJenis(jenis)}
+                  >
+                    <span className="text-sm">{jenis}</span>
+                    {filterJenis === jenis && <Check size={14} className="ml-auto" />}
+                  </Button>
+                ))}
+                
+                <div className="my-1 h-px bg-border" />
+                
+                <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                  Jadwal
                 </div>
-              </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`w-full justify-between h-8 px-2 font-normal ${
+                    filterJadwal === "all" ? "bg-accent text-accent-foreground font-medium" : ""
+                  }`}
+                  onClick={() => setFilterJadwal("all")}
+                >
+                  <span className="text-sm">Semua Jadwal</span>
+                  {filterJadwal === "all" && <Check size={14} className="ml-auto" />}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`w-full justify-between h-8 px-2 font-normal ${
+                    filterJadwal === "mine" ? "bg-accent text-accent-foreground font-medium" : ""
+                  }`}
+                  onClick={() => setFilterJadwal("mine")}
+                >
+                  <span className="text-sm">Jadwal Saya</span>
+                  {filterJadwal === "mine" && <Check size={14} className="ml-auto" />}
+                </Button>
+              </ScrollArea>
             </PopoverContent>
           </Popover>
           {/* Tabs Table/Card */}

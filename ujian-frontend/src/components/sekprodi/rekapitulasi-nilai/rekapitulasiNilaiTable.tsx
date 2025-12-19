@@ -31,6 +31,7 @@ import { getPenilaianByUjianId } from "@/actions/penilaian";
 import { updateStatusPendaftaranUjian } from "@/actions/pendaftaranUjian";
 import { toast } from "sonner";
 import { User } from "@/types/Auth";
+import { ScrollArea } from "@/components/ui/scroll-area";
 // Custom Modal Component for wider layout
 const Modal = ({
   open,
@@ -726,79 +727,85 @@ export default function RekapitulasiNilaiTable({
                   <Settings2 size={16} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-[220px] p-3">
-                <div className="mb-2 font-semibold text-xs text-muted-foreground">
-                  Jenis Ujian
-                </div>
-                {["all", "proposal", "hasil", "skripsi"].map((opt) => {
-                  const isActive = jenisFilter === opt;
-                  return (
-                    <DropdownMenuItem
-                      key={opt}
-                      onClick={() => setJenisFilter(opt as any)}
-                      className="flex items-center justify-between gap-2"
-                    >
-                      <span className="text-sm">{opt}</span>
-                      {isActive && (
-                        <Check size={14} className="text-emerald-600" />
-                      )}
-                    </DropdownMenuItem>
-                  );
-                })}
-                <div className="mt-3 font-semibold text-xs text-muted-foreground">
-                  Hasil
-                </div>
-                {["all", "lulus", "tidak lulus"].map((opt) => {
-                  const isActive = hasilFilter === opt;
-                  return (
-                    <DropdownMenuItem
-                      key={opt}
-                      onClick={() => setHasilFilter(opt as any)}
-                      className="flex items-center justify-between gap-2"
-                    >
-                      <span className="text-sm capitalize">
-                        {opt === "all" ? "Semua" : opt}
-                      </span>
-                      {isActive && (
-                        <Check size={14} className="text-emerald-600" />
-                      )}
-                    </DropdownMenuItem>
-                  );
-                })}
-                <div className="mt-3 font-semibold text-xs text-muted-foreground">
-                  Bulan
-                </div>
-                <div className="flex flex-col gap-1 mb-2">
-                  <input
-                    type="number"
-                    min={1}
-                    max={12}
-                    value={filterBulan === "all" ? "" : filterBulan}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setFilterBulan(val === "" ? "all" : val);
-                    }}
-                    placeholder="Bulan (1-12)"
-                    className="w-full px-2 py-1 border rounded text-sm"
-                  />
-                </div>
-                <div className="font-semibold text-xs text-muted-foreground">
-                  Tahun
-                </div>
-                <div className="flex flex-col gap-1">
-                  <input
-                    type="number"
-                    min={2000}
-                    max={2100}
-                    value={filterTahun === "all" ? "" : filterTahun}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setFilterTahun(val === "" ? "all" : val);
-                    }}
-                    placeholder="Tahun"
-                    className="w-full px-2 py-1 border rounded text-sm"
-                  />
-                </div>
+              <DropdownMenuContent align="end" className="w-[200px] p-0">
+                <ScrollArea className="max-h-[300px] p-1">
+                  <div className="px-2 py-1.5 font-semibold text-xs text-muted-foreground">
+                    Jenis Ujian
+                  </div>
+                  {["all", "proposal", "hasil", "skripsi"].map((opt) => {
+                    const isActive = jenisFilter === opt;
+                    return (
+                      <DropdownMenuItem
+                        key={opt}
+                        onClick={() => setJenisFilter(opt as any)}
+                        className={`flex items-center justify-between gap-2 px-2 py-1.5 text-sm cursor-pointer ${
+                          isActive ? "bg-accent text-accent-foreground font-medium" : ""
+                        }`}
+                      >
+                        <span className="capitalize">{opt}</span>
+                        {isActive && (
+                          <Check size={14} className="text-emerald-600" />
+                        )}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                  <div className="mt-1 px-2 py-1.5 font-semibold text-xs text-muted-foreground">
+                    Hasil
+                  </div>
+                  {["all", "lulus", "tidak lulus"].map((opt) => {
+                    const isActive = hasilFilter === opt;
+                    return (
+                      <DropdownMenuItem
+                        key={opt}
+                        onClick={() => setHasilFilter(opt as any)}
+                        className={`flex items-center justify-between gap-2 px-2 py-1.5 text-sm cursor-pointer ${
+                          isActive ? "bg-accent text-accent-foreground font-medium" : ""
+                        }`}
+                      >
+                        <span className="capitalize">
+                          {opt === "all" ? "Semua" : opt}
+                        </span>
+                        {isActive && (
+                          <Check size={14} className="text-emerald-600" />
+                        )}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                  <div className="mt-1 px-2 py-1.5 font-semibold text-xs text-muted-foreground">
+                    Bulan
+                  </div>
+                  <div className="px-2 pb-1">
+                    <input
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={filterBulan === "all" ? "" : filterBulan}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFilterBulan(val === "" ? "all" : val);
+                      }}
+                      placeholder="Bulan (1-12)"
+                      className="w-full px-2 py-1 border rounded text-sm bg-background"
+                    />
+                  </div>
+                  <div className="px-2 py-1.5 font-semibold text-xs text-muted-foreground">
+                    Tahun
+                  </div>
+                  <div className="px-2 pb-2">
+                    <input
+                      type="number"
+                      min={2000}
+                      max={2100}
+                      value={filterTahun === "all" ? "" : filterTahun}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFilterTahun(val === "" ? "all" : val);
+                      }}
+                      placeholder="Tahun"
+                      className="w-full px-2 py-1 border rounded text-sm bg-background"
+                    />
+                  </div>
+                </ScrollArea>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

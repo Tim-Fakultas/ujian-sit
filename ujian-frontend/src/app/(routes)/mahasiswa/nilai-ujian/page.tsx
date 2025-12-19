@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import Loading from "./loading";
 import PageHeader from "@/components/common/PageHeader";
 import { FileText } from "lucide-react";
-import RekapitulasiNilaiTable from "@/components/mahasiswa/rekapitulasi-nilai/RekapitulasiNilaiTable";
+import NilaiUjianTable from "@/components/mahasiswa/rekapitulasi-nilai/RekapitulasiNilaiTable";
 
 export default async function RekapitulasiNilaiPage() {
   const { user } = await getCurrentUserAction();
@@ -12,14 +12,14 @@ export default async function RekapitulasiNilaiPage() {
   return (
     <div className="p-6">
       <PageHeader
-        title="Rekapitulasi Nilai"
-        description="Lihat berita acara ujian di sini."
+        title="Nilai Ujian"
+        description="Lihat nilai ujian anda di sini."
         icon={FileText}
-        variant="emerald"
+        variant="blue"
         className="mb-6"
       />
       <Suspense fallback={<Loading />}>
-        <RekapitulasiNilaiTable ujian={ujian} />
+        <NilaiUjianTable ujian={ujian} />
       </Suspense>
     </div>
   );

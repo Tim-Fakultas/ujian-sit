@@ -43,11 +43,12 @@ import {
 } from "@/components/ui/popover";
 import { ListFilter } from "lucide-react";
 import { Ujian } from "@/types/Ujian";
-import PengajuanUjianForm from "./PengajuanUjianForm";
+import PengajuanUjianForm from "./PendaftaranUjianForm";
 import { JenisUjian } from "@/types/JenisUjian";
 import Link from "next/link";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataCard } from "@/components/common/DataCard";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function PendaftaranTable({
   pendaftaranUjian,
@@ -104,13 +105,13 @@ export default function PendaftaranTable({
   // FILTERED & SORTED DATA
   const filteredData = useMemo(() => {
     return (pendaftaranUjian || []).filter((pendaftaran) => {
-      const matchJudul = pendaftaran.ranpel.judulPenelitian
+      const matchJudul = (pendaftaran.judulPenelitian ?? "aa")
         .toLowerCase()
         .includes(filterJudul.toLowerCase());
       const matchJenis =
         filterJenisUjian === "all"
           ? true
-          : String(pendaftaran.jenisUjian.id) === filterJenisUjian;
+          : String(pendaftaran.jenisUjian?.id) === filterJenisUjian;
       const matchStatus =
         filterStatus === "all" ? true : pendaftaran.status === filterStatus;
       return matchJudul && matchJenis && matchStatus;
@@ -133,19 +134,19 @@ export default function PendaftaranTable({
         },
       },
       {
-        accessorFn: (row) => row.ranpel.judulPenelitian ?? "-",
+        accessorFn: (row) => row.judulPenelitian ?? "-",
         id: "judul",
         header: () => (
           <div className="flex items-center gap-1 select-none">Judul</div>
         ),
         cell: ({ row }) => (
           <div className="whitespace-pre-line break-words">
-            {String(row.getValue("judul") ?? "-")}
+            {String(row.getValue("judul") ?? "a")}
           </div>
         ),
       },
       {
-        accessorFn: (row) => row.jenisUjian.namaJenis ?? "-",
+        accessorFn: (row) => row.jenisUjian?.namaJenis ?? "-",
         id: "jenis",
         header: "Jenis Ujian",
         cell: ({ row }) => (
@@ -168,6 +169,24 @@ export default function PendaftaranTable({
         ),
         cell: ({ row }) => {
           const v = String(row.getValue("tanggal") ?? "");
+          try {
+            return new Date(v).toLocaleDateString("id-ID");
+          } catch {
+            return v;
+          }
+        },
+      },
+      {
+        accessorFn: (row) => row.tanggalDisetujui ?? "",
+        id: "tanggalDisetujui",
+        header: () => (
+          <div className="flex items-center gap-1 select-none">
+            Tanggal Disetujui
+          </div>
+        ),
+        cell: ({ row }) => {
+          const v = String(row.getValue("tanggalDisetujui") ?? "");
+          if (!v || v === "null") return "-";
           try {
             return new Date(v).toLocaleDateString("id-ID");
           } catch {
@@ -202,39 +221,7 @@ export default function PendaftaranTable({
           );
         },
       },
-      {
-        id: "actions",
-        cell: ({ row }) => {
-          return (
-            <div className="text-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="p-1 h-7 w-7"
-                    aria-label="Aksi"
-                  >
-                    <MoreHorizontal size={18} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={`/mahasiswa/jadwal-ujian`}
-                      className="w-full flex items-center justify-between gap-2 text-sm px-3 py-2"
-                    >
-                      <span className="flex items-center gap-2">
-                        Lihat Jadwal Ujian
-                      </span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          );
-        },
-      },
+
     ],
     []
   );
@@ -277,9 +264,9 @@ export default function PendaftaranTable({
   return (
     <DataCard className="w-full max-w-full">
       {/* Filter/Search/Add Bar */}
-      <div className="flex flex-row items-center gap-2 mb-4 w-full sm:justify-end">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4 w-full">
         {/* Search */}
-        <div className="relative flex-1 min-w-[120px] max-w-full">
+        <div className="relative flex-1 w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search size={16} className="text-muted-foreground" />
           </div>
@@ -291,99 +278,110 @@ export default function PendaftaranTable({
             aria-label="Search"
           />
         </div>
-        {/* Filter popover */}
-        <Popover open={openFilter} onOpenChange={setOpenFilter}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 w-9 flex items-center justify-center rounded-md"
-            >
-              <Settings2 size={16} />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="min-w-[200px]">
-            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
-              Jenis Ujian
-            </div>
-            <Button
-              variant={filterJenisUjian === "all" ? "secondary" : "ghost"}
-              size="sm"
-              className="w-full justify-between"
-              onClick={() => setFilterJenisUjian("all")}
-            >
-              <span className="text-sm">Semua</span>
-              {filterJenisUjian === "all" && <Check size={14} />}
-            </Button>
-            {jenisUjianList.map((jenis) => (
+
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          {/* Filter popover */}
+          <Popover open={openFilter} onOpenChange={setOpenFilter}>
+            <PopoverTrigger asChild>
               <Button
-                key={jenis.id}
-                variant={
-                  filterJenisUjian === String(jenis.id) ? "secondary" : "ghost"
-                }
+                variant="outline"
                 size="sm"
-                className="w-full justify-between"
-                onClick={() => setFilterJenisUjian(String(jenis.id))}
+                className="h-9 w-9 flex items-center justify-center rounded-md"
               >
-                <span className="text-sm">{jenis.namaJenis}</span>
-                {filterJenisUjian === String(jenis.id) && <Check size={14} />}
+                <Settings2 size={16} />
               </Button>
-            ))}
-            <div className="px-2 py-1 mt-2 text-xs font-semibold text-muted-foreground border-t border-muted">
-              Status
-            </div>
-            {statusOptions.map((opt) => (
-              <Button
-                key={opt.value}
-                variant={filterStatus === opt.value ? "secondary" : "ghost"}
-                size="sm"
-                className="w-full justify-between"
-                onClick={() => setFilterStatus(opt.value)}
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-[200px] p-0">
+              <ScrollArea className="max-h-[300px] p-1">
+                <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                  Jenis Ujian
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`w-full justify-between h-8 px-2 font-normal ${
+                    filterJenisUjian === "all" ? "bg-accent text-accent-foreground font-medium" : ""
+                  }`}
+                  onClick={() => setFilterJenisUjian("all")}
+                >
+                  <span className="text-sm">Semua</span>
+                  {filterJenisUjian === "all" && <Check size={14} className="ml-auto" />}
+                </Button>
+                {jenisUjianList.map((jenis) => (
+                  <Button
+                    key={jenis.id}
+                    variant="ghost"
+                    size="sm"
+                    className={`w-full justify-between h-8 px-2 font-normal ${
+                      filterJenisUjian === String(jenis.id)
+                        ? "bg-accent text-accent-foreground font-medium"
+                        : ""
+                    }`}
+                    onClick={() => setFilterJenisUjian(String(jenis.id))}
+                  >
+                    <span className="text-sm">{jenis.namaJenis}</span>
+                    {filterJenisUjian === String(jenis.id) && (
+                      <Check size={14} className="ml-auto" />
+                    )}
+                  </Button>
+                ))}
+                <div className="my-1 h-px bg-border" />
+                <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                  Status
+                </div>
+                {statusOptions.map((opt) => (
+                  <Button
+                    key={opt.value}
+                    variant="ghost"
+                    size="sm"
+                    className={`w-full justify-between h-8 px-2 font-normal ${
+                      filterStatus === opt.value ? "bg-accent text-accent-foreground font-medium" : ""
+                    }`}
+                    onClick={() => setFilterStatus(opt.value)}
+                  >
+                    <span className="text-sm">{opt.label}</span>
+                    {filterStatus === opt.value && (
+                      <Check size={14} className="ml-auto" />
+                    )}
+                  </Button>
+                ))}
+              </ScrollArea>
+            </PopoverContent>
+          </Popover>
+          {/* Tabs */}
+          <Tabs
+            value={viewMode}
+            onValueChange={(v) => setViewMode(v as "table" | "card")}
+            className="h-9"
+          >
+            <TabsList className="rounded-md bg-muted p-1 gap-1 h-9">
+              <TabsTrigger
+                value="table"
+                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
+                aria-label="Table view"
               >
-                <span className="text-sm">{opt.label}</span>
-                {filterStatus === opt.value && <Check size={14} />}
-              </Button>
-            ))}
-          </PopoverContent>
-        </Popover>
-        {/* Tabs */}
-        <Tabs
-          value={viewMode}
-          onValueChange={(v) => setViewMode(v as "table" | "card")}
-          className="h-8"
-        >
-          <TabsList className="rounded-md bg-muted p-1 gap-1">
-            <TabsTrigger
-              value="table"
-              className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              aria-label="Table view"
-            >
-              <LayoutGrid />
-            </TabsTrigger>
-            <TabsTrigger
-              value="card"
-              className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              aria-label="Card view"
-            >
-              <List />
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-        {/* Tombol pengajuan */}
-        <Button
-          className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 flex items-center gap-2 rounded-lg hidden sm:flex"
-          onClick={() => setShowForm(true)}
-        >
-          <span>Ajukan ujian</span>
-          <Plus size={14} />
-        </Button>
-        <Button
-          className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-2 flex items-center gap-2 rounded-lg sm:hidden"
-          onClick={() => setShowForm(true)}
-          aria-label="Ajukan ujian"
-        >
-          <Plus size={16} />
-        </Button>
+                <LayoutGrid size={16} />
+              </TabsTrigger>
+              <TabsTrigger
+                value="card"
+                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
+                aria-label="Card view"
+              >
+                <List size={16} />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          {/* Tombol pengajuan */}
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 flex items-center gap-2 rounded-lg h-9"
+            onClick={() => setShowForm(true)}
+          >
+            <Plus size={16} />
+            <span className="hidden sm:inline">Ajukan Ujian</span>
+            <span className="sm:hidden">Ajukan</span>
+          </Button>
+        </div>
       </div>
 
       {/* Popup Modal Form Pengajuan Ujian */}
@@ -441,8 +439,8 @@ export default function PendaftaranTable({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
           {filteredData.map((item, idx) => {
             const key = item.id ?? idx;
-            const judul = item.ranpel.judulPenelitian ?? "-";
-            const jenis = item.jenisUjian.namaJenis ?? "-";
+            const judul = item.judulPenelitian ?? "-";
+            const jenis = item.jenisUjian?.namaJenis ?? "-";
             const tanggal = item.tanggalPengajuan ?? "";
             const status = item.status ?? "-";
             

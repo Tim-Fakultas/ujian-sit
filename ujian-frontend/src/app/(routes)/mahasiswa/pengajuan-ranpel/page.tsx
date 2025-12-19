@@ -10,11 +10,12 @@ export default async function Page() {
 
   return (
     <div className="p-6 flex flex-col">
+      
       <PageHeader
         title="Pengajuan Rancangan Penelitian"
         description="Kelola pengajuan rancangan penelitian Anda di sini."
         icon={FileText}
-        variant="emerald"
+        variant="blue"
         className="mb-6"
       />
 

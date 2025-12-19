@@ -26,7 +26,7 @@ export default function Loading() {
                 <div key={i} className="flex gap-4 items-center p-4 border rounded-xl">
                     <Skeleton className="h-4 w-8" />
                     <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-6 w-20 rounded-full" />
+                    <Skeleton className="h-6 w-24 rounded-full" />
                 </div>
             ))}
          </div>
