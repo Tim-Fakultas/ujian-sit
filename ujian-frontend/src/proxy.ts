@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const userCookie = request.cookies.get("user")?.value;
   const { pathname } = request.nextUrl;
@@ -29,7 +29,7 @@ export function middleware(request: NextRequest) {
       } catch (e) {
         // ignore parse error
       }
-      
+
       const target = dashboardRoutes[role] || "/mahasiswa/dashboard";
       return NextResponse.redirect(new URL(target, request.url));
     }
@@ -54,9 +54,9 @@ export function middleware(request: NextRequest) {
   if (matchedPrefix) {
     // If not authenticated, redirect to login
     if (!token) {
-        const loginUrl = new URL("/login", request.url);
-        // Optional: save return url usually
-        return NextResponse.redirect(loginUrl);
+      const loginUrl = new URL("/login", request.url);
+      // Optional: save return url usually
+      return NextResponse.redirect(loginUrl);
     }
 
     let role = "";
@@ -66,11 +66,11 @@ export function middleware(request: NextRequest) {
         role = user.role?.toLowerCase() || "";
       }
     } catch (e) {
-       // invalid cookie
+      // invalid cookie
     }
 
     const allowedRoles = routeRoles[matchedPrefix];
-    
+
     // Check if user's role is allowed for this route
     if (!allowedRoles.includes(role)) {
       // Unauthorized: Redirect to their own dashboard if possible
