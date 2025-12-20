@@ -180,15 +180,12 @@ export default function PenilaianModal({
   }, [state.success, onClose]);
 
   // Calculate grade text based on score
+  // Calculate grade text based on score
   const getGrade = (score: number) => {
-    if (score >= 85) return { label: "A", color: "text-emerald-500 bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800" };
-    if (score >= 80) return { label: "A-", color: "text-emerald-600 bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800" };
-    if (score >= 75) return { label: "B+", color: "text-blue-500 bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-800" };
+    if (score >= 80) return { label: "A", color: "text-emerald-500 bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800" };
     if (score >= 70) return { label: "B", color: "text-blue-600 bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-800" };
-    if (score >= 65) return { label: "B-", color: "text-cyan-600 bg-cyan-50 border-cyan-100 dark:bg-cyan-900/20 dark:border-cyan-800" };
-    if (score >= 60) return { label: "C+", color: "text-yellow-600 bg-yellow-50 border-yellow-100 dark:bg-yellow-900/20 dark:border-yellow-800" };
-    if (score >= 55) return { label: "C", color: "text-yellow-600 bg-yellow-50 border-yellow-100 dark:bg-yellow-900/20 dark:border-yellow-800" };
-    if (score >= 40) return { label: "D", color: "text-orange-600 bg-orange-50 border-orange-100 dark:bg-orange-900/20 dark:border-orange-800" };
+    if (score >= 60) return { label: "C", color: "text-yellow-600 bg-yellow-50 border-yellow-100 dark:bg-yellow-900/20 dark:border-yellow-800" };
+    if (score >= 56) return { label: "D", color: "text-orange-600 bg-orange-50 border-orange-100 dark:bg-orange-900/20 dark:border-orange-800" };
     return { label: "E", color: "text-red-600 bg-red-50 border-red-100 dark:bg-red-900/20 dark:border-red-800" };
   };
 
@@ -258,7 +255,7 @@ export default function PenilaianModal({
                   className="group bg-white dark:bg-[#18181b] rounded-2xl p-4 sm:p-0 sm:grid sm:grid-cols-12 sm:gap-4 sm:items-center border border-transparent hover:border-blue-100 dark:hover:border-blue-900/30 shadow-sm hover:shadow-md transition-all duration-200"
                 >
                     {/* Component Name */}
-                    <div className="col-span-6 flex items-start gap-4 sm:pl-6 sm:py-4 mb-3 sm:mb-0">
+                    <div className="col-span-6 flex items-center gap-4 sm:pl-4 sm:py-4 mb-3 sm:mb-0">
                       <span className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 flex items-center justify-center text-sm font-medium border dark:border-neutral-700">
                         {idx + 1}
                       </span>
@@ -298,7 +295,7 @@ export default function PenilaianModal({
                     </div>
 
                     {/* Calculated Value */}
-                    <div className="col-span-2 flex items-center justify-between sm:justify-end sm:pr-6 mt-3 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-dashed border-gray-200 dark:border-neutral-800">
+                    <div className="col-span-2 flex items-center justify-between sm:justify-end sm:pr-4 mt-3 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-dashed border-gray-200 dark:border-neutral-800">
                         <span className="text-sm font-medium sm:hidden text-gray-600">Total:</span>
                         <div className="text-right">
                            <span className="text-lg font-bold text-gray-900 dark:text-white">

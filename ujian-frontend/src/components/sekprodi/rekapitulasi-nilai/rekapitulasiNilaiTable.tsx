@@ -662,11 +662,11 @@ export default function RekapitulasiNilaiTable({
                  {user?.role === "admin prodi" && selected?.pendaftaranUjian?.id && (
                     <div className="pt-2">
                         <Button 
-                            className={`w-full font-bold ${selected.pendaftaranUjian.status === "selesai" ? "bg-gray-100 text-gray-400 border border-gray-200" : "bg-emerald-600 hover:bg-emerald-700 text-white"}`}
-                            disabled={isUpdating || selected.pendaftaranUjian.status === "selesai"}
+                            className={`w-full font-bold ${selected.pendaftaranUjian.status === "selesai" || !penilaian || penilaian.length === 0 ? "bg-gray-100 text-gray-400 border border-gray-200" : "bg-emerald-600 hover:bg-emerald-700 text-white"}`}
+                            disabled={isUpdating || selected.pendaftaranUjian.status === "selesai" || !penilaian || penilaian.length === 0}
                             onClick={() => selected?.pendaftaranUjian?.id && handleVerifikasi(selected.pendaftaranUjian.id)}
                         >
-                            {selected.pendaftaranUjian.status === "selesai" ? "Ujian Selesai (Terverifikasi)" : isUpdating ? "Memproses..." : "Verifikasi & Selesaikan Ujian"}
+                            {selected.pendaftaranUjian.status === "selesai" ? "Ujian Selesai (Terverifikasi)" : (!penilaian || penilaian.length === 0) ? "Belum Ada Nilai" : isUpdating ? "Memproses..." : "Verifikasi & Selesaikan Ujian"}
                         </Button>
                         <p className="text-[10px] text-gray-400 text-center mt-2">
                             Tindakan ini akan mengubah status pendaftaran ujian menjadi "Selesai".

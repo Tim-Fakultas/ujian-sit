@@ -22,6 +22,7 @@ export default async function PenilaianUjianPage() {
         icon={FileText}
         variant="emerald"
         className="mb-6"
+        showDate={true}
       />
       <Suspense fallback={<Loading />}>
         <PenilaianUjianTable jadwalUjian={jadwalUjian} currentDosenId={user?.id} />

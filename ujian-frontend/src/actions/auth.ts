@@ -115,3 +115,119 @@ export async function logoutAction() {
 
   redirect("/login");
 }
+
+export async function refreshUserAction() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const userCookie = cookieStore.get("user")?.value;
+
+  if (!token || !userCookie) {
+    return null;
+  }
+
+  try {
+    const staleUser = JSON.parse(userCookie); // User structure from login
+    // Get role safely
+    const role =
+      staleUser.role ||
+      (staleUser.roles && staleUser.roles.length > 0
+        ? staleUser.roles[0].name
+        : "");
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    // Helper fetcher
+    const fetchWithToken = async (path: string) => {
+      try {
+        const res = await fetch(`${apiUrl}${path}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+          cache: "no-store",
+        });
+        if (!res.ok) return null;
+        return await res.json();
+      } catch (e) {
+        console.error("Fetch error:", path, e);
+        return null;
+      }
+    };
+
+    let newUser: any = { ...staleUser };
+
+    if (role === "mahasiswa") {
+      // Logic for Mahasiswa: fetch /mahasiswa/{id} (Note: staleUser.id is the mahasiswa ID)
+      const res = await fetchWithToken(`/mahasiswa/${staleUser.id}`);
+      if (res && res.data) {
+        const m = res.data;
+        // Map Resource fields (camelCase) to Auth fields (snake_case/mixed)
+        newUser = {
+          ...newUser,
+          id: m.id,
+          nama: m.nama,
+          nim: m.nim,
+          no_hp: m.noHp,
+          alamat: m.alamat,
+          semester: m.semester,
+          ipk: m.ipk,
+          status: m.status,
+          angkatan: m.angkatan,
+          user_id: m.userId,
+          prodi: m.prodi, // {id, nama} from resource
+          peminatan: m.peminatan,
+          // map pembimbing if needed
+        };
+      }
+    } else if (role === "dosen") {
+      // Logic for Dosen
+      const res = await fetchWithToken(`/dosen/${staleUser.id}`);
+      if (res && res.data) {
+        const d = res.data;
+        newUser = {
+          ...newUser,
+          id: d.id,
+          nama: d.nama,
+          nidn: d.nidn,
+          nip: d.nip,
+          no_hp: d.noHp,
+          alamat: d.alamat,
+          prodi: d.prodi,
+          user_id: d.userId,
+        };
+      }
+    } else {
+      // Logic for Admin/Others (fetch /user)
+      const userRes = await fetchWithToken(`/user`);
+      if (userRes) {
+        newUser = {
+          ...newUser,
+          ...userRes, // update basic info like name/email
+          // prodi_id might be here, fetch prodi if needed
+        };
+        
+        // If prodi_id exists, fetch prodi detail
+        if (userRes.prodi_id) {
+             const prodiRes = await fetchWithToken(`/prodi/${userRes.prodi_id}`);
+             if (prodiRes && prodiRes.data) {
+                 // The ProdiResource returns {id, nama_prodi, ...}
+                 // We assign it to prodi
+                 newUser.prodi = prodiRes.data;
+             }
+        }
+      }
+    }
+
+    // Refresh the cookie
+    cookieStore.set("user", JSON.stringify(newUser), {
+      httpOnly: false,
+      path: "/",
+      maxAge: 60 * 60 * 6,
+    });
+
+    return newUser;
+  } catch (error) {
+    console.error("Failed to refresh user data:", error);
+    return null;
+  }
+}

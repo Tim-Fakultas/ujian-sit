@@ -280,7 +280,7 @@ export default function JadwalUjianTable({
       cell: ({ row }: any) => (
         <div>
           <div className="font-medium">{row.getValue("nama")}</div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-sm text-muted-foreground">
             {row.original.mahasiswa.nim}
           </div>
         </div>
@@ -298,7 +298,7 @@ export default function JadwalUjianTable({
         if (!jadwal) return <span className="text-gray-400">-</span>;
 
         return (
-          <div className="text-xs">
+          <div className="text-sm">
             <div className="font-medium">
               {new Date(jadwal).toLocaleDateString("id-ID", {
                 day: "numeric",
@@ -318,7 +318,7 @@ export default function JadwalUjianTable({
       id: "ruangan",
       header: "Ruangan",
       cell: ({ row }: any) => (
-        <div className="text-xs font-medium">
+        <div className="text-sm font-medium">
           {row.original.ruangan?.namaRuangan ?? "-"}
         </div>
       ),
@@ -329,7 +329,7 @@ export default function JadwalUjianTable({
       id: "judul",
       header: "Judul Penelitian",
       cell: ({ row }: any) => (
-        <div className="whitespace-pre-line break-words max-w-[200px] text-xs leading-snug">
+        <div className="truncate max-w-[200px] text-sm ">
           {row.getValue("judul")}
         </div>
       ),

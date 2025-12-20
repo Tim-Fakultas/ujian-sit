@@ -25,7 +25,7 @@ export default async function JadwalUjianPage() {
     <div className="p-6">
       <PageHeader 
         title="Penjadwalan Ujian" 
-        description="Kelola penjadwalan ujian di sini." 
+        description="Kelola jadwal ujian di sini." 
         icon={FileText}
         variant="emerald"
         className="mb-6"

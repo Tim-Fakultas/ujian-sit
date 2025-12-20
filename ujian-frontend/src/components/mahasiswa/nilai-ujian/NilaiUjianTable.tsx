@@ -14,8 +14,8 @@ import {
   Settings2,
   Calendar,
   AlertCircle,
+  Eye,
 } from "lucide-react";
-import { truncateTitle } from "@/lib/utils";
 
 import {
   DropdownMenu,
@@ -53,6 +53,10 @@ export default function NilaiUjianTable({
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState<BeritaUjian | null>(null);
   const [penilaian, setPenilaian] = useState<any[]>([]);
+
+  // State untuk modal catatan
+  const [openCatatanDialog, setOpenCatatanDialog] = useState(false);
+  const [selectedCatatan, setSelectedCatatan] = useState<string>("");
 
   // Ambil penilaian ketika modal detail dibuka
   useEffect(() => {
@@ -171,7 +175,7 @@ export default function NilaiUjianTable({
       id: "judul",
       header: "Judul",
       cell: ({ row }: any) => (
-        <div className="whitespace-pre-line break-words max-w-[240px] text-xs">
+        <div className=" max-w-[200px] text-sm truncate">
           {row.getValue("judul")}
         </div>
       ),
@@ -201,7 +205,7 @@ export default function NilaiUjianTable({
     {
       accessorFn: (row: BeritaUjian) => row.nilaiAkhir ?? 0,
       id: "nilaiAkhir",
-      header: "Nilai Akhir",
+      header: () => <div className="text-center">Nilai Akhir</div>,
       cell: ({ row }: any) => (
         <div className="flex items-center justify-center gap-1.5 font-medium">
           <span>{Number(row.getValue("nilaiAkhir") || 0).toFixed(2)}</span>
@@ -233,7 +237,7 @@ export default function NilaiUjianTable({
     },
     {
       id: "predikat",
-      header: "Predikat",
+      header: () => <div className="text-center">Predikat</div>,
       cell: ({ row }: any) => {
         const nilai = Number(row.original.nilaiAkhir ?? 0);
         const huruf = getNilaiHuruf(nilai);
@@ -246,9 +250,11 @@ export default function NilaiUjianTable({
             ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
             : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
         return (
-          <span className={`px-2 py-1 rounded font-bold text-xs ${color}`}>
-            {huruf}
-          </span>
+          <div className="flex items-center justify-center">
+            <span className={`px-2 py-1 rounded font-bold text-xs ${color}`}>
+              {huruf}
+            </span>
+          </div>
         );
       },
       size: 80,
@@ -256,7 +262,7 @@ export default function NilaiUjianTable({
     {
       accessorFn: (row: BeritaUjian) => row.hasil ?? "-",
       id: "hasil",
-      header: "Status",
+      header: () => <div className="text-center">Status</div>,
       cell: ({ row }: any) => {
         const hasil = row.getValue("hasil")?.toLowerCase();
         const badgeClass =
@@ -266,16 +272,51 @@ export default function NilaiUjianTable({
             ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
             : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200";
         return hasil && hasil !== "" ? (
+          <div className="flex items-center justify-center">
+
           <span
-            className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeClass}`}
-          >
+            className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${badgeClass}`}
+            >
             {row.getValue("hasil")}
           </span>
+            </div>
         ) : (
           <span className="text-gray-400">-</span>
         );
       },
       size: 100,
+    },
+    {
+      accessorFn: (row: BeritaUjian) => row.catatan ?? "-",
+      id: "catatan",
+      header: () => <div className="text-center">Catatan</div>,
+      cell: ({ row }: any) => {
+        const catatan = row.getValue("catatan");
+        if (!catatan || catatan === "-")
+          return (
+            <div className="flex justify-center">
+              <span className="text-gray-400">-</span>
+            </div>
+          );
+
+        return (
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedCatatan(catatan);
+                setOpenCatatanDialog(true);
+              }}
+              className="h-8 w-8 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+            >
+              <Eye size={16} />
+            </Button>
+          </div>
+        );
+      },
+      size: 80,
     },
   ];
 
@@ -610,6 +651,35 @@ export default function NilaiUjianTable({
               </div>
             )}
           </ScrollArea>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Modal Catatan */}
+      <Dialog open={openCatatanDialog} onOpenChange={setOpenCatatanDialog}>
+        <DialogContent className="max-w-md bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 rounded-xl shadow-2xl p-6">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <span className="p-2 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                <AlertCircle size={18} />
+              </span>
+              Catatan / Revisi Penguji
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="bg-gray-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-gray-100 dark:border-neutral-800">
+             <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+               {selectedCatatan}
+             </p>
+          </div>
+
+          <DialogFooter className="mt-6">
+            <Button 
+                onClick={() => setOpenCatatanDialog(false)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+            >
+              Tutup
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
       {/* Search, Filter, and Tabs in one row (tabs below on mobile) */}

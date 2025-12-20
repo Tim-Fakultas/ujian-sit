@@ -47,7 +47,7 @@ export default function RekapitulasiNilaiModal({
               </div>
               <div className="flex flex-col">
                 <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                  Rekapitulasi Nilai
+                  Detail nilai penguji
                 </h3>
                 <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
                   {ujian.jenisUjian?.namaJenis}
@@ -102,32 +102,53 @@ export default function RekapitulasiNilaiModal({
                         <span className="animate-pulse">Memuat data penilaian...</span>
                       </td>
                     </tr>
-                  ) : rekapPenilaian.length === 0 ? (
+                  ) : (!ujian.penguji || ujian.penguji.length === 0) ? (
                     <tr>
                       <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
-                        Belum ada data penilaian yang masuk.
+                        Data penguji tidak ditemukan.
                       </td>
                     </tr>
                   ) : (
-                    rekapPenilaian.map((d, i) => (
-                      <tr key={i} className="hover:bg-gray-50 dark:hover:bg-neutral-800/50 transition-colors">
-                        <td className="px-4 py-3 text-center text-gray-500">{i + 1}</td>
-                        <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-200">{d.dosen?.nama ?? "-"}</td>
-                        <td className="px-4 py-3 text-gray-500">
-                            <span className={cn(
-                                "px-2 py-0.5 rounded textxs font-medium border",
-                                d.jabatan === "Ketua Penguji" ? "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-800" :
-                                d.jabatan === "Sekretaris Penguji" ? "bg-pink-50 text-pink-700 border-pink-100 dark:bg-pink-500/10 dark:text-pink-300 dark:border-pink-800" :
-                                "bg-slate-50 text-slate-600 border-slate-100 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700"
-                            )}>
-                                {d.jabatan}
-                            </span>
-                        </td>
-                        <td className="px-4 py-3 text-right font-bold text-gray-900 dark:text-gray-100 tabular-nums">
-                          {d.total.toFixed(2)}
-                        </td>
-                      </tr>
-                    ))
+                    (() => {
+                        const roleOrder = ["ketua_penguji", "sekretaris_penguji", "penguji_1", "penguji_2"];
+                        // Create a clean sorted copy of penguji
+                        const sortedPenguji = [...ujian.penguji].sort((a, b) => roleOrder.indexOf(a.peran) - roleOrder.indexOf(b.peran));
+                        
+                        return sortedPenguji.map((p, i) => {
+                            const gradeData = rekapPenilaian.find((r) => r.dosen?.id === p.id);
+                            
+                            let labelRole = "-";
+                             switch (p.peran) {
+                                case "ketua_penguji": labelRole = "Ketua Penguji"; break;
+                                case "sekretaris_penguji": labelRole = "Sekretaris Penguji"; break;
+                                case "penguji_1": labelRole = "Penguji I"; break;
+                                case "penguji_2": labelRole = "Penguji II"; break;
+                                default: labelRole = p.peran;
+                             }
+
+                            return (
+                              <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-neutral-800/50 transition-colors">
+                                <td className="px-4 py-3 text-center text-gray-500">{i + 1}</td>
+                                <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-200">
+                                    {p.nama ?? "-"}
+                                </td>
+                                <td className="px-4 py-3 text-gray-500">
+                                    <span className={cn(
+                                        "px-2 py-0.5 rounded text-xs font-medium border",
+                                        labelRole === "Ketua Penguji" ? "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-800" :
+                                        labelRole === "Sekretaris Penguji" ? "bg-pink-50 text-pink-700 border-pink-100 dark:bg-pink-500/10 dark:text-pink-300 dark:border-pink-800" :
+                                        "bg-slate-50 text-slate-600 border-slate-100 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700"
+                                    )}>
+                                        {labelRole}
+                                    </span>
+                                </td>
+                                <td className="px-4 py-3 text-right font-bold text-gray-900 dark:text-gray-100 tabular-nums">
+                                  {gradeData ? gradeData.total.toFixed(2) : <span className="text-gray-400 italic font-normal text-xs">Belum menilai</span>}
+                                </td>
+                              </tr>
+                            );
+                        });
+                    })()
                   )}
                 </tbody>
             </table>

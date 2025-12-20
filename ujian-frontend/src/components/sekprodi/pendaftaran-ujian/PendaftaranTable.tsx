@@ -23,6 +23,7 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 
 import {
@@ -55,6 +56,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { DataCard } from "@/components/common/DataCard";
 import { getRanpelByMahasiswaId } from "@/actions/rancanganPenelitian";
@@ -79,6 +81,11 @@ export default function PendaftaranUjianTable({
 
   
   const [showBerkasModal, setShowBerkasModal] = useState(false);
+  
+  // State for Reject Dialog
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [isRejecting, setIsRejecting] = useState(false);
 
   useEffect(() => {
     if (selected) {
@@ -582,28 +589,8 @@ export default function PendaftaranUjianTable({
                       variant="outline"
                       size="sm"
                       className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all font-medium h-8 text-xs"
-                      onClick={async () => {
-                        const found = pendaftaranUjianList.find(
-                          (p) =>
-                            p.mahasiswa.id === selected?.mahasiswa.id &&
-                            p.jenisUjian.id === selected?.jenisUjian.id
-                        );
-                        if (found) {
-                          const tId = showToast.loading("Menolak berkas...");
-                          try {
-                            await updateStatusPendaftaranUjian(found.id, "ditolak");
-                            showToast.dismiss(tId);
-                            showToast.success("Berkas ditolak");
-                            await revalidateAction("/sekprodi/daftar-ujian");
-                            router.refresh();
-                            setShowBerkasModal(false);
-                          } catch (error) {
-                            showToast.dismiss(tId);
-                            showToast.error("Gagal menolak berkas");
-                          }
-                        } else {
-                          showToast.error("Data pendaftaran tidak ditemukan");
-                        }
+                      onClick={() => {
+                        setShowRejectDialog(true);
                       }}
                     >
                       Tolak
@@ -626,7 +613,7 @@ export default function PendaftaranUjianTable({
                           
                             );
                             showToast.dismiss(tId);
-                            showToast.success(`Berkas berhasil diverifikasi ${ranpelId}`);
+                            showToast.success(`Berkas berhasil diverifikasi`);
                             await revalidateAction("/sekprodi/daftar-ujian");
                             router.refresh(); // Force refresh data on client
                             setShowBerkasModal(false);
@@ -642,6 +629,82 @@ export default function PendaftaranUjianTable({
                       Verifikasi
                     </Button>
                 </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Reason Dialog */}
+      <Dialog 
+        open={showRejectDialog} 
+        onOpenChange={(open) => {
+          setShowRejectDialog(open);
+          if(!open) {
+             setRejectReason(""); 
+             setIsRejecting(false);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Tolak Pendaftaran</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+               Apakah Anda yakin ingin menolak pendaftaran ini? Silakan masukkan alasan penolakan.
+            </p>
+            <Textarea
+              placeholder="Contoh: Berkas proposal belum lengkap, Surat keterangan plagiasi buram..."
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+          <DialogFooter>
+             <Button
+                variant="outline"
+                onClick={() => setShowRejectDialog(false)}
+                disabled={isRejecting}
+             >
+               Batal
+             </Button>
+             <Button
+                variant="destructive"
+                disabled={!rejectReason.trim() || isRejecting}
+                onClick={async () => {
+                   setIsRejecting(true);
+                   const found = pendaftaranUjianList.find(
+                      (p) =>
+                        p.mahasiswa.id === selected?.mahasiswa.id &&
+                        p.jenisUjian.id === selected?.jenisUjian.id
+                   );
+                   
+                   if (found) {
+                      const tId = showToast.loading("Menolak pendaftaran...");
+                      try {
+                         await updateStatusPendaftaranUjian(found.id, "ditolak", rejectReason);
+                         showToast.dismiss(tId);
+                         showToast.success("Pendaftaran berhasil ditolak");
+                         
+                         await revalidateAction("/sekprodi/daftar-ujian");
+                         router.refresh();
+                         
+                         setShowRejectDialog(false);
+                         setShowBerkasModal(false);
+                      } catch (error) {
+                         showToast.dismiss(tId);
+                         showToast.error("Gagal menolak pendaftaran");
+                      } finally {
+                         setIsRejecting(false);
+                      }
+                   } else {
+                      setIsRejecting(false);
+                      setShowRejectDialog(false);
+                      showToast.error("Data pendaftaran tidak ditemukan");
+                   }
+                }}
+             >
+               {isRejecting ? "Menolak..." : "Tolak Pendaftaran"}
+             </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </DataCard>

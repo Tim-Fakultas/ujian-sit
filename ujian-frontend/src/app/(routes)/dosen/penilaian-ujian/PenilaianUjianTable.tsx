@@ -86,6 +86,7 @@ function ActionCell({
           <Button
             variant="ghost"
             size="icon"
+            
             aria-label="Aksi"
             className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-neutral-100 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white transition-all"
           >
@@ -94,6 +95,7 @@ function ActionCell({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
+          side="top"
           className="w-56 p-2 rounded-xl border border-muted/20 shadow-xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
         >
           <div className="text-[10px] uppercase font-bold text-muted-foreground px-2 py-1.5 mb-1">
@@ -107,18 +109,9 @@ function ActionCell({
               size={18}
               className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
             />
-            Detail
+            Detail ujian
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => dispatchModal({ type: "OPEN_REKAP", ujian })}
-            className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
-          >
-            <IconClipboardText
-              size={18}
-              className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
-            />
-            Rekapitulasi Nilai
-          </DropdownMenuItem>
+        
           <DropdownMenuItem
             onClick={() => dispatchModal({ type: "OPEN_DAFTAR_HADIR", ujian })}
             className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
@@ -127,7 +120,7 @@ function ActionCell({
               size={18}
               className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
             />
-            Daftar Hadir
+            Absensi Kehadiran
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => dispatchModal({ type: "OPEN_PENILAIAN", ujian })}
@@ -471,6 +464,119 @@ export default function PenilaianUjianTable({
     },
   ];
 
+  // Component to display evaluation status of each examiner for a specific exam
+  function StatusPenilaianPenguji({ ujianId, penguji, onOpenRekap }: { ujianId: number; penguji: any[], onOpenRekap: () => void }) {
+    const [statusMap, setStatusMap] = useState<Record<number, boolean>>({});
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      let isMounted = true;
+      const fetchStatus = async () => {
+        try {
+          const data = await getPenilaianByUjianId(ujianId);
+          if (isMounted) {
+            const map: Record<number, boolean> = {};
+            // Collect all dosenIds that have submitted scores
+            const submittedIds = new Set(data.map((item: any) => item.dosenId));
+            penguji.forEach((p) => {
+              map[p.id] = submittedIds.has(p.id);
+            });
+            setStatusMap(map);
+          }
+        } catch (err) {
+          console.error("Failed to fetch assessment status", err);
+        } finally {
+          if (isMounted) setLoading(false);
+        }
+      };
+
+      fetchStatus();
+      return () => {
+        isMounted = false;
+      };
+    }, [ujianId, penguji]);
+
+    if (loading) return <div className="text-xs text-muted-foreground animate-pulse">Menunggu...</div>;
+
+    return (
+      <div className="flex items-center justify-center gap-3">
+        <div className="flex -space-x-2 overflow-hidden items-center justify-center">
+          {penguji.map((p) => {
+            const isDone = statusMap[p.id];
+            return (
+              <TooltipProvider key={p.id}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div 
+                      className={`inline-flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-white dark:ring-neutral-900 text-[10px] font-bold cursor-help
+                        ${isDone 
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" 
+                          : "bg-gray-100 text-gray-400 dark:bg-neutral-800 dark:text-gray-500"
+                        }
+                      `}
+                    >
+                      {isDone ? <Check size={14} /> : p.nama.charAt(0)}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">
+                      <span className="font-bold">{p.nama}</span>
+                      <br/>
+                      Status: {isDone ? "Sudah Menilai" : "Belum Menilai"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
+        </div>
+        
+        <TooltipProvider>
+           <Tooltip>
+              <TooltipTrigger asChild>
+                 <Button
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={onOpenRekap} 
+                    className="h-7 w-7 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                 >
+                    <Eye size={14} />
+                 </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                 <p className="text-xs">Lihat detail nilai semua penguji</p>
+              </TooltipContent>
+           </Tooltip>
+        </TooltipProvider>
+      </div>
+    );
+  }
+
+  // Inject the new column before 'nilai' or wherever appropriate
+  // Inserting at index 4 (Status Penguji)
+  if (!cols.find(c => c.id === 'status_penguji')) {
+     const statusCol = {
+      id: "status_penguji",
+      header: () => <div className="text-center">Nilai penguji</div>,
+      cell: ({ row }: any) => (
+        <StatusPenilaianPenguji 
+          ujianId={row.original.id} 
+          penguji={row.original.penguji || []} 
+          onOpenRekap={() => dispatchModal({ type: "OPEN_REKAP", ujian: row.original })}
+        />
+      ),
+      size: 160,
+     };
+     
+     // Insert before 'nilai' column which is currently at index 3 (0-based: no, nama, jenis, peran, nilai, actions)
+     // Current indices: 0:no, 1:nama, 2:jenis, 3:peran, 4:nilai, 5:actions
+     // We want it after 'peran'
+     const peranIndex = cols.findIndex(c => c.id === 'peran');
+     if (peranIndex !== -1) {
+        cols.splice(peranIndex + 1, 0, statusCol as any);
+     }
+  }
+
   // TableGlobal setup
   const pageSize = 10;
   const [page, setPage] = useState(1);
@@ -789,15 +895,7 @@ export default function PenilaianUjianTable({
                           >
                             <Eye size={16} className="mr-2" /> Detail
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              dispatchModal({ type: "OPEN_REKAP", ujian })
-                            }
-                            className=""
-                          >
-                            <IconClipboardText size={16} className="mr-2" />{" "}
-                            Rekapitulasi Nilai
-                          </DropdownMenuItem>
+                       
                           <DropdownMenuItem
                             onClick={() =>
                               dispatchModal({

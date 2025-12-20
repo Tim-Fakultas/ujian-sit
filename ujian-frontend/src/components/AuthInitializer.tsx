@@ -4,11 +4,12 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function AuthInitializer() {
-  const initializeFromCookies = useAuthStore((s) => s.initializeFromCookies);
-
+  const { initializeFromCookies, refreshUser } = useAuthStore();
+  
   useEffect(() => {
     initializeFromCookies();
-  }, [initializeFromCookies]);
+    refreshUser(); 
+  }, [initializeFromCookies, refreshUser]);
 
   return null;
 }

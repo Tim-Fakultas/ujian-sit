@@ -53,7 +53,14 @@ export interface PendaftaranUjianResponse {
     tanggalPengajuan: string;
     tanggalDisetujui: string;
     status: string;
-    berkas: File[];
+    berkas: {
+      id?: number;
+      namaBerkas?: string;
+      filePath: string;
+      uploadedAt?: string;
+      createdAt?: string;
+      updatedAt?: string;
+    }[];
     keterangan: string;
     createdAt: string;
     updatedAt: string;

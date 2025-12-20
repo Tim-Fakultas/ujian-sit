@@ -33,6 +33,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TableGlobal from "@/components/tableGlobal";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipContent } from "@radix-ui/react-tooltip";
 
 export default function BeritaAcaraUjianTable({
   beritaUjian,
@@ -195,7 +197,7 @@ export default function BeritaAcaraUjianTable({
         <div>
           {row.getValue("mahasiswa")}
           <br />
-          <span className="text-xs text-gray-500">
+          <span className="text-sm text-gray-500">
             {row.original.mahasiswa?.nim ?? "-"}
           </span>
         </div>
@@ -203,11 +205,41 @@ export default function BeritaAcaraUjianTable({
       size: 120,
     },
     {
+      accessorFn: (row: BeritaUjian) => row.jadwalUjian ?? "-",
+      id: "waktu",
+      header: "Waktu",
+      cell: ({ row }: any) => {
+        const date = row.getValue("waktu");
+        const hari = row.original.hariUjian ? capitalize(row.original.hariUjian) : "-";
+        const jamMulai = row.original.waktuMulai?.slice(0, 5) ?? "";
+        const jamSelesai = row.original.waktuSelesai?.slice(0, 5) ?? "";
+        
+        return (
+          <div className="flex flex-col text-sm gap-0.5">
+            <span className="font-medium">{hari}</span>
+            <span className="text-gray-600 dark:text-gray-400">
+                {date
+                ? new Date(date).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    })
+                : "-"}
+            </span>
+             <span className="text-gray-500 text-sm">
+                {jamMulai} - {jamSelesai}
+            </span>
+          </div>
+        );
+      },
+      size: 130,
+    },
+    {
       accessorFn: (row: BeritaUjian) => row.judulPenelitian ?? "-",
       id: "judul",
       header: "Judul",
       cell: ({ row }: any) => (
-        <div className="whitespace-pre-line break-words max-w-[240px] text-xs">
+        <div className="truncate  max-w-[240px] text-sm">
           {row.getValue("judul")}
         </div>
       ),
@@ -227,56 +259,67 @@ export default function BeritaAcaraUjianTable({
           ? "bg-green-100 text-green-700"
           : "bg-gray-100";
         return (
-          <span className={`px-2 py-1 rounded font-medium ${badgeClass}`}>
+          <span className={`px-2 py-1 text-sm rounded font-medium ${badgeClass}`}>
             {row.getValue("jenis")}
           </span>
         );
       },
       size: 90,
     },
-    // {
-    //   accessorFn: (row: BeritaUjian) => row.nilaiAkhir ?? "-",
-    //   id: "nilaiAkhir",
-    //   header: "Nilai Akhir",
-    //   cell: ({ row }: any) => (
-    //     <div className="text-center">{row.getValue("nilaiAkhir")}</div>
-    //   ),
-    //   size: 70,
-    // },
-    // {
-    //   accessorFn: (row: BeritaUjian) => row.hasil ?? "-",
-    //   id: "hasil",
-    //   header: "Hasil",
-    //   cell: ({ row }: any) => {
-    //     const hasil = row.getValue("hasil")?.toLowerCase();
-    //     const badgeClass =
-    //       hasil === "lulus"
-    //         ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
-    //         : hasil === "tidak lulus"
-    //         ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
-    //         : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200";
-    //     return hasil && hasil !== "-" ? (
-    //       <span className={`px-2 py-1 rounded font-semibold ${badgeClass}`}>
-    //         {row.getValue("hasil")}
-    //       </span>
-    //     ) : (
-    //       "-"
-    //     );
-    //   },
-    //   size: 70,
-    // },
     {
+      id: "keputusan",
+      header: "Keputusan",
+      cell: ({ row }: any) => {
+        const item = row.original;
+        const nilai = item.nilaiAkhir ?? 0;
+        let predikat = "";
+        
+        if (nilai >= 80) predikat = "A";
+        else if (nilai >= 70) predikat = "B";
+        else if (nilai >= 60) predikat = "C";
+        else if (nilai >= 56) predikat = "D";
+        else predikat = "E";
+
+        const isProposal = item.jenisUjian?.namaJenis?.toLowerCase().includes("proposal");
+        let decisionText = "-";
+        let colorClass = "text-gray-600";
+        
+        if (isProposal) {
+             const isLulus = ["A", "B", "C"].includes(predikat);
+             decisionText = isLulus ? "Lulus" : "Tidak Lulus";
+             colorClass = isLulus ? "text-green-600" : "text-red-600";
+        } else {
+             decisionText = item.keputusan?.namaKeputusan || "-";
+             // Basic styling for common decisions
+             if (decisionText.toLowerCase().includes("lulus")) colorClass = "text-green-600";
+             else if (decisionText.toLowerCase().includes("tidak")) colorClass = "text-red-600";
+        }
+
+        return <div className={`text-sm font-bold ${colorClass} bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-full text-center `}>{decisionText}</div>;
+      },
+      size: 140,
+    },    {
       id: "actions",
-      header: "Aksi",
+      header: "",
       cell: ({ row }: any) => (
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => handleDetail(row.original)}
-          className="h-8 text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 shadow-sm"
-        >
-          <Eye size={14} className="mr-1.5" /> Lihat Detail
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+            >
+              <MoreHorizontal size={16} className="text-gray-500" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleDetail(row.original)}>
+              <Eye className="mr-2 h-4 w-4" />
+              Lihat Detail
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
       size: 120,
     },
@@ -725,63 +768,7 @@ export default function BeritaAcaraUjianTable({
                   </p>
                 </div>
 
-                {/* Hasil & Nilai */}
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="bg-gray-50 dark:bg-neutral-800 p-4 rounded-xl border text-center">
-                        <span className="text-xs text-gray-500 uppercase font-semibold">Nilai Akhir</span>
-                        <div className="text-3xl font-bold text-emerald-600 mt-1">
-                            {selected.nilaiAkhir ?? "-"}
-                        </div>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-neutral-800 p-4 rounded-xl border text-center">
-                        <span className="text-xs text-gray-500 uppercase font-semibold">Hasil Ujian</span>
-                        <div className={`text-xl font-bold mt-2 capitalize ${
-                             selected.hasil?.toLowerCase() === 'lulus' ? 'text-green-600' : 
-                             selected.hasil?.toLowerCase() === 'tidak lulus' ? 'text-red-600' : 'text-gray-600'
-                        }`}>
-                            {selected.hasil ?? "-"}
-                        </div>
-                    </div>
-                 </div>
 
-
-
-                 {/* Keputusan (Full Width) */}
-                 {(() => {
-                    const nilai = selected.nilaiAkhir ?? 0;
-                    let predikat = "";
-                    if (nilai >= 80) predikat = "A";
-                    else if (nilai >= 70) predikat = "B";
-                    else if (nilai >= 60) predikat = "C";
-                    else if (nilai >= 56) predikat = "D";
-                    else predikat = "E";
-
-                    const isProposal = selected.jenisUjian?.namaJenis?.toLowerCase().includes("proposal");
-                    let decisionText = "";
-                    
-                    if (isProposal) {
-                        decisionText = ["A", "B", "C"].includes(predikat) ? "Lulus" : "Tidak Lulus";
-                    } else {
-                        decisionText = selected.keputusan?.namaKeputusan || "-";
-                    }
-
-                    return (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-xl border border-purple-100 dark:border-purple-900/20 text-center">
-                                <span className="text-xs text-purple-600 dark:text-purple-400 uppercase font-semibold">Predikat Nilai</span>
-                                <div className="text-3xl font-bold text-purple-700 dark:text-purple-300 mt-1">
-                                    {predikat}
-                                </div>
-                            </div>
-                            <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20 text-center flex flex-col justify-center">
-                                <span className="text-xs text-blue-600 dark:text-blue-400 uppercase font-semibold">Keputusan Akhir</span>
-                                <div className="text-lg font-bold text-blue-900 dark:text-blue-200 mt-1">
-                                    {decisionText}
-                                </div>
-                            </div>
-                        </div>
-                    );
-                 })()}
 
                  {/* Catatan */}
                  <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm">

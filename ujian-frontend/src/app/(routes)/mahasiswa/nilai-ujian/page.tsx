@@ -4,7 +4,8 @@ import { Suspense } from "react";
 import Loading from "./loading";
 import PageHeader from "@/components/common/PageHeader";
 import { FileText } from "lucide-react";
-import NilaiUjianTable from "@/components/mahasiswa/rekapitulasi-nilai/RekapitulasiNilaiTable";
+import NilaiUjianTable from "@/components/mahasiswa/nilai-ujian/NilaiUjianTable";
+// Force rebuild
 
 export default async function RekapitulasiNilaiPage() {
   const { user } = await getCurrentUserAction();

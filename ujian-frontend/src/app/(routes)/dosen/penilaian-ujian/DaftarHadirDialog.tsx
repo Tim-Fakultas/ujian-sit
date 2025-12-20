@@ -91,7 +91,7 @@ export default function DaftarHadirDialog({
               </div>
               <div className="flex flex-col">
                 <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                  Daftar Hadir
+                  Absensi Kehadiran
                 </h3>
                 <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
                   {ujian?.jenisUjian?.namaJenis}
@@ -198,7 +198,7 @@ export default function DaftarHadirDialog({
                         ) : hadir ? (
                           <>
                             <IconCheck size={16} className="mr-1.5" />
-                            TERVERIFIKASI
+                            HADIR
                           </>
                         ) : (
                           <>

@@ -433,7 +433,7 @@ export default function PenjadwalkanUjianTable({
       id: "judul",
       header: "Judul Penelitian",
       cell: ({ row }: any) => (
-        <div className="text-xs whitespace-pre-line break-words max-w-[180px]">
+        <div className="text-sm  max-w-[180px] truncate">
           {row.getValue("judul")}
         </div>
       ),

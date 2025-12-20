@@ -24,6 +24,7 @@ import {
   List,
   Settings2,
   Calendar,
+  Eye,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -49,6 +50,7 @@ import Link from "next/link";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataCard } from "@/components/common/DataCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function PendaftaranTable({
   pendaftaranUjian,
@@ -68,6 +70,9 @@ export default function PendaftaranTable({
   // Pisahkan filter jenis dan status
   const [filterJenisUjian, setFilterJenisUjian] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+
+  const [keteranganModal, setKeteranganModal] = useState(false);
+  const [keteranganContent, setKeteranganContent] = useState("");
 
   // Status options for filtering
   const statusOptions = [
@@ -140,8 +145,8 @@ export default function PendaftaranTable({
           <div className="flex items-center gap-1 select-none">Judul</div>
         ),
         cell: ({ row }) => (
-          <div className="whitespace-pre-line break-words">
-            {String(row.getValue("judul") ?? "a")}
+          <div className="truncate  max-w-[200px]">
+            {String(row.getValue("judul") ?? "-")}
           </div>
         ),
       },
@@ -177,24 +182,6 @@ export default function PendaftaranTable({
         },
       },
       {
-        accessorFn: (row) => row.tanggalDisetujui ?? "",
-        id: "tanggalDisetujui",
-        header: () => (
-          <div className="flex items-center gap-1 select-none">
-            Tanggal Disetujui
-          </div>
-        ),
-        cell: ({ row }) => {
-          const v = String(row.getValue("tanggalDisetujui") ?? "");
-          if (!v || v === "null") return "-";
-          try {
-            return new Date(v).toLocaleDateString("id-ID");
-          } catch {
-            return v;
-          }
-        },
-      },
-      {
         accessorFn: (row) => row.status ?? "-",
         id: "status",
         header: "Status",
@@ -218,6 +205,30 @@ export default function PendaftaranTable({
             >
               {s}
             </span>
+          );
+        },
+      },
+      {
+        accessorFn: (row) => row.keterangan ?? "",
+        id: "keterangan",
+        header: () => (
+          <div className="flex justify-center items-center gap-1 select-none ">
+            Keterangan
+          </div>
+        ),
+        cell: ({ row }) => {
+          const keterangan = String(row.getValue("keterangan") ?? "");
+          if (!keterangan) return <p className="text-xs">-</p>;
+          return (
+            <div className="text-center">
+              <Button variant="ghost" size="icon"
+              onClick={() => {
+                setKeteranganContent(keterangan);
+                setKeteranganModal(true);
+              }}>
+              <Eye size={16}/>
+              </Button>
+            </div>
           );
         },
       },
@@ -524,6 +535,26 @@ export default function PendaftaranTable({
           })}
         </div>
       )}
+
+      <Dialog open={keteranganModal} onOpenChange={setKeteranganModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Keterangan</DialogTitle>
+            <DialogDescription>
+              {keteranganContent || "-"}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setKeteranganModal(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DataCard>
+
+
+
+
   );
 }
