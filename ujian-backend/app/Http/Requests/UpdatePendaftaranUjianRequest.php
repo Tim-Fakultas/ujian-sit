@@ -35,13 +35,32 @@ class UpdatePendaftaranUjianRequest extends FormRequest
         ];
     }
 
-    public function prepareForValidation(): void
-    {
-        $this->merge([
-            'ranpel_id' => $this->input('ranpelId'),
-            'jenis_ujian_id' => $this->input('jenisUjianId'),
-            'tanggal_pengajuan' => $this->input('tanggalPengajuan'),
-            'tanggal_disetujui' => $this->input('tanggalDisetujui'),
-        ]);
+   public function prepareForValidation(): void
+{
+    $map = [];
+
+    if ($this->has('ranpelId')) {
+        $map['ranpel_id'] = $this->input('ranpelId');
     }
+
+    if ($this->has('jenisUjianId')) {
+        $map['jenis_ujian_id'] = $this->input('jenisUjianId');
+    }
+
+    if ($this->has('tanggalPengajuan')) {
+        $map['tanggal_pengajuan'] = $this->input('tanggalPengajuan');
+    }
+
+    if ($this->has('tanggalDisetujui')) {
+        $map['tanggal_disetujui'] = $this->input('tanggalDisetujui');
+    }
+
+    // OPTIONAL: kalau kamu tetap pengen user kirim "diterima"
+    if ($this->has('status') && $this->input('status') === 'belum dijadwalkan') {
+        $map['status'] = 'belum dijadwalkan';
+    }
+
+    $this->merge($map);
+}
+
 }

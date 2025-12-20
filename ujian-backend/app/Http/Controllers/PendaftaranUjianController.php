@@ -154,6 +154,7 @@ class PendaftaranUjianController extends Controller
                 'mahasiswa_id' => $id, // otomatis dari route param
                 'ranpel_id' => $request->input('ranpelId'),
                 'jenis_ujian_id' => $request->input('jenisUjianId'),
+
                 'tanggal_pengajuan' => now(),
                 'status' => $request->input('status', 'menunggu'),
                 'keterangan' => $request->input('keterangan'),

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -32,12 +33,11 @@ class MahasiswaAll extends Seeder
 
         foreach ($json as $angkatan => $mahasiswas) {
             foreach ($mahasiswas as $mhs) {
-                  // Hitung semester berdasarkan angkatan (logika akademik riil)
-                $start = \Carbon\Carbon::createFromDate((int)$angkatan, 9, 1);
+                $start = Carbon::createFromDate((int)$angkatan, 9, 1);
                 $months = $start->diffInMonths($now);
                 $semester = intdiv($months, 6) + 1;
                 $semester = max(1, min($semester, 14));
-                
+
                 // Buat user untuk setiap mahasiswa
                 $user = User::create([
                     'nip_nim' => $mhs['nim'],

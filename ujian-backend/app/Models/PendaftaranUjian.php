@@ -5,6 +5,9 @@ namespace App\Models;
 use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Ranpel;
+use App\Models\PerbaikanJudul;
+
 
 class PendaftaranUjian extends Model
 {
@@ -69,18 +72,18 @@ class PendaftaranUjian extends Model
             }
 
             if(empty($pendaftaran->judul_snapshot)){
-                $ranpel = Ranpel::query()
-                        ->with(['perbaikanJudulTerakhirDiterima' => function ($q) {
-                            $q->where('status', 'diterima')
-                              ->orderByDesc('tanggal_diterima')
-                              ->orderByDesc('id');
-                        }])
-                        ->find($pendaftaran->ranpel_id);
+                $ranpel = Ranpel::find($pendaftaran->ranpel_id);
 
                 if($ranpel) {
-                    $pj = $ranpel->perbaikanJudulTerakhirDiterima;
+                    $pj = PerbaikanJudul::query()
+                        ->where('mahasiswa_id', $pendaftaran->mahasiswa_id)
+                        ->where('ranpel_id', $ranpel->id)
+                        ->where('status', 'diterima')
+                        ->orderByDesc('tanggal_diterima')
+                        ->orderByDesc('id')
+                        ->first();
 
-                    $pendaftaran->perbaikan_judul_id = $pj->id ?? null;
+                    $pendaftaran->perbaikan_judul_id = $pj?->id;
                     $pendaftaran->judul_snapshot = $pj?->judul_baru ?? $ranpel->judul_penelitian;
                 }
 
