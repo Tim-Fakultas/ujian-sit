@@ -11,21 +11,17 @@ const SuratPengajuanJudul = forwardRef<
   SuratPengajuanJudulProps
 >(({ pengajuan }, ref) => {
   const mhs = pengajuan.mahasiswa;
-  const prodi = pengajuan.mahasiswa.prodi || "Sistem Informasi"; // Ganti jika prodi ada di data API
-  const today = new Date().toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  // Fallback data if needed
+  const prodiName = mhs.prodi?.nama || "Sistem Informasi";
+  const fakultasName = "SAINS DAN TEKNOLOGI";
 
-  // Fungsi helper untuk membuat garis titik-titik placeholder
   const placeholderLine = (minWidth: number = 200) => (
     <span
       style={{
         display: "inline-block",
         minWidth: minWidth,
         borderBottom: "1px dotted #000",
-        height: "1em", // Menjaga tinggi baris
+        height: "1em",
       }}
     >
       &nbsp;
@@ -36,290 +32,502 @@ const SuratPengajuanJudul = forwardRef<
     <div
       ref={ref}
       style={{
-        width: 794,
-        minHeight: 1123,
-        padding: "32px 60px", // Padding disesuaikan agar lebih mirip margin surat
+        width: "210mm", // A4 width
+        minHeight: "297mm", // A4 height
+        padding: "20mm 20mm 20mm 30mm", // Margin: Top, Right, Bottom, Left (approx standard)
         background: "white",
         color: "black",
-        fontFamily: "Times New Roman, Times, serif",
-        fontSize: 12, // Ukuran font umum
-        lineHeight: 1.5,
+        fontFamily: "'Calibri', 'Carlito', sans-serif", // Use Calibri as requested
+        fontSize: "11pt",
+        lineHeight: 1.3,
+        boxSizing: "border-box",
       }}
     >
-      {/* 1. Header (Kop Surat) */}
-      <div style={{ display: "flex", alignItems: "flex-start" }}>
-        {/* Kolom Kiri: Logo */}
-        <div style={{ width: 100, flexShrink: 0, paddingTop: 10 }}>
-          <Image
-            src="/images/logo-uin.png" // Pastikan path logo benar
-            alt="Logo UIN"
-            width={80}
-            height={80}
-            style={{ width: 80, height: "auto" }}
-            priority
-          />
+      {/* 1. HEADER TABLE */}
+      <table
+        className="header-table"
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          border: "2px solid black",
+          marginBottom: "5mm",
+        }}
+      >
+        <tbody>
+          <tr>
+            {/* Logo Column */}
+            <td
+              rowSpan={2}
+              style={{
+                width: "15%",
+                border: "1px solid black",
+                textAlign: "center",
+                verticalAlign: "middle",
+                padding: "5px",
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  width: "80px",
+                  height: "80px",
+                  margin: "0 auto",
+                }}
+              >
+                <Image
+                  src="/images/logo-uin.png"
+                  alt="Logo UIN"
+                  fill
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
+              </div>
+            </td>
+
+            {/* Institution Info Column */}
+            <td
+              rowSpan={2}
+              style={{
+                width: "50%",
+                border: "1px solid black",
+                textAlign: "center",
+                verticalAlign: "middle",
+                padding: "5px",
+              }}
+            >
+              <div style={{ fontSize: "12pt", fontWeight: "bold" }}>
+                UIN RADEN FATAH PALEMBANG
+              </div>
+              <div style={{ fontSize: "12pt", fontWeight: "bold" }}>
+                FAKULTAS {fakultasName}
+              </div>
+              <div style={{ fontSize: "10pt" }}>
+                Jl. Prof. K.H. Zainal Abidin Fikry Palembang
+              </div>
+            </td>
+
+            {/* Revision / Date Info Column */}
+            <td
+              style={{
+                width: "35%",
+                border: "1px solid black",
+                padding: 0,
+                verticalAlign: "top",
+              }}
+            >
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  height: "100%",
+                }}
+              >
+                <tbody>
+                  <tr style={{ height: "50%" }}>
+                    <td
+                      style={{
+                        borderRight: "1px solid black",
+                        borderBottom: "1px solid black",
+                        padding: "2px 5px",
+                        width: "50%",
+                        textAlign: "center",
+                        fontSize: "10pt",
+                      }}
+                    >
+                      Revisi 01
+                    </td>
+                    <td
+                      style={{
+                        borderBottom: "1px solid black",
+                        padding: "2px 5px",
+                        width: "50%",
+                        textAlign: "center",
+                        fontSize: "10pt",
+                      }}
+                    >
+                      1 Agustus 2018
+                    </td>
+                  </tr>
+                  <tr style={{ height: "50%" }}>
+                    <td
+                      colSpan={2}
+                      style={{
+                        padding: "5px",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <div style={{ fontSize: "10pt" }}>Kode</div>
+                      <div style={{ fontWeight: "bold", fontSize: "11pt" }}>
+                        FST. FORM SKRIPSI 01
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+        {/* Bottom Row of Header */}
+        <tbody>
+          <tr>
+            <td
+              colSpan={2}
+              style={{
+                border: "1px solid black",
+                padding: "10px",
+                textAlign: "center",
+              }}
+            >
+              <div style={{ fontSize: "10pt", marginBottom: "2px" }}>
+                Formulir
+              </div>
+              <div style={{ fontSize: "14pt", fontWeight: "bold" }}>
+                Pengajuan Judul dan Pembimbing Skripsi
+              </div>
+            </td>
+            <td
+              style={{
+                border: "1px solid black",
+                padding: "5px",
+                textAlign: "center",
+                verticalAlign: "middle",
+              }}
+            >
+              <div style={{ fontSize: "10pt" }}>Tgl. Terbit</div>
+              <div style={{ fontSize: "11pt" }}>1 Pebruari 2018</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* 2. BODY OF LETTER */}
+      <div style={{ paddingLeft: "5px", paddingRight: "5px" }}>
+        {/* Date */}
+        <div style={{ textAlign: "right", marginBottom: "20px" }}>
+          Palembang, ....................................................
         </div>
 
-        {/* Kolom Tengah: Alamat & Formulir Title */}
-        <div style={{ flexGrow: 1, textAlign: "center", padding: "0 10px" }}>
-          <div style={{ fontWeight: "bold", fontSize: 13, lineHeight: 1.2 }}>
-            UIN RADEN FATAH PALEMBANG
-          </div>
-          <div style={{ fontWeight: "bold", fontSize: 13, lineHeight: 1.2 }}>
-            FAKULTAS SAINS DAN TEKNOLOGI
-          </div>
-          <div style={{ fontSize: 11, lineHeight: 1.2, marginTop: 4 }}>
-            Jl. Prof. K.H. Zainal Abidin Fikry Palembang
-          </div>
+        {/* Perihal Section */}
+        <div style={{ marginBottom: "20px" }}>
+          <table style={{ width: "100%" }}>
+            <tbody>
+              <tr>
+                <td style={{ width: "60px", verticalAlign: "top" }}>Perihal</td>
+                <td style={{ width: "10px", verticalAlign: "top" }}>:</td>
+                <td>Permohonan Judul & Pembimbing Skripsi</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        {/* Kolom Kanan: Revisi, Kode, Tgl. Terbit */}
-        <div
-          style={{
-            fontSize: 10,
-            textAlign: "left",
-            minWidth: 150,
-            flexShrink: 0,
-            border: "1px solid black",
-            padding: 5,
-            marginLeft: 10,
-          }}
+        {/* Addressee */}
+        <div style={{ marginBottom: "20px" }}>
+          <div>Kepada Yth.</div>
+          <div>Ketua Program Studi {prodiName}</div>
+          <div>Fakultas {fakultasName}</div>
+          <div>Universitas Islam Negeri Raden Fatah</div>
+          <div>Palembang</div>
+        </div>
+
+        {/* Opening */}
+        <div style={{ marginBottom: "15px", fontStyle: "italic" }}>
+          Assalamu &apos;alaikum Warohmatullahi Wabarokatuh.
+        </div>
+
+        <div style={{ marginBottom: "15px", textAlign: "justify" }}>
+          Saya yang bertanda tangan dibawah ini, mahasiswa Program Studi{" "}
+          {prodiName} Fakultas {fakultasName} Universitas Islam Negeri Raden
+          Fatah Palembang.
+        </div>
+
+        {/* Student Data */}
+        <table
+          style={{ marginLeft: "0px", marginBottom: "15px", width: "100%" }}
         >
-          <div
-            style={{
-              borderBottom: "1px solid black",
-              paddingBottom: 2,
-              marginBottom: 2,
-            }}
-          >
-            Formulir
-            <br />
-            <b style={{ fontSize: 11 }}>
-              Pengajuan Judul dan Pembimbing Skripsi
-            </b>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div style={{ lineHeight: 1.2 }}>Revisi 01</div>
-            <div style={{ lineHeight: 1.2 }}>1 Agustus 2018</div>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div style={{ lineHeight: 1.2 }}>Kode</div>
-            <div style={{ lineHeight: 1.2 }}>FST. FORM SKRIPSI 01</div>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div style={{ lineHeight: 1.2 }}>Tgl. Terbit</div>
-            <div style={{ lineHeight: 1.2 }}>1 Pebruari 2018</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Garis Pemisah (Sederhana) */}
-      <hr style={{ border: "1px solid #000", margin: "8px 0 16px 0" }} />
-
-      {/* 2. Body Surat */}
-      <div style={{ fontSize: 12 }}>
-        {/* Tanggal Surat */}
-        <div style={{ textAlign: "right", marginBottom: 16 }}>
-          Palembang, {placeholderLine(200)}
-        </div>
-
-        {/* Perihal & Alamat Tujuan */}
-        <table style={{ marginBottom: 16 }}>
           <tbody>
             <tr>
-              <td style={{ width: 60, verticalAlign: "top" }}>Perihal</td>
-              <td style={{ width: 10, verticalAlign: "top" }}>:</td>
-              <td style={{ fontWeight: "bold" }}>
-                Permohonan Judul &amp; Pembimbing Skripsi
+              <td style={{ width: "100px", paddingBottom: "5px" }}>Nama</td>
+              <td style={{ width: "10px", paddingBottom: "5px" }}>:</td>
+              <td style={{ paddingBottom: "5px" }}>
+                {mhs.nama ||
+                  "................................................................"}
+              </td>
+            </tr>
+            <tr>
+              <td style={{ paddingBottom: "5px" }}>NIM</td>
+              <td style={{ paddingBottom: "5px" }}>:</td>
+              <td style={{ paddingBottom: "5px" }}>
+                {mhs.nim ||
+                  "................................................................"}
+              </td>
+            </tr>
+            <tr>
+              <td style={{ paddingBottom: "5px" }}>Semester</td>
+              <td style={{ paddingBottom: "5px" }}>:</td>
+              <td style={{ paddingBottom: "5px" }}>
+                {mhs.semester ||
+                  "................................................................"}
               </td>
             </tr>
           </tbody>
         </table>
 
-        <div style={{ marginBottom: 16 }}>
-          Kepada Yth.
-          <br />
-          Ketua Program Studi {pengajuan.mahasiswa.prodi.nama}
-          <br />
-          Fakultas Sains dan Teknologi
-          <br />
-          Universitas Islam Negeri Raden Fatah Palembang
-        </div>
-
-        {/* Pembukaan */}
-        <div style={{ marginBottom: 16 }}>
-          Assalamu &apos;alaikum Warohmatullahi Wabarakatuh.
-        </div>
-        <div style={{ marginBottom: 16, textAlign: "justify" }}>
-          Saya yang bertanda tangan di bawah ini, mahasiswa Program Studi Sistem
-          Informasi Fakultas Sains dan Teknologi Universitas Islam Negeri Raden
-          Fatah Palembang.
-        </div>
-
-        {/* Data Mahasiswa */}
-        <table style={{ marginBottom: 16, marginLeft: 20 }}>
-          <tbody>
-            <tr>
-              <td style={{ width: 100 }}>Nama</td>
-              <td>: {mhs?.nama || placeholderLine(300)}</td>
-            </tr>
-            <tr>
-              <td>NIM</td>
-              <td>: {mhs?.nim || placeholderLine(300)}</td>
-            </tr>
-            <tr>
-              <td>Semester</td>
-              <td>: {mhs?.semester || placeholderLine(300)}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        {/* Pengajuan Judul */}
-        <div style={{ marginBottom: 8, textAlign: "justify" }}>
+        {/* Body Text */}
+        <div style={{ marginBottom: "10px", textAlign: "justify" }}>
           Sehubungan dengan akan berakhirnya studi saya, maka dengan ini
-          mengajukan permohonan judul dan pembimbing Skripsi.
+          mengajukan permohonan judul dan pembimbing Skripsi. Adapun judul yang
+          saya ajukan sebagai berikut:
         </div>
-        <div style={{ marginBottom: 8 }}>
-          Adapun judul yang saya ajukan sebagai berikut:
-        </div>
-        <ol style={{ marginLeft: 20, marginBottom: 16, paddingLeft: 10 }}>
-          <li>{pengajuan.ranpel.judulPenelitian || placeholderLine(500)}</li>
-          <li style={{ marginTop: 5 }}>{placeholderLine(500)}</li>
-          <li style={{ marginTop: 5 }}>{placeholderLine(500)}</li>
-        </ol>
 
-        {/* Penutup */}
-        <div style={{ marginBottom: 8 }}>
+        {/* Titles List */}
+        <div style={{ marginBottom: "20px", paddingLeft: "20px" }}>
+          <div
+            style={{
+              display: "flex",
+              marginBottom: "10px",
+              alignItems: "flex-end",
+            }}
+          >
+            <span style={{ marginRight: "10px", paddingBottom: "5px" }}>
+              1.
+            </span>
+            <div
+              style={{
+                borderBottom: "1px dotted black",
+                flexGrow: 1,
+                minHeight: "20px",
+                paddingBottom: "5px",
+                lineHeight: "1.5",
+              }}
+            >
+              {pengajuan.ranpel.judulPenelitian}
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              marginBottom: "10px",
+              alignItems: "flex-end",
+            }}
+          >
+            <span style={{ marginRight: "10px", paddingBottom: "5px" }}>
+              2.
+            </span>
+            <div
+              style={{
+                borderBottom: "1px dotted black",
+                flexGrow: 1,
+                minHeight: "20px",
+                paddingBottom: "5px",
+              }}
+            >
+              &nbsp;
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              marginBottom: "10px",
+              alignItems: "flex-end",
+            }}
+          >
+            <span style={{ marginRight: "10px", paddingBottom: "5px" }}>
+              3.
+            </span>
+            <div
+              style={{
+                borderBottom: "1px dotted black",
+                flexGrow: 1,
+                minHeight: "20px",
+                paddingBottom: "5px",
+              }}
+            >
+              &nbsp;
+            </div>
+          </div>
+        </div>
+
+        {/* Closing */}
+        <div style={{ marginBottom: "10px" }}>
           Atas perhatiannya, saya ucapkan terima kasih.
         </div>
-        <div style={{ marginBottom: 32 }}>
+
+        <div style={{ marginBottom: "30px", fontStyle: "italic" }}>
           Wassalamu &apos;alaikum Warohmatullahi Wabarokatuh.
         </div>
 
-        {/* 3. Tanda Tangan */}
+        {/* Signatures */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            marginTop: 32,
+            marginBottom: "40px",
+            alignItems: "flex-end",
           }}
         >
-          {/* Kiri: Ketua Program Studi */}
-          <div style={{ minWidth: 250 }}>
-            Ketua Program Studi
+          {/* Left Signature */}
+          <div style={{ width: "45%" }}>
             <br />
-            <br />
-            {/* Jarak untuk Tanda Tangan */}
-            <br />
-            <br />
-            <br />
-            {/* Nama & NIP */}
-            {placeholderLine(200)}
-            <br />
-            NIP. {placeholderLine(150)}
-          </div>
-
-          {/* Kanan: Hormat saya */}
-          <div style={{ minWidth: 250, textAlign: "right" }}>
-            Hormat saya,
-            <br />
-            <br />
-            {/* Jarak untuk Tanda Tangan */}
+            <div>Ketua Program Studi</div>
             <br />
             <br />
             <br />
-            {/* Nama Mahasiswa */}
+            <br />
             <div
               style={{
-                minWidth: 200,
-                borderBottom: "1px dotted #000",
-                display: "inline-block",
-                textAlign: "center",
+                borderBottom: "1px dotted black",
+                width: "100%",
+                marginBottom: "5px",
               }}
             >
-              {mhs?.nama || placeholderLine(200)}
+              &nbsp;
+            </div>
+            <div>
+              NIP. ........................................................
+            </div>
+          </div>
+
+          {/* Right Signature */}
+          <div style={{ width: "45%", textAlign: "left", paddingLeft: "50px" }}>
+            <div style={{ marginBottom: "5px" }}>Hormat saya,</div>
+            <br />
+            <br />
+            <br />
+            <br />
+            <div
+              style={{
+                borderBottom: "1px dotted black",
+                width: "100%",
+                textAlign: "center",
+                paddingBottom: "5px",
+              }}
+            >
+              {mhs.nama || "......................................."}
             </div>
           </div>
         </div>
 
-        {/* Pembimbing I & II (di bawah) */}
-        <div style={{ marginTop: 24 }}>
-          <div style={{ display: "flex", marginBottom: 5 }}>
-            <div style={{ width: 100 }}>Pembimbing I:</div>
-            <div style={{ flexGrow: 1 }}>
-              {mhs?.pembimbing1?.nama || placeholderLine(250)}{" "}
-              (....................................................)
+        {/* Advisors */}
+        <div style={{ marginBottom: "30px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              marginBottom: "15px",
+            }}
+          >
+            <div style={{ width: "120px", paddingBottom: "5px" }}>
+              Pembimbing I :
+            </div>
+            <div
+              style={{
+                flexGrow: 1,
+                borderBottom: "1px dotted black",
+                paddingBottom: "5px",
+              }}
+            >
+              {mhs.pembimbing1?.nama
+                ? mhs.pembimbing1.nama
+                : "......................................................................."}
+            </div>
+            <div style={{ marginLeft: "10px", paddingBottom: "5px" }}>
+              (.......................................................)
             </div>
           </div>
-          <div style={{ display: "flex" }}>
-            <div style={{ width: 100 }}>Pembimbing II:</div>
-            <div style={{ flexGrow: 1 }}>
-              {mhs?.pembimbing2?.nama || placeholderLine(250)}{" "}
-              (....................................................)
+          <div style={{ display: "flex", alignItems: "flex-end" }}>
+            <div style={{ width: "120px", paddingBottom: "5px" }}>
+              Pembimbing II :
+            </div>
+            <div
+              style={{
+                flexGrow: 1,
+                borderBottom: "1px dotted black",
+                paddingBottom: "5px",
+              }}
+            >
+              {mhs.pembimbing2?.nama
+                ? mhs.pembimbing2.nama
+                : "......................................................................."}
+            </div>
+            <div style={{ marginLeft: "10px", paddingBottom: "5px" }}>
+              (.......................................................)
             </div>
           </div>
         </div>
 
-        {/* 4. Catatan Lampiran */}
-        <div style={{ marginTop: 24, fontSize: 12 }}>
-          <div style={{ marginBottom: 5 }}>
-            <b style={{ textDecoration: "underline" }}>
-              *) Catatan lampiran pengajuan:
-            </b>
+        {/* Footer Notes */}
+        <div style={{ fontSize: "10pt" }}>
+          <div style={{ marginBottom: "5px" }}>
+            *) Catatan lampiran pengajuan:
           </div>
-          <ul style={{ marginLeft: 0, paddingLeft: 20, listStyle: "none" }}>
-            <li style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: "-15px" }}>
-                {/*(*/}
-              </span>
-              Formulir di isi lengkap (Pembimbing diisi KaProdi dan ditanda
+          <ul style={{ listStyleType: "none", paddingLeft: "15px", margin: 0 }}>
+            <li
+              style={{
+                marginBottom: "3px",
+                textIndent: "-15px",
+                paddingLeft: "15px",
+              }}
+            >
+              - Formulir di isi lengkap (Pembimbing diisi KaProdi dan ditanda
               tangani pembimbing yang bersangkutan setelah di ACC KaProdi)
-              <span style={{ position: "absolute", right: 0 }}>{/*)*/}</span>
             </li>
-            <li style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: "-15px" }}>
-                {/*(*/}
-              </span>
-              Rancangan penelitian beserta kelengkapannya
-              <span style={{ position: "absolute", right: 0 }}>{/*)*/}</span>
+            <li
+              style={{
+                marginBottom: "3px",
+                textIndent: "-15px",
+                paddingLeft: "15px",
+              }}
+            >
+              - Rancangan penelitian beserta kelengkapannya
             </li>
-            <li style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: "-15px" }}>
-                {/*(*/}
-              </span>
-              Photocopy KTM
-              <span style={{ position: "absolute", right: 0 }}>{/*)*/}</span>
+            <li
+              style={{
+                marginBottom: "3px",
+                textIndent: "-15px",
+                paddingLeft: "15px",
+              }}
+            >
+              - Photocopy KTM
             </li>
-            <li style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: "-15px" }}>
-                {/*(*/}
-              </span>
-              Photocopy kwitansi pembayaran SPP semester berjalan
-              <span style={{ position: "absolute", right: 0 }}>{/*)*/}</span>
+            <li
+              style={{
+                marginBottom: "3px",
+                textIndent: "-15px",
+                paddingLeft: "15px",
+              }}
+            >
+              - Photocopy kwitansi pembayaran SPP semester berjalan
             </li>
-            <li style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: "-15px" }}>
-                {/*(*/}
-              </span>
-              Photocopy KST yang tercantum Skripsi
-              <span style={{ position: "absolute", right: 0 }}>{/*)*/}</span>
+            <li
+              style={{
+                marginBottom: "3px",
+                textIndent: "-15px",
+                paddingLeft: "15px",
+              }}
+            >
+              - Photocopy KST yang tercantum Skripsi
             </li>
-            <li style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: "-15px" }}>
-                {/*(*/}
-              </span>
-              Photocopy Transkrip Nilai
-              <span style={{ position: "absolute", right: 0 }}>{/*)*/}</span>
+            <li
+              style={{
+                marginBottom: "3px",
+                textIndent: "-15px",
+                paddingLeft: "15px",
+              }}
+            >
+              - Photocopy Transkrip Nilai
             </li>
-            <li style={{ position: "relative" }}>
-              <span style={{ position: "absolute", left: "-15px" }}>
-                {/*(*/}
-              </span>
-              Seluruh berkas dimasukkan dalam map plastik transparan warna biru
-              <span style={{ position: "absolute", right: 0 }}>{/*)*/}</span>
+            <li
+              style={{
+                marginBottom: "3px",
+                textIndent: "-15px",
+                paddingLeft: "15px",
+              }}
+            >
+              - Seluruh berkas dimasukkan dalam map plastik transparan warna
+              biru
             </li>
           </ul>
-          {/* Untuk tanda kurung di akhir baris, perlu penyesuaian styling lebih lanjut, saat ini saya buat sebagai komentar */}
         </div>
       </div>
     </div>

@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 import { BeritaUjian } from "@/types/BeritaUjian";
 import { Button } from "../../ui/button";
@@ -15,6 +17,7 @@ import {
   Calendar,
   AlertCircle,
   Eye,
+  Download,
 } from "lucide-react";
 
 import {
@@ -82,7 +85,7 @@ export default function NilaiUjianTable({
   const [filterBulan, setFilterBulan] = useState<string>("all");
   const [filterTahun, setFilterTahun] = useState<string>("all");
 
-  // Filter data berdasarkan search, jenis ujian, hasil, bulan, tahun
+  // ... filtering logic (same as before) ...
   const filteredData = ujian.filter((item) => {
     const nama = item.mahasiswa?.nama?.toLowerCase() ?? "";
     const judul = item.judulPenelitian?.toLowerCase() ?? "";
@@ -138,6 +141,245 @@ export default function NilaiUjianTable({
   const handleDetail = (ujian: BeritaUjian) => {
     setSelected(ujian);
     setOpenDialog(true);
+  };
+
+  // Helper: Load Image
+  const getBase64ImageFromURL = (url: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.setAttribute("crossOrigin", "anonymous");
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL("image/png");
+        resolve(dataURL);
+      };
+      img.onerror = (error) => {
+         // Fallback or reject
+         console.error("Failed to load image", error);
+         resolve(""); // Resolve empty string to avoid crashing
+      };
+      img.src = url;
+    });
+  };
+
+  const handleDownloadSuratLulus = async (item: BeritaUjian) => {
+    // 1. Prepare PDF
+    const doc = new jsPDF();
+    const logoUrl = "/images/uin-raden-fatah.png"; // Ensure this path is correct in public folder
+    let logoData = "";
+    try {
+        logoData = await getBase64ImageFromURL(logoUrl);
+    } catch (e) {
+        console.error(e);
+    }
+
+    // Settings
+    const margin = 15;
+    const startY = 15;
+    const boxW = 180; // Total width
+    const infoW = 95; // Middle column width
+    const logoW = 30; // Left column width
+    const metaW = boxW - logoW - infoW; // Right column width ~ 55
+
+    // -- DRAW HEADER GRID --
+    
+    // Top Row Height (Logo & Institusi & Meta 1 & 2)
+    const h1 = 25; 
+    // Bottom Row Height (Judul & Tgl Terbit)
+    const h2 = 10;
+    
+    // 1. Box Logo (Kiri Atas - Bawah)
+    // Logo merges row 1
+    doc.rect(margin, startY, logoW, h1);
+    if (logoData) {
+        doc.addImage(logoData, "PNG", margin + 2, startY + 2, 26, 21); // Adjust scaling
+    }
+
+    // 2. Box Institusi (Tengah Atas)
+    doc.rect(margin + logoW, startY, infoW, h1);
+    doc.setFont("times", "bold");
+    doc.setFontSize(10);
+    // Center text vertically/horizontally in box
+    const textX = margin + logoW + (infoW / 2);
+    let textY = startY + 6;
+    doc.text("UIN RADEN FATAH PALEMBANG", textX, textY, { align: "center" });
+    textY += 5;
+    doc.text("FAKULTAS SAINS DAN TEKNOLOGI", textX, textY, { align: "center" });
+    textY += 5;
+    doc.setFont("times", "normal");
+    doc.setFontSize(9);
+    doc.text("Jl. Prof. K. H. Zainal Abidin Fikry", textX, textY, { align: "center" });
+    textY += 4;
+    doc.text("Palembang", textX, textY, { align: "center" });
+
+    
+    const rightX = margin + logoW + infoW;
+    
+    // Baris 1 Kanan: Revisi & Tanggal
+    const hRight1 = 7;
+    doc.rect(rightX, startY, metaW, hRight1);
+    
+    // Garis pemisah vertical untuk Revisi | Tanggal
+    // Asumsi bagi 2 rata
+    const halfMeta = metaW / 2;
+    doc.line(rightX + halfMeta, startY, rightX + halfMeta, startY + hRight1);
+    
+    doc.setFontSize(8);
+    doc.text("Revisi 01", rightX + (halfMeta/2), startY + 5, { align: "center" });
+    doc.text("1 Agustus 2018", rightX + halfMeta + (halfMeta/2), startY + 5, { align: "center" });
+
+    // Baris 2 Kanan: Kode
+    const hRight2 = h1 - hRight1; // sisa height
+    doc.rect(rightX, startY + hRight1, metaW, hRight2);
+    
+    doc.text("Kode", rightX + (metaW/2), startY + hRight1 + 5, { align: "center" });
+    doc.setFont("times", "bold");
+    doc.text("FST. FORM SKRIPSI 11", rightX + (metaW/2), startY + hRight1 + 10, { align: "center" });
+
+    // 4. Box Bawah (Judul & Tgl Terbit)
+    // Judul merge Logo + Institusi columns?
+    // Lihat gambar: "Surat Keterangan Lulus..." ada di bawah Logo & Institusi.
+    // "Tgl Terbit..." ada di bawah Meta Data Kanan.
+    
+    const wBottomLeft = logoW + infoW;
+    doc.rect(margin, startY + h1, wBottomLeft, h2);
+    doc.setFont("times", "bold");
+    doc.setFontSize(11);
+    doc.text("Surat Keterangan Lulus", margin + (wBottomLeft/2), startY + h1 + 4, { align: "center" });
+    doc.text("Ujian Seminar Proposal Skripsi", margin + (wBottomLeft/2), startY + h1 + 8, { align: "center" });
+
+    // Box Bawah Kanan (Tgl Terbit)
+    doc.rect(rightX, startY + h1, metaW, h2);
+    doc.setFont("times", "normal");
+    doc.setFontSize(8);
+    doc.text("Tgl. Terbit", rightX + (metaW/2), startY + h1 + 4, { align: "center" });
+    doc.text("1 Pebruari 2018", rightX + (metaW/2), startY + h1 + 8, { align: "center" });
+
+    // -- BODY CONTENT --
+    let y = startY + h1 + h2 + 10; // Start content below header + gap
+
+    // Use Helvetica as a proxy for Calibri (Sans-serif)
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11); // Slightly smaller to fit content if needed, or keep 12. Calibri 11/12 is common.
+
+    const hari = item.hariUjian ? item.hariUjian.charAt(0).toUpperCase() + item.hariUjian.slice(1) : "....................";
+    const tanggal = item.jadwalUjian ? new Date(item.jadwalUjian).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : ".......................";
+    const waktuMulai = item.waktuMulai ? item.waktuMulai.slice(0, 5) : ".....";
+    const waktuSelesai = item.waktuSelesai ? item.waktuSelesai.slice(0, 5) : ".....";
+
+    // 1. Opening
+    doc.text(`Pada hari ini ${hari} tanggal ${tanggal}, telah berlangsung ujian proposal skripsi`, 20, y);
+    y += 6;
+    doc.text("mahasiswa:", 20, y);
+    y += 10;
+
+    // 2. Student Info
+    // Adjusted X positions to prevent overlap for long labels like "Dosen Pembimbing II"
+    const labelX = 30;
+    const colonX = 70; // Increased from 65
+    const valueX = 75; // Increased from 70
+
+    doc.text("Nama", labelX, y);
+    doc.text(":", colonX, y);
+    doc.text(item.mahasiswa?.nama || "-", valueX, y);
+    y += 7;
+
+    doc.text("NIM", labelX, y);
+    doc.text(":", colonX, y);
+    doc.text(item.mahasiswa?.nim || "-", valueX, y);
+    y += 7;
+
+    doc.text("Program Studi", labelX, y);
+    doc.text(":", colonX, y);
+    doc.text(item.mahasiswa?.prodi?.namaProdi || "-", valueX, y);
+    y += 12;
+
+    // 3. Time Info
+    doc.text(`Ujian berlangsung dari pukul ${waktuMulai} WIB, sampai dengan ${waktuSelesai} WIB`, 20, y);
+    y += 10;
+    
+    // 4. Pembimbing
+    doc.text("Dosen Pembimbing I", labelX, y);
+    doc.text(":", colonX, y);
+    doc.text(item.mahasiswa?.pembimbing1?.nama || "........................................................................", valueX, y);
+    y += 7;
+
+    doc.text("Dosen Pembimbing II", labelX, y);
+    doc.text(":", colonX, y);
+    doc.text(item.mahasiswa?.pembimbing2?.nama || "........................................................................", valueX, y);
+    y += 12;
+
+    // 5. Penguji
+    doc.text("Penguji:", 20, y);
+    y += 8;
+
+    const ketua = item.penguji?.find((p) => p.peran === "ketua_penguji")?.nama || "........................................................................";
+    const sekretaris = item.penguji?.find((p) => p.peran === "sekretaris_penguji")?.nama || "........................................................................";
+    const penguji1 = item.penguji?.find((p) => p.peran === "penguji_1")?.nama || "........................................................................";
+    const penguji2 = item.penguji?.find((p) => p.peran === "penguji_2")?.nama || "........................................................................";
+
+    doc.text("Ketua Penguji", labelX, y);
+    doc.text(":", colonX, y);
+    doc.text(ketua, valueX, y);
+    y += 7;
+
+    doc.text("Sekretaris Penguji", labelX, y);
+    doc.text(":", colonX, y);
+    doc.text(sekretaris, valueX, y);
+    y += 7;
+
+    doc.text("Penguji I", labelX, y);
+    doc.text(":", colonX, y);
+    doc.text(penguji1, valueX, y);
+    y += 7;
+
+    doc.text("Penguji II", labelX, y);
+    doc.text(":", colonX, y);
+    doc.text(penguji2, valueX, y);
+    y += 12;
+
+    // 6. Result
+    doc.text("Dari hasil Ujian Proposal Skripsi tersebut memutuskan bahwa yang bersangkutan dinyatakan:", 20, y);
+    y += 12;
+
+    const nilai = item.nilaiAkhir ? Number(item.nilaiAkhir).toFixed(2) : "......";
+    const huruf = item.nilaiAkhir ? getNilaiHuruf(Number(item.nilaiAkhir)) : "......";
+    
+    // Centered LULUS
+    doc.setFont("helvetica", "bold");
+    doc.text(`LULUS dengan nilai: ${nilai} (${huruf})`, 105, y, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    y += 12;
+
+    doc.text("Demikian Surat Keterangan ini dibuat sebagai bukti dari hasil Ujian Seminar Proposal Skripsi.", 20, y);
+    y += 20;
+
+    // -- Signature --
+    // Right aligned signature for Kaprodi
+    // Using startX for the block to ensure alignment
+    const signBlockX = 120; 
+    
+    const today = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+    
+    // Alignt everything in the signature block to start at signBlockX
+    doc.text(`Palembang, ${today}`, signBlockX, y);
+    y += 6;
+    doc.text("Mengetahui,", signBlockX, y);
+    y += 6;
+    doc.text("Ketua Program Studi,", signBlockX, y);
+    y += 30; // space for signature
+    
+    // Dashed/Dotted line for Name
+    doc.text("Gusmelia Testiana, M.Kom.", signBlockX, y);
+    y += 6;
+    // NIP
+    doc.text("NIP. 1234567890", signBlockX, y);
+
+    doc.save(`Surat_Keterangan_Lulus_${item.mahasiswa?.nim || "mahasiswa"}.pdf`);
   };
 
   // Kolom untuk TableGlobal
@@ -235,30 +477,7 @@ export default function NilaiUjianTable({
       ),
       size: 100,
     },
-    {
-      id: "predikat",
-      header: () => <div className="text-center">Predikat</div>,
-      cell: ({ row }: any) => {
-        const nilai = Number(row.original.nilaiAkhir ?? 0);
-        const huruf = getNilaiHuruf(nilai);
-        const color =
-          huruf === "A"
-            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-            : huruf === "B"
-            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-            : huruf === "C"
-            ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
-        return (
-          <div className="flex items-center justify-center">
-            <span className={`px-2 py-1 rounded font-bold text-xs ${color}`}>
-              {huruf}
-            </span>
-          </div>
-        );
-      },
-      size: 80,
-    },
+
     {
       accessorFn: (row: BeritaUjian) => row.hasil ?? "-",
       id: "hasil",
@@ -317,6 +536,48 @@ export default function NilaiUjianTable({
         );
       },
       size: 80,
+    },
+    {
+      id: "aksi",
+      header: () => <div className="text-center">Surat</div>,
+      cell: ({ row }: any) => {
+        const item = row.original;
+        const isLulus = item.hasil?.toLowerCase() === "lulus";
+        const isProposal = item.jenisUjian?.namaJenis?.toLowerCase().includes("proposal");
+
+        if (isLulus && isProposal) {
+          return (
+             <div className="flex justify-center">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadSuratLulus(item);
+                        }}
+                        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                      >
+                        <Download size={16} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Download Surat Keterangan Lulus</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+             </div>
+          );
+        }
+        return (
+            <div className="flex justify-center">
+               <span className="text-gray-300">-</span>
+            </div>
+        );
+      },
+      size: 60,
     },
   ];
 
