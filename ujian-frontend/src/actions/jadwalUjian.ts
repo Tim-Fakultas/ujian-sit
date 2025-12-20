@@ -81,8 +81,7 @@ export async function getJadwalUjianByProdi(prodiId: number) {
       .filter(
         (ujian) =>
           ujian.mahasiswa.prodi.id === prodiId &&
-          (ujian.pendaftaranUjian.status === "belum dijadwalkan" || 
-          ujian.pendaftaranUjian.status === "dijadwalkan")
+          ujian.pendaftaranUjian.status === "dijadwalkan"
       )
       .sort((a, b) => {
         // Sort by jadwalUjian (descending, terbaru di atas)
@@ -134,6 +133,7 @@ export async function getJadwalUjianByProdiByDosen({
   dosenId: number | undefined;
 }) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const today = new Date().toISOString().split("T")[0];
 
   try {
     const response = await fetch(`${apiUrl}/ujian`, {
@@ -154,19 +154,17 @@ export async function getJadwalUjianByProdiByDosen({
 
         const statusMatch = ujian.pendaftaranUjian?.status === "dijadwalkan";
 
-        const pengujiFound = ujian.penguji?.find(
+        const pengujiFound = ujian.penguji?.some(
           (p) => Number(p.id) === Number(dosenId)
         );
 
-        return prodiMatch && statusMatch && pengujiFound;
+        const isToday = ujian.jadwalUjian?.startsWith(today);
+
+        return prodiMatch && statusMatch && pengujiFound && isToday;
       })
       .sort((a, b) => {
-        const dateA = new Date(
-          a.pendaftaranUjian?.tanggalPengajuan ?? 0
-        ).getTime();
-        const dateB = new Date(
-          b.pendaftaranUjian?.tanggalPengajuan ?? 0
-        ).getTime();
+        const dateA = new Date(a.jadwalUjian ?? 0).getTime();
+        const dateB = new Date(b.jadwalUjian ?? 0).getTime();
         return dateB - dateA;
       });
 

@@ -11,10 +11,7 @@ export interface PendaftaranUjian {
       namaProdi: string;
     };
   };
-  ranpel: {
-    id: number;
-    judulPenelitian: string;
-  };
+  judulPenelitian: string;
   jenisUjian: {
     id: number;
     namaJenis: string;
@@ -48,10 +45,7 @@ export interface PendaftaranUjianResponse {
         namaProdi: string;
       };
     };
-    ranpel: {
-      id: number;
-      judulPenelitian: string;
-    };
+    judulPenelitian: string
     jenisUjian: {
       id: number;
       namaJenis: string;
@@ -59,7 +53,14 @@ export interface PendaftaranUjianResponse {
     tanggalPengajuan: string;
     tanggalDisetujui: string;
     status: string;
-    berkas: File[];
+    berkas: {
+      id?: number;
+      namaBerkas?: string;
+      filePath: string;
+      uploadedAt?: string;
+      createdAt?: string;
+      updatedAt?: string;
+    }[];
     keterangan: string;
     createdAt: string;
     updatedAt: string;

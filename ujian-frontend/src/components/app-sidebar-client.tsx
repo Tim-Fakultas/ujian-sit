@@ -81,7 +81,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       items: [
         { title: "Jadwal Ujian", url: "/admin/jadwal-ujian" },
         { title: "Rekapitulasi Nilai", url: "/admin/rekapitulasi-nilai" },
-        { title: "Berita Ujian", url: "/admin/berita-ujian" },
+        { title: "Berita Acara Ujian", url: "/admin/berita-ujian" },
       ],
     },
   ];
@@ -92,10 +92,11 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       title: "Skripsi",
       icon: IconBook,
       items: [
-        { title: "Daftar Ujian", url: "/sekprodi/daftar-ujian" },
+        { title: "Pendaftaran Ujian", url: "/sekprodi/pendaftaran-ujian" },
+        { title: "Perbaikan Judul", url: "/sekprodi/perbaikan-judul" },
         { title: "Penjadwalan Ujian", url: "/sekprodi/penjadwalan-ujian" },
         { title: "Jadwal Ujian", url: "/sekprodi/jadwal-ujian" },
-        { title: "Berita Acara", url: "/sekprodi/berita-ujian" },
+        { title: "Berita Acara Ujian", url: "/sekprodi/berita-ujian" },
         { title: "Rekapitulasi Nilai", url: "/sekprodi/rekapitulasi-nilai" },
       ],
     },
@@ -120,6 +121,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       items: [
         { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
         { title: "Jadwal Ujian", url: "/dosen/jadwal-ujian" },
+        { title: "Penilaian Ujian", url: "/dosen/penilaian-ujian"},
         { title: "Rekapitulasi Nilai", url: "/dosen/rekapitulasi-nilai" },
       ],
     },
@@ -135,8 +137,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
         { title: "Perbaikan judul", url: "/mahasiswa/perbaikan-judul" },
         { title: "Pendaftaran Ujian", url: "/mahasiswa/pendaftaran-ujian" },
         { title: "Jadwal Ujian", url: "/mahasiswa/jadwal-ujian" },
-        { title: "Berita Ujian", url: "/mahasiswa/berita-ujian" },
-        { title: "Rekapitulasi Nilai", url: "/mahasiswa/rekapitulasi-nilai" },
+        { title: "Nilai Ujian", url: "/mahasiswa/nilai-ujian" },
       ],
     },
   ];

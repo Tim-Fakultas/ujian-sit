@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { DataCard } from "@/components/common/DataCard";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function PengajuanTableClient({
   data,
@@ -82,6 +83,7 @@ export default function PengajuanTableClient({
       const judul = (p.ranpel?.judulPenelitian ?? "").toLowerCase();
       const status = (p.status ?? "").toLowerCase();
       const tanggal = (p.tanggalPengajuan ?? "").toString().toLowerCase();
+      const tanggalDiterima = (p.tanggalDiterima ?? "").toString().toLowerCase();
       const statusMatch =
         filterStatus === "all" ? true : status === filterStatus;
 
@@ -91,7 +93,8 @@ export default function PengajuanTableClient({
         nama.includes(q) ||
         judul.includes(q) ||
         status.includes(q) ||
-        tanggal.includes(q);
+        tanggal.includes(q) ||
+        tanggalDiterima.includes(q);
       return matchesQ && statusMatch;
     });
   }, [data, search, filterStatus]);
@@ -148,7 +151,11 @@ export default function PengajuanTableClient({
             <span>Nama Mahasiswa</span>
           </div>
         ),
-        cell: ({ row }) => <div>{row.getValue("nama")}</div>,
+        cell: ({ row }) => (
+          <div className="max-w-[150px] truncate" title={row.getValue("nama")}>
+            {row.getValue("nama")}
+          </div>
+        ),
       },
       {
         accessorFn: (row) => row.ranpel?.judulPenelitian ?? "-",
@@ -158,7 +165,9 @@ export default function PengajuanTableClient({
           const judul = String(row.getValue("judul") ?? "");
           return (
             // single-line truncation to keep rows aligned
-            <div className="max-w-sm truncate">{judul}</div>
+            <div className="max-w-[250px] truncate" title={judul}>
+              {judul}
+            </div>
           );
         },
       },
@@ -168,6 +177,20 @@ export default function PengajuanTableClient({
         header: "Tanggal Pengajuan",
         cell: ({ row }) => {
           const val = row.getValue("tanggal") as string;
+          try {
+            return new Date(val).toLocaleDateString("id-ID");
+          } catch {
+            return val;
+          }
+        },
+      },
+      {
+        accessorFn: (row) => row.tanggalDiterima ?? "",
+        id: "tanggalDiterima",
+        header: "Tanggal Diterima",
+        cell: ({ row }) => {
+          const val = row.getValue("tanggalDiterima") as string;
+          if (!val) return "-";
           try {
             return new Date(val).toLocaleDateString("id-ID");
           } catch {
@@ -251,9 +274,9 @@ export default function PengajuanTableClient({
     <>
       <DataCard className="w-full max-w-full">
         {/* Header controls: search/filter/add/tabs */}
-        <div className="flex flex-row gap-2 mb-4 w-full items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4 w-full">
           {/* Search input */}
-          <div className="relative min-w-[120px] max-w-full flex-1">
+          <div className="relative flex-1 w-full">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search size={16} className="text-muted-foreground" />
             </div>
@@ -264,68 +287,77 @@ export default function PengajuanTableClient({
               className="w-full pl-10 bg-white dark:bg-neutral-800"
             />
           </div>
-          {/* Filter popover */}
-          <Popover open={openFilter} onOpenChange={setOpenFilter}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 w-9 flex items-center justify-center rounded-md"
-              >
-                <Settings2 size={16} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="min-w-[160px] p-2">
-              <div className="text-xs font-semibold text-muted-foreground mb-1">
-                Status
-              </div>
-              {statusOptions.map((opt) => (
+
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            {/* Filter popover */}
+            <Popover open={openFilter} onOpenChange={setOpenFilter}>
+              <PopoverTrigger asChild>
                 <Button
-                  key={opt.value}
-                  variant={filterStatus === opt.value ? "secondary" : "ghost"}
+                  variant="outline"
                   size="sm"
-                  className="w-full justify-between"
-                  onClick={() => setFilterStatus(opt.value)}
+                  className="h-9 w-9 flex items-center justify-center rounded-md"
                 >
-                  <span className="text-sm">{opt.label}</span>
-                  {filterStatus === opt.value && <Check size={14} />}
+                  <Settings2 size={16} />
                 </Button>
-              ))}
-            </PopoverContent>
-          </Popover>
-          {/* Tabs */}
-          <Tabs
-            value={viewMode}
-            onValueChange={(v) => setViewMode(v as any)}
-            className="h-8"
-          >
-            <TabsList className="rounded-md bg-muted p-1 gap-1">
-              <TabsTrigger
-                value="table"
-                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                aria-label="Table view"
-              >
-                <LayoutGrid size={16} />
-              </TabsTrigger>
-              <TabsTrigger
-                value="card"
-                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                aria-label="Card view"
-              >
-                <List size={16} />
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-          {/* Tombol tambah pengajuan */}
-          <Button
-            className="w-auto bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 flex items-center justify-center rounded-lg h-9"
-            onClick={handleOpenForm}
-            title="Tambah pengajuan"
-            aria-label="Tambah pengajuan"
-          >
-            <Plus size={16} />
-            <span className="hidden sm:inline ml-2">Tambah Pengajuan</span>
-          </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-[200px] p-0">
+                <ScrollArea className="max-h-[300px] p-1">
+                  <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                    Status
+                  </div>
+                  {statusOptions.map((opt) => (
+                    <Button
+                      key={opt.value}
+                      variant="ghost"
+                      size="sm"
+                      className={`w-full justify-between h-8 px-2 font-normal ${
+                        filterStatus === opt.value ? "bg-accent text-accent-foreground font-medium" : ""
+                      }`}
+                      onClick={() => setFilterStatus(opt.value)}
+                    >
+                      <span className="text-sm">{opt.label}</span>
+                      {filterStatus === opt.value && (
+                        <Check size={14} className="ml-auto" />
+                      )}
+                    </Button>
+                  ))}
+                </ScrollArea>
+              </PopoverContent>
+            </Popover>
+            {/* Tabs */}
+            <Tabs
+              value={viewMode}
+              onValueChange={(v) => setViewMode(v as any)}
+              className="h-9"
+            >
+              <TabsList className="rounded-md bg-muted p-1 gap-1 h-9">
+                <TabsTrigger
+                  value="table"
+                  className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
+                  aria-label="Table view"
+                >
+                  <LayoutGrid size={16} />
+                </TabsTrigger>
+                <TabsTrigger
+                  value="card"
+                  className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
+                  aria-label="Card view"
+                >
+                  <List size={16} />
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {/* Tombol tambah pengajuan */}
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 flex items-center justify-center rounded-lg h-9"
+              onClick={handleOpenForm}
+              title="Tambah pengajuan"
+              aria-label="Tambah pengajuan"
+            >
+              <Plus size={16} />
+              <span className="hidden sm:inline ml-2">Tambah Pengajuan</span>
+            </Button>
+          </div>
         </div>
 
         {/* Table / Card */}

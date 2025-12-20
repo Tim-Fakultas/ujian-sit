@@ -12,6 +12,10 @@ import { getCurrentLabel } from "@/utils/path";
 import { ModeToggle } from "@/app/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 
+import { NotificationToggle } from "@/components/common/NotificationToggle";
+
+
+
 export function SiteHeader() {
   const pathname = usePathname();
   const currentLabel = getCurrentLabel(pathname);
@@ -35,7 +39,8 @@ export function SiteHeader() {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          <NotificationToggle />
           <ModeToggle />
         </div>
       </div>

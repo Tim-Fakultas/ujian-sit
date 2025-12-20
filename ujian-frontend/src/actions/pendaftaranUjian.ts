@@ -29,13 +29,20 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
       );
     }
 
-    const data = await response.json();
+    const data: PendaftaranUjianResponse = await response.json();
+    const sortedData = data.data.sort((a, b) => {
+      return (
+        new Date(b.tanggalPengajuan.replace(" ", "T")).getTime() -
+        new Date(a.tanggalPengajuan.replace(" ", "T")).getTime()
+      );
+    });
+    
 
-    if (!data || !data.data) {
+    if (!sortedData && !data.data) {
       return [];
     }
 
-    return data.data;
+    return sortedData;
   } catch (error) {
     console.error("Error fetching pendaftaran ujian:", error);
     return [];
@@ -44,42 +51,7 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
 
 // SEKPRODI
 //* GET
-export async function getPendaftaranUjianDiterimaByProdi(prodiId: number) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-  try {
-    const response = await fetch(`${API_URL}/ujian`, {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch pendaftaran ujian by prodi");
-    }
-
-    const data = await response.json();
-
-    const filteredData = data.data
-      .filter((ujian: Ujian) => ujian.mahasiswa?.prodi?.id === prodiId)
-
-
-      .sort(
-        (a: Ujian, b: Ujian) =>
-          new Date(
-            b.pendaftaranUjian.tanggalDisetujui?.replace(" ", "T") || 0
-          ).getTime() -
-          new Date(
-            a.pendaftaranUjian.tanggalDisetujui?.replace(" ", "T") || 0
-          ).getTime()
-      );
-
-      
-
-    return filteredData;
-  } catch (error) {
-    console.error("Error fetching pendaftaran ujian by prodi:", error);
-    return [];
-  }
-}
 
 // ADMIN
 //* GET
@@ -164,12 +136,12 @@ export async function createPendaftaranUjian({
         headers: {
           Accept: "application/json",
         },
+        cache: "no-store",
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      // Deteksi error body size (ubah jadi 5 MB)
       if (
         errorText.includes("Body exceeded 5 MB limit") ||
         response.status === 413
@@ -186,36 +158,43 @@ export async function createPendaftaranUjian({
     const result = await response.json();
     return result;
   } catch (error: unknown) {
-    // Lempar error ke frontend agar bisa ditampilkan
-    throw error;
+    console.log(error);
   }
 }
 
 // ADMIN / SEKPRODI
 //* PUT
-export async function updateStatusPendaftaranUjian(id: number, status: string) {
+export async function updateStatusPendaftaranUjian(
+  id: number,
+  status: string,
+  keterangan?: string
+) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   try {
+    const body: Record<string, string> = { status };
+    if (keterangan) {
+      body.keterangan = keterangan;
+    }
+
     const response = await fetch(`${API_URL}/pendaftaran-ujian/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify(body),
       cache: "no-store",
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Gagal update status: ${response.status} - ${errorText}`);
+      console.log(errorText);
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Error update status pendaftaran ujian:", error);
-    throw error;
+    console.log("Error update status pendaftaran ujian:", error);
   }
 }
 

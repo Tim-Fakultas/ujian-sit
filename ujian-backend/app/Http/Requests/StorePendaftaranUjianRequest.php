@@ -24,7 +24,7 @@ class StorePendaftaranUjianRequest extends FormRequest
             'keterangan'        => 'nullable|string',
 
             'berkas'   => 'nullable|array',
-            'berkas.*' => 'file|mimes:pdf,jpg,jpeg,png|max:2048', // 2MB
+            'berkas.*' => 'file|mimes:pdf,jpg,jpeg,png|max:2048', 
         ];
     }
 

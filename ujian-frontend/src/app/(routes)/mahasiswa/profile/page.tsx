@@ -10,6 +10,6 @@ export default async function ProfilePage() {
       <Suspense fallback={<Loading />}>
         <ProfileCard user={user} />
       </Suspense>
-    </main>
+    </main> 
   );
 }

@@ -433,7 +433,7 @@ export default function PenjadwalkanUjianTable({
       id: "judul",
       header: "Judul Penelitian",
       cell: ({ row }: any) => (
-        <div className="text-xs whitespace-pre-line break-words max-w-[180px]">
+        <div className="text-sm  max-w-[180px] truncate">
           {row.getValue("judul")}
         </div>
       ),
@@ -637,7 +637,7 @@ export default function PenjadwalkanUjianTable({
         searchPlaceholder="Search Name..."
         className="mb-2"
       >
-        <div className="p-3 space-y-3">
+        <div className="p-1 space-y-3">
           <div>
             <div className="font-semibold text-xs mb-2 text-muted-foreground">
               Status

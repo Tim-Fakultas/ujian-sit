@@ -92,13 +92,13 @@ export default async function MahasiswaDashboardPage() {
         </Card>
 
         {/* Card 2: Status Pendaftaran Ujian */}
-        <Card className="rounded-2xl border-none shadow-lg shadow-violet-500/10 bg-white dark:bg-neutral-800 relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
+        <Card className="rounded-2xl border-none shadow-lg shadow-indigo-500/10 bg-white dark:bg-neutral-800 relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <ClipboardList className="w-24 h-24 text-violet-500" />
+            <ClipboardList className="w-24 h-24 text-indigo-500" />
           </div>
           <CardContent className="p-6 relative z-10">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-600 dark:text-violet-400">
+              <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                 <ClipboardList className="w-6 h-6" />
               </div>
               <div>
@@ -113,7 +113,7 @@ export default async function MahasiswaDashboardPage() {
             <Link href="/mahasiswa/pendaftaran-ujian">
               <Button
                 variant="outline"
-                className="w-full justify-between group/btn hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:text-violet-600 dark:hover:text-violet-400 border-dashed"
+                className="w-full justify-between group/btn hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 border-dashed"
               >
                 Lihat Daftar Ujian
                 <ChevronRight className="w-4 h-4 opacity-50 group-hover/btn:opacity-100 transition-opacity" />
@@ -124,13 +124,13 @@ export default async function MahasiswaDashboardPage() {
 
         {/* Card 3: Jadwal Ujian (Mock or Real) */}
         {/* If approved and scheduled, show something meaningful. If not, show general link */}
-        <Card className="rounded-2xl border-none shadow-lg shadow-emerald-500/10 bg-white dark:bg-neutral-800 relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
+        <Card className="rounded-2xl border-none shadow-lg shadow-sky-500/10 bg-white dark:bg-neutral-800 relative overflow-hidden group hover:shadow-xl transition-shadow duration-300">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Timer className="w-24 h-24 text-emerald-500" />
+            <Timer className="w-24 h-24 text-sky-500" />
           </div>
           <CardContent className="p-6 relative z-10">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <div className="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center text-sky-600 dark:text-sky-400">
                 <Timer className="w-6 h-6" />
               </div>
               <div>
@@ -146,7 +146,7 @@ export default async function MahasiswaDashboardPage() {
             <Link href="/mahasiswa/jadwal-ujian">
               <Button
                 variant="outline"
-                className="w-full justify-between group/btn hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 border-dashed"
+                className="w-full justify-between group/btn hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:text-sky-600 dark:hover:text-sky-400 border-dashed"
               >
                 Lihat Jadwal
                 <Calendar className="w-4 h-4 opacity-50 group-hover/btn:opacity-100 transition-opacity" />
@@ -177,9 +177,9 @@ export default async function MahasiswaDashboardPage() {
           </Link>
 
           <Link href="/mahasiswa/pendaftaran-ujian" className="group">
-            <Card className="h-full hover:border-violet-500/50 hover:shadow-md transition-all duration-300 cursor-pointer bg-white dark:bg-neutral-800">
+            <Card className="h-full hover:border-indigo-500/50 hover:shadow-md transition-all duration-300 cursor-pointer bg-white dark:bg-neutral-800">
               <CardContent className="p-5 flex flex-col items-center justify-center text-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-600 dark:text-violet-400 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
                   <ClipboardList className="w-5 h-5" />
                 </div>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -190,9 +190,9 @@ export default async function MahasiswaDashboardPage() {
           </Link>
 
           <Link href="/mahasiswa/jadwal-ujian" className="group">
-            <Card className="h-full hover:border-emerald-500/50 hover:shadow-md transition-all duration-300 cursor-pointer bg-white dark:bg-neutral-800">
+            <Card className="h-full hover:border-sky-500/50 hover:shadow-md transition-all duration-300 cursor-pointer bg-white dark:bg-neutral-800">
               <CardContent className="p-5 flex flex-col items-center justify-center text-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center text-sky-600 dark:text-sky-400 group-hover:scale-110 transition-transform">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -203,9 +203,9 @@ export default async function MahasiswaDashboardPage() {
           </Link>
 
           <Link href="/mahasiswa/berita-ujian" className="group">
-            <Card className="h-full hover:border-orange-500/50 hover:shadow-md transition-all duration-300 cursor-pointer bg-white dark:bg-neutral-800">
+            <Card className="h-full hover:border-cyan-500/50 hover:shadow-md transition-all duration-300 cursor-pointer bg-white dark:bg-neutral-800">
               <CardContent className="p-5 flex flex-col items-center justify-center text-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-cyan-50 dark:bg-cyan-900/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform">
                   <FileText className="w-5 h-5" />
                 </div>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-200">

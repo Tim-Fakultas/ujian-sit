@@ -37,7 +37,7 @@ export async function getBeritaUjian(prodiId: number | undefined) {
   }
 }
 
-export async function getBeritaUjianByLulus(prodiId: number | undefined) {
+export async function getRekapitulasiNilaiUjian(prodiId: number | undefined) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   try {
@@ -54,7 +54,8 @@ export async function getBeritaUjianByLulus(prodiId: number | undefined) {
       .filter(
         (ujian) =>
           ujian.mahasiswa.prodi.id === prodiId &&
-          ujian.pendaftaranUjian.status === "selesai" 
+          ujian.pendaftaranUjian.status === "dijadwalkan"  ||
+          ujian.pendaftaranUjian.status === "selesai"
       )
       .sort((a, b) => {
         // Sort by jadwalUjian first, then waktuSelesai

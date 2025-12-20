@@ -9,6 +9,7 @@ import { FileText } from "lucide-react";
 import JadwalUjianTable from "@/components/jadwalUjianTable";
 
 export default async function JadwalUjianPage() {
+
   const { user } = await getCurrentUserAction();
   const jadwalUjian: Ujian[] =
     user?.prodi?.id !== undefined
@@ -33,4 +34,5 @@ export default async function JadwalUjianPage() {
       </Suspense>
     </div>
   );
+  
 }

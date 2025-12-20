@@ -62,9 +62,17 @@ export default function PageHeader({
   description, 
   icon: Icon, 
   variant = "blue",
-  className 
-}: PageHeaderProps) {
+  className,
+  showDate = false
+}: PageHeaderProps & { showDate?: boolean }) {
   const styles = colorMap[variant] || colorMap.default;
+
+  const today = new Date().toLocaleDateString("id-ID", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
     <Card className={cn(
@@ -72,19 +80,28 @@ export default function PageHeader({
         className
     )}>
       <CardHeader>
-        <CardTitle className="text-2xl font-bold flex items-center gap-2">
-          {Icon && (
-            <div className={cn("p-2 rounded-lg", styles.iconBg)}>
-              <Icon className={cn("h-6 w-6", styles.iconColor)} />
+        <div className="flex justify-between items-start">
+            <div>
+                <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                {Icon && (
+                    <div className={cn("p-2 rounded-lg", styles.iconBg)}>
+                    <Icon className={cn("h-6 w-6", styles.iconColor)} />
+                    </div>
+                )}
+                <span>{title}</span>
+                </CardTitle>
+                {description && (
+                <CardDescription className="text-base mt-2">
+                    {description}
+                </CardDescription>
+                )}
             </div>
-          )}
-          <span>{title}</span>
-        </CardTitle>
-        {description && (
-          <CardDescription className="text-base mt-2">
-            {description}
-          </CardDescription>
-        )}
+            {showDate && (
+                <div className="text-sm font-medium text-muted-foreground bg-gray-50 dark:bg-neutral-800 px-3 py-1.5 rounded-lg border border-gray-100 dark:border-neutral-700 hidden sm:block">
+                    {today}
+                </div>
+            )}
+        </div>
       </CardHeader>
     </Card>
   );

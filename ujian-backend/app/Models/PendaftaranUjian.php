@@ -85,6 +85,7 @@ class PendaftaranUjian extends Model
 
                     $pendaftaran->perbaikan_judul_id = $pj?->id;
                     $pendaftaran->judul_snapshot = $pj?->judul_baru ?? $ranpel->judul_penelitian;
+                    echo    $pendaftaran->judul_snapshot;
                 }
 
             }

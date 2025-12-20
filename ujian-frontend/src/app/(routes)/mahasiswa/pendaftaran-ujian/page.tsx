@@ -38,7 +38,7 @@ export default async function DaftarUjianPage() {
         title="Daftar Ujian"
         description="Lihat dan kelola pendaftaran ujian Anda di sini."
         icon={FileText}
-        variant="emerald"
+        variant="blue"
         className="mb-6"
       />
       <Suspense fallback={<Loading />}>

@@ -16,28 +16,34 @@ import {
 import TableGlobal from "@/components/tableGlobal";
 
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
-import PDFPreviewModal from "../jadwal-ujian/PDFPreviewModal";
+import PDFPreviewModal from "../penilaian-ujian/PDFPreviewModal";
 import { Button } from "@/components/ui/button";
 import {
   Eye,
-  ListFilter,
+  Search,
   MoreHorizontal,
   LayoutGrid,
   List,
   Check,
-  Search,
   Settings2,
   Calendar,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { truncateTitle } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../../../components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { DataCard } from "@/components/common/DataCard";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { truncateTitle } from "@/lib/utils";
 
 export default function PengajuanRanpelClient({
   pengajuanRanpel,
@@ -52,6 +58,7 @@ export default function PengajuanRanpelClient({
   // Controls
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [openFilter, setOpenFilter] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
 
   const statusOptions = [
@@ -106,13 +113,6 @@ export default function PengajuanRanpelClient({
   const cols: ColumnDef<PengajuanRanpel>[] = React.useMemo(
     () => [
       {
-        id: "select",
-        header: () => null,
-        cell: () => null,
-        enableSorting: false,
-        enableHiding: false,
-      },
-      {
         id: "no",
         header: "No",
         cell: ({ row, table }) => {
@@ -121,7 +121,7 @@ export default function PengajuanRanpelClient({
               (table.getState().pagination?.pageSize ?? 10) +
             row.index +
             1;
-          return <div className="text-center">{index}</div>;
+          return <div>{index}</div>;
         },
       },
       {
@@ -132,7 +132,11 @@ export default function PengajuanRanpelClient({
             <span>Nama Mahasiswa</span>
           </div>
         ),
-        cell: ({ row }) => <div>{row.getValue("nama")}</div>,
+        cell: ({ row }) => (
+          <div className="max-w-[150px] truncate" title={row.getValue("nama")}>
+            {row.getValue("nama")}
+          </div>
+        ),
       },
       {
         accessorFn: (row) => row.ranpel?.judulPenelitian ?? "-",
@@ -141,8 +145,9 @@ export default function PengajuanRanpelClient({
         cell: ({ row }) => {
           const judul = String(row.getValue("judul") ?? "");
           return (
-            // use single-line truncate to avoid layout overlaps
-            <div className="max-w-[48ch] ">{truncateTitle(judul, 40)}</div>
+            <div className="max-w-[250px] truncate" title={judul}>
+              {judul}
+            </div>
           );
         },
       },
@@ -229,80 +234,82 @@ export default function PengajuanRanpelClient({
     try {
       table.setPageIndex?.(0);
     } catch {}
-  }, [search, filterStatus]); // eslint-disable-line
+  }, [search, filterStatus, table]);
 
   return (
     <>
-      {/* buat background container lebih gelap, dan biarkan card di dalam sedikit lebih terang */}
-      <div className="bg-white dark:bg-neutral-900 border p-4 md:p-6 rounded-md shadow-sm">
-        {/* Header controls: column on mobile, row on desktop (search left, controls right) */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          {/* Search - takes available space */}
-          <div className="flex-1 min-w-0">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={16} className="text-muted-foreground" />
-              </div>
-              <Input
-                placeholder="Search"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                className="w-full pl-10 bg-white dark:bg-neutral-800"
-                aria-label="Search"
-              />
+      <DataCard className="w-full max-w-full">
+        {/* Header controls: search/filter/tabs */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4 w-full">
+          {/* Search input */}
+          <div className="relative flex-1 w-full">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={16} className="text-muted-foreground" />
             </div>
+            <Input
+              placeholder="Search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="w-full pl-10 bg-white dark:bg-neutral-800"
+            />
           </div>
 
-          {/* Controls - align center on desktop; compact on mobile */}
-          <div className="flex items-center gap-2 shrink-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            {/* Filter popover */}
+            <Popover open={openFilter} onOpenChange={setOpenFilter}>
+              <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 w-9 p-0 grid place-items-center"
-                  aria-label="Filter status"
-                  title="Filter status"
+                  className="h-9 w-9 flex items-center justify-center rounded-md"
                 >
                   <Settings2 size={16} />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-[180px]">
-                {statusOptions.map((opt) => {
-                  const isActive = filterStatus === opt.value;
-
-                  return (
-                    <DropdownMenuItem
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-[200px] p-0">
+                <ScrollArea className="max-h-[300px] p-1">
+                  <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                    Status
+                  </div>
+                  {statusOptions.map((opt) => (
+                    <Button
                       key={opt.value}
+                      variant="ghost"
+                      size="sm"
+                      className={`w-full justify-between h-8 px-2 font-normal ${
+                        filterStatus === opt.value
+                          ? "bg-accent text-accent-foreground font-medium"
+                          : ""
+                      }`}
                       onClick={() => setFilterStatus(opt.value)}
-                      className="flex items-center justify-between gap-2"
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm">{opt.label}</span>
-                      </div>
-                      {isActive && <Check size={14} />}
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                      <span className="text-sm">{opt.label}</span>
+                      {filterStatus === opt.value && (
+                        <Check size={14} className="ml-auto" />
+                      )}
+                    </Button>
+                  ))}
+                </ScrollArea>
+              </PopoverContent>
+            </Popover>
 
+            {/* Tabs */}
             <Tabs
               value={viewMode}
-              onValueChange={(v) => setViewMode(v as "table" | "card")}
-              className="h-8"
+              onValueChange={(v) => setViewMode(v as any)}
+              className="h-9"
             >
-              <TabsList className="rounded-md bg-muted p-1 gap-1">
+              <TabsList className="rounded-md bg-muted p-1 gap-1 h-9">
                 <TabsTrigger
                   value="table"
-                  className="inline-flex items-center gap-2 flex-none h-7 px-2 text-xs sm:text-sm rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
                   aria-label="Table view"
                 >
                   <LayoutGrid size={16} />
                 </TabsTrigger>
                 <TabsTrigger
                   value="card"
-                  className="inline-flex items-center gap-2 flex-none h-7 px-2 text-xs sm:text-sm rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
                   aria-label="Card view"
                 >
                   <List size={16} />
@@ -312,7 +319,7 @@ export default function PengajuanRanpelClient({
           </div>
         </div>
 
-        {/* Table / Card atau pesan jika tidak ada data */}
+        {/* Table / Card */}
         {filteredData.length === 0 ? (
           <div className="p-6 flex flex-col items-center justify-center gap-3">
             <div className="text-sm text-muted-foreground text-center">
@@ -332,25 +339,28 @@ export default function PengajuanRanpelClient({
             </div>
           </div>
         ) : viewMode === "table" ? (
-          <TableGlobal table={table} cols={cols} />
+          <div className="w-full">
+            <TableGlobal table={table} cols={cols} />
+          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
             {filteredData.map((item, idx) => {
               const key = (item as any).id ?? idx;
               const nama = item.mahasiswa?.nama ?? "-";
               const judul = item.ranpel?.judulPenelitian ?? "-";
               const tanggal = item.tanggalPengajuan ?? "";
               const status = item.status ?? "-";
-              
-              const tanggalStr = tanggal
-              ? new Date(String(tanggal)).toLocaleDateString("id-ID", {
-                  day: "numeric", month: "short", year: "numeric"
-                })
-              : "-";
 
-              let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
-
-
+              const statusColor =
+                status === "menunggu"
+                  ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800"
+                  : status === "diterima"
+                  ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
+                  : status === "ditolak"
+                  ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800"
+                  : status === "diverifikasi"
+                  ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800"
+                  : "bg-gray-100 text-gray-800 border-gray-200 dark:bg-neutral-800 dark:text-gray-400";
 
               return (
                 <div
@@ -358,45 +368,58 @@ export default function PengajuanRanpelClient({
                   className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                 >
                   <div className="p-5 flex flex-col gap-4 flex-1">
-                     
-                     {/* Header: Date & Status */}
-                     <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                           <Calendar size={13} />
-                           <span>{tanggalStr}</span>
-                        </div>
-                        
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
-                           {status}
+                    {/* Header: Date & Status */}
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        <Calendar size={13} />
+                        <span>
+                          {new Date(String(tanggal)).toLocaleDateString(
+                            "id-ID",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
                         </span>
-                     </div>
+                      </div>
 
-                     {/* Content: Title & Name */}
-                     <div className="space-y-2">
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
-                             {judul || "Judul tidak tersedia"}
-                          </h3>
-                          
-                          <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
-                             <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
-                                {nama.charAt(0)}
-                             </div>
-                             <div className="flex flex-col mt-2">
-                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                                   {nama}
-                                </span>
-                             </div>
-                          </div>
-                     </div>
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}
+                      >
+                        {status}
+                      </span>
+                    </div>
+
+                    {/* Content: Title & Name */}
+                    <div className="space-y-2">
+                      <h3
+                        className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3"
+                        title={judul}
+                      >
+                        {judul || "Judul tidak tersedia"}
+                      </h3>
+
+                      <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
+                        <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
+                          {nama.charAt(0)}
+                        </div>
+                        <div className="flex flex-col mt-2">
+                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                            {nama}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Actions Footer */}
                   <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                     <Button
+                    <Button
                       size="sm"
-                      variant="outline"
-                      className="text-xs h-8"
+                      variant="ghost"
                       onClick={() => handleLihatClick(item)}
+                      className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
                     >
                       <Eye size={14} className="mr-1.5" /> Preview
                     </Button>
@@ -406,7 +429,7 @@ export default function PengajuanRanpelClient({
             })}
           </div>
         )}
-      </div>
+      </DataCard>
 
       {/* PDF Preview Modal */}
       {selectedPengajuan && (
