@@ -1,0 +1,109 @@
+==============================
+   DAFTAR AKUN PENGGUNA
+==============================
+
+1. Nama: superadmin
+   Username: superadmin
+   Password: 1
+
+2. Nama: Kaprodi Si
+   Username: Kaprodi12345
+   Password: Kaprodi12345
+
+3. Nama: Sekprodi Si
+   Username: Sekprodi12345
+   Password: Sekprodi12345
+
+4. Nama: Admin Prodi Sistem Informasi
+   Username: AdminSI
+   Password: AdminSI
+
+5. Nama: Admin Prodi Biologi
+   Username: AdminBio12345
+   Password: AdminBio12345
+
+6. Nama: Admin Prodi Kimia
+   Username: AdminKimia123
+   Password: AdminKimia123
+
+7. Nama: Gusmelia Testiana, M.Kom.
+   Username: gusmelia19750801
+   Password: gusmelia19750801
+
+8. Nama: Ruliansyah, S.T., M.Kom.
+   Username: ruliansyah19751122
+   Password: ruliansyah19751122
+
+9. Nama: Dr. Fenny Purwani, M.Kom.
+   Username: fenny19671107
+   Password: fenny19671107
+
+10. Nama: RUSMALA SANTI, M.Kom.
+    Username: rusmala19791125
+    Password: rusmala19791125
+
+11. Nama: Catur Eri Gunawan, S.T., M.Cs.
+    Username: catur19860503
+    Password: catur19860503
+
+12. Nama: Irfan Dwi Jaya, M.Kom.
+    Username: irfan19870108
+    Password: irfan19870108
+
+13. Nama: Fenando, M.Kom.
+    Username: fenando19871114
+    Password: fenando19871114
+
+14. Nama: Freddy Kurnia Wijaya, S.Kom., M.Eng.
+    Username: freddy20311860
+    Password: freddy20311860
+
+15. Nama: Evi Fadilah, M.Kom.
+    Username: evi19851015
+    Password: evi19851015
+
+16. Nama: Muhamad Kadafi, M.Kom.
+    Username: kadafi19841023
+    Password: muhamad19841023
+
+17. Nama: Muhamad Son Muarie, M.Kom.
+    Username: son19851229
+    Password: muhamad19851229
+
+18. Nama: Fathiyah Nopriani, S.T., M.Kom.
+    Username: fathiyah19821117
+    Password: fathiyah19821117
+
+19. Nama: Imamulhakim Syahid Putra, M.Kom.
+    Username: imamulhakim19891221
+    Password: imamulhakim19891222
+
+20. Nama: Aminullah Imal Alfresi, S.T., M.Kom.
+    Username: aminullah19890910
+    Password: aminullah19890911
+
+21. Nama: Sri Rahayu, M.Kom.
+    Username: sri19910104
+    Password: sri19910105
+
+22. Nama: M. Leandry Dalafranka, S.SI., M.Kom.
+    Username: leandry19931230
+    Password: m.19931231
+
+23. Nama: Indah Hidayanti, S.T., M.Kom.
+    Username: indah19890523
+    Password: indah19890524
+
+24. Nama: Reni Septiyanti, S.SI., M.Kom.
+    Username: reni19880904
+    Password: reni19880905
+
+25. Nama: Gina Agiyani, M.Kom.
+    Username: gina19940630
+    Password: gina19940631
+
+------------------------------
+INFO MAHASISWA:
+Username & Password menggunakan 
+NIM masing-masing.
+==============================

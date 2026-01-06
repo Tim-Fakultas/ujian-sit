@@ -21,9 +21,7 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
 
     // Filter ujian berdasarkan mahasiswaId dan status dijadwalkan
     const filteredData = data.data.filter(
-      (ujian) =>
-        Number(ujian.mahasiswa?.id) === Number(mahasiswaId) &&
-        ujian.pendaftaranUjian?.status !== "menunggu"
+      (ujian) => Number(ujian.mahasiswa?.id) === Number(mahasiswaId)
     );
 
     return filteredData;
@@ -38,21 +36,34 @@ export async function getPenjadwalanUjianByProdi(prodiId: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   try {
-    const response = await fetch(`${apiUrl}/ujian`);
+    const response = await fetch(`${apiUrl}/ujian`, {
+      cache: "no-store",
+    });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch ujian ujian by prodi");
+      throw new Error("Failed to fetch ujian by prodi");
     }
 
     const data: UjianResponse = await response.json();
+    if (!data?.data?.length) return [];
+
     const filteredData = data.data
       .filter(
         (ujian) =>
-          ujian.mahasiswa.prodi.id === prodiId &&
-          (ujian.pendaftaranUjian.status === "belum dijadwalkan" || 
-          ujian.pendaftaranUjian.status === "dijadwalkan")
+          Number(ujian.mahasiswa?.prodi?.id) === Number(prodiId) &&
+          (ujian.pendaftaranUjian?.status === "belum dijadwalkan" ||
+            ujian.pendaftaranUjian?.status === "dijadwalkan")
       )
       .sort((a, b) => {
+        // Urutkan "belum dijadwalkan" di atas
+        const statusA = a.pendaftaranUjian?.status;
+        const statusB = b.pendaftaranUjian?.status;
+
+        if (statusA === "belum dijadwalkan" && statusB !== "belum dijadwalkan")
+          return -1;
+        if (statusA !== "belum dijadwalkan" && statusB === "belum dijadwalkan")
+          return 1;
+
         // Sort by jadwalUjian (descending, terbaru di atas)
         const dateA = new Date(a.jadwalUjian ?? 0).getTime();
         const dateB = new Date(b.jadwalUjian ?? 0).getTime();
@@ -60,11 +71,10 @@ export async function getPenjadwalanUjianByProdi(prodiId: number) {
       });
     return filteredData;
   } catch (error) {
-    console.error("Error fetching ujian ujian by prodi:", error);
+    console.error("Error fetching ujian by prodi:", error);
     return [];
   }
 }
-
 
 export async function getJadwalUjianByProdi(prodiId: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -96,7 +106,6 @@ export async function getJadwalUjianByProdi(prodiId: number) {
   }
 }
 
-
 // GET JADWAL UJIAN BY DOSEN PENGUJI
 export async function getJadwalUjianDosen(dosenId: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -110,17 +119,17 @@ export async function getJadwalUjianDosen(dosenId: number) {
     const data: UjianResponse = await response.json();
     // Filter where dosen found in penguji list
     const filteredData = data.data.filter((ujian) =>
-        ujian.penguji?.some((p) => Number(p.id) === Number(dosenId))
+      ujian.penguji?.some((p) => Number(p.id) === Number(dosenId))
     );
-     // Sort by jadwalUjian
+    // Sort by jadwalUjian
     return filteredData.sort((a, b) => {
-        const dateA = new Date(a.jadwalUjian ?? 0).getTime();
-        const dateB = new Date(b.jadwalUjian ?? 0).getTime();
-        return dateB - dateA;
-      });
+      const dateA = new Date(a.jadwalUjian ?? 0).getTime();
+      const dateB = new Date(b.jadwalUjian ?? 0).getTime();
+      return dateB - dateA;
+    });
   } catch (error) {
-     console.error("Error fetching ujian by dosen:", error);
-     return [];
+    console.error("Error fetching ujian by dosen:", error);
+    return [];
   }
 }
 
@@ -158,9 +167,9 @@ export async function getJadwalUjianByProdiByDosen({
           (p) => Number(p.id) === Number(dosenId)
         );
 
-        const isToday = ujian.jadwalUjian?.startsWith(today);
+        // const isToday = ujian.jadwalUjian?.startsWith(today);
 
-        return prodiMatch && statusMatch && pengujiFound && isToday;
+        return prodiMatch && statusMatch && pengujiFound;
       })
       .sort((a, b) => {
         const dateA = new Date(a.jadwalUjian ?? 0).getTime();
@@ -187,8 +196,6 @@ const JadwalUjianSchema = z.object({
   penguji1: z.coerce.number().min(1, "Penguji 1 wajib diisi"),
   penguji2: z.coerce.number().min(1, "Penguji 2 wajib diisi"),
 });
-
-
 
 // Jadwalkan Ujian Action
 export async function jadwalkanUjianAction(formData: FormData) {
@@ -265,7 +272,7 @@ export async function jadwalkanUjianAction(formData: FormData) {
           // Ambil error pertama saja atau gabungkan
           const errorsVec = Object.values(data.errors).flat();
           let combined = errorsVec.join(", ");
-          
+
           // Translate common field names / messages
           combined = combined
             .replace(/waktuMulai/gi, "Waktu Mulai")
@@ -273,18 +280,21 @@ export async function jadwalkanUjianAction(formData: FormData) {
             .replace(/The\s+/gi, "")
             .replace(/ field/gi, "")
             .replace(/ must be a date after /gi, " harus setelah ")
-            .replace(/ must match the format H:i./gi, " format waktu tidak valid.")
+            .replace(
+              / must match the format H:i./gi,
+              " format waktu tidak valid."
+            )
             .replace(/ must be different./gi, " harus berbeda.");
-            
+
           errorMessage = combined;
         } else if (data.message) {
           errorMessage = data.message;
         }
       } catch (e) {
         console.error("Failed to parse error response:", e);
-        errorMessage = "Gagal menjadwalkan ujian: " + text; 
+        errorMessage = "Gagal menjadwalkan ujian: " + text;
       }
-      
+
       throw new Error(errorMessage);
     }
 

@@ -31,7 +31,6 @@ import {
   Search,
   ListFilter,
   ArrowUpDown,
-  MoreHorizontal,
   LayoutGrid,
   List,
   Check,
@@ -150,7 +149,12 @@ export default function PengajuanTableClient({
           </div>
         ),
         cell: ({ row }) => (
-          <div className="font-medium">{String(row.getValue("nama"))}</div>
+          <div
+            className="font-medium max-w-[180px] truncate"
+            title={String(row.getValue("nama"))}
+          >
+            {String(row.getValue("nama"))}
+          </div>
         ),
       },
       {
@@ -158,8 +162,11 @@ export default function PengajuanTableClient({
         id: "judul",
         header: "Judul Rancangan Penelitian",
         cell: ({ row }) => (
-          <div className="max-w-[48ch] ">
-            {truncateTitle(String(row.getValue("judul")), 40)}
+          <div
+            className="max-w-[300px] truncate"
+            title={String(row.getValue("judul"))}
+          >
+            {truncateTitle(String(row.getValue("judul")), 50)}
           </div>
         ),
       },
@@ -202,18 +209,14 @@ export default function PengajuanTableClient({
           const item = row.original;
           return (
             <div className="text-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleLihatClick(item)}>
-                    <Eye size={14} /> Preview
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 text-gray-500 hover:text-blue-600"
+                onClick={() => handleLihatClick(item)}
+              >
+                <Eye size={18} />
+              </Button>
             </div>
           );
         },
@@ -391,15 +394,17 @@ export default function PengajuanTableClient({
               const judul = item.ranpel?.judulPenelitian ?? "-";
               const tanggal = item.tanggalPengajuan ?? "";
               const status = item.status ?? "-";
-              
+
               const statusColor =
-                status === "menunggu" ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800" :
-                status === "diterima" ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800" :
-                status === "ditolak" ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800" :
-                status === "diverifikasi" ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800" :
-                "bg-gray-100 text-gray-800 border-gray-200 dark:bg-neutral-800 dark:text-gray-400";
-
-
+                status === "menunggu"
+                  ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800"
+                  : status === "diterima"
+                  ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
+                  : status === "ditolak"
+                  ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800"
+                  : status === "diverifikasi"
+                  ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800"
+                  : "bg-gray-100 text-gray-800 border-gray-200 dark:bg-neutral-800 dark:text-gray-400";
 
               return (
                 <div
@@ -407,42 +412,49 @@ export default function PengajuanTableClient({
                   className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                 >
                   <div className="p-5 flex flex-col gap-4 flex-1">
-                     
-                     {/* Header: Date & Status */}
-                     <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                           <Calendar size={13} />
-                           <span>
-                             {new Date(String(tanggal)).toLocaleDateString("id-ID", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                             })}
-                           </span>
-                        </div>
-                        
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
-                           {status}
+                    {/* Header: Date & Status */}
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        <Calendar size={13} />
+                        <span>
+                          {new Date(String(tanggal)).toLocaleDateString(
+                            "id-ID",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
                         </span>
-                     </div>
+                      </div>
 
-                     {/* Content: Title & Name */}
-                     <div className="space-y-2">
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
-                             {judul || "Judul tidak tersedia"}
-                          </h3>
-                          
-                          <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
-                             <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
-                                {nama.charAt(0)}
-                             </div>
-                             <div className="flex flex-col mt-2">
-                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                                   {nama}
-                                </span>
-                             </div>
-                          </div>
-                     </div>
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}
+                      >
+                        {status}
+                      </span>
+                    </div>
+
+                    {/* Content: Title & Name */}
+                    <div className="space-y-2">
+                      <h3
+                        className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3"
+                        title={judul}
+                      >
+                        {judul || "Judul tidak tersedia"}
+                      </h3>
+
+                      <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
+                        <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
+                          {nama.charAt(0)}
+                        </div>
+                        <div className="flex flex-col mt-2">
+                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                            {nama}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Actions Footer */}

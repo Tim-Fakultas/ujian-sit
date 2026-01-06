@@ -41,7 +41,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { setUjianSelesai, setUjianDijadwalkan, setUjianBelumDijadwalkan } from "@/actions/jadwalUjian";
+import {
+  setUjianSelesai,
+  setUjianDijadwalkan,
+  setUjianBelumDijadwalkan,
+  getJadwalUjianByMahasiswaId,
+} from "@/actions/jadwalUjian";
 import {
   Table,
   TableBody,
@@ -154,7 +159,7 @@ export default function PenjadwalkanUjianTable({
         showToast.success("Ujian berhasil dijadwalkan!");
         setShowJadwalModal(false);
         // Jangan reset selected disini jika digunakan untuk modal lain, tapi karena modal jadwal menutup, aman.
-        // setSelected(null); 
+        // setSelected(null);
       } else if (state.message) {
         showToast.error(state.message);
       }
@@ -164,30 +169,98 @@ export default function PenjadwalkanUjianTable({
   // Bersihkan field saat selected ganti / null (jika perlu) or prefill
   useEffect(() => {
     if (selected) {
-       // Prefill logic
+      // Prefill logic
       setWaktuMulai(selected.waktuMulai ? selected.waktuMulai.slice(0, 5) : "");
-      setWaktuSelesai(selected.waktuSelesai ? selected.waktuSelesai.slice(0, 5) : "");
+      setWaktuSelesai(
+        selected.waktuSelesai ? selected.waktuSelesai.slice(0, 5) : ""
+      );
       setRuangan(
         selected.ruangan && selected.ruangan.id
           ? String(selected.ruangan.id)
           : ""
       );
-      if (Array.isArray(selected.penguji)) {
+      if (Array.isArray(selected.penguji) && selected.penguji.length > 0) {
         const p1 = selected.penguji.find((p) => p.peran === "penguji_1");
         const p2 = selected.penguji.find((p) => p.peran === "penguji_2");
         setPenguji1(p1 ? String(p1.id) : "");
         setPenguji2(p2 ? String(p2.id) : "");
 
-        const ketuaObj = selected.penguji.find((p) => p.peran === "ketua_penguji");
-        const sekreObj = selected.penguji.find((p) => p.peran === "sekretaris_penguji");
-        
-        setKetuaPenguji(ketuaObj ? String(ketuaObj.id) : (selected.pembimbing1 ? String(selected.pembimbing1.id) : ""));
-        setSekretarisPenguji(sekreObj ? String(sekreObj.id) : (selected.pembimbing2 ? String(selected.pembimbing2.id) : ""));
+        const ketuaObj = selected.penguji.find(
+          (p) => p.peran === "ketua_penguji"
+        );
+        const sekreObj = selected.penguji.find(
+          (p) => p.peran === "sekretaris_penguji"
+        );
+
+        setKetuaPenguji(
+          ketuaObj
+            ? String(ketuaObj.id)
+            : selected.pembimbing1
+            ? String(selected.pembimbing1.id)
+            : ""
+        );
+        setSekretarisPenguji(
+          sekreObj
+            ? String(sekreObj.id)
+            : selected.pembimbing2
+            ? String(selected.pembimbing2.id)
+            : ""
+        );
       } else {
         setPenguji1("");
         setPenguji2("");
-        setKetuaPenguji(selected.pembimbing1 ? String(selected.pembimbing1.id) : "");
-        setSekretarisPenguji(selected.pembimbing2 ? String(selected.pembimbing2.id) : "");
+        setKetuaPenguji(
+          selected.pembimbing1 ? String(selected.pembimbing1.id) : ""
+        );
+        setSekretarisPenguji(
+          selected.pembimbing2 ? String(selected.pembimbing2.id) : ""
+        );
+
+        // Auto-populate from previous exam
+        getJadwalUjianByMahasiswaId(Number(selected.mahasiswa.id)).then(
+          (history) => {
+            const currentJenis = selected.jenisUjian?.namaJenis;
+            let targetJenis = "";
+            if (currentJenis === "Ujian Hasil") targetJenis = "Ujian Proposal";
+            else if (currentJenis === "Ujian Skripsi")
+              targetJenis = "Ujian Hasil";
+
+            if (targetJenis) {
+              const prevExam = history.find(
+                (u) =>
+                  u.jenisUjian?.namaJenis === targetJenis &&
+                  u.penguji &&
+                  u.penguji.length > 0
+              );
+
+              if (prevExam && prevExam.penguji) {
+                const p1 = prevExam.penguji.find(
+                  (p) => p.peran === "penguji_1"
+                );
+                const p2 = prevExam.penguji.find(
+                  (p) => p.peran === "penguji_2"
+                );
+                const ketuaObj = prevExam.penguji.find(
+                  (p) => p.peran === "ketua_penguji"
+                );
+                const sekreObj = prevExam.penguji.find(
+                  (p) => p.peran === "sekretaris_penguji"
+                );
+
+                if (p1) setPenguji1(String(p1.id));
+                if (p2) setPenguji2(String(p2.id));
+                if (ketuaObj) setKetuaPenguji(String(ketuaObj.id));
+                if (sekreObj) setSekretarisPenguji(String(sekreObj.id));
+
+                if (ketuaObj || sekreObj || p1 || p2) {
+                  showToast.success(
+                    `Penguji otomatis diisi dari ${targetJenis}`
+                  );
+                }
+              }
+            }
+          }
+        );
       }
     } else {
       setPenguji1("");
@@ -196,6 +269,8 @@ export default function PenjadwalkanUjianTable({
       setWaktuMulai("");
       setWaktuSelesai("");
       setRuangan("");
+      setKetuaPenguji("");
+      setSekretarisPenguji("");
     }
   }, [selected]);
 
@@ -364,23 +439,26 @@ export default function PenjadwalkanUjianTable({
     }
   }
 
-  async function handleStatusChange(ujian: Ujian, status: "belum dijadwalkan" | "dijadwalkan" | "selesai") {
+  async function handleStatusChange(
+    ujian: Ujian,
+    status: "belum dijadwalkan" | "dijadwalkan" | "selesai"
+  ) {
     try {
       if (status === "belum dijadwalkan") {
-         await setUjianBelumDijadwalkan(ujian.pendaftaranUjian.id);
-         // Remove from completed if needed
-         setCompletedIds((prev) => prev.filter((id) => id !== ujian.id));
-         showToast.success("Status diubah menjadi Belum Dijadwalkan");
+        await setUjianBelumDijadwalkan(ujian.pendaftaranUjian.id);
+        // Remove from completed if needed
+        setCompletedIds((prev) => prev.filter((id) => id !== ujian.id));
+        showToast.success("Status diubah menjadi Belum Dijadwalkan");
       } else if (status === "dijadwalkan") {
-         await setUjianDijadwalkan(ujian.pendaftaranUjian.id);
-         setCompletedIds((prev) => prev.filter((id) => id !== ujian.id)); 
-         showToast.success("Status diubah menjadi Dijadwalkan");
+        await setUjianDijadwalkan(ujian.pendaftaranUjian.id);
+        setCompletedIds((prev) => prev.filter((id) => id !== ujian.id));
+        showToast.success("Status diubah menjadi Dijadwalkan");
       } else if (status === "selesai") {
-         await setUjianSelesai(ujian.pendaftaranUjian.id);
-         if (!completedIds.includes(ujian.id)) {
-            setCompletedIds((prev) => [...prev, ujian.id]);
-         }
-         showToast.success("Status diubah menjadi Selesai");
+        await setUjianSelesai(ujian.pendaftaranUjian.id);
+        if (!completedIds.includes(ujian.id)) {
+          setCompletedIds((prev) => [...prev, ujian.id]);
+        }
+        showToast.success("Status diubah menjadi Selesai");
       }
     } catch (error) {
       console.error(error);
@@ -469,7 +547,7 @@ export default function PenjadwalkanUjianTable({
       ),
       size: 100,
     },
- 
+
     {
       id: "actions",
       header: "",
@@ -480,24 +558,30 @@ export default function PenjadwalkanUjianTable({
           ujian.pendaftaranUjian.status === "selesai";
         return (
           <div className="flex items-center justify-center gap-1">
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => handleJadwal(ujian)}
               className="hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 gap-1.5 px-2"
-              aria-label={isSelesai || ujian.pendaftaranUjian.status === "dijadwalkan" ? "Edit Jadwal" : "Jadwalkan"}
+              aria-label={
+                isSelesai || ujian.pendaftaranUjian.status === "dijadwalkan"
+                  ? "Edit Jadwal"
+                  : "Jadwalkan"
+              }
             >
               <CalendarClock size={14} />
               <span className="text-xs font-medium">
-                {isSelesai || ujian.pendaftaranUjian.status === "dijadwalkan" ? "Edit" : "Jadwalkan"}
+                {isSelesai || ujian.pendaftaranUjian.status === "dijadwalkan"
+                  ? "Edit"
+                  : "Jadwalkan"}
               </span>
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className="h-8 w-8 text-gray-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
                   title="Ubah Status Manual"
                 >
@@ -505,19 +589,26 @@ export default function PenjadwalkanUjianTable({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[180px]">
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-gray-50 dark:bg-neutral-800/50 mb-1 rounded-sm">
-                    Ubah Status ke:
-                  </div>
-                  <DropdownMenuItem onClick={() => handleStatusChange(ujian, "belum dijadwalkan")}>
-                      <span className="text-xs">Belum Dijadwalkan</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusChange(ujian, "dijadwalkan")}>
-                      <span className="text-xs">Dijadwalkan</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                   <DropdownMenuItem onClick={() => handleStatusChange(ujian, "selesai")} className="text-blue-600 focus:text-blue-700">
-                      <span className="text-xs font-semibold">Tandai Selesai</span>
-                  </DropdownMenuItem>
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-gray-50 dark:bg-neutral-800/50 mb-1 rounded-sm">
+                  Ubah Status ke:
+                </div>
+                <DropdownMenuItem
+                  onClick={() => handleStatusChange(ujian, "belum dijadwalkan")}
+                >
+                  <span className="text-xs">Belum Dijadwalkan</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleStatusChange(ujian, "dijadwalkan")}
+                >
+                  <span className="text-xs">Dijadwalkan</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => handleStatusChange(ujian, "selesai")}
+                  className="text-blue-600 focus:text-blue-700"
+                >
+                  <span className="text-xs font-semibold">Tandai Selesai</span>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -650,7 +741,9 @@ export default function PenjadwalkanUjianTable({
                     variant={statusTab === item ? "secondary" : "ghost"}
                     size="sm"
                     className={`w-full justify-between rounded-md text-left h-8 px-2 ${
-                      statusTab === item ? "font-semibold bg-gray-100 dark:bg-neutral-800" : ""
+                      statusTab === item
+                        ? "font-semibold bg-gray-100 dark:bg-neutral-800"
+                        : ""
                     }`}
                     onClick={() => {
                       setStatusTab(
@@ -669,7 +762,9 @@ export default function PenjadwalkanUjianTable({
                         ? "Belum Dijadwalkan"
                         : item.charAt(0).toUpperCase() + item.slice(1)}
                     </span>
-                    {statusTab === item && <Check size={14} className="ml-2 text-emerald-500" />}
+                    {statusTab === item && (
+                      <Check size={14} className="ml-2 text-emerald-500" />
+                    )}
                   </Button>
                 )
               )}
@@ -688,7 +783,9 @@ export default function PenjadwalkanUjianTable({
                     variant={filterJenis === item ? "secondary" : "ghost"}
                     size="sm"
                     className={`w-full justify-between rounded-md text-left h-8 px-2 ${
-                      filterJenis === item ? "font-semibold bg-gray-100 dark:bg-neutral-800" : ""
+                      filterJenis === item
+                        ? "font-semibold bg-gray-100 dark:bg-neutral-800"
+                        : ""
                     }`}
                     onClick={() => setFilterJenis(item)}
                   >
@@ -751,133 +848,156 @@ export default function PenjadwalkanUjianTable({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedData.length === 0 ? (
               <div className="text-center text-muted-foreground py-12 col-span-full flex flex-col items-center gap-3">
-                 <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
-                    <List size={24} className="opacity-50" />
-                 </div>
+                <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
+                  <List size={24} className="opacity-50" />
+                </div>
                 <p>Tidak ada data ujian yang ditemukan.</p>
               </div>
             ) : (
               paginatedData.map((ujian) => {
-                 const isSelesai = completedIds.includes(ujian.id) || ujian.pendaftaranUjian.status === "selesai";
-                 const jenisColor = getJenisUjianColor(ujian.jenisUjian.namaJenis); 
-                 
+                const isSelesai =
+                  completedIds.includes(ujian.id) ||
+                  ujian.pendaftaranUjian.status === "selesai";
+                const jenisColor = getJenisUjianColor(
+                  ujian.jenisUjian.namaJenis
+                );
 
-
-                 return (
-                <div
-                  key={ujian.id}
-                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-                >
-                  <div className="p-5 flex flex-col gap-4 flex-1">
-                    
-                    {/* Header: Date & Status */}
-                    <div className="flex justify-between items-start">
-                       <div className="flex flex-col gap-1">
+                return (
+                  <div
+                    key={ujian.id}
+                    className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
+                  >
+                    <div className="p-5 flex flex-col gap-4 flex-1">
+                      {/* Header: Date & Status */}
+                      <div className="flex justify-between items-start">
+                        <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                             <CalendarClock size={13} />
-                             <span>
-                                {ujian.jadwalUjian
-                                  ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
-                                      weekday: "short",
-                                      day: "numeric",
-                                      month: "short",
-                                      year: "numeric"
-                                    })
-                                  : "Belum dijadwalkan"}
-                             </span>
+                            <CalendarClock size={13} />
+                            <span>
+                              {ujian.jadwalUjian
+                                ? new Date(
+                                    ujian.jadwalUjian
+                                  ).toLocaleDateString("id-ID", {
+                                    weekday: "short",
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  })
+                                : "Belum dijadwalkan"}
+                            </span>
                           </div>
                           <div className="text-xs font-medium text-gray-400">
-                             {ujian.waktuMulai?.slice(0, 5)} - {ujian.waktuSelesai?.slice(0, 5)} WIB
+                            {ujian.waktuMulai?.slice(0, 5)} -{" "}
+                            {ujian.waktuSelesai?.slice(0, 5)} WIB
                           </div>
-                       </div>
-                       
-                       {isSelesai ? (
-                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                             Selesai
-                          </span>
-                       ) : (
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                              ujian.pendaftaranUjian.status === 'dijadwalkan' 
-                              ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300 border-blue-100 dark:border-blue-800"
-                              : "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400 border-gray-200 dark:border-neutral-700"
-                          }`}>
-                             {ujian.pendaftaranUjian.status}
-                          </span>
-                       )}
-                    </div>
+                        </div>
 
-                    {/* Content: Title & Name */}
-                    <div className="space-y-2">
-                       <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
+                        {isSelesai ? (
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                            Selesai
+                          </span>
+                        ) : (
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                              ujian.pendaftaranUjian.status === "dijadwalkan"
+                                ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300 border-blue-100 dark:border-blue-800"
+                                : "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400 border-gray-200 dark:border-neutral-700"
+                            }`}
+                          >
+                            {ujian.pendaftaranUjian.status}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Content: Title & Name */}
+                      <div className="space-y-2">
+                        <h3
+                          className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2"
+                          title={ujian.judulPenelitian}
+                        >
                           {ujian.judulPenelitian || "Judul belum tersedia"}
-                       </h3>
-                       
-                       <div className="flex items-center gap-2 pt-1">
+                        </h3>
+
+                        <div className="flex items-center gap-2 pt-1">
                           <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
-                             {ujian.mahasiswa.nama.charAt(0)}
+                            {ujian.mahasiswa.nama.charAt(0)}
                           </div>
                           <div className="flex flex-col">
-                             <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                                {ujian.mahasiswa.nama}
-                             </span>
-                             <span className="text-[11px] text-gray-400">
-                                {ujian.mahasiswa.nim}
-                             </span>
+                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                              {ujian.mahasiswa.nama}
+                            </span>
+                            <span className="text-[11px] text-gray-400">
+                              {ujian.mahasiswa.nim}
+                            </span>
                           </div>
-                       </div>
-                    </div>
+                        </div>
+                      </div>
 
-                    {/* Exam Type & Room */}
-                    <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
-                       <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}>
+                      {/* Exam Type & Room */}
+                      <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
+                        <span
+                          className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}
+                        >
                           {ujian.jenisUjian.namaJenis}
-                       </span>
-                       <span className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        </span>
+                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
                           {ujian.ruangan?.namaRuangan || "Ruangan -"}
-                       </span>
+                        </span>
+                      </div>
                     </div>
 
-                  </div>
-                  
-                  {/* Actions Footer - Adapting for Scheduling Context */}
-                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-between border-t border-gray-100 dark:border-neutral-800">
+                    {/* Actions Footer - Adapting for Scheduling Context */}
+                    <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-between border-t border-gray-100 dark:border-neutral-800">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleJadwal(ujian)}
                         className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
                       >
-                         <CalendarClock size={14} className="mr-1.5" /> 
-                         {ujian.pendaftaranUjian.status === "dijadwalkan" ? "Edit Jadwal" : "Jadwalkan"}
+                        <CalendarClock size={14} className="mr-1.5" />
+                        {ujian.pendaftaranUjian.status === "dijadwalkan"
+                          ? "Edit Jadwal"
+                          : "Jadwalkan"}
                       </Button>
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                          >
                             <MoreHorizontal size={16} />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            {/* Scheduling actions usually don't have View Detail or Mark Complete here based on table logic, but Table view has Mark Complete. 
+                          {/* Scheduling actions usually don't have View Detail or Mark Complete here based on table logic, but Table view has Mark Complete. 
                                 Checking table logic: it DOES have Mark Complete in Dropdown. */}
-                            <DropdownMenuItem onClick={() => handleToggleStatusUjian(ujian)}>
-                               {isSelesai ? (
-                                  <>
-                                    <span className="mr-2 text-blue-500">↩</span> Set Dijadwalkan
-                                  </>
-                               ) : (
-                                  <>
-                                    <Check size={14} className="mr-2 text-emerald-500" /> Tandai Selesai
-                                  </>
-                               )}
-                            </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleToggleStatusUjian(ujian)}
+                          >
+                            {isSelesai ? (
+                              <>
+                                <span className="mr-2 text-blue-500">↩</span>{" "}
+                                Set Dijadwalkan
+                              </>
+                            ) : (
+                              <>
+                                <Check
+                                  size={14}
+                                  className="mr-2 text-emerald-500"
+                                />{" "}
+                                Tandai Selesai
+                              </>
+                            )}
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+                    </div>
                   </div>
-                </div>
-              );
-             })
+                );
+              })
             )}
           </div>
         </TabsContent>
@@ -918,7 +1038,7 @@ export default function PenjadwalkanUjianTable({
                       key={penguji.id}
                       className="group flex items-center justify-between p-3 sm:p-4 rounded-xl border bg-white dark:bg-neutral-900 border-gray-100 dark:border-neutral-800 hover:border-blue-200 dark:hover:border-blue-800 hover:shadow-sm transition-all duration-200"
                     >
-                       <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
                         <div className="h-10 w-10 shrink-0 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm border border-blue-100 dark:border-blue-800">
                           {initials}
                         </div>
@@ -934,7 +1054,7 @@ export default function PenjadwalkanUjianTable({
                       </div>
                       <div className="flex items-center pl-2">
                         {hadir ? (
-                           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900 shadow-sm">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900 shadow-sm">
                             <span className="relative flex h-2 w-2">
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -1265,7 +1385,9 @@ export default function PenjadwalkanUjianTable({
                     penguji1 === penguji2 ||
                     ketuaPenguji === sekretarisPenguji
                   ) {
-                    showToast.error("Pilih dosen yang berbeda untuk setiap peran.");
+                    showToast.error(
+                      "Pilih dosen yang berbeda untuk setiap peran."
+                    );
                     return;
                   }
                   const formElem = e.currentTarget as HTMLFormElement;
@@ -1290,10 +1412,14 @@ export default function PenjadwalkanUjianTable({
                 {/* Section 1: Penguji Utama */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 pb-1 border-b border-gray-100 dark:border-neutral-800">
-                     <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold">1</span>
-                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Penguji Utama</h3>
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold">
+                      1
+                    </span>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      Penguji Utama
+                    </h3>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
@@ -1317,12 +1443,12 @@ export default function PenjadwalkanUjianTable({
                         </SelectContent>
                       </Select>
                       <div className="flex items-start gap-1.5 px-2 py-1.5 bg-gray-50 dark:bg-neutral-800/50 rounded text-xs text-gray-600 dark:text-gray-400">
-                         <span className="font-semibold shrink-0">Info:</span>
-                         <span className="leading-snug">
-                           {mahasiswaDetail?.pembimbing1?.nama
-                             ? `Pembimbing 1 adalah ${mahasiswaDetail.pembimbing1.nama}`
-                             : "Data Pembimbing 1 tidak tersedia"}
-                         </span>
+                        <span className="font-semibold shrink-0">Info:</span>
+                        <span className="leading-snug">
+                          {mahasiswaDetail?.pembimbing1?.nama
+                            ? `Pembimbing 1 adalah ${mahasiswaDetail.pembimbing1.nama}`
+                            : "Data Pembimbing 1 tidak tersedia"}
+                        </span>
                       </div>
                     </div>
 
@@ -1348,12 +1474,12 @@ export default function PenjadwalkanUjianTable({
                         </SelectContent>
                       </Select>
                       <div className="flex items-start gap-1.5 px-2 py-1.5 bg-gray-50 dark:bg-neutral-800/50 rounded text-xs text-gray-600 dark:text-gray-400">
-                         <span className="font-semibold shrink-0">Info:</span>
-                         <span className="leading-snug">
-                           {mahasiswaDetail?.pembimbing2?.nama
-                             ? `Pembimbing 2 adalah ${mahasiswaDetail.pembimbing2.nama}`
-                             : "Data Pembimbing 2 tidak tersedia"}
-                         </span>
+                        <span className="font-semibold shrink-0">Info:</span>
+                        <span className="leading-snug">
+                          {mahasiswaDetail?.pembimbing2?.nama
+                            ? `Pembimbing 2 adalah ${mahasiswaDetail.pembimbing2.nama}`
+                            : "Data Pembimbing 2 tidak tersedia"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1362,8 +1488,12 @@ export default function PenjadwalkanUjianTable({
                 {/* Section 2: Waktu & Tempat */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 pb-1 border-b border-gray-100 dark:border-neutral-800">
-                     <span className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold">2</span>
-                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Waktu & Tempat</h3>
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold">
+                      2
+                    </span>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      Waktu & Tempat
+                    </h3>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -1373,73 +1503,76 @@ export default function PenjadwalkanUjianTable({
                       </Label>
                       <div className="relative">
                         <Input
-                            type="date"
-                            name="jadwalUjian"
-                            required
-                            className="pl-9 bg-white dark:bg-neutral-900 border-gray-200"
-                            defaultValue={
-                              selected.jadwalUjian
-                                ? selected.jadwalUjian.slice(0, 10)
-                                : ""
-                            }
+                          type="date"
+                          name="jadwalUjian"
+                          required
+                          className="pl-9 bg-white dark:bg-neutral-900 border-gray-200"
+                          defaultValue={
+                            selected.jadwalUjian
+                              ? selected.jadwalUjian.slice(0, 10)
+                              : ""
+                          }
                         />
-                        <CalendarClock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <CalendarClock
+                          size={16}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                        />
                       </div>
                     </div>
 
                     <div className="flex gap-3">
-                       <div className="w-1/2 space-y-1.5">
+                      <div className="w-1/2 space-y-1.5">
                         <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                           Mulai
+                          Mulai
                         </Label>
                         <Input
-                           type="time"
-                           name="waktuMulai"
-                           value={waktuMulai}
-                           onChange={(e) => setWaktuMulai(e.target.value)}
-                           className="bg-white dark:bg-neutral-900 border-gray-200 text-center"
-                           placeholder="00:00"
+                          type="time"
+                          name="waktuMulai"
+                          value={waktuMulai}
+                          onChange={(e) => setWaktuMulai(e.target.value)}
+                          className="bg-white dark:bg-neutral-900 border-gray-200 text-center"
+                          placeholder="00:00"
                         />
-                       </div>
-                       <div className="w-1/2 space-y-1.5">
+                      </div>
+                      <div className="w-1/2 space-y-1.5">
                         <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                           Selesai
+                          Selesai
                         </Label>
                         <Input
-                           type="time"
-                           name="waktuSelesai"
-                           value={waktuSelesai}
-                           onChange={(e) => setWaktuSelesai(e.target.value)}
-                           className="bg-white dark:bg-neutral-900 border-gray-200 text-center"
-                           placeholder="00:00"
+                          type="time"
+                          name="waktuSelesai"
+                          value={waktuSelesai}
+                          onChange={(e) => setWaktuSelesai(e.target.value)}
+                          className="bg-white dark:bg-neutral-900 border-gray-200 text-center"
+                          placeholder="00:00"
                         />
-                       </div>
+                      </div>
                     </div>
 
                     <div className="col-span-1 md:col-span-2 space-y-1.5">
-                       <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                          Ruangan
-                       </Label>
-                       <Select
-                          value={ruangan}
-                          onValueChange={setRuangan}
-                          name="ruanganId"
-                          required
-                       >
-                          <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200">
-                             <div className="flex items-center gap-2">
-                                <LayoutGrid size={16} className="text-gray-400" />
-                                <SelectValue placeholder="Pilih Ruangan Ujian" />
-                             </div>
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[200px]">
-                             {ruanganList.map((r) => (
-                                <SelectItem key={r.id} value={String(r.id)}>
-                                   {r.namaRuangan}
-                                </SelectItem>
-                             ))}
-                          </SelectContent>
-                       </Select>
+                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Ruangan
+                      </Label>
+                      <Select
+                        value={ruangan}
+                        onValueChange={setRuangan}
+                        name="ruanganId"
+                        required
+                      >
+                        <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200">
+                          <div className="flex items-center gap-2">
+                            <LayoutGrid size={16} className="text-gray-400" />
+                            <SelectValue placeholder="Pilih Ruangan Ujian" />
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[200px]">
+                          {ruanganList.map((r) => (
+                            <SelectItem key={r.id} value={String(r.id)}>
+                              {r.namaRuangan}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
@@ -1447,95 +1580,99 @@ export default function PenjadwalkanUjianTable({
                 {/* Section 3: Dosen Penguji Anggota */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 pb-1 border-b border-gray-100 dark:border-neutral-800">
-                     <span className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold">3</span>
-                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Anggota Penguji</h3>
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold">
+                      3
+                    </span>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      Anggota Penguji
+                    </h3>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                     <div className="space-y-1.5">
-                        <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                           Dosen Penguji 1
-                        </Label>
-                        <Select
-                           value={penguji1}
-                           onValueChange={setPenguji1}
-                           name="penguji1"
-                           required
-                        >
-                           <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200">
-                              <SelectValue placeholder="Pilih Penguji 1" />
-                           </SelectTrigger>
-                           <SelectContent className="max-h-[200px]">
-                              {dosen
-                                 .filter((d) => String(d.id) !== penguji2)
-                                 .map((d) => (
-                                 <SelectItem key={d.id} value={String(d.id)}>
-                                    {d.nama}
-                                 </SelectItem>
-                                 ))}
-                           </SelectContent>
-                        </Select>
-                     </div>
-                     <div className="space-y-1.5">
-                        <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                           Dosen Penguji 2
-                        </Label>
-                        <Select
-                           value={penguji2}
-                           onValueChange={setPenguji2}
-                           name="penguji2"
-                           required
-                        >
-                           <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200">
-                              <SelectValue placeholder="Pilih Penguji 2" />
-                           </SelectTrigger>
-                           <SelectContent className="max-h-[200px]">
-                              {dosen
-                                 .filter((d) => String(d.id) !== penguji1)
-                                 .map((d) => (
-                                 <SelectItem key={d.id} value={String(d.id)}>
-                                    {d.nama}
-                                 </SelectItem>
-                                 ))}
-                           </SelectContent>
-                        </Select>
-                     </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Dosen Penguji 1
+                      </Label>
+                      <Select
+                        value={penguji1}
+                        onValueChange={setPenguji1}
+                        name="penguji1"
+                        required
+                      >
+                        <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200">
+                          <SelectValue placeholder="Pilih Penguji 1" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[200px]">
+                          {dosen
+                            .filter((d) => String(d.id) !== penguji2)
+                            .map((d) => (
+                              <SelectItem key={d.id} value={String(d.id)}>
+                                {d.nama}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Dosen Penguji 2
+                      </Label>
+                      <Select
+                        value={penguji2}
+                        onValueChange={setPenguji2}
+                        name="penguji2"
+                        required
+                      >
+                        <SelectTrigger className="w-full bg-white dark:bg-neutral-900 border-gray-200">
+                          <SelectValue placeholder="Pilih Penguji 2" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[200px]">
+                          {dosen
+                            .filter((d) => String(d.id) !== penguji1)
+                            .map((d) => (
+                              <SelectItem key={d.id} value={String(d.id)}>
+                                {d.nama}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
                 {/* Validation Info */}
                 {penguji1 === penguji2 && penguji1 !== "" && (
-                   <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 text-red-600 border border-red-100 text-sm">
-                      <Settings2 size={16} />
-                      <p>Dosen penguji 1 dan 2 tidak boleh sama.</p>
-                   </div>
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 text-red-600 border border-red-100 text-sm">
+                    <Settings2 size={16} />
+                    <p>Dosen penguji 1 dan 2 tidak boleh sama.</p>
+                  </div>
                 )}
-                
+
                 {/* Submit Action */}
                 <div className="pt-4 mt-6 border-t border-gray-100 dark:border-neutral-800">
-                   <Button
-                     type="submit"
-                     className="w-full h-11 bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl"
-                     disabled={
-                       !penguji1 ||
-                       !penguji2 ||
-                       !ruangan ||
-                       penguji1 === "" ||
-                       penguji2 === "" ||
-                       ruangan === "" ||
-                       penguji1 === penguji2 ||
-                       isPending
-                     }
-                   >
-                     {isPending ? (
-                        <div className="flex items-center gap-2">
-                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                           <span>Menyimpan Jadwal...</span>
-                        </div>
-                     ) : (
-                        "Simpan Jadwal Ujian"
-                     )}
-                   </Button>
+                  <Button
+                    type="submit"
+                    className="w-full h-11 bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl"
+                    disabled={
+                      !penguji1 ||
+                      !penguji2 ||
+                      !ruangan ||
+                      penguji1 === "" ||
+                      penguji2 === "" ||
+                      ruangan === "" ||
+                      penguji1 === penguji2 ||
+                      isPending
+                    }
+                  >
+                    {isPending ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Menyimpan Jadwal...</span>
+                      </div>
+                    ) : (
+                      "Simpan Jadwal Ujian"
+                    )}
+                  </Button>
                 </div>
               </form>
             </div>

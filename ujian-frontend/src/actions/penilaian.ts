@@ -61,3 +61,23 @@ export async function getPenilaianByUjianId(ujianId: number) {
     return [];
   }
 }
+
+export async function getAllPenilaian() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const response = await fetch(`${apiUrl}/penilaian`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch all penilaian");
+    }
+
+    const data = await response.json();
+    return data.data; // Assumes structure { data: [...] }
+  } catch (error) {
+    console.error("Error fetching all penilaian:", error);
+    return [];
+  }
+}

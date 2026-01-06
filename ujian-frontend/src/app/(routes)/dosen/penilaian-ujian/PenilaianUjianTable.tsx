@@ -41,6 +41,7 @@ import { Input } from "../../../../components/ui/input";
 import { getPenilaianByUjianId } from "@/actions/penilaian";
 import { postCatatanByUjianId } from "@/actions/catatan";
 import { postKeputusanByUjianId } from "@/actions/keputusan";
+import { getAllPenilaian } from "@/actions/penilaian";
 import CatatanSheet from "./CatatanSheet";
 import KeputusanSheet from "./KeputusanSheet";
 import { Dosen } from "@/types/Dosen";
@@ -74,10 +75,12 @@ function ActionCell({
   ujian,
   dispatchModal,
   currentDosenId,
+  hadirData,
 }: {
   ujian: any;
   dispatchModal: any;
   currentDosenId: any;
+  hadirData: HadirUjian[];
 }) {
   return (
     <div className="flex items-center justify-center gap-2">
@@ -86,7 +89,6 @@ function ActionCell({
           <Button
             variant="ghost"
             size="icon"
-            
             aria-label="Aksi"
             className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-neutral-100 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white transition-all"
           >
@@ -111,7 +113,7 @@ function ActionCell({
             />
             Detail ujian
           </DropdownMenuItem>
-        
+
           <DropdownMenuItem
             onClick={() => dispatchModal({ type: "OPEN_DAFTAR_HADIR", ujian })}
             className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
@@ -134,31 +136,74 @@ function ActionCell({
           </DropdownMenuItem>
           {/* role check */}
           {(() => {
-            const isKetuaAtauSek = ujian.penguji?.some(
-              (p: any) =>
-                p.id === Number(currentDosenId) &&
-                (p.peran === "ketua_penguji" ||
-                  p.peran === "sekretaris_penguji")
+            const roleSaya = ujian.penguji?.find(
+              (p: any) => p.id === Number(currentDosenId)
+            )?.peran;
+            const isKetua = roleSaya === "ketua_penguji";
+            const isSekretaris = roleSaya === "sekretaris_penguji";
+
+            // cek sekretaris hadir
+            const sekretaris = ujian.penguji?.find(
+              (p: any) => p.peran === "sekretaris_penguji"
             );
+            const sekretarisId = sekretaris?.id;
+            const isSekretarisHadir = sekretarisId
+              ? sudahHadir(ujian.id, sekretarisId, hadirData)
+              : false;
+
+            // Logic Catatan:
+            // 1. Sekretaris: selalu boleh
+            // 2. Ketua: boleh HANYA JIKA sekretaris tidak hadir
+            const canAccessCatatan =
+              isSekretaris || (isKetua && !isSekretarisHadir);
+            const isMenuVisible = isKetua || isSekretaris;
+
             const jenis = ujian.jenisUjian?.namaJenis ?? "";
             const isJenisUntukKeputusan =
               jenis === "Ujian Hasil" || jenis === "Ujian Skripsi";
+
             return (
-              isKetuaAtauSek && (
+              isMenuVisible && (
                 <>
                   <div className="h-[1px] bg-muted/20 my-1 mx-2" />
-                  <DropdownMenuItem
-                    onClick={() =>
-                      dispatchModal({ type: "OPEN_CATATAN", ujian })
-                    }
-                    className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
-                  >
-                    <NotebookPen
-                      size={18}
-                      className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
-                    />
-                    Catatan
-                  </DropdownMenuItem>
+                  {/* Wrap disabled item in tooltip (or conditional rendering) */}
+                  {!canAccessCatatan ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="w-full">
+                            <DropdownMenuItem
+                              disabled
+                              className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium opacity-50 cursor-not-allowed"
+                            >
+                              <NotebookPen
+                                size={18}
+                                className="text-muted-foreground/70"
+                              />
+                              Catatan
+                            </DropdownMenuItem>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="max-w-[200px]">
+                          Sekretaris Penguji sedang hadir. Pengisian catatan
+                          dilakukan oleh Sekretaris.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <DropdownMenuItem
+                      onClick={() =>
+                        dispatchModal({ type: "OPEN_CATATAN", ujian })
+                      }
+                      className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+                    >
+                      <NotebookPen
+                        size={18}
+                        className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
+                      />
+                      Catatan
+                    </DropdownMenuItem>
+                  )}
                   {isJenisUntukKeputusan && (
                     <DropdownMenuItem
                       onClick={() => {
@@ -196,6 +241,12 @@ export default function PenilaianUjianTable({
   jadwalUjian,
   currentDosenId,
 }: JadwalUjianTableProps) {
+  const [dataUjian, setDataUjian] = useState(jadwalUjian);
+
+  useEffect(() => {
+    setDataUjian(jadwalUjian);
+  }, [jadwalUjian]);
+
   const [modal, dispatchModal] = useReducer(modalReducer, initialModalState);
   const [hadirLoading, setHadirLoading] = useState<number | null>(null);
 
@@ -233,7 +284,7 @@ export default function PenilaianUjianTable({
 
   const jenisUjianList = ["Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"];
 
-  const filteredData = jadwalUjian.filter((ujian) => {
+  const filteredData = dataUjian.filter((ujian) => {
     let matchPeran = true;
     if (filterPeran !== "all") {
       const peran = getPeranPenguji(ujian, currentDosenId);
@@ -330,9 +381,22 @@ export default function PenilaianUjianTable({
   }, [modal.openCatatan, modal.selected]);
 
   const handleSaveCatatan = async () => {
-    await postCatatanByUjianId(modal.selected?.id ?? null, catatanText);
-    showToast.success("Catatan disimpan.");
-    dispatchModal({ type: "CLOSE_CATATAN" });
+    try {
+      await postCatatanByUjianId(modal.selected?.id ?? null, catatanText);
+
+      // Update local state 'dataUjian' so the change is reflected immediately
+      setDataUjian((prev) =>
+        prev.map((u) =>
+          u.id === modal.selected?.id ? { ...u, catatan: catatanText } : u
+        )
+      );
+
+      showToast.success("Catatan disimpan.");
+      dispatchModal({ type: "CLOSE_CATATAN" });
+    } catch (e) {
+      console.error(e);
+      showToast.error("Gagal menyimpan catatan.");
+    }
   };
 
   // keputusanId adalah numeric (1..4). UI tetap menampilkan teks label.
@@ -358,6 +422,35 @@ export default function PenilaianUjianTable({
       showToast.error("Gagal menyimpan keputusan.");
     }
   };
+
+  const [penilaianMap, setPenilaianMap] = useState<Record<number, Set<number>>>(
+    {}
+  );
+  const [loadingPenilaianMap, setLoadingPenilaianMap] = useState(true);
+
+  // Fetch all penilaian once
+  useEffect(() => {
+    let mounted = true;
+    getAllPenilaian().then((data) => {
+      if (mounted) {
+        // Build map: ujianId -> Set of dosenIds
+        const map: Record<number, Set<number>> = {};
+        if (Array.isArray(data)) {
+          data.forEach((p: any) => {
+            if (!map[p.ujianId]) {
+              map[p.ujianId] = new Set();
+            }
+            map[p.ujianId].add(p.dosenId);
+          });
+        }
+        setPenilaianMap(map);
+        setLoadingPenilaianMap(false);
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Table columns for TableGlobal
   const cols = [
@@ -402,7 +495,7 @@ export default function PenilaianUjianTable({
       ),
       size: 90,
     },
-    
+
     {
       accessorFn: (row: any) => {
         const peran = getPeranPenguji(row, currentDosenId);
@@ -458,6 +551,7 @@ export default function PenilaianUjianTable({
           ujian={row.original}
           dispatchModal={dispatchModal}
           currentDosenId={currentDosenId}
+          hadirData={hadirData}
         />
       ),
       size: 90,
@@ -465,53 +559,39 @@ export default function PenilaianUjianTable({
   ];
 
   // Component to display evaluation status of each examiner for a specific exam
-  function StatusPenilaianPenguji({ ujianId, penguji, onOpenRekap }: { ujianId: number; penguji: any[], onOpenRekap: () => void }) {
-    const [statusMap, setStatusMap] = useState<Record<number, boolean>>({});
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-      let isMounted = true;
-      const fetchStatus = async () => {
-        try {
-          const data = await getPenilaianByUjianId(ujianId);
-          if (isMounted) {
-            const map: Record<number, boolean> = {};
-            // Collect all dosenIds that have submitted scores
-            const submittedIds = new Set(data.map((item: any) => item.dosenId));
-            penguji.forEach((p) => {
-              map[p.id] = submittedIds.has(p.id);
-            });
-            setStatusMap(map);
-          }
-        } catch (err) {
-          console.error("Failed to fetch assessment status", err);
-        } finally {
-          if (isMounted) setLoading(false);
-        }
-      };
-
-      fetchStatus();
-      return () => {
-        isMounted = false;
-      };
-    }, [ujianId, penguji]);
-
-    if (loading) return <div className="text-xs text-muted-foreground animate-pulse">Menunggu...</div>;
+  function StatusPenilaianPenguji({
+    ujianId,
+    penguji,
+    onOpenRekap,
+    submittedDosenIds,
+  }: {
+    ujianId: number;
+    penguji: any[];
+    onOpenRekap: () => void;
+    submittedDosenIds: Set<number>;
+  }) {
+    if (loadingPenilaianMap)
+      return (
+        <div className="text-xs text-muted-foreground animate-pulse">
+          Menunggu...
+        </div>
+      );
 
     return (
       <div className="flex items-center justify-center gap-3">
         <div className="flex -space-x-2 overflow-hidden items-center justify-center">
           {penguji.map((p) => {
-            const isDone = statusMap[p.id];
+            const isDone = submittedDosenIds?.has(p.id) ?? false;
             return (
               <TooltipProvider key={p.id}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div 
+                    <div
                       className={`inline-flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-white dark:ring-neutral-900 text-[10px] font-bold cursor-help
-                        ${isDone 
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" 
-                          : "bg-gray-100 text-gray-400 dark:bg-neutral-800 dark:text-gray-500"
+                        ${
+                          isDone
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300"
+                            : "bg-gray-100 text-gray-400 dark:bg-neutral-800 dark:text-gray-500"
                         }
                       `}
                     >
@@ -521,7 +601,7 @@ export default function PenilaianUjianTable({
                   <TooltipContent>
                     <p className="text-xs">
                       <span className="font-bold">{p.nama}</span>
-                      <br/>
+                      <br />
                       Status: {isDone ? "Sudah Menilai" : "Belum Menilai"}
                     </p>
                   </TooltipContent>
@@ -530,23 +610,23 @@ export default function PenilaianUjianTable({
             );
           })}
         </div>
-        
+
         <TooltipProvider>
-           <Tooltip>
-              <TooltipTrigger asChild>
-                 <Button
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={onOpenRekap} 
-                    className="h-7 w-7 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                 >
-                    <Eye size={14} />
-                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                 <p className="text-xs">Lihat detail nilai semua penguji</p>
-              </TooltipContent>
-           </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onOpenRekap}
+                className="h-7 w-7 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+              >
+                <Eye size={14} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">Lihat detail nilai semua penguji</p>
+            </TooltipContent>
+          </Tooltip>
         </TooltipProvider>
       </div>
     );
@@ -554,27 +634,30 @@ export default function PenilaianUjianTable({
 
   // Inject the new column before 'nilai' or wherever appropriate
   // Inserting at index 4 (Status Penguji)
-  if (!cols.find(c => c.id === 'status_penguji')) {
-     const statusCol = {
+  if (!cols.find((c) => c.id === "status_penguji")) {
+    const statusCol = {
       id: "status_penguji",
       header: () => <div className="text-center">Nilai penguji</div>,
       cell: ({ row }: any) => (
-        <StatusPenilaianPenguji 
-          ujianId={row.original.id} 
-          penguji={row.original.penguji || []} 
-          onOpenRekap={() => dispatchModal({ type: "OPEN_REKAP", ujian: row.original })}
+        <StatusPenilaianPenguji
+          ujianId={row.original.id}
+          penguji={row.original.penguji || []}
+          onOpenRekap={() =>
+            dispatchModal({ type: "OPEN_REKAP", ujian: row.original })
+          }
+          submittedDosenIds={penilaianMap[row.original.id] || new Set()}
         />
       ),
       size: 160,
-     };
-     
-     // Insert before 'nilai' column which is currently at index 3 (0-based: no, nama, jenis, peran, nilai, actions)
-     // Current indices: 0:no, 1:nama, 2:jenis, 3:peran, 4:nilai, 5:actions
-     // We want it after 'peran'
-     const peranIndex = cols.findIndex(c => c.id === 'peran');
-     if (peranIndex !== -1) {
-        cols.splice(peranIndex + 1, 0, statusCol as any);
-     }
+    };
+
+    // Insert before 'nilai' column which is currently at index 3 (0-based: no, nama, jenis, peran, nilai, actions)
+    // Current indices: 0:no, 1:nama, 2:jenis, 3:peran, 4:nilai, 5:actions
+    // We want it after 'peran'
+    const peranIndex = cols.findIndex((c) => c.id === "peran");
+    if (peranIndex !== -1) {
+      cols.splice(peranIndex + 1, 0, statusCol as any);
+    }
   }
 
   // TableGlobal setup
@@ -794,7 +877,7 @@ export default function PenilaianUjianTable({
         </TabsContent>
 
         <TabsContent value="card">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredData.length === 0 ? (
               <div className="col-span-full text-center text-muted-foreground py-8">
                 Tidak ada jadwal ujian
@@ -811,78 +894,107 @@ export default function PenilaianUjianTable({
                 const resultStatus = ujian.hasil ?? "-";
 
                 // Format Date
-                const tanggalObj = ujian.jadwalUjian ? new Date(ujian.jadwalUjian) : null;
-                const tanggalStr = tanggalObj ? tanggalObj.toLocaleDateString("id-ID", {
-                    day: "numeric", month: "short", year: "numeric"
-                }) : "-";
+                const tanggalObj = ujian.jadwalUjian
+                  ? new Date(ujian.jadwalUjian)
+                  : null;
+                const tanggalStr = tanggalObj
+                  ? tanggalObj.toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "-";
 
-
-
-                let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
-                if (resultStatus.toLowerCase() === "lulus") statusColor = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
-                else if (resultStatus.toLowerCase() === "tidak lulus") statusColor = "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800";
-
+                let statusColor =
+                  "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
+                if (resultStatus.toLowerCase() === "lulus")
+                  statusColor =
+                    "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
+                else if (resultStatus.toLowerCase() === "tidak lulus")
+                  statusColor =
+                    "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800";
 
                 return (
                   <div
                     key={ujian.id}
-                     className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
+                    className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                   >
-                     <div className="p-5 flex flex-col gap-4 flex-1">
-                         {/* Header: Date & Result Status */}
-                         <div className="flex justify-between items-start">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                    {ujian.jenisUjian?.namaJenis ?? "-"}
-                                </span>
-                                <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
-                                   <Calendar size={13} />
-                                   <span>{capitalize(ujian.hariUjian ?? "-")}, {tanggalStr}</span>
-                                </div>
-                            </div>
-                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
-                               {resultStatus}
+                    <div className="p-5 flex flex-col gap-4 flex-1">
+                      {/* Header: Date & Result Status */}
+                      <div className="flex justify-between items-start">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                            {ujian.jenisUjian?.namaJenis ?? "-"}
+                          </span>
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                            <Calendar size={13} />
+                            <span>
+                              {capitalize(ujian.hariUjian ?? "-")}, {tanggalStr}
                             </span>
-                         </div>
+                          </div>
+                        </div>
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}
+                        >
+                          {resultStatus}
+                        </span>
+                      </div>
 
-                         {/* Title */}
-                         <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
-                             {ujian.judulPenelitian || "Judul tidak tersedia"}
-                         </h3>
+                      {/* Title */}
+                      <h3
+                        className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2"
+                        title={ujian.judulPenelitian}
+                      >
+                        {ujian.judulPenelitian || "Judul tidak tersedia"}
+                      </h3>
 
-                         {/* Details */}
-                         <div className="flex flex-col gap-2 mt-1">
-                              <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                                  <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
-                                      Mahasiswa
-                                  </span>
-                                  <span className="truncate">{ujian.mahasiswa?.nama ?? "-"}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                                  <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
-                                      Peran
-                                  </span>
-                                  <span className={`text-xs font-bold ${getPeranPengujiClass(peranPenguji ?? undefined)} px-1.5 py-0.5 rounded`}>
-                                      {peranPenguji ?? "-"}
-                                  </span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                                  <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
-                                      Nilai
-                                  </span>
-                                  <span className="font-bold">{ujian.nilaiAkhir ?? "-"}</span>
-                              </div>
-                               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                                  <span>{waktuMulai} - {waktuSelesai}</span>
-                               </div>
-                         </div>
-                     </div>
+                      {/* Details */}
+                      <div className="flex flex-col gap-2 mt-1">
+                        <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
+                            Mahasiswa
+                          </span>
+                          <span className="truncate">
+                            {ujian.mahasiswa?.nama ?? "-"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
+                            Peran
+                          </span>
+                          <span
+                            className={`text-xs font-bold ${getPeranPengujiClass(
+                              peranPenguji ?? undefined
+                            )} px-1.5 py-0.5 rounded`}
+                          >
+                            {peranPenguji ?? "-"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
+                            Nilai
+                          </span>
+                          <span className="font-bold">
+                            {ujian.nilaiAkhir ?? "-"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                          <span>
+                            {waktuMulai} - {waktuSelesai}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
 
                     {/* Actions Footer */}
                     <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="text-xs h-8 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs h-8 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                          >
                             <MoreHorizontal size={14} className="mr-1.5" /> Aksi
                           </Button>
                         </DropdownMenuTrigger>
@@ -895,7 +1007,7 @@ export default function PenilaianUjianTable({
                           >
                             <Eye size={16} className="mr-2" /> Detail
                           </DropdownMenuItem>
-                       
+
                           <DropdownMenuItem
                             onClick={() =>
                               dispatchModal({
@@ -1013,6 +1125,21 @@ export default function PenilaianUjianTable({
             onClose={() => dispatchModal({ type: "CLOSE_PENILAIAN" })}
             ujian={modal.selected}
             currentDosenId={currentDosenId}
+            onSuccess={(dosenId) => {
+              if (modal.selected?.id) {
+                setPenilaianMap((prev) => {
+                  const newMap = { ...prev };
+                  if (!newMap[modal.selected!.id]) {
+                    newMap[modal.selected!.id] = new Set();
+                  }
+                  newMap[modal.selected!.id] = new Set(
+                    newMap[modal.selected!.id]
+                  );
+                  newMap[modal.selected!.id].add(dosenId);
+                  return newMap;
+                });
+              }
+            }}
           />
         )}
         <CatatanSheet
