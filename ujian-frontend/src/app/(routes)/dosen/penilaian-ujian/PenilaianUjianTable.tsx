@@ -174,7 +174,7 @@ function ActionCell({
                           <div className="w-full">
                             <DropdownMenuItem
                               disabled
-                              className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium opacity-50 cursor-not-allowed"
+                              className="group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium opacity-50 cursor-not-allowed"
                             >
                               <NotebookPen
                                 size={18}
