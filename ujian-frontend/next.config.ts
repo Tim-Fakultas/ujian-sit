@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "5mb",
     },
   },
+  allowedDevOrigins: ["10.1.117.234"],
 };
 
 export default WithBundleAnalyzer(nextConfig);

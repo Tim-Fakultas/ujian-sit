@@ -288,8 +288,14 @@ export default function PDFPreviewModal({
                 {/* Print Button moved inside content */}
                 <div className="pt-4">
                   <Button
+                    disabled={!pengajuan.mahasiswa?.pembimbing1}
+                    title={
+                      !pengajuan.mahasiswa?.pembimbing1
+                        ? "Belum ada pembimbing"
+                        : "Cetak Surat"
+                    }
                     onClick={handlePrint}
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white h-10 md:h-12 rounded-xl text-sm font-medium shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5"
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white h-10 md:h-12 rounded-xl text-sm font-medium shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                   >
                     <svg
                       width="18"

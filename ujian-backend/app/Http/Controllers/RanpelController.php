@@ -33,6 +33,7 @@ class RanpelController extends Controller
             'metode_penelitian',
             'hasil_yang_diharapkan',
             'kebutuhan_data',
+            'jurnal_referensi',
         ]);
         $ranpel = Ranpel::create($ranpelData);
 
@@ -93,6 +94,7 @@ class RanpelController extends Controller
             'metode_penelitian',
             'hasil_yang_diharapkan',
             'kebutuhan_data',
+            'jurnal_referensi',
         ]);
 
         $ranpel = Ranpel::create($ranpelData);

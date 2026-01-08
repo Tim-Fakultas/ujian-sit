@@ -19,6 +19,7 @@ class Ranpel extends Model
         'metode_penelitian',
         'hasil_yang_diharapkan',
         'kebutuhan_data',
+        'jurnal_referensi',
     ];
 
     protected $casts = [

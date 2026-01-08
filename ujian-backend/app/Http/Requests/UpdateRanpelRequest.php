@@ -28,6 +28,7 @@ class UpdateRanpelRequest extends FormRequest
             'metodePenelitian' => 'nullable|string',
             'hasilYangDiharapkan' => 'nullable|string',
             'kebutuhanData' => 'nullable|string',
+            'jurnalReferensi' => 'nullable|string',
         ];
     }
 
@@ -40,6 +41,7 @@ class UpdateRanpelRequest extends FormRequest
             'metode_penelitian' => $this->metodePenelitian,
             'hasil_yang_diharapkan' => $this->hasilYangDiharapkan,
             'kebutuhan_data' => $this->kebutuhanData,
+            'jurnal_referensi' => $this->jurnalReferensi,
         ]);
     }
 }

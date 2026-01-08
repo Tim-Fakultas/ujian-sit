@@ -6,6 +6,7 @@ export interface RancanganPenelitian {
   metodePenelitian: string;
   hasilYangDiharapkan: string;
   kebutuhanData: string;
+  jurnalReferensi: string;
   createdAt?: string | null;
   updatedAt?: string | null;
 }
@@ -39,12 +40,12 @@ export interface PengajuanRanpel {
     };
     pembimbing1?: {
       id: number;
-      nama: string
-    }
+      nama: string;
+    };
     pembimbing2?: {
       id: number;
-      nama: string
-    }
+      nama: string;
+    };
     user: {
       id: number;
       name?: string | null;

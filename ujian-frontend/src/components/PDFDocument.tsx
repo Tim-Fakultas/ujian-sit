@@ -59,6 +59,11 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
             content: pengajuan?.ranpel?.metodePenelitian,
             color: "border-l-purple-500",
           },
+          {
+            title: "Jurnal Referensi",
+            content: pengajuan?.ranpel?.jurnalReferensi,
+            color: "border-l-rose-500",
+          },
         ].map((section, idx) => (
           <div
             key={idx}
@@ -80,4 +85,3 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
     </div>
   );
 };
-
