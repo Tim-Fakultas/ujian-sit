@@ -71,7 +71,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, CalendarPlus } from "lucide-react";
+import { X } from "lucide-react";
 import { Dosen } from "@/types/Dosen";
 import { Ruangan } from "@/types/Ruangan";
 
@@ -179,6 +179,10 @@ export default function PenjadwalkanUjianTable({
           ? String(selected.ruangan.id)
           : ""
       );
+
+      // Helper to safely get string ID
+      const getId = (obj: any) => (obj && obj.id ? String(obj.id) : "");
+
       if (Array.isArray(selected.penguji) && selected.penguji.length > 0) {
         const p1 = selected.penguji.find((p) => p.peran === "penguji_1");
         const p2 = selected.penguji.find((p) => p.peran === "penguji_2");
@@ -192,29 +196,25 @@ export default function PenjadwalkanUjianTable({
           (p) => p.peran === "sekretaris_penguji"
         );
 
-        setKetuaPenguji(
-          ketuaObj
-            ? String(ketuaObj.id)
-            : selected.pembimbing1
-            ? String(selected.pembimbing1.id)
-            : ""
-        );
-        setSekretarisPenguji(
-          sekreObj
-            ? String(sekreObj.id)
-            : selected.pembimbing2
-            ? String(selected.pembimbing2.id)
-            : ""
-        );
+        // Fallback ke pembimbing dari selected atau mahasiswaDetail
+        const pembimbing1Id =
+          getId(selected.pembimbing1) || getId(mahasiswaDetail?.pembimbing1);
+        const pembimbing2Id =
+          getId(selected.pembimbing2) || getId(mahasiswaDetail?.pembimbing2);
+
+        setKetuaPenguji(ketuaObj ? String(ketuaObj.id) : pembimbing1Id);
+        setSekretarisPenguji(sekreObj ? String(sekreObj.id) : pembimbing2Id);
       } else {
+        // Fallback ke pembimbing dari selected atau mahasiswaDetail
+        const pembimbing1Id =
+          getId(selected.pembimbing1) || getId(mahasiswaDetail?.pembimbing1);
+        const pembimbing2Id =
+          getId(selected.pembimbing2) || getId(mahasiswaDetail?.pembimbing2);
+
         setPenguji1("");
         setPenguji2("");
-        setKetuaPenguji(
-          selected.pembimbing1 ? String(selected.pembimbing1.id) : ""
-        );
-        setSekretarisPenguji(
-          selected.pembimbing2 ? String(selected.pembimbing2.id) : ""
-        );
+        setKetuaPenguji(pembimbing1Id);
+        setSekretarisPenguji(pembimbing2Id);
 
         // Auto-populate from previous exam
         getJadwalUjianByMahasiswaId(Number(selected.mahasiswa.id)).then(
@@ -272,7 +272,7 @@ export default function PenjadwalkanUjianTable({
       setKetuaPenguji("");
       setSekretarisPenguji("");
     }
-  }, [selected]);
+  }, [selected, mahasiswaDetail]);
 
   const handleJadwal = (u: Ujian) => {
     setSelected(u);

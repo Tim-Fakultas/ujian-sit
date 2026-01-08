@@ -147,7 +147,9 @@ export async function refreshUserAction() {
           cache: "no-store",
         });
         if (!res.ok) return null;
-        return await res.json();
+
+        const text = await res.text();
+        return text ? JSON.parse(text) : null;
       } catch (e) {
         console.error("Fetch error:", path, e);
         return null;
@@ -205,15 +207,15 @@ export async function refreshUserAction() {
           ...userRes, // update basic info like name/email
           // prodi_id might be here, fetch prodi if needed
         };
-        
+
         // If prodi_id exists, fetch prodi detail
         if (userRes.prodi_id) {
-             const prodiRes = await fetchWithToken(`/prodi/${userRes.prodi_id}`);
-             if (prodiRes && prodiRes.data) {
-                 // The ProdiResource returns {id, nama_prodi, ...}
-                 // We assign it to prodi
-                 newUser.prodi = prodiRes.data;
-             }
+          const prodiRes = await fetchWithToken(`/prodi/${userRes.prodi_id}`);
+          if (prodiRes && prodiRes.data) {
+            // The ProdiResource returns {id, nama_prodi, ...}
+            // We assign it to prodi
+            newUser.prodi = prodiRes.data;
+          }
         }
       }
     }
