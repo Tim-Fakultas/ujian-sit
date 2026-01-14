@@ -168,17 +168,17 @@ export default function PenjadwalkanUjianTable({
 
   // Bersihkan field saat selected ganti / null (jika perlu) or prefill
   useEffect(() => {
+
     if (selected) {
       // Prefill logic
       setWaktuMulai(selected.waktuMulai ? selected.waktuMulai.slice(0, 5) : "");
+
       setWaktuSelesai(
         selected.waktuSelesai ? selected.waktuSelesai.slice(0, 5) : ""
       );
-      setRuangan(
-        selected.ruangan && selected.ruangan.id
-          ? String(selected.ruangan.id)
-          : ""
-      );
+
+     
+      
 
       // Helper to safely get string ID
       const getId = (obj: any) => (obj && obj.id ? String(obj.id) : "");
