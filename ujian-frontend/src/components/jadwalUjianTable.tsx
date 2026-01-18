@@ -160,19 +160,19 @@ export default function JadwalUjianTable({
         filterBulan === "all"
           ? true
           : (() => {
-              if (!ujian.jadwalUjian) return false;
-              const bulan = String(new Date(ujian.jadwalUjian).getMonth() + 1);
-              return bulan === filterBulan;
-            })();
+            if (!ujian.jadwalUjian) return false;
+            const bulan = String(new Date(ujian.jadwalUjian).getMonth() + 1);
+            return bulan === filterBulan;
+          })();
 
       const matchTahun =
         filterTahun === "all"
           ? true
           : (() => {
-              if (!ujian.jadwalUjian) return false;
-              const tahun = String(new Date(ujian.jadwalUjian).getFullYear());
-              return tahun === filterTahun;
-            })();
+            if (!ujian.jadwalUjian) return false;
+            const tahun = String(new Date(ujian.jadwalUjian).getFullYear());
+            return tahun === filterTahun;
+          })();
 
       return matchNama && matchJenis && matchBulan && matchTahun;
     });
@@ -266,7 +266,7 @@ export default function JadwalUjianTable({
       cell: ({ row, table }: any) => {
         const index =
           (table.getState().pagination?.pageIndex ?? 0) *
-            (table.getState().pagination?.pageSize ?? 10) +
+          (table.getState().pagination?.pageSize ?? 10) +
           row.index +
           1;
         return <div className="text-center">{index}</div>;
@@ -294,7 +294,7 @@ export default function JadwalUjianTable({
         const jadwal = row.original.jadwalUjian;
         const mulai = row.original.waktuMulai?.slice(0, 5);
         const selesai = row.original.waktuSelesai?.slice(0, 5);
-        
+
         if (!jadwal) return <span className="text-gray-400">-</span>;
 
         return (
@@ -302,12 +302,12 @@ export default function JadwalUjianTable({
             <div className="font-medium">
               {new Date(jadwal).toLocaleDateString("id-ID", {
                 day: "numeric",
-                month: "short", 
+                month: "short",
                 year: "numeric"
               })}
             </div>
             <div className="text-muted-foreground">
-               {mulai && selesai ? `${mulai} - ${selesai}` : "-"}
+              {mulai && selesai ? `${mulai} - ${selesai}` : "-"}
             </div>
           </div>
         );
@@ -341,7 +341,7 @@ export default function JadwalUjianTable({
       cell: ({ row }: any) => {
         const penguji: Penguji[] = row.original.penguji || [];
         if (penguji.length === 0) return <span className="text-gray-400 text-xs">-</span>;
-        
+
         return (
           <Popover>
             <PopoverTrigger asChild>
@@ -352,10 +352,10 @@ export default function JadwalUjianTable({
             </PopoverTrigger>
             <PopoverContent className="w-72 p-0" align="end">
               <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 border-b border-gray-100 dark:border-neutral-800">
-                 <h4 className="font-semibold text-xs text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-                    <Users size={14} className="text-blue-500" />
-                    Tim Penguji
-                 </h4>
+                <h4 className="font-semibold text-xs text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+                  <Users size={14} className="text-blue-500" />
+                  Tim Penguji
+                </h4>
               </div>
               <div className="p-4 space-y-0">
                 {penguji.map((p, idx) => {
@@ -369,7 +369,7 @@ export default function JadwalUjianTable({
                   // Cek kehadiran
                   const hadir = daftarHadir?.some(
                     (d) =>
-                      d.dosenId === p.id && 
+                      d.dosenId === p.id &&
                       d.statusKehadiran === "hadir" &&
                       d.ujianId === row.original.id
                   );
@@ -385,7 +385,7 @@ export default function JadwalUjianTable({
                             ${hadir ? "bg-emerald-500" : "bg-gray-300 dark:bg-neutral-600"}
                         `}
                       ></div>
-                      
+
                       <div>
                         <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-1">
                           {p.nama ?? "-"}
@@ -396,10 +396,9 @@ export default function JadwalUjianTable({
                           </span>
                           <span
                             className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border
-                              ${
-                                hadir
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
-                                  : "bg-gray-50 text-gray-500 border-gray-100 dark:bg-neutral-800 dark:text-gray-400 dark:border-neutral-700"
+                              ${hadir
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
+                                : "bg-gray-50 text-gray-500 border-gray-100 dark:bg-neutral-800 dark:text-gray-400 dark:border-neutral-700"
                               }
                             `}
                           >
@@ -560,9 +559,8 @@ export default function JadwalUjianTable({
                           key={item}
                           variant={filterJenis === item ? "secondary" : "ghost"}
                           size="sm"
-                          className={`w-full justify-between rounded-md text-left ${
-                            filterJenis === item ? "font-semibold bg-accent text-accent-foreground" : ""
-                          }`}
+                          className={`w-full justify-between rounded-md text-left ${filterJenis === item ? "font-semibold bg-accent text-accent-foreground" : ""
+                            }`}
                           onClick={() => {
                             setFilterJenis(item);
                             setOpenFilter(false);
@@ -635,7 +633,7 @@ export default function JadwalUjianTable({
           </Tabs>
         </div>
       </div>
- 
+
       {/* Table/Card View */}
       <Tabs value={viewMode} onValueChange={setViewMode}>
         <TabsContent value="table">
@@ -645,100 +643,100 @@ export default function JadwalUjianTable({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedData.length === 0 ? (
               <div className="text-center text-muted-foreground py-12 col-span-full flex flex-col items-center gap-3">
-                 <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
-                    <List size={24} className="opacity-50" />
-                 </div>
+                <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
+                  <List size={24} className="opacity-50" />
+                </div>
                 <p>Tidak ada data ujian yang ditemukan.</p>
               </div>
             ) : (
               paginatedData.map((ujian) => {
-                 const isSelesai = completedIds.includes(ujian.id) || ujian.pendaftaranUjian.status === "selesai";
-                 const jenisColor = getJenisUjianColor(ujian.jenisUjian.namaJenis); // e.g., bg-blue-100 text-blue-700
-                 // Extract base color name from the utility if possible, or fallback to simple mapping for borders
+                const isSelesai = completedIds.includes(ujian.id) || ujian.pendaftaranUjian.status === "selesai";
+                const jenisColor = getJenisUjianColor(ujian.jenisUjian.namaJenis); // e.g., bg-blue-100 text-blue-700
+                // Extract base color name from the utility if possible, or fallback to simple mapping for borders
 
 
-                 return (
-                <div
-                  key={ujian.id}
-                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-                >
-                  {/* Status Strip if needed, or stick to border-l */}
-                  
-                  <div className="p-5 flex flex-col gap-4 flex-1">
-                    
-                    {/* Header: Date & Status */}
-                    <div className="flex justify-between items-start">
-                       <div className="flex flex-col gap-1">
+                return (
+                  <div
+                    key={ujian.id}
+                    className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
+                  >
+                    {/* Status Strip if needed, or stick to border-l */}
+
+                    <div className="p-5 flex flex-col gap-4 flex-1">
+
+                      {/* Header: Date & Status */}
+                      <div className="flex justify-between items-start">
+                        <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                             <CalendarClock size={13} />
-                             <span>
-                                {ujian.jadwalUjian
-                                  ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
-                                      weekday: "short",
-                                      day: "numeric",
-                                      month: "short",
-                                      year: "numeric"
-                                    })
-                                  : "Belum dijadwalkan"}
-                             </span>
+                            <CalendarClock size={13} />
+                            <span>
+                              {ujian.jadwalUjian
+                                ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
+                                  weekday: "short",
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric"
+                                })
+                                : "Belum dijadwalkan"}
+                            </span>
                           </div>
                           <div className="text-xs font-medium text-gray-400">
-                             {ujian.waktuMulai?.slice(0, 5)} - {ujian.waktuSelesai?.slice(0, 5)} WIB
+                            {ujian.waktuMulai?.slice(0, 5)} - {ujian.waktuSelesai?.slice(0, 5)} WIB
                           </div>
-                       </div>
-                       
-                       {isSelesai ? (
-                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                             Selesai
-                          </span>
-                       ) : (
-                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
-                             Dijadwalkan
-                          </span>
-                       )}
-                    </div>
+                        </div>
 
-                    {/* Content: Title & Name */}
-                    <div className="space-y-2">
-                       <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
+                        {isSelesai ? (
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                            Selesai
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+                            Dijadwalkan
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Content: Title & Name */}
+                      <div className="space-y-2">
+                        <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
                           {ujian.judulPenelitian || "Judul belum tersedia"}
-                       </h3>
-                       
-                       <div className="flex items-center gap-2 pt-1">
+                        </h3>
+
+                        <div className="flex items-center gap-2 pt-1">
                           <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
-                             {ujian.mahasiswa.nama.charAt(0)}
+                            {ujian.mahasiswa.nama.charAt(0)}
                           </div>
                           <div className="flex flex-col">
-                             <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                                {ujian.mahasiswa.nama}
-                             </span>
-                             <span className="text-[11px] text-gray-400">
-                                {ujian.mahasiswa.nim}
-                             </span>
+                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                              {ujian.mahasiswa.nama}
+                            </span>
+                            <span className="text-[11px] text-gray-400">
+                              {ujian.mahasiswa.nim}
+                            </span>
                           </div>
-                       </div>
-                    </div>
+                        </div>
+                      </div>
 
-                    {/* Exam Type & Room */}
-                    <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
-                       <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}>
+                      {/* Exam Type & Room */}
+                      <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
+                        <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}>
                           {ujian.jenisUjian.namaJenis}
-                       </span>
-                       <span className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        </span>
+                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
                           {ujian.ruangan?.namaRuangan || "Ruangan -"}
-                       </span>
+                        </span>
+                      </div>
+
                     </div>
 
-                  </div>
-                  
-                  {/* Actions Footer - Hidden by default, shown on hover or always visible in mobile */}
-                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
+                    {/* Actions Footer - Hidden by default, shown on hover or always visible in mobile */}
+                    <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button 
-                            variant="secondary" 
-                            size="sm" 
+                          <Button
+                            variant="secondary"
+                            size="sm"
                             className="h-8 text-xs gap-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-neutral-700 w-full"
                           >
                             <Users size={14} />
@@ -747,10 +745,10 @@ export default function JadwalUjianTable({
                         </PopoverTrigger>
                         <PopoverContent className="w-72 p-0" align="end">
                           <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 border-b border-gray-100 dark:border-neutral-800">
-                             <h4 className="font-semibold text-xs text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-                                <Users size={14} className="text-blue-500" />
-                                Tim Penguji
-                             </h4>
+                            <h4 className="font-semibold text-xs text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+                              <Users size={14} className="text-blue-500" />
+                              Tim Penguji
+                            </h4>
                           </div>
                           <div className="p-4 space-y-0">
                             {(ujian.penguji || []).map((p, idx) => {
@@ -764,7 +762,7 @@ export default function JadwalUjianTable({
                               // Cek kehadiran
                               const hadir = daftarHadir?.some(
                                 (d) =>
-                                  d.dosenId === p.id && 
+                                  d.dosenId === p.id &&
                                   d.statusKehadiran === "hadir" &&
                                   d.ujianId === ujian.id
                               );
@@ -780,7 +778,7 @@ export default function JadwalUjianTable({
                                         ${hadir ? "bg-emerald-500" : "bg-gray-300 dark:bg-neutral-600"}
                                     `}
                                   ></div>
-                                  
+
                                   <div>
                                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-1">
                                       {p.nama ?? "-"}
@@ -791,10 +789,9 @@ export default function JadwalUjianTable({
                                       </span>
                                       <span
                                         className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border
-                                          ${
-                                            hadir
-                                              ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
-                                              : "bg-gray-50 text-gray-500 border-gray-100 dark:bg-neutral-800 dark:text-gray-400 dark:border-neutral-700"
+                                          ${hadir
+                                            ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
+                                            : "bg-gray-50 text-gray-500 border-gray-100 dark:bg-neutral-800 dark:text-gray-400 dark:border-neutral-700"
                                           }
                                         `}
                                       >
@@ -808,10 +805,10 @@ export default function JadwalUjianTable({
                           </div>
                         </PopoverContent>
                       </Popover>
+                    </div>
                   </div>
-                </div>
-              );
-             })
+                );
+              })
             )}
           </div>
         </TabsContent>
@@ -820,7 +817,7 @@ export default function JadwalUjianTable({
 
 
 
-    
+
 
     </DataCard>
   );

@@ -430,7 +430,7 @@ export default function JadwalUjianTable({
                 <span className="ml-1 text-gray-900 dark:text-white">
                   {ujian.hariUjian
                     ? ujian.hariUjian.charAt(0).toUpperCase() +
-                      ujian.hariUjian.slice(1)
+                    ujian.hariUjian.slice(1)
                     : "-"}
                 </span>
               </div>
@@ -491,9 +491,8 @@ export default function JadwalUjianTable({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`w-full justify-between h-8 px-2 font-normal ${
-                    filterJenis === "all" ? "bg-accent text-accent-foreground font-medium" : ""
-                  }`}
+                  className={`w-full justify-between h-8 px-2 font-normal ${filterJenis === "all" ? "bg-accent text-accent-foreground font-medium" : ""
+                    }`}
                   onClick={() => setFilterJenis("all")}
                 >
                   <span className="text-sm">Semua</span>
@@ -504,27 +503,25 @@ export default function JadwalUjianTable({
                     key={jenis}
                     variant="ghost"
                     size="sm"
-                    className={`w-full justify-between h-8 px-2 font-normal ${
-                      filterJenis === jenis ? "bg-accent text-accent-foreground font-medium" : ""
-                    }`}
+                    className={`w-full justify-between h-8 px-2 font-normal ${filterJenis === jenis ? "bg-accent text-accent-foreground font-medium" : ""
+                      }`}
                     onClick={() => setFilterJenis(jenis)}
                   >
                     <span className="text-sm">{jenis}</span>
                     {filterJenis === jenis && <Check size={14} className="ml-auto" />}
                   </Button>
                 ))}
-                
+
                 <div className="my-1 h-px bg-border" />
-                
+
                 <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
                   Jadwal
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`w-full justify-between h-8 px-2 font-normal ${
-                    filterJadwal === "all" ? "bg-accent text-accent-foreground font-medium" : ""
-                  }`}
+                  className={`w-full justify-between h-8 px-2 font-normal ${filterJadwal === "all" ? "bg-accent text-accent-foreground font-medium" : ""
+                    }`}
                   onClick={() => setFilterJadwal("all")}
                 >
                   <span className="text-sm">Semua Jadwal</span>
@@ -533,9 +530,8 @@ export default function JadwalUjianTable({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`w-full justify-between h-8 px-2 font-normal ${
-                    filterJadwal === "mine" ? "bg-accent text-accent-foreground font-medium" : ""
-                  }`}
+                  className={`w-full justify-between h-8 px-2 font-normal ${filterJadwal === "mine" ? "bg-accent text-accent-foreground font-medium" : ""
+                    }`}
                   onClick={() => setFilterJadwal("mine")}
                 >
                   <span className="text-sm">Jadwal Saya</span>
@@ -621,11 +617,11 @@ export default function JadwalUjianTable({
             const ruangan = ujian.ruangan?.namaRuangan ?? "-";
             const hari = ujian?.hariUjian
               ? ujian.hariUjian.charAt(0).toUpperCase() +
-                ujian.hariUjian.slice(1)
+              ujian.hariUjian.slice(1)
               : "-";
             const tanggal = ujian.jadwalUjian
               ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
-                 day: "numeric", month: "short", year: "numeric"
+                day: "numeric", month: "short", year: "numeric"
               })
               : "-";
             const waktu =
@@ -639,7 +635,7 @@ export default function JadwalUjianTable({
 
             // Status badge color logic
             let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
-             if (status === "dijadwalkan")
+            if (status === "dijadwalkan")
               statusColor = "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
             else if (status === "menunggu")
               statusColor = "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800";
@@ -655,87 +651,87 @@ export default function JadwalUjianTable({
               >
                 {/* Decoration Gradient */}
                 <div className={`absolute top-0 right-0 p-4 opacity-5 pointer-events-none`}>
-                    <Calendar size={100} />
+                  <Calendar size={100} />
                 </div>
-                
+
                 <div className="p-5 flex flex-col gap-4 flex-1 z-10">
-                     {/* Header */}
-                     <div className="flex justify-between items-start">
-                         <div className="flex flex-col gap-1">
-                             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                 {jenis}
-                             </span>
-                             <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
-                                 <Calendar size={13} />
-                                 <span>{hari}, {tanggal}</span>
-                             </div>
-                         </div>
-                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
-                             {status}
-                         </span>
-                     </div>
+                  {/* Header */}
+                  <div className="flex justify-between items-start">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        {jenis}
+                      </span>
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                        <Calendar size={13} />
+                        <span>{hari}, {tanggal}</span>
+                      </div>
+                    </div>
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
+                      {status}
+                    </span>
+                  </div>
 
-                     {/* Title */}
-                     <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
-                         {ujian.judulPenelitian || "Judul tidak tersedia"}
-                     </h3>
+                  {/* Title */}
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
+                    {ujian.judulPenelitian || "Judul tidak tersedia"}
+                  </h3>
 
-                     {/* Details Grid */}
-                     <div className="grid grid-cols-2 gap-3 text-xs mt-1">
-                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg">
-                             <Clock size={14} className="shrink-0 text-blue-500" />
-                             <span className="truncate">{waktu}</span>
-                         </div>
-                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg">
-                             <MapPin size={14} className="shrink-0 text-red-500" />
-                             <span className="truncate">{ruangan}</span>
-                         </div>
-                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg col-span-2">
-                             <User size={14} className="shrink-0 text-green-500" />
-                             <span className="truncate">Mahasiswa: {ujian.mahasiswa?.nama ?? "-"}</span>
-                         </div>
-                     </div>
-                     
-                     {/* Footer: Grade */}
-                      <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
-                        <div className="flex flex-col">
-                             <span className="text-[10px] text-gray-400 font-medium">Nilai Akhir</span>
-                             <span className="text-sm font-bold text-gray-900 dark:text-white">
-                                {nilaiAkhir !== null ? nilaiAkhir : "-"}
-                             </span>
-                        </div>
-                        
-                        {/* Actions Dropdown */}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800">
-                                <MoreHorizontal size={16} />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelected(ujian);
-                                  setOpenDaftarHadir(true);
-                                }}
-                                className="cursor-pointer"
-                              >
-                                <Eye className="mr-2 h-4 w-4" />
-                                <span>Lihat Penguji</span>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelected(ujian);
-                                  setOpenDetail(true);
-                                }}
-                                className="cursor-pointer"
-                              >
-                                <IconClipboardText className="mr-2 h-4 w-4" />
-                                <span>Lihat Detail</span>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                     </div>
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-3 text-xs mt-1">
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg">
+                      <Clock size={14} className="shrink-0 text-blue-500" />
+                      <span className="truncate">{waktu}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg">
+                      <MapPin size={14} className="shrink-0 text-red-500" />
+                      <span className="truncate">{ruangan}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg col-span-2">
+                      <User size={14} className="shrink-0 text-green-500" />
+                      <span className="truncate">Mahasiswa: {ujian.mahasiswa?.nama ?? "-"}</span>
+                    </div>
+                  </div>
+
+                  {/* Footer: Grade */}
+                  <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-gray-400 font-medium">Nilai Akhir</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">
+                        {nilaiAkhir !== null ? nilaiAkhir : "-"}
+                      </span>
+                    </div>
+
+                    {/* Actions Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800">
+                          <MoreHorizontal size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelected(ujian);
+                            setOpenDaftarHadir(true);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          <span>Lihat Penguji</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelected(ujian);
+                            setOpenDetail(true);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <IconClipboardText className="mr-2 h-4 w-4" />
+                          <span>Lihat Detail</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </div>
             );

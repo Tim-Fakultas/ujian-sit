@@ -29,7 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Search,
   X,
- 
+
   CheckCircle2,
   Settings2,
   List,
@@ -79,9 +79,9 @@ export default function PendaftaranUjianTable({
   const [mahasiswaDetail, setMahasiswaDetail] =
     useState<MahasiswaDetail | null>(null);
 
-  
+
   const [showBerkasModal, setShowBerkasModal] = useState(false);
-  
+
   // State for Reject Dialog
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
@@ -196,7 +196,7 @@ export default function PendaftaranUjianTable({
   };
 
 
-  
+
   // helper to open modal from table action
   const handleBerkas = (u: PendaftaranUjian) => {
     setSelected(u);
@@ -211,7 +211,7 @@ export default function PendaftaranUjianTable({
         cell: ({ row, table }) => {
           const index =
             (table.getState().pagination?.pageIndex ?? 0) *
-              (table.getState().pagination?.pageSize ?? 10) +
+            (table.getState().pagination?.pageSize ?? 10) +
             row.index +
             1;
           return <div className="text-center">{index}</div>;
@@ -223,7 +223,7 @@ export default function PendaftaranUjianTable({
         id: "nama",
         header: "Nama Mahasiswa",
         cell: ({ row }) => <div>{row.getValue("nama")}</div>,
-        size: 160, 
+        size: 160,
       },
       {
         accessorFn: (row) => row.judulPenelitian ?? "-",
@@ -234,7 +234,7 @@ export default function PendaftaranUjianTable({
             {row.getValue("judul")}
           </div>
         ),
-        size: 300, 
+        size: 300,
       },
       {
         accessorFn: (row) => row.jenisUjian.namaJenis ?? "-",
@@ -249,7 +249,7 @@ export default function PendaftaranUjianTable({
             {row.getValue("jenis")}
           </span>
         ),
-        size: 110, 
+        size: 110,
       },
       {
         accessorFn: (row) => row.status ?? "-",
@@ -264,7 +264,7 @@ export default function PendaftaranUjianTable({
             {row.getValue("status")}
           </span>
         ),
-        size: 100, 
+        size: 100,
       },
       {
         accessorFn: (row) => {
@@ -303,7 +303,7 @@ export default function PendaftaranUjianTable({
         },
         size: 80,
       },
-    
+
     ],
     [pendaftaranUjianList]
   );
@@ -331,7 +331,7 @@ export default function PendaftaranUjianTable({
   // Add viewMode state
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
 
-  
+
   return (
     <DataCard>
       {/* Filter Bar - match admin design */}
@@ -365,9 +365,9 @@ export default function PendaftaranUjianTable({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredData.length === 0 ? (
               <div className="text-center text-muted-foreground py-12 col-span-full flex flex-col items-center gap-3">
-                 <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
-                    <List size={24} className="opacity-50" />
-                 </div>
+                <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
+                  <List size={24} className="opacity-50" />
+                </div>
                 <p>Tidak ada data pendaftaran.</p>
               </div>
             ) : (
@@ -380,10 +380,10 @@ export default function PendaftaranUjianTable({
                   )?.status ??
                   p.status ??
                   "";
-                
 
-                 
-                 const jenisColor = getJenisUjianColor(p.jenisUjian.namaJenis);
+
+
+                const jenisColor = getJenisUjianColor(p.jenisUjian.namaJenis);
 
                 return (
                   <div
@@ -391,57 +391,56 @@ export default function PendaftaranUjianTable({
                     className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                   >
                     <div className="p-5 flex flex-col gap-4 flex-1">
-                      
-                       {/* Header: Status & Type */}
-                       <div className="flex justify-between items-start">
-                          <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                              status === 'selesai' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
-                              status === 'dijadwalkan' ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300" :
+
+                      {/* Header: Status & Type */}
+                      <div className="flex justify-between items-start">
+                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${status === 'selesai' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
+                            status === 'dijadwalkan' ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300" :
                               "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400"
                           }`}>
-                             {status || "Menunggu"}
-                          </span>
-                       </div>
+                          {status || "Menunggu"}
+                        </span>
+                      </div>
 
-                       {/* Content: Title & Name */}
-                       <div className="space-y-2">
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={p.judulPenelitian}>
-                             {p.judulPenelitian || "Judul tidak tersedia"}
-                          </h3>
-                          
-                          <div className="flex items-center gap-2 pt-1">
-                             <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
-                                {p.mahasiswa.nama.charAt(0)}
-                             </div>
-                             <div className="flex flex-col">
-                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                                   {p.mahasiswa.nama}
-                                </span>
-                                <span className="text-[11px] text-gray-400">
-                                   {p.mahasiswa.nim}
-                                </span>
-                             </div>
+                      {/* Content: Title & Name */}
+                      <div className="space-y-2">
+                        <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={p.judulPenelitian}>
+                          {p.judulPenelitian || "Judul tidak tersedia"}
+                        </h3>
+
+                        <div className="flex items-center gap-2 pt-1">
+                          <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
+                            {p.mahasiswa.nama.charAt(0)}
                           </div>
-                       </div>
-                       
-                        {/* Type Badge */}
-                        <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
-                           <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}>
-                              {p.jenisUjian.namaJenis}
-                           </span>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                              {p.mahasiswa.nama}
+                            </span>
+                            <span className="text-[11px] text-gray-400">
+                              {p.mahasiswa.nim}
+                            </span>
+                          </div>
                         </div>
+                      </div>
+
+                      {/* Type Badge */}
+                      <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
+                        <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}>
+                          {p.jenisUjian.namaJenis}
+                        </span>
+                      </div>
                     </div>
-                    
+
                     {/* Actions Footer */}
                     <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleBerkas(p)}
-                          className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
-                        >
-                           <Eye size={14} className="mr-1.5" /> Lihat Berkas
-                        </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleBerkas(p)}
+                        className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
+                      >
+                        <Eye size={14} className="mr-1.5" /> Lihat Berkas
+                      </Button>
                     </div>
 
                   </div>
@@ -452,7 +451,7 @@ export default function PendaftaranUjianTable({
         </TabsContent>
       </Tabs>
 
-   
+
 
       {/* Modal Berkas */}
       <Dialog
@@ -495,151 +494,151 @@ export default function PendaftaranUjianTable({
             </div>
           </DialogHeader>
 
-                  {/* Berkas pendaftaran */}
+          {/* Berkas pendaftaran */}
           {selected && (
             <>
-                <div className="p-6 overflow-y-auto flex-1 ">
-                  <div className="space-y-3">
-                    {getBerkasForSelected().length > 0 ? (
-                      getBerkasForSelected().map((file, idx) => {
-                        const apiUrl =
-                          process.env.NEXT_PUBLIC_STORAGE_URL || "";
-                        const fileUrl = `${apiUrl}/storage/${file.filePath}`;
-                        // Tentukan label berdasarkan jenis ujian
-                        const jenis =
-                          selected.jenisUjian.namaJenis.toLowerCase();
-                        let label = "";
-                        if (jenis.includes("proposal")) {
-                          label =
-                            LABELS_PROPOSAL[idx] ||
-                            file.namaBerkas ||
-                            fileUrl.split("/").pop() ||
-                            "";
-                        } else if (jenis.includes("hasil")) {
-                          label =
-                            LABELS_HASIL[idx] ||
-                            file.namaBerkas ||
-                            fileUrl.split("/").pop() ||
-                            "";
-                        } else {
-                          label =
-                            file.namaBerkas || fileUrl.split("/").pop() || "";
-                        }
-                        return (
-                          <div
-                            key={file.id ?? idx}
-                            className="group flex items-center justify-between gap-4 p-4 rounded-xl bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200"
-                          >
-                            <div className="flex items-center gap-4 min-w-0">
-                              <div className="h-10 w-10 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-                                <FileText size={20} />
-                              </div>
-                              <div className="min-w-0 flex flex-col gap-0.5">
-                                <span className="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-1">
-                                  {label}
-                                </span>
-                                <a
-                                  href={fileUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 truncate max-w-[300px] hover:underline"
-                                  title={
-                                    file.namaBerkas || fileUrl.split("/").pop()
-                                  }
-                                >
-                                  {file.namaBerkas || fileUrl.split("/").pop()}
-                                </a>
-                              </div>
+              <div className="p-6 overflow-y-auto flex-1 ">
+                <div className="space-y-3">
+                  {getBerkasForSelected().length > 0 ? (
+                    getBerkasForSelected().map((file, idx) => {
+                      const apiUrl =
+                        process.env.NEXT_PUBLIC_STORAGE_URL || "";
+                      const fileUrl = `${apiUrl}/storage/${file.filePath}`;
+                      // Tentukan label berdasarkan jenis ujian
+                      const jenis =
+                        selected.jenisUjian.namaJenis.toLowerCase();
+                      let label = "";
+                      if (jenis.includes("proposal")) {
+                        label =
+                          LABELS_PROPOSAL[idx] ||
+                          file.namaBerkas ||
+                          fileUrl.split("/").pop() ||
+                          "";
+                      } else if (jenis.includes("hasil")) {
+                        label =
+                          LABELS_HASIL[idx] ||
+                          file.namaBerkas ||
+                          fileUrl.split("/").pop() ||
+                          "";
+                      } else {
+                        label =
+                          file.namaBerkas || fileUrl.split("/").pop() || "";
+                      }
+                      return (
+                        <div
+                          key={file.id ?? idx}
+                          className="group flex items-center justify-between gap-4 p-4 rounded-xl bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200"
+                        >
+                          <div className="flex items-center gap-4 min-w-0">
+                            <div className="h-10 w-10 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                              <FileText size={20} />
                             </div>
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-900 dark:text-gray-100 font-medium shrink-0"
-                              onClick={() => window.open(fileUrl, "_blank")}
-                            >
-                              Lihat
-                            </Button>
+                            <div className="min-w-0 flex flex-col gap-0.5">
+                              <span className="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-1">
+                                {label}
+                              </span>
+                              <a
+                                href={fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 truncate max-w-[300px] hover:underline"
+                                title={
+                                  file.namaBerkas || fileUrl.split("/").pop()
+                                }
+                              >
+                                {file.namaBerkas || fileUrl.split("/").pop()}
+                              </a>
+                            </div>
                           </div>
-                        );
-                      })
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-12 text-center">
-                        <div className="h-12 w-12 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center mb-3">
-                          <FileText
-                            size={24}
-                            className="text-gray-400 dark:text-gray-500"
-                          />
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-900 dark:text-gray-100 font-medium shrink-0"
+                            onClick={() => window.open(fileUrl, "_blank")}
+                          >
+                            Lihat
+                          </Button>
                         </div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          Tidak ada berkas
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Mahasiswa belum mengunggah berkas persyaratan.
-                        </p>
+                      );
+                    })
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="h-12 w-12 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center mb-3">
+                        <FileText
+                          size={24}
+                          className="text-gray-400 dark:text-gray-500"
+                        />
                       </div>
-                    )}
-                  </div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        Tidak ada berkas
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Mahasiswa belum mengunggah berkas persyaratan.
+                      </p>
+                    </div>
+                  )}
                 </div>
+              </div>
             </>
           )}
 
-              {/* Buttons Action in Header */}
-                <div className="flex flex-row gap-2 relative z-2 bg-white shadow-neutral-800 shadow-lg h-20 dark:bg-neutral-800 p-4 justify-end">
-                   <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all font-medium h-8 text-xs"
-                      onClick={() => {
-                        setShowRejectDialog(true);
-                      }}
-                    >
-                      Tolak
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 dark:shadow-none transition-all font-medium h-8 text-xs"
-                      onClick={async () => {
-                        const found = pendaftaranUjianList.find(
-                          (p) =>
-                            p.mahasiswa.id === selected?.mahasiswa.id &&
-                            p.jenisUjian.id === selected?.jenisUjian.id
-                        );
-                        if (found) {
-                          const tId = showToast.loading("Memverifikasi berkas...");
-                          try {
-                            await updateStatusPendaftaranUjian(
-                              found.id,
-                              "belum dijadwalkan",
-                          
-                            );
-                            showToast.dismiss(tId);
-                            showToast.success(`Berkas berhasil diverifikasi`);
-                            await revalidateAction("/sekprodi/daftar-ujian");
-                            router.refresh(); // Force refresh data on client
-                            setShowBerkasModal(false);
-                          } catch (error) {
-                            showToast.dismiss(tId);
-                            showToast.error("Gagal memverifikasi berkas");
-                          }
-                        } else {
-                          showToast.error("Data pendaftaran tidak ditemukan");
-                        }
-                      }}
-                    >
-                      Verifikasi
-                    </Button>
-                </div>
+          {/* Buttons Action in Header */}
+          <div className="flex flex-row gap-2 relative z-2 bg-white shadow-neutral-800 shadow-lg h-20 dark:bg-neutral-800 p-4 justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all font-medium h-8 text-xs"
+              onClick={() => {
+                setShowRejectDialog(true);
+              }}
+            >
+              Tolak
+            </Button>
+            <Button
+              size="sm"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 dark:shadow-none transition-all font-medium h-8 text-xs"
+              onClick={async () => {
+                const found = pendaftaranUjianList.find(
+                  (p) =>
+                    p.mahasiswa.id === selected?.mahasiswa.id &&
+                    p.jenisUjian.id === selected?.jenisUjian.id
+                );
+                if (found) {
+                  const tId = showToast.loading("Memverifikasi berkas...");
+                  try {
+                    await updateStatusPendaftaranUjian(
+                      found.id,
+                      "belum dijadwalkan",
+
+                    );
+                    showToast.dismiss(tId);
+                    showToast.success(`Berkas berhasil diverifikasi`);
+                    await revalidateAction("/sekprodi/daftar-ujian");
+                    router.refresh(); // Force refresh data on client
+                    setShowBerkasModal(false);
+                  } catch (error) {
+                    showToast.dismiss(tId);
+                    showToast.error("Gagal memverifikasi berkas");
+                  }
+                } else {
+                  showToast.error("Data pendaftaran tidak ditemukan");
+                }
+              }}
+            >
+              Verifikasi
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Reject Reason Dialog */}
-      <Dialog 
-        open={showRejectDialog} 
+      <Dialog
+        open={showRejectDialog}
         onOpenChange={(open) => {
           setShowRejectDialog(open);
-          if(!open) {
-             setRejectReason(""); 
-             setIsRejecting(false);
+          if (!open) {
+            setRejectReason("");
+            setIsRejecting(false);
           }
         }}
       >
@@ -649,7 +648,7 @@ export default function PendaftaranUjianTable({
           </DialogHeader>
           <div className="space-y-4 py-2">
             <p className="text-sm text-gray-500 dark:text-gray-400">
-               Apakah Anda yakin ingin menolak pendaftaran ini? Silakan masukkan alasan penolakan.
+              Apakah Anda yakin ingin menolak pendaftaran ini? Silakan masukkan alasan penolakan.
             </p>
             <Textarea
               placeholder="Contoh: Berkas proposal belum lengkap, Surat keterangan plagiasi buram..."
@@ -659,51 +658,51 @@ export default function PendaftaranUjianTable({
             />
           </div>
           <DialogFooter>
-             <Button
-                variant="outline"
-                onClick={() => setShowRejectDialog(false)}
-                disabled={isRejecting}
-             >
-               Batal
-             </Button>
-             <Button
-                variant="destructive"
-                disabled={!rejectReason.trim() || isRejecting}
-                onClick={async () => {
-                   setIsRejecting(true);
-                   const found = pendaftaranUjianList.find(
-                      (p) =>
-                        p.mahasiswa.id === selected?.mahasiswa.id &&
-                        p.jenisUjian.id === selected?.jenisUjian.id
-                   );
-                   
-                   if (found) {
-                      const tId = showToast.loading("Menolak pendaftaran...");
-                      try {
-                         await updateStatusPendaftaranUjian(found.id, "ditolak", rejectReason);
-                         showToast.dismiss(tId);
-                         showToast.success("Pendaftaran berhasil ditolak");
-                         
-                         await revalidateAction("/sekprodi/daftar-ujian");
-                         router.refresh();
-                         
-                         setShowRejectDialog(false);
-                         setShowBerkasModal(false);
-                      } catch (error) {
-                         showToast.dismiss(tId);
-                         showToast.error("Gagal menolak pendaftaran");
-                      } finally {
-                         setIsRejecting(false);
-                      }
-                   } else {
-                      setIsRejecting(false);
-                      setShowRejectDialog(false);
-                      showToast.error("Data pendaftaran tidak ditemukan");
-                   }
-                }}
-             >
-               {isRejecting ? "Menolak..." : "Tolak Pendaftaran"}
-             </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowRejectDialog(false)}
+              disabled={isRejecting}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!rejectReason.trim() || isRejecting}
+              onClick={async () => {
+                setIsRejecting(true);
+                const found = pendaftaranUjianList.find(
+                  (p) =>
+                    p.mahasiswa.id === selected?.mahasiswa.id &&
+                    p.jenisUjian.id === selected?.jenisUjian.id
+                );
+
+                if (found) {
+                  const tId = showToast.loading("Menolak pendaftaran...");
+                  try {
+                    await updateStatusPendaftaranUjian(found.id, "ditolak", rejectReason);
+                    showToast.dismiss(tId);
+                    showToast.success("Pendaftaran berhasil ditolak");
+
+                    await revalidateAction("/sekprodi/daftar-ujian");
+                    router.refresh();
+
+                    setShowRejectDialog(false);
+                    setShowBerkasModal(false);
+                  } catch (error) {
+                    showToast.dismiss(tId);
+                    showToast.error("Gagal menolak pendaftaran");
+                  } finally {
+                    setIsRejecting(false);
+                  }
+                } else {
+                  setIsRejecting(false);
+                  setShowRejectDialog(false);
+                  showToast.error("Data pendaftaran tidak ditemukan");
+                }
+              }}
+            >
+              {isRejecting ? "Menolak..." : "Tolak Pendaftaran"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

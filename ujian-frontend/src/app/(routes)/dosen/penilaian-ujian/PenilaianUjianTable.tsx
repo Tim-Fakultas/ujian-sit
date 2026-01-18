@@ -460,7 +460,7 @@ export default function PenilaianUjianTable({
       cell: ({ row, table }: any) => {
         const index =
           (table.getState().pagination?.pageIndex ?? 0) *
-            (table.getState().pagination?.pageSize ?? 10) +
+          (table.getState().pagination?.pageSize ?? 10) +
           row.index +
           1;
         return <div className="text-center">{index}</div>;
@@ -480,15 +480,14 @@ export default function PenilaianUjianTable({
       header: "Jenis Ujian",
       cell: ({ row }: any) => (
         <span
-          className={`px-2 py-1 rounded font-semibold ${
-            row.original.jenisUjian?.namaJenis === "Ujian Proposal"
+          className={`px-2 py-1 rounded font-semibold ${row.original.jenisUjian?.namaJenis === "Ujian Proposal"
               ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
               : row.original.jenisUjian?.namaJenis === "Ujian Hasil"
-              ? "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
-              : row.original.jenisUjian?.namaJenis === "Ujian Skripsi"
-              ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
-          }`}
+                ? "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
+                : row.original.jenisUjian?.namaJenis === "Ujian Skripsi"
+                  ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+                  : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
+            }`}
         >
           {row.getValue("jenis")}
         </span>
@@ -588,10 +587,9 @@ export default function PenilaianUjianTable({
                   <TooltipTrigger asChild>
                     <div
                       className={`inline-flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-white dark:ring-neutral-900 text-[10px] font-bold cursor-help
-                        ${
-                          isDone
-                            ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300"
-                            : "bg-gray-100 text-gray-400 dark:bg-neutral-800 dark:text-gray-500"
+                        ${isDone
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300"
+                          : "bg-gray-100 text-gray-400 dark:bg-neutral-800 dark:text-gray-500"
                         }
                       `}
                     >
@@ -899,10 +897,10 @@ export default function PenilaianUjianTable({
                   : null;
                 const tanggalStr = tanggalObj
                   ? tanggalObj.toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })
                   : "-";
 
                 let statusColor =
@@ -1105,9 +1103,9 @@ export default function PenilaianUjianTable({
           setOpenDaftarHadir={(open) =>
             open && modal.selected
               ? dispatchModal({
-                  type: "OPEN_DAFTAR_HADIR",
-                  ujian: modal.selected!,
-                })
+                type: "OPEN_DAFTAR_HADIR",
+                ujian: modal.selected!,
+              })
               : dispatchModal({ type: "CLOSE_DAFTAR_HADIR" })
           }
           ujian={modal.selected!}
@@ -1161,10 +1159,10 @@ export default function PenilaianUjianTable({
             setOpenKeputusan={(open) =>
               open
                 ? dispatchModal({
-                    type: "OPEN_KEPUTUSAN",
-                    ujian: modal.selected!,
-                    keputusanChoice: modal.keputusanChoice,
-                  })
+                  type: "OPEN_KEPUTUSAN",
+                  ujian: modal.selected!,
+                  keputusanChoice: modal.keputusanChoice,
+                })
                 : dispatchModal({ type: "CLOSE_KEPUTUSAN" })
             }
             selected={modal.selected}

@@ -177,8 +177,8 @@ export default function PenjadwalkanUjianTable({
         selected.waktuSelesai ? selected.waktuSelesai.slice(0, 5) : ""
       );
 
-     
-      
+
+
 
       // Helper to safely get string ID
       const getId = (obj: any) => (obj && obj.id ? String(obj.id) : "");
@@ -343,19 +343,19 @@ export default function PenjadwalkanUjianTable({
         filterBulan === "all"
           ? true
           : (() => {
-              if (!ujian.jadwalUjian) return false;
-              const bulan = String(new Date(ujian.jadwalUjian).getMonth() + 1);
-              return bulan === filterBulan;
-            })();
+            if (!ujian.jadwalUjian) return false;
+            const bulan = String(new Date(ujian.jadwalUjian).getMonth() + 1);
+            return bulan === filterBulan;
+          })();
 
       const matchTahun =
         filterTahun === "all"
           ? true
           : (() => {
-              if (!ujian.jadwalUjian) return false;
-              const tahun = String(new Date(ujian.jadwalUjian).getFullYear());
-              return tahun === filterTahun;
-            })();
+            if (!ujian.jadwalUjian) return false;
+            const tahun = String(new Date(ujian.jadwalUjian).getFullYear());
+            return tahun === filterTahun;
+          })();
 
       return matchNama && matchJenis && matchBulan && matchTahun;
     });
@@ -485,7 +485,7 @@ export default function PenjadwalkanUjianTable({
       cell: ({ row, table }: any) => {
         const index =
           (table.getState().pagination?.pageIndex ?? 0) *
-            (table.getState().pagination?.pageSize ?? 10) +
+          (table.getState().pagination?.pageSize ?? 10) +
           row.index +
           1;
         return <div className="text-center">{index}</div>;
@@ -740,18 +740,17 @@ export default function PenjadwalkanUjianTable({
                     key={item}
                     variant={statusTab === item ? "secondary" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-md text-left h-8 px-2 ${
-                      statusTab === item
+                    className={`w-full justify-between rounded-md text-left h-8 px-2 ${statusTab === item
                         ? "font-semibold bg-gray-100 dark:bg-neutral-800"
                         : ""
-                    }`}
+                      }`}
                     onClick={() => {
                       setStatusTab(
                         item as
-                          | "all"
-                          | "dijadwalkan"
-                          | "selesai"
-                          | "belum_dijadwalkan"
+                        | "all"
+                        | "dijadwalkan"
+                        | "selesai"
+                        | "belum_dijadwalkan"
                       );
                     }}
                   >
@@ -759,8 +758,8 @@ export default function PenjadwalkanUjianTable({
                       {item === "all"
                         ? "Semua"
                         : item === "belum_dijadwalkan"
-                        ? "Belum Dijadwalkan"
-                        : item.charAt(0).toUpperCase() + item.slice(1)}
+                          ? "Belum Dijadwalkan"
+                          : item.charAt(0).toUpperCase() + item.slice(1)}
                     </span>
                     {statusTab === item && (
                       <Check size={14} className="ml-2 text-emerald-500" />
@@ -782,11 +781,10 @@ export default function PenjadwalkanUjianTable({
                     key={item}
                     variant={filterJenis === item ? "secondary" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-md text-left h-8 px-2 ${
-                      filterJenis === item
+                    className={`w-full justify-between rounded-md text-left h-8 px-2 ${filterJenis === item
                         ? "font-semibold bg-gray-100 dark:bg-neutral-800"
                         : ""
-                    }`}
+                      }`}
                     onClick={() => setFilterJenis(item)}
                   >
                     <span className="text-sm">
@@ -876,13 +874,13 @@ export default function PenjadwalkanUjianTable({
                             <span>
                               {ujian.jadwalUjian
                                 ? new Date(
-                                    ujian.jadwalUjian
-                                  ).toLocaleDateString("id-ID", {
-                                    weekday: "short",
-                                    day: "numeric",
-                                    month: "short",
-                                    year: "numeric",
-                                  })
+                                  ujian.jadwalUjian
+                                ).toLocaleDateString("id-ID", {
+                                  weekday: "short",
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })
                                 : "Belum dijadwalkan"}
                             </span>
                           </div>
@@ -898,11 +896,10 @@ export default function PenjadwalkanUjianTable({
                           </span>
                         ) : (
                           <span
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                              ujian.pendaftaranUjian.status === "dijadwalkan"
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${ujian.pendaftaranUjian.status === "dijadwalkan"
                                 ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300 border-blue-100 dark:border-blue-800"
                                 : "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400 border-gray-200 dark:border-neutral-700"
-                            }`}
+                              }`}
                           >
                             {ujian.pendaftaranUjian.status}
                           </span>
@@ -1026,11 +1023,11 @@ export default function PenjadwalkanUjianTable({
                   const hadir = cekHadir(penguji.id);
                   const initials = penguji.nama
                     ? penguji.nama
-                        .split(" ")
-                        .map((n) => n[0])
-                        .slice(0, 2)
-                        .join("")
-                        .toUpperCase()
+                      .split(" ")
+                      .map((n) => n[0])
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase()
                     : "?";
 
                   return (
@@ -1150,12 +1147,12 @@ export default function PenjadwalkanUjianTable({
                     <span className="font-medium text-sm">
                       {selectedDetail.jadwalUjian
                         ? new Date(
-                            selectedDetail.jadwalUjian
-                          ).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })
+                          selectedDetail.jadwalUjian
+                        ).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
                         : "-"}
                     </span>
                   </div>
