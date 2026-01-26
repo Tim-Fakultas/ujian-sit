@@ -177,7 +177,7 @@ export default function PeminatanPage() {
       <PageHeader
         title="Data Master Peminatan"
         description="Kelola data bidang peminatan skripsi"
-        icon={Bookmark}
+        iconName="Bookmark"
       />
 
       <DataCard>

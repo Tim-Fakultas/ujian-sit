@@ -3,9 +3,7 @@ import { getCurrentUserAction } from "@/actions/auth";
 import { Suspense } from "react";
 import Loading from "./loading";
 import PageHeader from "@/components/common/PageHeader";
-import { FileText } from "lucide-react";
 import NilaiUjianTable from "@/components/mahasiswa/nilai-ujian/NilaiUjianTable";
-// Force rebuild
 
 export default async function RekapitulasiNilaiPage() {
   const { user } = await getCurrentUserAction();
@@ -13,9 +11,9 @@ export default async function RekapitulasiNilaiPage() {
   return (
     <div className="p-6">
       <PageHeader
-        title="Nilai Ujian"
-        description="Lihat nilai ujian anda di sini."
-        icon={FileText}
+        title="Ujian"
+        description="Lihat ujian dan penilaian."
+        iconName="FileText"
         variant="blue"
         className="mb-6"
       />

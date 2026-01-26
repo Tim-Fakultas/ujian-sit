@@ -9,7 +9,7 @@ const WithBundleAnalyzer = withBundleAnalyzer({
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: "5mb",
+      bodySizeLimit: "10mb",
     },
   },
   allowedDevOrigins: ["10.1.117.234"],

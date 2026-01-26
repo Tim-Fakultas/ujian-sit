@@ -30,6 +30,8 @@ import {
   Calendar,
   MoreVertical,
   AlertCircle,
+  Clock,
+  MapPin,
 } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { UserCheck } from "lucide-react";
@@ -52,6 +54,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import DaftarHadirDialog from "./DaftarHadirDialog";
 import {
@@ -124,16 +133,38 @@ function ActionCell({
             />
             Absensi Kehadiran
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => dispatchModal({ type: "OPEN_PENILAIAN", ujian })}
-            className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
-          >
-            <Pencil
-              size={18}
-              className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
-            />
-            Penilaian
-          </DropdownMenuItem>
+          {/* Penilaian: Hanya aktif jika sudah absensi */}
+          {!sudahHadir(ujian.id, currentDosenId, hadirData) ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="w-full">
+                    <DropdownMenuItem
+                      disabled
+                      className="group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium opacity-50 cursor-not-allowed"
+                    >
+                      <Pencil size={18} className="text-muted-foreground/70" />
+                      Penilaian
+                    </DropdownMenuItem>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-[200px]">
+                  Anda belum melakukan absensi kehadiran.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <DropdownMenuItem
+              onClick={() => dispatchModal({ type: "OPEN_PENILAIAN", ujian })}
+              className="cursor-pointer group flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 focus:bg-primary/10 focus:text-primary hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+            >
+              <Pencil
+                size={18}
+                className="text-muted-foreground/70 group-hover:text-primary group-focus:text-primary transition-colors"
+              />
+              Penilaian
+            </DropdownMenuItem>
+          )}
           {/* role check */}
           {(() => {
             const roleSaya = ujian.penguji?.find(
@@ -256,6 +287,7 @@ export default function PenilaianUjianTable({
   const [catatanText, setCatatanText] = useState<string>("");
 
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   async function handleHadir(currentDosenId: number, ujianId: number) {
     setHadirLoading(ujianId);
@@ -278,18 +310,14 @@ export default function PenilaianUjianTable({
     }
   }
 
-  const [filterPeran, setFilterPeran] = useState("all");
+
   const [search, setSearch] = useState("");
   const [filterJenisUjian, setFilterJenisUjian] = useState("all");
 
-  const jenisUjianList = ["Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"];
+  const jenisUjianList = ["Seminar Proposal", "Ujian Hasil", "Ujian Skripsi"];
 
   const filteredData = dataUjian.filter((ujian) => {
     let matchPeran = true;
-    if (filterPeran !== "all") {
-      const peran = getPeranPenguji(ujian, currentDosenId);
-      matchPeran = peran === filterPeran;
-    }
     let matchJenis = true;
     if (filterJenisUjian !== "all") {
       matchJenis = ujian.jenisUjian?.namaJenis === filterJenisUjian;
@@ -314,7 +342,7 @@ export default function PenilaianUjianTable({
           // Group by dosenId
           const group: Record<
             number,
-            { dosen: Dosen; jabatan: string; total: number }
+            { dosen: Dosen; jabatan: string; total: number; details?: any[] }
           > = {};
 
           data.forEach((item: any) => {
@@ -350,9 +378,16 @@ export default function PenilaianUjianTable({
                 dosen: item.dosen,
                 jabatan,
                 total: 0,
+                details: [],
               };
             }
             group[item.dosenId].total += subtotal;
+            group[item.dosenId].details!.push({
+              id: item.id,
+              komponen: item.komponenPenilaian?.namaKomponen ?? "Komponen",
+              bobot: bobot,
+              nilai: nilai,
+            });
           });
 
           // Convert to array & urutkan sesuai jabatan
@@ -372,7 +407,7 @@ export default function PenilaianUjianTable({
     } else {
       setRekapPenilaian([]);
     }
-  }, [modal.openRekapitulasi, modal.selected]);
+  }, [modal.openRekapitulasi, modal.selected, refreshKey]);
 
   useEffect(() => {
     if (modal.openCatatan && modal.selected) {
@@ -456,7 +491,7 @@ export default function PenilaianUjianTable({
   const cols = [
     {
       id: "no",
-      header: () => <div className="text-center">No</div>,
+      header: () => <div className="text-center py-2">No</div>,
       cell: ({ row, table }: any) => {
         const index =
           (table.getState().pagination?.pageIndex ?? 0) *
@@ -470,23 +505,41 @@ export default function PenilaianUjianTable({
     {
       accessorFn: (row: any) => row.mahasiswa?.nama ?? "-",
       id: "nama",
-      header: "Nama Mahasiswa",
-      cell: ({ row }: any) => <div>{row.getValue("nama")}</div>,
-      size: 120,
+      header: () => <div className="py-2">Nama Mahasiswa</div>,
+      cell: ({ row }: any) => (
+        <div>
+          <div className="font-medium">{row.getValue("nama")}</div>
+          <div className="text-sm text-muted-foreground">
+            {row.original.mahasiswa?.nim || "-"}
+          </div>
+        </div>
+      ),
+      size: 150,
+    },
+    {
+      accessorFn: (row: any) => row.judulPenelitian ?? "-",
+      id: "judul",
+      header: () => <div className="py-2">Judul Penelitian</div>,
+      cell: ({ row }: any) => (
+        <div className="text-sm line-clamp-2" title={row.getValue("judul")}>
+          {row.getValue("judul")}
+        </div>
+      ),
+      size: 200,
     },
     {
       accessorFn: (row: any) => row.jenisUjian?.namaJenis ?? "-",
       id: "jenis",
-      header: "Jenis Ujian",
+      header: () => <div className="py-2">Jenis Ujian</div>,
       cell: ({ row }: any) => (
         <span
           className={`px-2 py-1 rounded font-semibold ${row.original.jenisUjian?.namaJenis === "Ujian Proposal"
-              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
-              : row.original.jenisUjian?.namaJenis === "Ujian Hasil"
-                ? "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
-                : row.original.jenisUjian?.namaJenis === "Ujian Skripsi"
-                  ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-                  : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
+            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
+            : row.original.jenisUjian?.namaJenis === "Ujian Hasil"
+              ? "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
+              : row.original.jenisUjian?.namaJenis === "Ujian Skripsi"
+                ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+                : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
             }`}
         >
           {row.getValue("jenis")}
@@ -496,55 +549,61 @@ export default function PenilaianUjianTable({
     },
 
     {
-      accessorFn: (row: any) => {
-        const peran = getPeranPenguji(row, currentDosenId);
-        return peran ?? "-";
-      },
-      id: "peran",
-      header: "Peran Anda",
+      id: "waktu",
+      header: () => <div className="py-2">Waktu & Ruangan</div>,
       cell: ({ row }: any) => {
-        const peranPenguji = row.getValue("peran");
+        const jadwal = row.original.jadwalUjian;
+        const mulai = row.original.waktuMulai?.slice(0, 5);
+        const selesai = row.original.waktuSelesai?.slice(0, 5);
+        const ruangan = row.original.ruangan?.namaRuangan;
+
+        if (!jadwal) return <span className="text-gray-400">-</span>;
+
         return (
-          <span
-            className={`px-2 py-1 rounded font-semibold ${getPeranPengujiClass(
-              peranPenguji
-            )}`}
-          >
-            {peranPenguji}
-          </span>
+          <div className="text-sm space-y-1">
+            <div className="font-medium text-gray-900 dark:text-gray-100">
+              {new Date(jadwal).toLocaleDateString("id-ID", {
+                weekday: "long",
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+              })}
+            </div>
+            <div className="text-muted-foreground flex items-center gap-1">
+              <Clock size={14} className="text-blue-500" />
+              {mulai && selesai ? `${mulai} - ${selesai}` : "-"}
+            </div>
+            {ruangan && (
+              <div className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded inline-flex items-center gap-1">
+                <MapPin size={12} /> {ruangan}
+              </div>
+            )}
+          </div>
         );
       },
-      size: 90,
+      size: 180,
     },
+
+
     {
-      accessorFn: (row: any) => row.nilaiAkhir ?? "-",
-      id: "nilai",
-      header: () => (
-        <div className="flex items-center justify-center gap-1">
-          Nilai Akhir
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <AlertCircle size={14} className="text-muted-foreground" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-[200px] text-center">
-                  Nilai ini merupakan total keseluruhan dari penilaian seluruh
-                  penguji, bukan per dosen.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      ),
+      id: "status_penguji",
+      header: () => <div className="text-center py-2">Nilai penguji</div>,
       cell: ({ row }: any) => (
-        <div className="text-center">{row.getValue("nilai")}</div>
+        <StatusPenilaianPenguji
+          ujianId={row.original.id}
+          penguji={row.original.penguji || []}
+          onOpenRekap={() =>
+            dispatchModal({ type: "OPEN_REKAP", ujian: row.original })
+          }
+          submittedDosenIds={penilaianMap[row.original.id] || new Set()}
+        />
       ),
-      size: 70,
+      size: 80,
     },
+
     {
       id: "actions",
-      header: () => <div className="text-center">Aksi</div>,
+      header: () => <div className="text-center py-2">Aksi</div>,
       cell: ({ row }: any) => (
         <ActionCell
           ujian={row.original}
@@ -577,38 +636,7 @@ export default function PenilaianUjianTable({
       );
 
     return (
-      <div className="flex items-center justify-center gap-3">
-        <div className="flex -space-x-2 overflow-hidden items-center justify-center">
-          {penguji.map((p) => {
-            const isDone = submittedDosenIds?.has(p.id) ?? false;
-            return (
-              <TooltipProvider key={p.id}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div
-                      className={`inline-flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-white dark:ring-neutral-900 text-[10px] font-bold cursor-help
-                        ${isDone
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300"
-                          : "bg-gray-100 text-gray-400 dark:bg-neutral-800 dark:text-gray-500"
-                        }
-                      `}
-                    >
-                      {isDone ? <Check size={14} /> : p.nama.charAt(0)}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">
-                      <span className="font-bold">{p.nama}</span>
-                      <br />
-                      Status: {isDone ? "Sudah Menilai" : "Belum Menilai"}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            );
-          })}
-        </div>
-
+      <div className="flex items-center justify-center">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -616,9 +644,9 @@ export default function PenilaianUjianTable({
                 variant="ghost"
                 size="icon"
                 onClick={onOpenRekap}
-                className="h-7 w-7 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                className="h-8 w-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
               >
-                <Eye size={14} />
+                <Eye size={16} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -630,33 +658,8 @@ export default function PenilaianUjianTable({
     );
   }
 
-  // Inject the new column before 'nilai' or wherever appropriate
-  // Inserting at index 4 (Status Penguji)
-  if (!cols.find((c) => c.id === "status_penguji")) {
-    const statusCol = {
-      id: "status_penguji",
-      header: () => <div className="text-center">Nilai penguji</div>,
-      cell: ({ row }: any) => (
-        <StatusPenilaianPenguji
-          ujianId={row.original.id}
-          penguji={row.original.penguji || []}
-          onOpenRekap={() =>
-            dispatchModal({ type: "OPEN_REKAP", ujian: row.original })
-          }
-          submittedDosenIds={penilaianMap[row.original.id] || new Set()}
-        />
-      ),
-      size: 160,
-    };
 
-    // Insert before 'nilai' column which is currently at index 3 (0-based: no, nama, jenis, peran, nilai, actions)
-    // Current indices: 0:no, 1:nama, 2:jenis, 3:peran, 4:nilai, 5:actions
-    // We want it after 'peran'
-    const peranIndex = cols.findIndex((c) => c.id === "peran");
-    if (peranIndex !== -1) {
-      cols.splice(peranIndex + 1, 0, statusCol as any);
-    }
-  }
+
 
   // TableGlobal setup
   const pageSize = 10;
@@ -780,66 +783,22 @@ export default function PenilaianUjianTable({
 
         {/* Controls */}
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 w-9 flex items-center justify-center rounded-md"
-                aria-label="Filter"
-              >
-                <Settings2 size={16} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="min-w-[150px] w-[200px] p-3 rounded-xl border border-muted shadow-lg bg-white dark:bg-neutral-800 max-h-[300px] overflow-y-auto"
-            >
-              <div className="mb-2 text-xs font-semibold text-muted-foreground">
-                Peran Anda
-              </div>
-              <div className="flex flex-col gap-1">
-                {peranPengujiOptions.map((item) => (
-                  <Button
-                    key={item.value}
-                    variant={filterPeran === item.value ? "secondary" : "ghost"}
-                    size="sm"
-                    className="w-full justify-between rounded-md"
-                    onClick={() => setFilterPeran(item.value)}
-                  >
-                    <span>{item.label}</span>
-                    {filterPeran === item.value && <Check size={16} />}
-                  </Button>
-                ))}
-              </div>
-              <div className="mt-4 mb-2 text-xs font-semibold text-muted-foreground border-t pt-2">
-                Jenis Ujian
-              </div>
-              <div className="flex flex-col gap-1">
-                <Button
-                  variant={filterJenisUjian === "all" ? "secondary" : "ghost"}
-                  size="sm"
-                  className="w-full justify-between rounded-md"
-                  onClick={() => setFilterJenisUjian("all")}
-                >
-                  <span>Semua</span>
-                  {filterJenisUjian === "all" && <Check size={16} />}
-                </Button>
-                {jenisUjianList.map((jenis) => (
-                  <Button
-                    key={jenis}
-                    variant={filterJenisUjian === jenis ? "secondary" : "ghost"}
-                    size="sm"
-                    className="w-full justify-between rounded-md"
-                    onClick={() => setFilterJenisUjian(jenis)}
-                  >
-                    <span>{jenis}</span>
-                    {filterJenisUjian === jenis && <Check size={16} />}
-                  </Button>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
+
+
+          {/* Filter Jenis Ujian */}
+          <Select value={filterJenisUjian} onValueChange={setFilterJenisUjian}>
+            <SelectTrigger className="h-9 w-[200px]">
+              <SelectValue placeholder="Jenis Ujian: Semua" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Ujian</SelectItem>
+              {jenisUjianList.map((jenis) => (
+                <SelectItem key={jenis} value={jenis}>
+                  {jenis}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Tabs
             value={viewMode}
@@ -1096,6 +1055,8 @@ export default function PenilaianUjianTable({
             ujian={modal.selected}
             rekapPenilaian={rekapPenilaian}
             rekapLoading={rekapLoading}
+            currentDosenId={typeof currentDosenId === 'string' ? parseInt(currentDosenId) : currentDosenId}
+            onRefresh={() => setRefreshKey((prev) => prev + 1)}
           />
         )}
         <DaftarHadirDialog

@@ -121,10 +121,10 @@ export default function FormPerbaikanJudul({
             </div>
           </CardContent>
         </Card>
-        
+
         {/* Riwayat Perubahan */}
         <div className="flex-1 min-h-0">
-            <RiwayatPerubahan currentJudul={judulLama} updatedAt={updatedAt} className="h-full" />
+          <RiwayatPerubahan currentJudul={judulLama} updatedAt={updatedAt} mahasiswaId={mahasiswaId} className="h-full" />
         </div>
       </div>
 
@@ -140,7 +140,7 @@ export default function FormPerbaikanJudul({
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                
+
                 {/* Input Judul Baru */}
                 <FormField
                   control={form.control}
@@ -149,10 +149,10 @@ export default function FormPerbaikanJudul({
                     <FormItem>
                       <FormLabel className="text-base font-semibold">Judul Baru</FormLabel>
                       <FormControl>
-                        <Textarea 
-                            placeholder="Masukkan judul penelitian yang baru..." 
-                            className="min-h-[100px] resize-y text-sm"
-                            {...field} 
+                        <Textarea
+                          placeholder="Masukkan judul penelitian yang baru..."
+                          className="min-h-[100px] resize-y text-sm"
+                          {...field}
                         />
                       </FormControl>
                       <FormDescription>
@@ -178,59 +178,59 @@ export default function FormPerbaikanJudul({
                       onChange={(e) => {
                         const selectedFile = e.target.files?.[0];
                         if (selectedFile) {
-                            if (selectedFile.size > 2 * 1024 * 1024) { // 2MB limit
-                                showToast.error("Ukuran file maksimal 2MB");
-                                return;
-                            }
-                            if (selectedFile.type !== "application/pdf") {
-                                showToast.error("File harus berformat PDF");
-                                return;
-                            }
-                            setFile(selectedFile);
+                          if (selectedFile.size > 2 * 1024 * 1024) { // 2MB limit
+                            showToast.error("Ukuran file maksimal 2MB");
+                            return;
+                          }
+                          if (selectedFile.type !== "application/pdf") {
+                            showToast.error("File harus berformat PDF");
+                            return;
+                          }
+                          setFile(selectedFile);
                         }
                       }}
                     />
                     <label htmlFor="file-upload" className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
                       {file ? (
-                         <>
-                            <FileType className="h-10 w-10 text-emerald-500 mb-2" />
-                            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400 break-all px-2">
-                                {file.name}
-                            </span>
-                            <span className="text-xs text-muted-foreground mt-1">
-                                {(file.size / 1024).toFixed(0)} KB
-                            </span>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="sm" 
-                                className="mt-2 text-red-500 hover:text-red-600 hover:bg-red-50 h-8"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setFile(null);
-                                }}
-                            >
-                                Hapus
-                            </Button>
-                         </>
+                        <>
+                          <FileType className="h-10 w-10 text-emerald-500 mb-2" />
+                          <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400 break-all px-2">
+                            {file.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground mt-1">
+                            {(file.size / 1024).toFixed(0)} KB
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="mt-2 text-red-500 hover:text-red-600 hover:bg-red-50 h-8"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setFile(null);
+                            }}
+                          >
+                            Hapus
+                          </Button>
+                        </>
                       ) : (
-                         <>
-                            <UploadCloud className="h-10 w-10 text-gray-400 mb-2" />
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Klik untuk upload file
-                            </span>
-                            <span className="text-xs text-muted-foreground mt-1">
-                                Format PDF, Maksimal 2MB
-                            </span>
-                         </>
+                        <>
+                          <UploadCloud className="h-10 w-10 text-gray-400 mb-2" />
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Klik untuk upload file
+                          </span>
+                          <span className="text-xs text-muted-foreground mt-1">
+                            Format PDF, Maksimal 2MB
+                          </span>
+                        </>
                       )}
                     </label>
                   </div>
                   {!file && (
-                      <p className="text-[0.8rem] text-muted-foreground">
-                        Lampirkan surat persetujuan perubahan judul yang telah ditandatangani.
-                      </p>
+                    <p className="text-[0.8rem] text-muted-foreground">
+                      Lampirkan surat persetujuan perubahan judul yang telah ditandatangani.
+                    </p>
                   )}
                 </div>
 

@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { getAllDosen } from "@/actions/data-master/dosen";
+import { getAllUsers } from "@/actions/user";
 
 import { BeritaUjian } from "@/types/BeritaUjian";
 import { Button } from "../../ui/button";
@@ -177,6 +179,14 @@ export default function NilaiUjianTable({
       console.error(e);
     }
 
+    // Determine exam name based on type
+    const rawType = item.jenisUjian?.namaJenis?.toLowerCase() || "";
+    let examName = "Ujian";
+    if (rawType.includes("proposal")) examName = "Ujian Seminar Proposal Skripsi";
+    else if (rawType.includes("hasil")) examName = "Ujian Seminar Hasil Skripsi";
+    else if (rawType.includes("skripsi")) examName = "Ujian Skripsi";
+    else examName = item.jenisUjian?.namaJenis || "Ujian";
+
     // Settings
     const margin = 15;
     const startY = 15;
@@ -250,7 +260,7 @@ export default function NilaiUjianTable({
     doc.setFont("times", "bold");
     doc.setFontSize(11);
     doc.text("Surat Keterangan Lulus", margin + (wBottomLeft / 2), startY + h1 + 4, { align: "center" });
-    doc.text("Ujian Seminar Proposal Skripsi", margin + (wBottomLeft / 2), startY + h1 + 8, { align: "center" });
+    doc.text(examName, margin + (wBottomLeft / 2), startY + h1 + 8, { align: "center" });
 
     // Box Bawah Kanan (Tgl Terbit)
     doc.rect(rightX, startY + h1, metaW, h2);
@@ -272,7 +282,7 @@ export default function NilaiUjianTable({
     const waktuSelesai = item.waktuSelesai ? item.waktuSelesai.slice(0, 5) : ".....";
 
     // 1. Opening
-    doc.text(`Pada hari ini ${hari} tanggal ${tanggal}, telah berlangsung ujian proposal skripsi`, 20, y);
+    doc.text(`Pada hari ini ${hari} tanggal ${tanggal}, telah berlangsung ${examName.toLowerCase()}`, 20, y);
     y += 6;
     doc.text("mahasiswa:", 20, y);
     y += 10;
@@ -343,7 +353,7 @@ export default function NilaiUjianTable({
     y += 12;
 
     // 6. Result
-    doc.text("Dari hasil Ujian Proposal Skripsi tersebut memutuskan bahwa yang bersangkutan dinyatakan:", 20, y);
+    doc.text(`Dari hasil ${examName} tersebut memutuskan bahwa yang bersangkutan dinyatakan:`, 20, y);
     y += 12;
 
     const nilai = item.nilaiAkhir ? Number(item.nilaiAkhir).toFixed(2) : "......";
@@ -355,7 +365,7 @@ export default function NilaiUjianTable({
     doc.setFont("helvetica", "normal");
     y += 12;
 
-    doc.text("Demikian Surat Keterangan ini dibuat sebagai bukti dari hasil Ujian Seminar Proposal Skripsi.", 20, y);
+    doc.text(`Demikian Surat Keterangan ini dibuat sebagai bukti dari hasil ${examName}.`, 20, y);
     y += 20;
 
     // -- Signature --
@@ -381,6 +391,337 @@ export default function NilaiUjianTable({
 
     doc.save(`Surat_Keterangan_Lulus_${item.mahasiswa?.nim || "mahasiswa"}.pdf`);
   };
+
+  const handleDownloadBeritaAcara = async (item: BeritaUjian) => {
+    const doc = new jsPDF();
+    const logoUrl = "/images/uin-raden-fatah.png";
+    let logoData = "";
+    try {
+      logoData = await getBase64ImageFromURL(logoUrl);
+    } catch (e) {
+      console.error("Error loading logo:", e);
+    }
+
+    // --- CONFIG ---
+    const mx = 15;
+    let my = 15;
+    const contentWidth = 180;
+    const cw = [10, 80, 50, 40]; // No, Nama, Jabatan, TTD
+    const rowHeight = 10;
+
+    // --- HEADER TABLE ---
+    doc.setLineWidth(0.3);
+    doc.rect(mx, my, 100, 25);
+    if (logoData) {
+      doc.addImage(logoData, 'PNG', mx + 2, my + 2, 21, 21);
+    }
+    doc.setFont("times", "normal");
+    doc.setFontSize(9);
+    doc.text("UIN RADEN FATAH PALEMBANG", mx + 25, my + 8);
+    doc.text("FAKULTAS SAINS DAN TEKNOLOGI", mx + 25, my + 13);
+    doc.text("Jl. Prof. K.H. Zainal Abidin Fikry", mx + 25, my + 18);
+    doc.text("Palembang", mx + 25, my + 23);
+
+    const col2X = mx + 100;
+    doc.rect(col2X, my, 80, 7);
+    doc.line(col2X + 25, my, col2X + 25, my + 7);
+    doc.setFontSize(9);
+    doc.text("Revisi 01", col2X + 12.5, my + 5, { align: "center" });
+    doc.text("1 Agustus 2018", col2X + 52.5, my + 5, { align: "center" });
+
+    doc.rect(col2X, my + 7, 80, 10);
+    doc.text("Kode", col2X + 40, my + 11, { align: "center" });
+    doc.setFont("times", "bold");
+    doc.text("FST. FORM SKRIPSI 03", col2X + 40, my + 15, { align: "center" });
+
+    doc.rect(col2X, my + 17, 80, 8);
+    doc.setFont("times", "normal");
+    doc.text("Tgl. Terbit", col2X + 40, my + 21, { align: "center" });
+    doc.text("1 Februari 2018", col2X + 40, my + 24, { align: "center" });
+
+    my += 25;
+    doc.rect(mx, my, contentWidth, 8);
+    doc.setFont("times", "bold");
+    doc.setFontSize(11);
+    const formTitle = item.jenisUjian?.namaJenis?.toLowerCase().includes("proposal")
+      ? "Formulir Berita Acara Ujian Seminar Proposal"
+      : "Formulir Berita Acara Ujian Skripsi";
+    doc.text(formTitle, mx + 2, my + 5.5);
+
+    my += 15;
+
+    // --- CONTENT ---
+    doc.setFontSize(12);
+    doc.setFont("times", "bold");
+    const docTitle = item.jenisUjian?.namaJenis?.toLowerCase().includes("proposal")
+      ? "BERITA ACARA UJIAN SEMINAR PROPOSAL"
+      : "BERITA ACARA UJIAN SKRIPSI";
+    doc.text(docTitle, 105, my, { align: "center" });
+
+    my += 10;
+    doc.setFont("times", "normal");
+    doc.setFontSize(11);
+    const hari = item.hariUjian ? item.hariUjian.charAt(0).toUpperCase() + item.hariUjian.slice(1) : "...";
+    const tanggal = item.jadwalUjian ? new Date(item.jadwalUjian).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "...";
+    doc.text(`Pada hari ini ${hari}, tanggal ${tanggal} telah dilaksanakan ${item.jenisUjian?.namaJenis?.toLowerCase() || "skripsi"}:`, mx, my);
+
+    my += 8;
+    const startXLabel = mx + 10;
+    const startXColon = startXLabel + 35;
+    const startXValue = startXColon + 5;
+
+    const labels = [
+      { l: "Nama", v: item.mahasiswa?.nama || "" },
+      { l: "NIM", v: item.mahasiswa?.nim || "" },
+      { l: "Program Studi", v: item.mahasiswa?.prodi?.namaProdi?.toUpperCase() || "" },
+      { l: "Judul", v: item.judulPenelitian || "" },
+    ];
+    labels.forEach(row => {
+      doc.text(row.l, startXLabel, my);
+      doc.text(":", startXColon, my);
+      if (row.l === "Judul") {
+        const splitTitle = doc.splitTextToSize(row.v, 120);
+        doc.text(splitTitle, startXValue, my);
+        my += (splitTitle.length * 6);
+      } else {
+        doc.text(row.v, startXValue, my);
+        my += 8;
+      }
+    });
+
+    if (item.jenisUjian?.namaJenis?.toLowerCase().includes("proposal")) {
+      doc.text("Proposal", startXLabel, my);
+      my += 8;
+    }
+
+    // --- TABLE ---
+    my += 5;
+    doc.text("Tim Penguji:", mx, my);
+    my += 4;
+
+    const tableX = mx;
+    const headerHeight = 7;
+    doc.rect(tableX, my, cw[0], headerHeight);
+    doc.rect(tableX + cw[0], my, cw[1], headerHeight);
+    doc.rect(tableX + cw[0] + cw[1], my, cw[2], headerHeight);
+    doc.rect(tableX + cw[0] + cw[1] + cw[2], my, cw[3], headerHeight);
+
+    doc.text("No", tableX + cw[0] / 2, my + 5, { align: "center" });
+    doc.text("Nama", tableX + cw[0] + cw[1] / 2, my + 5, { align: "center" });
+    doc.text("Jabatan", tableX + cw[0] + cw[1] + cw[2] / 2, my + 5, { align: "center" });
+    doc.text("Tanda Tangan", tableX + cw[0] + cw[1] + cw[2] + cw[3] / 2, my + 5, { align: "center" });
+    my += headerHeight;
+
+    const pengujiListBA = [ // Renamed to avoid redeclaration
+      { role: "Ketua Penguji", name: item.penguji?.find(p => p.peran === "ketua_penguji")?.nama || "" },
+      { role: "Sekretaris Penguji", name: item.penguji?.find(p => p.peran === "sekretaris_penguji")?.nama || "" },
+      { role: "Penguji I", name: item.penguji?.find(p => p.peran === "penguji_1")?.nama || "" },
+      { role: "Penguji II", name: item.penguji?.find(p => p.peran === "penguji_2")?.nama || "" },
+    ];
+
+    pengujiListBA.forEach((p, idx) => {
+      const noStr = (idx + 1).toString() + ".";
+      const nameLines = doc.splitTextToSize(p.name, cw[1] - 4);
+      const roleLines = doc.splitTextToSize(p.role, cw[2] - 4);
+      const maxLines = Math.max(nameLines.length, roleLines.length);
+      const currentHeight = Math.max(rowHeight, 4 + (maxLines * 5));
+
+      doc.rect(tableX, my, cw[0], currentHeight);
+      doc.rect(tableX + cw[0], my, cw[1], currentHeight);
+      doc.rect(tableX + cw[0] + cw[1], my, cw[2], currentHeight);
+      doc.rect(tableX + cw[0] + cw[1] + cw[2], my, cw[3], currentHeight);
+
+      doc.text(noStr, tableX + cw[0] / 2, my + (currentHeight / 2) + 1.5, { align: "center" });
+      doc.text(nameLines, tableX + 2 + cw[0], my + (currentHeight - (nameLines.length * 5)) / 2 + 4);
+      doc.text(roleLines, tableX + cw[0] + cw[1] + cw[2] / 2, my + (currentHeight - (roleLines.length * 5)) / 2 + 4, { align: "center" });
+      doc.text(`(${idx + 1})`, tableX + cw[0] + cw[1] + cw[2] + cw[3] / 2, my + (currentHeight / 2) + 1.5, { align: "center" }); // TTD
+
+      my += currentHeight;
+    });
+
+    // --- DECISION ---
+    my += 10;
+    doc.setFont("times", "bold");
+    const docType = item.jenisUjian?.namaJenis?.toLowerCase().includes("proposal") ? "Proposal" : "Skripsi";
+    let statusText = "DITERIMA / DITOLAK";
+    if (item.hasil) {
+      statusText = item.hasil.toLowerCase() === "lulus" ? "DITERIMA" : "DITOLAK";
+    }
+    doc.text(`MEMUTUSKAN: ${docType} saudara dinyatakan ${statusText} dengan catatan terlampir.`, mx, my);
+
+    // --- FOOTER ---
+    my += 20;
+    doc.setFont("times", "normal");
+    const rightColX = 140;
+    doc.text("Ditetapkan di: Palembang", rightColX, my);
+    my += 5;
+    const footerDate = item.jadwalUjian ? new Date(item.jadwalUjian).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "................................";
+    doc.text(`Pada tanggal: ${footerDate}`, rightColX, my);
+
+    my += 15;
+    const leftSigX = mx;
+    const rightSigX = rightColX;
+    doc.text("Ketua Penguji,", leftSigX, my);
+    doc.text("Sekretaris Penguji,", rightSigX, my);
+    my += 25;
+    const ketuaName = item.penguji?.find(p => p.peran === "ketua_penguji")?.nama || "(...................................)";
+    const sekName = item.penguji?.find(p => p.peran === "sekretaris_penguji")?.nama || "(...................................)";
+    doc.text(ketuaName, leftSigX, my);
+    doc.text(sekName, rightSigX, my);
+    doc.save(`BA_${item.mahasiswa?.nim || "Ujian"}.pdf`);
+  };
+
+  const handleDownloadDaftarHadir = async (item: BeritaUjian) => {
+    const doc = new jsPDF();
+    const logoUrl = "/images/uin-raden-fatah.png";
+    let logoData = "";
+    let dosenList: any[] = [];
+    let userList: any[] = [];
+
+    try {
+      // Fetch resources in parallel
+      const [logo, dosen, users] = await Promise.all([
+        getBase64ImageFromURL(logoUrl),
+        getAllDosen(),
+        getAllUsers()
+      ]);
+      logoData = logo;
+      dosenList = dosen || [];
+      userList = users || [];
+    } catch (e) { console.error(e); }
+
+    const mx = 15, contentWidth = 180;
+    let my = 15;
+
+    // Header form
+    doc.setLineWidth(0.3);
+    doc.rect(mx, my, 100, 25);
+    if (logoData) doc.addImage(logoData, 'PNG', mx + 2, my + 2, 21, 21);
+    doc.setFont("times", "normal"); doc.setFontSize(9);
+    doc.text("UIN RADEN FATAH PALEMBANG", mx + 25, my + 8);
+    doc.text("FAKULTAS SAINS DAN TEKNOLOGI", mx + 25, my + 13);
+    doc.text("Jl. Prof. K.H. Zainal Abidin Fikry", mx + 25, my + 18);
+    doc.text("Palembang", mx + 25, my + 23);
+
+    const col2X = mx + 100;
+    doc.rect(col2X, my, 80, 7);
+    doc.line(col2X + 25, my, col2X + 25, my + 7);
+    doc.setFontSize(9);
+    doc.text("Revisi 01", col2X + 12.5, my + 5, { align: "center" });
+    doc.text("1 Agustus 2018", col2X + 52.5, my + 5, { align: "center" });
+    doc.rect(col2X, my + 7, 80, 10);
+    doc.text("Kode", col2X + 40, my + 11, { align: "center" });
+    doc.setFont("times", "bold");
+    doc.text("FST. FORM SKRIPSI 04", col2X + 40, my + 15, { align: "center" });
+    doc.rect(col2X, my + 17, 80, 8);
+    doc.setFont("times", "normal");
+    doc.text("Tgl. Terbit", col2X + 40, my + 21, { align: "center" });
+    doc.text("1 Februari 2018", col2X + 40, my + 24, { align: "center" });
+
+    my += 25; doc.rect(mx, my, contentWidth, 8);
+    doc.setFont("times", "bold"); doc.setFontSize(11);
+    const formTitleDH = item.jenisUjian?.namaJenis?.toLowerCase().includes("proposal") ? "Formulir Daftar Hadir Ujian Seminar Proposal" : "Formulir Daftar Hadir Ujian Skripsi";
+    doc.text(formTitleDH, mx + 2, my + 5.5);
+    my += 15;
+
+    // Content
+    doc.setFont("times", "normal"); doc.setFontSize(11);
+    const startXLabelDH = mx + 2, startXColonDH = startXLabelDH + 35, startXValueDH = startXColonDH + 5;
+    const hariDH = item.hariUjian ? item.hariUjian.charAt(0).toUpperCase() + item.hariUjian.slice(1) : "...";
+    const tanggalDH = item.jadwalUjian ? new Date(item.jadwalUjian).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "...";
+    const waktuStr = item.waktuMulai && item.waktuSelesai ? `${item.waktuMulai} - ${item.waktuSelesai} WIB` : ".......................... WIB";
+
+    doc.text("Hari/Tanggal", startXLabelDH, my); doc.text(":", startXColonDH, my); doc.text(`${hariDH} / ${tanggalDH}`, startXValueDH, my); my += 8;
+    doc.text("Waktu", startXLabelDH, my); doc.text(":", startXColonDH, my); doc.text(waktuStr, startXValueDH, my); my += 8;
+    doc.text("Nama Mahasiswa", startXLabelDH, my); doc.text(":", startXColonDH, my); doc.text(item.mahasiswa?.nama || "-", startXValueDH, my); my += 8;
+    doc.text("NIM", startXLabelDH, my); doc.text(":", startXColonDH, my); doc.text(item.mahasiswa?.nim || "-", startXValueDH, my); my += 8;
+    doc.text("Judul Proposal", startXLabelDH, my); doc.text(":", startXColonDH, my);
+    const splitTitleDH = doc.splitTextToSize(item.judulPenelitian || "-", 120);
+    doc.text(splitTitleDH, startXValueDH, my); my += (splitTitleDH.length * 6) + 5;
+
+    // Table Daftar Hadir
+    const tableXDH = mx;
+    const cwDH = [10, 50, 40, 40, 40]; // No, Nama, NIP, Jabatan, TTD
+    const headerHeightDH = 10;
+
+    doc.rect(tableXDH, my, cwDH[0], headerHeightDH); doc.rect(tableXDH + cwDH[0], my, cwDH[1], headerHeightDH); doc.rect(tableXDH + cwDH[0] + cwDH[1], my, cwDH[2], headerHeightDH);
+    doc.rect(tableXDH + cwDH[0] + cwDH[1] + cwDH[2], my, cwDH[3], headerHeightDH); doc.rect(tableXDH + cwDH[0] + cwDH[1] + cwDH[2] + cwDH[3], my, cwDH[4], headerHeightDH);
+
+    doc.text("No", tableXDH + cwDH[0] / 2, my + 6, { align: "center" }); doc.text("Nama", tableXDH + cwDH[0] + cwDH[1] / 2, my + 6, { align: "center" });
+    doc.text("NIP/NIDN", tableXDH + cwDH[0] + cwDH[1] + cwDH[2] / 2, my + 6, { align: "center" }); doc.text("Jabatan", tableXDH + cwDH[0] + cwDH[1] + cwDH[2] + cwDH[3] / 2, my + 6, { align: "center" });
+    doc.text("Tanda", tableXDH + cwDH[0] + cwDH[1] + cwDH[2] + cwDH[3] + cwDH[4] / 2, my + 4, { align: "center" }); doc.text("Tangan", tableXDH + cwDH[0] + cwDH[1] + cwDH[2] + cwDH[3] + cwDH[4] / 2, my + 8, { align: "center" });
+    my += headerHeightDH;
+
+    const pengujiListDH = [
+      { role: "Ketua Penguji", name: item.penguji?.find(p => p.peran === "ketua_penguji")?.nama || "" },
+      { role: "Sekretaris Penguji", name: item.penguji?.find(p => p.peran === "sekretaris_penguji")?.nama || "" },
+      { role: "Penguji I", name: item.penguji?.find(p => p.peran === "penguji_1")?.nama || "" },
+      { role: "Penguji II", name: item.penguji?.find(p => p.peran === "penguji_2")?.nama || "" },
+    ];
+
+    pengujiListDH.forEach((p, idx) => {
+      const displayNo = (idx + 1).toString() + ".";
+      const nameLines = doc.splitTextToSize(p.name, cwDH[1] - 4);
+
+      // Cari NIP/NIDN
+      const matchDosen = dosenList.find(d => d.nama?.toLowerCase() === p.name?.toLowerCase());
+      const nipStr = matchDosen?.nidn || matchDosen?.nip || "..........................";
+
+      const nipLines = doc.splitTextToSize(nipStr, cwDH[2] - 4);
+      const lineCount = Math.max(nameLines.length, nipLines.length, 1);
+      const currentHeight = Math.max(12, 4 + (lineCount * 5));
+
+      doc.rect(tableXDH, my, cwDH[0], currentHeight);
+      doc.rect(tableXDH + cwDH[0], my, cwDH[1], currentHeight);
+      doc.rect(tableXDH + cwDH[0] + cwDH[1], my, cwDH[2], currentHeight);
+      doc.rect(tableXDH + cwDH[0] + cwDH[1] + cwDH[2], my, cwDH[3], currentHeight);
+      doc.rect(tableXDH + cwDH[0] + cwDH[1] + cwDH[2] + cwDH[3], my, cwDH[4], currentHeight);
+
+      const midY = my + (currentHeight / 2) + 1.5;
+      doc.text(displayNo, tableXDH + cwDH[0] / 2, midY, { align: "center" });
+      doc.text(nameLines, tableXDH + 2 + cwDH[0], my + (currentHeight - (nameLines.length * 5)) / 2 + 4);
+      doc.text(nipLines, tableXDH + 2 + cwDH[0] + cwDH[1], my + (currentHeight - (nipLines.length * 5)) / 2 + 4);
+      doc.text(p.role, tableXDH + cwDH[0] + cwDH[1] + cwDH[2] + cwDH[3] / 2, midY, { align: "center" });
+      // User request: "tanda tangan kosongkan". So no text.
+
+      my += currentHeight;
+    });
+
+    // --- FOOTER ---
+    my += 15;
+    const rightColXDH = 130;
+    doc.text("Palembang,", rightColXDH, my);
+    my += 5;
+    doc.text("Ketua Program Studi,", rightColXDH, my);
+    my += 25;
+
+    // Find Kaprodi by specific NIP as requested
+    // NIP: 19750801 200912 2 001
+    const targetNipClean = "197508012009122001";
+    let kaprodiObj = dosenList.find(d =>
+      d.nip && d.nip.replace(/\s/g, "") === targetNipClean
+    );
+
+    // Fallback if not found by NIP, try logic by Prodi/Jabatan as specific NIP might be wrong or data incomplete
+    if (!kaprodiObj && item.mahasiswa?.prodi?.namaProdi) {
+      const mhsProdi = item.mahasiswa.prodi.namaProdi;
+      kaprodiObj = dosenList.find(d =>
+        d.prodi?.nama === mhsProdi &&
+        (d.jabatan?.toLowerCase().includes("kaprodi") || d.jabatan?.toLowerCase().includes("ketua program studi"))
+      );
+    }
+
+    const kaprodiNameDH = kaprodiObj?.nama || "(.......................................)";
+    const kaprodiNipVal = kaprodiObj?.nip ? `NIP. ${kaprodiObj.nip}` : "NIP.";
+
+    doc.text(kaprodiNameDH, rightColXDH, my);
+    my += 5;
+    doc.text(kaprodiNipVal, rightColXDH, my);
+
+    doc.save(`Daftar_Hadir_${item.mahasiswa?.nim || "Ujian"}.pdf`);
+  };
+
+
 
   // Kolom untuk TableGlobal
   const cols = [
@@ -539,45 +880,41 @@ export default function NilaiUjianTable({
     },
     {
       id: "aksi",
-      header: () => <div className="text-center">Surat</div>,
+      header: () => <div className="text-center">Aksi</div>,
       cell: ({ row }: any) => {
         const item = row.original;
-        const isLulus = item.hasil?.toLowerCase() === "lulus";
-        const isProposal = item.jenisUjian?.namaJenis?.toLowerCase().includes("proposal");
+        // const isLulus = item.hasil?.toLowerCase() === "lulus";
+        // const isProposal = item.jenisUjian?.namaJenis?.toLowerCase().includes("proposal");
 
-        if (isLulus && isProposal) {
-          return (
-            <div className="flex justify-center">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDownloadSuratLulus(item);
-                      }}
-                      className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                    >
-                      <Download size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Download Surat Keterangan Lulus</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          );
-        }
         return (
-          <div className="flex justify-center">
-            <span className="text-gray-300">-</span>
+          <div className="flex justify-center items-center gap-1">
+            {/* Tombol Detail */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDetail(item);
+                    }}
+                    className="h-8 w-8 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                  >
+                    <Eye size={16} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Lihat Detail</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* Tombol Surat (Moved to Modal) */}
           </div>
         );
       },
-      size: 60,
+      size: 100,
     },
   ];
 
@@ -741,108 +1078,372 @@ export default function NilaiUjianTable({
     return "E";
   }
 
+
+  const handleDownloadRekapNilai = async () => {
+    // 1. Gather Data & Resources
+    const doc = new jsPDF();
+    const logoUrl = "/images/uin-raden-fatah.png";
+    let logoData = "";
+    let dosenList: any[] = [];
+
+    try {
+      const [logo, dosen] = await Promise.all([
+        getBase64ImageFromURL(logoUrl),
+        getAllDosen(),
+      ]);
+      logoData = logo;
+      dosenList = dosen || [];
+    } catch (e) { console.error(e); }
+
+    // Identify Exams
+    const proposal = ujian.find(u => u.jenisUjian?.namaJenis?.toLowerCase().includes("proposal"));
+    const hasil = ujian.find(u => u.jenisUjian?.namaJenis?.toLowerCase().includes("hasil"));
+    const skripsi = ujian.find(u => u.jenisUjian?.namaJenis?.toLowerCase().includes("skripsi"));
+
+    const mainRecord = skripsi || hasil || proposal || ujian[0];
+    if (!mainRecord) {
+      console.error("Data ujian tidak ditemukan.");
+      return;
+    }
+
+    // --- CONFIG ---
+    const mx = 20; // Margin X
+    let my = 15;   // Margin Y
+
+    // --- HEADER ---
+    doc.setLineWidth(0.3);
+    // Box Kiri (Logo + Institusi)
+    doc.rect(mx, my, 110, 25);
+    if (logoData) {
+      doc.addImage(logoData, 'PNG', mx + 2, my + 2, 21, 21);
+    }
+    doc.setFont("times", "normal");
+    doc.setFontSize(10);
+    // Center Text Logic
+    const centerText = (text: string, x: number, y: number) => {
+      doc.text(text, x, y, { align: "center" });
+    };
+
+    // Institusi Text
+    const instX = mx + 68; // Center of 25 + (110-25)/2 approx
+    centerText("UIN RADEN FATAH PALEMBANG", instX, my + 6);
+    centerText("FAKULTAS SAINS DAN TEKNOLOGI", instX, my + 11);
+    doc.setFontSize(9);
+    centerText("Jl. Prof. K.H. Zainal Abidin Fikry", instX, my + 16);
+    centerText("Palembang", instX, my + 21);
+
+    // Box Kanan Atas (Revisi & Tanggal)
+    const col2X = mx + 110;
+    const rightWidth = 60;
+    doc.rect(col2X, my, rightWidth, 8);
+    // Garis Separator Tengah
+    doc.line(col2X + 30, my, col2X + 30, my + 8);
+
+    doc.setFontSize(8);
+    centerText("Revisi 01", col2X + 15, my + 5);
+    centerText("1 Agustus 2018", col2X + 45, my + 5);
+
+    // Box Kanan Tengah (Kode)
+    doc.rect(col2X, my + 8, rightWidth, 8);
+    centerText("Kode", col2X + 30, my + 11.5);
+    doc.setFont("times", "bold");
+    centerText("FST. FORM SKRIPSI 25", col2X + 30, my + 15);
+
+    // Box Kanan Bawah (Tgl Terbit)
+    doc.rect(col2X, my + 16, rightWidth, 9);
+    doc.setFont("times", "normal");
+    centerText("Tgl. Terbit", col2X + 30, my + 20);
+    centerText("1 Pebruari 2018", col2X + 30, my + 23.5);
+
+    my += 25;
+    // Box Judul Form
+    doc.rect(mx, my, 110 + rightWidth, 8); // Full width = 170
+    doc.setFont("times", "bold");
+    doc.setFontSize(11);
+    centerText("Formulir Rekapitulasi Nilai Skripsi", mx + (110 + rightWidth) / 2, my + 5.5);
+
+    // --- STUDENT INFO ---
+    my += 15;
+    doc.setFont("times", "normal");
+    doc.setFontSize(11);
+
+    const startXLabel = mx + 5;
+    const startXColon = startXLabel + 30;
+    const startXValue = startXColon + 5;
+
+    const hariSkripsi = skripsi?.hariUjian ? skripsi.hariUjian.charAt(0).toUpperCase() + skripsi.hariUjian.slice(1) : "....................";
+    const tglSkripsi = skripsi?.jadwalUjian ? new Date(skripsi.jadwalUjian).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : ".......................";
+    const tglFormatted = tglSkripsi === "......................." ? "" : `${tglSkripsi}`; // Used in table or separate? Template shows "Hari/Tanggal : /"
+
+    doc.text("Hari/Tanggal", startXLabel, my);
+    doc.text(":", startXColon, my);
+    doc.text(`${hariSkripsi} / ${tglFormatted}`, startXValue, my);
+    my += 8;
+
+    doc.text("Nama/NIM", startXLabel, my);
+    doc.text(":", startXColon, my);
+    doc.text(`${mainRecord.mahasiswa?.nama || ""} / ${mainRecord.mahasiswa?.nim || ""}`, startXValue, my);
+    my += 8;
+
+    doc.text("Judul Skripsi", startXLabel, my);
+    doc.text(":", startXColon, my);
+    const splitTitle = doc.splitTextToSize(mainRecord.judulPenelitian || "-", 120);
+    doc.text(splitTitle, startXValue, my);
+    my += (splitTitle.length * 6) + 10;
+
+    // --- REKAP TABLE ---
+    // Header
+    const tableX = mx;
+    const cw = [10, 60, 30, 30, 40]; // No, Komponen, Bobot %, Skor, Bobot*Skor (Total 170)
+    const headerH = 8;
+
+    doc.setFont("times", "bold"); // Bold for table header? Image is ambiguous, usually regular or bold. Let's start with Header.
+    // Main Header "Rekap Nilai Skripsi" merge cells?
+    // Template shows:
+    // | Rekap Nilai Skripsi | (Merged)
+    // | No | Komponen | Bobot % | Skor | Bobot * Skor |
+
+    doc.rect(tableX, my, 170, 7);
+    centerText("Rekap Nilai Skripsi", tableX + 85, my + 5);
+    my += 7;
+
+    doc.rect(tableX, my, cw[0], headerH);
+    doc.rect(tableX + cw[0], my, cw[1], headerH);
+    doc.rect(tableX + cw[0] + cw[1], my, cw[2], headerH);
+    doc.rect(tableX + cw[0] + cw[1] + cw[2], my, cw[3], headerH);
+    doc.rect(tableX + cw[0] + cw[1] + cw[2] + cw[3], my, cw[4], headerH);
+
+    doc.setFontSize(10);
+    centerText("No", tableX + cw[0] / 2, my + 5);
+    centerText("Komponen", tableX + cw[0] + cw[1] / 2, my + 5);
+    centerText("Bobot %", tableX + cw[0] + cw[1] + cw[2] / 2, my + 5);
+    centerText("Skor", tableX + cw[0] + cw[1] + cw[2] + cw[3] / 2, my + 5);
+    centerText("Bobot * Skor", tableX + cw[0] + cw[1] + cw[2] + cw[3] + cw[4] / 2, my + 5);
+    my += headerH;
+
+    // Rows
+    const rows = [
+      { name: "Seminar Proposal", bobot: 20, score: proposal?.nilaiAkhir },
+      { name: "Ujian Hasil", bobot: 50, score: hasil?.nilaiAkhir },
+      { name: "Ujian Skripsi", bobot: 30, score: skripsi?.nilaiAkhir },
+    ];
+
+    let totalNilaiAkhir = 0;
+    doc.setFont("times", "normal");
+
+    rows.forEach((r, i) => {
+      const scoreNum = r.score ? parseFloat(r.score.toString()) : 0;
+      const weightedScore = (scoreNum * r.bobot) / 100;
+      totalNilaiAkhir += weightedScore;
+
+      const rowH = 8;
+
+      doc.rect(tableX, my, cw[0], rowH);
+      doc.rect(tableX + cw[0], my, cw[1], rowH);
+      doc.rect(tableX + cw[0] + cw[1], my, cw[2], rowH);
+      doc.rect(tableX + cw[0] + cw[1] + cw[2], my, cw[3], rowH);
+      doc.rect(tableX + cw[0] + cw[1] + cw[2] + cw[3], my, cw[4], rowH);
+
+      centerText(`${i + 1}`, tableX + cw[0] / 2, my + 5.5);
+      doc.text("  " + r.name, tableX + cw[0], my + 5.5); // align left with padding
+      centerText(`${r.bobot}`, tableX + cw[0] + cw[1] + cw[2] / 2, my + 5.5);
+      centerText(r.score ? Number(r.score).toFixed(2) : "-", tableX + cw[0] + cw[1] + cw[2] + cw[3] / 2, my + 5.5);
+      centerText(r.score ? weightedScore.toFixed(2) : "-", tableX + cw[0] + cw[1] + cw[2] + cw[3] + cw[4] / 2, my + 5.5);
+
+      my += rowH;
+    });
+
+    // Footer Total
+    const colSpanTitle = cw[0] + cw[1] + cw[2] + cw[3]; // 合并前4列
+    doc.rect(tableX, my, colSpanTitle, 8);
+    // Align Right for "Total Angka Nilai"
+    doc.text("Total Angka Nilai", tableX + colSpanTitle - 5, my + 5.5, { align: "right" });
+
+    // Value Box
+    doc.rect(tableX + colSpanTitle, my, cw[4], 8);
+    centerText(totalNilaiAkhir.toFixed(2), tableX + colSpanTitle + cw[4] / 2, my + 5.5);
+    my += 8;
+
+    // Footer Huruf
+    doc.rect(tableX, my, colSpanTitle, 8);
+    doc.text("Nilai Huruf", tableX + colSpanTitle - 5, my + 5.5, { align: "right" });
+
+    doc.rect(tableX + colSpanTitle, my, cw[4], 8);
+    const huruf = getNilaiHuruf(totalNilaiAkhir);
+    centerText(huruf, tableX + colSpanTitle + cw[4] / 2, my + 5.5);
+    my += 20;
+
+    // --- SIGNATURE & NOTES ---
+    // Notes Left, Signature Right
+    const noteY = my;
+    const signY = my;
+
+    // Notes
+    doc.setFont("times", "normal");
+    doc.setFontSize(10);
+    doc.text("Catatan interval nilai:", mx, noteY);
+    const notes = [
+      "A       : 80.00 – 100",
+      "B       : 70.00 – 79.99",
+      "C       : 60.00 – 69.99",
+      "D       : 56.00 -59.99",
+      "E       : < 55.99"
+    ];
+    let ny = noteY + 5;
+    notes.forEach(note => {
+      doc.text(note, mx, ny);
+      ny += 5;
+    });
+
+    // Signature
+    // Find Kaprodi
+    const targetNipClean = "197508012009122001";
+    let kaprodiObj = dosenList.find(d =>
+      d.nip && d.nip.replace(/\s/g, "") === targetNipClean
+    );
+    // Fallback
+    if (!kaprodiObj && mainRecord.mahasiswa?.prodi?.namaProdi) {
+      const mhsProdi = mainRecord.mahasiswa.prodi.namaProdi;
+      kaprodiObj = dosenList.find(d =>
+        d.prodi?.nama === mhsProdi &&
+        (d.jabatan?.toLowerCase().includes("kaprodi") || d.jabatan?.toLowerCase().includes("ketua program studi"))
+      );
+    }
+    const kaprodiName = kaprodiObj?.nama || "(.......................................)";
+    const kaprodiNip = kaprodiObj?.nip ? `NIP. ${kaprodiObj.nip}` : "NIP.";
+
+    const rightColX = 130;
+    const today = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+    doc.text(`Palembang, ${today}`, rightColX, signY);
+    doc.text("Ketua Program Studi,", rightColX, signY + 5);
+
+    doc.text(kaprodiName, rightColX, signY + 30);
+    doc.text(kaprodiNip, rightColX, signY + 35);
+
+    doc.save(`Rekap_Nilai_Skripsi_${mainRecord.mahasiswa?.nim || "mahasiswa"}.pdf`);
+  };
+
   return (
     <DataCard>
       {/* Detail Modal */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden h-[90vh] sm:h-auto rounded-2xl bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 shadow-2xl">
-          <DialogHeader className="px-6 py-5 border-b border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky top-0 z-10">
-            <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                  Rekapitulasi Nilai
-                </DialogTitle>
-                <DialogDescription className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Detail penilaian akhir mahasiswa
-                </DialogDescription>
-              </div>
-              <DialogClose asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700">
-                  <X size={16} />
-                </Button>
-              </DialogClose>
+        <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-2xl bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 shadow-2xl flex flex-col max-h-[85vh] sm:max-h-[90vh]">
+          {/* Header */}
+          <div className="px-6 py-4 border-b border-gray-50 dark:border-neutral-800 flex items-center justify-between shrink-0 bg-white dark:bg-neutral-900">
+            <div>
+              <DialogTitle className="text-lg font-bold text-gray-900 dark:text-white">
+                Rekapitulasi Hasil Ujian
+              </DialogTitle>
+              <DialogDescription className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                Rincian penilaian dan status kelulusan mahasiswa.
+              </DialogDescription>
             </div>
-          </DialogHeader>
-          <ScrollArea className="max-h-[75vh] px-0">
+          </div>
+
+          {/* Content - Using native overflow for reliable scrolling in flex container */}
+          <div className="flex-1 overflow-y-auto">
             {selected && (
               <div className="p-6 space-y-8">
-                {/* 1. Header Card: Student Info */}
-                <div className="bg-gray-50 dark:bg-neutral-800/50 rounded-2xl p-5 border border-gray-100 dark:border-neutral-800 flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                      Mahasiswa
+                {/* 1. Hero Card: Student Identity & Status */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50/50 via-white to-blue-50/20 dark:from-blue-900/10 dark:via-neutral-900 dark:to-neutral-800 border border-blue-100/50 dark:border-blue-900/20 p-6 shadow-sm">
+                  <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div className="flex items-start gap-4">
+                      <div className="h-12 w-12 rounded-xl bg-blue-100/50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center font-bold text-xl shadow-inner border border-blue-200/50 dark:border-blue-800">
+                        {selected.mahasiswa?.nama?.charAt(0) ?? "M"}
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-xs font-semibold text-blue-600/80 dark:text-blue-400 uppercase tracking-wider">
+                          Mahasiswa
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-none">
+                          {selected.mahasiswa?.nama ?? "-"}
+                        </h3>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          NIM: {selected.mahasiswa?.nim ?? "-"}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-                      {selected.mahasiswa?.nama ?? "-"}
-                    </div>
-                    <div className="text-sm text-gray-500 font-medium">
-                      NIM: {selected.mahasiswa?.nim ?? "-"}
+
+                    <div className="flex flex-col items-end gap-1.5 bg-white/60 dark:bg-neutral-800/60 p-2 rounded-xl border border-gray-100 dark:border-neutral-700 text-right backdrop-blur-sm">
+                      <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Status Kelulusan</span>
+                      {(() => {
+                        const affectedExams = ["seminar proposal", "ujian hasil", "ujian skripsi"];
+                        const currentExamType = selected.jenisUjian?.namaJenis?.toLowerCase() || "";
+                        const isExamRuleActive = affectedExams.some(t => currentExamType.includes(t));
+
+                        // Check if any single score item is <= 60
+                        const hasScoreBelowThreshold = penilaian.some((p: any) => (p.nilai ?? 0) <= 60);
+                        const forcedFail = isExamRuleActive && hasScoreBelowThreshold;
+
+                        // Determine display status
+                        let displayStatus = selected.hasil ?? "Belum Ada Hasil";
+                        if (forcedFail) displayStatus = "TIDAK LULUS";
+
+                        const isLulus = displayStatus.toLowerCase() === "lulus";
+                        const isTidakLulus = displayStatus.toLowerCase() === "tidak lulus";
+
+                        return (
+                          <span className={`px-3 py-1 rounded-lg text-sm font-bold uppercase tracking-wide
+                                ${isLulus
+                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                              : isTidakLulus
+                                ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-200 dark:border-rose-800"
+                                : "bg-gray-100 text-gray-600 border border-gray-200"
+                            }
+                             `}>
+                            {displayStatus}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right hidden sm:block">
-                      <div className="text-xs text-gray-400 font-medium mb-1">Status Ujian</div>
-                      <span
-                        className={`inline-flex px-3 py-1 rounded-full text-xs font-bold tracking-wide capitalize border
-                            ${selected.hasil?.toLowerCase() === "lulus"
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
-                            : selected.hasil?.toLowerCase() === "tidak lulus"
-                              ? "bg-red-50 text-red-600 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
-                              : "bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
-                          }
-                          `}
-                      >
-                        {selected.hasil ?? "Belum Ada Hasil"}
-                      </span>
-                    </div>
-                  </div>
+                  {/* Decor elements */}
+                  <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-blue-100/40 rounded-full blur-3xl pointer-events-none"></div>
                 </div>
 
-                {/* 2. Detail Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
-                  {/* Left Column: Judul & Jenis */}
+                {/* 2. Main Content Stack (Vertical) */}
+                <div className="flex flex-col gap-8">
+                  {/* Exam Details Section */}
                   <div className="space-y-6">
-                    <div className="space-y-2">
-                      <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                    <div className="space-y-3">
+                      <h4 className="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight">
+                        <span className="p-1.5 rounded-md bg-gray-100 dark:bg-neutral-800 text-gray-500"><List size={14} /></span>
                         Judul Penelitian
+                      </h4>
+                      <div className="p-4 bg-gray-50 dark:bg-neutral-900/50 border border-gray-100 dark:border-neutral-800 rounded-xl">
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200 leading-relaxed italic text-center sm:text-left">
+                          "{selected.judulPenelitian ?? "-"}"
+                        </p>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 font-medium leading-relaxed">
-                        {selected.judulPenelitian ?? "-"}
-                      </p>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                        Jenis Ujian
-                      </div>
-                      <div>
-                        <span
-                          className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="text-xs font-semibold text-gray-400 uppercase">Jenis Ujian</div>
+                        <div className={`inline-flex items-center px-4 py-3 rounded-xl text-sm font-bold border gap-2 w-full justify-center sm:justify-start
                                 ${selected.jenisUjian?.namaJenis?.toLowerCase().includes("proposal")
-                              ? "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800"
-                              : selected.jenisUjian?.namaJenis?.toLowerCase().includes("hasil")
-                                ? "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800"
-                                : "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800"
-                            }
-                              `}
-                        >
+                            ? "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800"
+                            : selected.jenisUjian?.namaJenis?.toLowerCase().includes("hasil")
+                              ? "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800"
+                              : "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800"
+                          }`}>
+                          <Settings2 size={16} />
                           {selected.jenisUjian?.namaJenis ?? "-"}
-                        </span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-xs font-semibold text-gray-400 uppercase">Tanggal Ujian</div>
+                        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 text-sm font-medium text-gray-700 dark:text-gray-300 w-full justify-center sm:justify-start">
+                          <Calendar size={16} className="text-gray-400" />
+                          {selected.jadwalUjian ? new Date(selected.jadwalUjian).toLocaleDateString("id-ID", { dateStyle: 'full' }) : "-"}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Right Column: Calculations */}
-                  <div className="space-y-6">
-                    <div className="rounded-2xl border border-gray-100 dark:border-neutral-800 p-5 bg-white dark:bg-neutral-900 shadow-sm space-y-4">
-                      <div className="flex items-center justify-between pb-4 border-b border-gray-50 dark:border-neutral-800">
-                        <span className="text-gray-500 dark:text-gray-400 font-medium">Nilai Akhir</span>
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                          {selected.nilaiAkhir ?? "0.00"}
-                        </span>
-                      </div>
-
-                      {/* Calculation Logic */}
+                  {/* Score Card Section */}
+                  <div>
+                    <div className="rounded-3xl border border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-8 shadow-sm">
                       {(() => {
                         const pengujiMap: Record<number, { total: number }> = {};
                         penilaian.forEach((p) => {
@@ -856,60 +1457,107 @@ export default function NilaiUjianTable({
                         );
                         const jumlahPenguji = Object.keys(pengujiMap).length || 1;
                         const rataRata = totalNilai / jumlahPenguji;
-                        const nilaiHuruf = getNilaiHuruf(rataRata);
+
+                        // Rule Check
+                        const affectedExams = ["seminar proposal", "ujian hasil", "ujian skripsi"];
+                        const currentExamType = selected.jenisUjian?.namaJenis?.toLowerCase() || "";
+                        const isExamRuleActive = affectedExams.some(t => currentExamType.includes(t));
+                        const hasScoreBelowThreshold = penilaian.some((p: any) => (p.nilai ?? 0) <= 60);
+                        const forcedFail = isExamRuleActive && hasScoreBelowThreshold;
+
+                        let nilaiHuruf = getNilaiHuruf(rataRata);
+                        if (forcedFail) nilaiHuruf = "E";
 
                         return (
-                          <div className="space-y-2 pt-1">
-                            {/* <div className="flex justify-between items-center text-xs">
-                                  <span className="text-gray-400">Total Angka</span>
-                                  <span className="font-mono font-medium text-gray-600 dark:text-gray-300">{totalNilai.toFixed(2)}</span>
-                                </div> */}
-                            <div className="flex justify-between items-center text-xs">
-                              <span className="text-gray-400">Rata-rata</span>
-                              <span className="font-mono font-medium text-gray-600 dark:text-gray-300">{rataRata.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm pt-2">
-                              <span className="text-gray-500 font-medium">Predikat Huruf</span>
-                              <span className={`font-bold px-2 py-0.5 rounded text-xs
-                                     ${nilaiHuruf === 'A' ? 'bg-green-100 text-green-700' :
-                                  nilaiHuruf === 'B' ? 'bg-blue-100 text-blue-700' :
-                                    nilaiHuruf === 'C' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}
-                                  `}>
+                          <div className="flex flex-col sm:flex-row items-center justify-around gap-8">
+                            <div className="relative shrink-0">
+                              {/* Grade Circle */}
+                              <div className={`w-32 h-32 rounded-full flex items-center justify-center text-7xl font-black shadow-2xl ring-8 ring-gray-50 dark:ring-neutral-800
+                                              ${nilaiHuruf === 'A' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white' :
+                                  nilaiHuruf === 'B' ? 'bg-gradient-to-br from-blue-400 to-blue-600 text-white' :
+                                    nilaiHuruf === 'C' ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' :
+                                      'bg-gradient-to-br from-red-400 to-red-600 text-white'}
+                                           `}>
                                 {nilaiHuruf}
-                              </span>
+                              </div>
+                              {/* Score Label */}
+                              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-base font-bold px-4 py-1.5 rounded-full shadow-lg border border-gray-100 dark:border-neutral-700 whitespace-nowrap">
+                                {selected.nilaiAkhir ?? "0.0"}
+                              </div>
+                            </div>
+
+                            <div className="w-full sm:w-auto flex-1 max-w-sm space-y-4 text-center sm:text-left">
+                              <div>
+                                <h5 className="text-sm font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide mb-1">Hasil Akhir</h5>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  Mahasiswa memperoleh predikat <strong className="text-gray-900 dark:text-white">{nilaiHuruf}</strong> dengan nilai rata-rata <strong className="text-gray-900 dark:text-white">{rataRata.toFixed(2)}</strong>.
+                                </p>
+                                {forcedFail && (
+                                  <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium bg-red-50 dark:bg-red-900/10 p-2 rounded-lg border border-red-100 dark:border-red-900/20">
+                                    Status: TIDAK LULUS (Terdapat nilai kriteria ≤ 60)
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col p-3 bg-gray-50 dark:bg-neutral-800/50 rounded-2xl border border-gray-100 dark:border-neutral-800">
+                                  <span className="text-[10px] uppercase text-gray-400 font-bold tracking-wider mb-1">Total Nilai</span>
+                                  <span className="font-mono font-bold text-gray-800 dark:text-gray-200 text-xl">{totalNilai.toFixed(2)}</span>
+                                </div>
+                                <div className="flex flex-col p-3 bg-gray-50 dark:bg-neutral-800/50 rounded-2xl border border-gray-100 dark:border-neutral-800">
+                                  <span className="text-[10px] uppercase text-gray-400 font-bold tracking-wider mb-1">Rata-rata</span>
+                                  <span className="font-mono font-bold text-gray-800 dark:text-gray-200 text-xl">{rataRata.toFixed(2)}</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        );
+                        )
                       })()}
                     </div>
                   </div>
                 </div>
 
-                {/* 3. Penguji Breakdown Removed as requested */}
-                {/* <div className="space-y-4">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 flex items-center gap-2">
-                    <span>Detail Penlaian Penguji</span>
-                    <div className="h-px bg-gray-100 dark:bg-neutral-800 flex-1"></div>
-                  </div>
-                  {renderRekapPenilaian()}
-                </div> */}
-
-                {/* 4. Footer info */}
-                <div className="bg-blue-50/50 dark:bg-blue-900/10 rounded-xl p-4 border border-blue-100 dark:border-blue-900/30">
-                  <div className="flex gap-4 text-xs text-blue-700 dark:text-blue-300">
-                    <div className="font-semibold shrink-0">Info Nilai:</div>
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-6 gap-y-1 opacity-80">
-                      <span>A: 80–100</span>
-                      <span>B: 70–79.99</span>
-                      <span>C: 60–69.99</span>
-                      <span>D: 56–59.99</span>
-                      <span>E: &lt; 56</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
-          </ScrollArea>
+          </div>
+
+          {/* Footer with Actions */}
+          <div className="p-4 border-t border-gray-100 dark:border-neutral-800 bg-gray-50/50 dark:bg-neutral-900 flex justify-end gap-3 shrink-0">
+            <DialogClose asChild>
+              <Button variant="outline">Tutup</Button>
+            </DialogClose>
+
+            {selected?.hasil && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => selected && handleDownloadBeritaAcara(selected)}
+                  className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50 gap-2 shadow-sm"
+                >
+                  <Download size={16} />
+                  Berita Acara
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => selected && handleDownloadDaftarHadir(selected)}
+                  className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50 gap-2 shadow-sm"
+                >
+                  <Download size={16} />
+                  Daftar Hadir
+                </Button>
+              </>
+            )}
+
+            {selected?.hasil?.toLowerCase() === "lulus" && (
+              <Button
+                onClick={() => selected && handleDownloadSuratLulus(selected)}
+                className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-sm shadow-blue-500/20"
+              >
+                <Download size={16} />
+                Surat Keterangan Lulus
+              </Button>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -945,8 +1593,8 @@ export default function NilaiUjianTable({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end sm:gap-4 gap-2 mb-4">
         {/* Search and Filter */}
 
-        <div className="flex w-full  items-center gap-2 sm:gap-2">
-          <div className="relative w-full ">
+        <div className="flex w-full items-center gap-2 sm:gap-2">
+          <div className="relative w-full">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <Search size={16} />
             </span>
@@ -958,6 +1606,25 @@ export default function NilaiUjianTable({
               className="border rounded-lg pl-10 pr-3 py-2 w-full bg-white dark:bg-neutral-800 text-sm"
             />
           </div>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  onClick={handleDownloadRekapNilai}
+                  className="h-9 px-3 gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/20 border-0"
+                  title="Download Rekap Nilai Skripsi"
+                >
+                  <Download size={16} />
+                  <span className="sr-only sm:not-sr-only">Rekap</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Download Rekap Nilai Skripsi</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           <div className="flex items-center gap-2 shrink-0">
             <DropdownMenu>
@@ -972,6 +1639,7 @@ export default function NilaiUjianTable({
                   <Settings2 size={16} />
                 </Button>
               </DropdownMenuTrigger>
+              {/* Dropdown Content */}
               <DropdownMenuContent align="end" className="w-[200px] p-0">
                 <ScrollArea className="max-h-[300px] p-1">
                   <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">

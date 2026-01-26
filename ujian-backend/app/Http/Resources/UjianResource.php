@@ -23,7 +23,7 @@ class UjianResource extends JsonResource
                 'tanggalPengajuan' => $this->pendaftaranUjian->tanggal_pengajuan,
                 'tanggalDisetujui' => $this->pendaftaranUjian->tanggal_disetujui,
                 'status' => $this->pendaftaranUjian->status,
-                ] : null,
+            ] : null,
             'judulPenelitian' => $this->pendaftaranUjian->ranpel->judul_penelitian ?? null,
             'mahasiswa' => $this->mahasiswa ? [
                 'id' => $this->mahasiswa->id,
@@ -32,20 +32,20 @@ class UjianResource extends JsonResource
                 'prodi' => $this->mahasiswa->prodi ? [
                     'id' => $this->mahasiswa->prodi->id,
                     'namaProdi' => $this->mahasiswa->prodi->nama_prodi,
-                    ] : null,
+                ] : null,
                 'pembimbing1' => $this->mahasiswa->pembimbing1 ? [
                     'id' => $this->mahasiswa->pembimbing1->id,
                     'nip' => $this->mahasiswa->pembimbing1->nip,
                     'nidn' => $this->mahasiswa->pembimbing1->nidn,
                     'nama' => $this->mahasiswa->pembimbing1->nama,
-                    ] : null,
+                ] : null,
                 'pembimbing2' => $this->mahasiswa->pembimbing2 ? [
                     'id' => $this->mahasiswa->pembimbing2->id,
                     'nip' => $this->mahasiswa->pembimbing2->nip,
                     'nidn' => $this->mahasiswa->pembimbing2->nidn,
                     'nama' => $this->mahasiswa->pembimbing2->nama,
-                    ] : null,
                 ] : null,
+            ] : null,
             'jenisUjian' => $this->jenisUjian ? [
                 'id' => $this->jenisUjian->id,
                 'namaJenis' => $this->jenisUjian->nama_jenis,
@@ -62,8 +62,8 @@ class UjianResource extends JsonResource
                     'namaProdi' => $this->ruangan->prodi->nama_prodi,
                 ] : null,
             ] : null,
-            'penguji' => $this->whenLoaded('penguji', function(){
-                return $this->penguji->map(function($dosen){
+            'penguji' => $this->whenLoaded('dosenPenguji', function () {
+                return $this->dosenPenguji->map(function ($dosen) {
                     return [
                         'id' => $dosen->id,
                         'nama' => $dosen->nama,

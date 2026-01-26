@@ -16,7 +16,10 @@ import {
   CalendarClock,
   X,
   Users,
+  FileDown,
 } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import { daftarKehadiran } from "@/types/DaftarKehadiran";
 import { Input } from "@/components/ui/input";
@@ -89,6 +92,15 @@ const Modal = ({
   );
 };
 
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+
+// ... existing imports
+
 export default function JadwalUjianTable({
   jadwalUjian,
   daftarHadir,
@@ -107,9 +119,8 @@ export default function JadwalUjianTable({
 
   const [filterNama, setFilterNama] = useState("");
   const [filterJenis, setFilterJenis] = useState("all");
-  const [filterBulan, setFilterBulan] = useState<string>("all");
-  const [filterTahun, setFilterTahun] = useState<string>("all");
   const [openFilter, setOpenFilter] = useState(false);
+  const [date, setDate] = useState<DateRange | undefined>(undefined);
 
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -147,34 +158,38 @@ export default function JadwalUjianTable({
           return false;
       }
 
-      const matchNama = ujian.mahasiswa.nama
-        .toLowerCase()
-        .includes(filterNama.toLowerCase());
+      const matchNama =
+        ujian.mahasiswa.nama
+          .toLowerCase()
+          .includes(filterNama.toLowerCase()) ||
+        ujian.mahasiswa.nim
+          .toLowerCase()
+          .includes(filterNama.toLowerCase());
 
       const matchJenis =
         filterJenis === "all"
           ? true
           : ujian.jenisUjian.namaJenis === filterJenis;
 
-      const matchBulan =
-        filterBulan === "all"
-          ? true
-          : (() => {
+      const matchDate =
+        date?.from
+          ? (() => {
             if (!ujian.jadwalUjian) return false;
-            const bulan = String(new Date(ujian.jadwalUjian).getMonth() + 1);
-            return bulan === filterBulan;
-          })();
+            const uDate = new Date(ujian.jadwalUjian);
+            uDate.setHours(0, 0, 0, 0);
+            const from = new Date(date.from);
+            from.setHours(0, 0, 0, 0);
 
-      const matchTahun =
-        filterTahun === "all"
-          ? true
-          : (() => {
-            if (!ujian.jadwalUjian) return false;
-            const tahun = String(new Date(ujian.jadwalUjian).getFullYear());
-            return tahun === filterTahun;
-          })();
+            if (date.to) {
+              const to = new Date(date.to);
+              to.setHours(23, 59, 59, 999);
+              return uDate >= from && uDate <= to;
+            }
+            return uDate.getTime() === from.getTime();
+          })()
+          : true;
 
-      return matchNama && matchJenis && matchBulan && matchTahun;
+      return matchNama && matchJenis && matchDate;
     });
 
     if (sortField) {
@@ -212,8 +227,7 @@ export default function JadwalUjianTable({
     jadwalUjian,
     filterNama,
     filterJenis,
-    filterBulan,
-    filterTahun,
+    date,
     sortField,
     sortOrder,
     statusTab,
@@ -517,6 +531,150 @@ export default function JadwalUjianTable({
     setPageIndex: (p: number) => setPage(p + 1),
   };
 
+  // Function to export to PDF
+  // Function to export to PDF
+  const handleExportPDF = () => {
+    const doc = new jsPDF("l", "mm", "a4");
+
+    // Initial Y position
+    let finalY = 15;
+
+    // Define categories and their display titles
+    const categories = [
+      { key: "Ujian Proposal", title: "SEMINAR PROPOSAL" },
+      { key: "Ujian Hasil", title: "UJIAN HASIL" },
+      { key: "Ujian Skripsi", title: "UJIAN SKRIPSI" },
+    ];
+
+    let hasPrintedAny = false;
+
+    categories.forEach((cat) => {
+      // Filter data for this category
+      const catData = filteredData.filter(u => u.jenisUjian.namaJenis === cat.key);
+
+      if (catData.length === 0) return;
+
+      hasPrintedAny = true;
+
+      // Add spacing or new page if needed
+      if (finalY > 15) {
+        finalY += 15;
+        // Check if we need a new page (A4 landscape height ~210mm)
+        if (finalY > 180) {
+          doc.addPage();
+          finalY = 15;
+        }
+      }
+
+      // Section Title
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text(cat.title, 14, finalY);
+
+      // Reset font
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+
+      // Prepare table data
+      const tableData = catData.map((ujian, index) => {
+        // Helper to find examiner by role
+        const getPengujiName = (role: string) => {
+          const p = ujian.penguji?.find((p) => p.peran === role);
+          return p ? p.nama : "";
+        };
+
+        const ketua = getPengujiName("ketua_penguji");
+        const sekretaris = getPengujiName("sekretaris_penguji");
+        const penguji1 = getPengujiName("penguji_1");
+        const penguji2 = getPengujiName("penguji_2");
+
+        return [
+          index + 1,
+          ujian.mahasiswa.nim || "-",
+          ujian.mahasiswa.nama || "-",
+          ujian.jadwalUjian
+            ? `${new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
+              weekday: "long",
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+            })}\n${ujian.waktuMulai?.slice(0, 5)} s.d ${ujian.waktuSelesai?.slice(0, 5)}`
+            : "Belum dijadwalkan",
+          `${ujian.ruangan?.namaRuangan || "-"}\n(Ruang Ujian)`,
+          ujian.judulPenelitian || "-",
+          ketua,
+          sekretaris,
+          penguji1,
+          penguji2,
+        ];
+      });
+
+      // Render Table
+      autoTable(doc, {
+        head: [
+          [
+            "NO",
+            "NIM",
+            "NAMA",
+            "WAKTU",
+            "Ruang",
+            "JUDUL",
+            "KETUA PENGUJI",
+            "SEKRETARIS PENGUJI",
+            "PENGUJI I",
+            "PENGUJI II",
+          ],
+        ],
+        body: tableData,
+        startY: finalY + 5,
+        theme: "grid",
+        styles: {
+          fontSize: 7,
+          cellPadding: 2,
+          valign: "middle",
+          halign: "left",
+          font: "helvetica",
+          lineWidth: 0.1,
+          lineColor: [0, 0, 0],
+          textColor: [0, 0, 0],
+          overflow: "linebreak",
+        },
+        headStyles: {
+          fillColor: [100, 149, 237],
+          textColor: [0, 0, 0],
+          fontStyle: "bold",
+          halign: "center",
+          lineWidth: 0.1,
+          lineColor: [0, 0, 0],
+        },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255],
+        },
+        columnStyles: {
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 20 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 25 },
+          4: { cellWidth: 15, halign: "center" },
+          5: { cellWidth: 50 },
+          6: { cellWidth: 30 },
+          7: { cellWidth: 30 },
+          8: { cellWidth: 30 },
+          9: { cellWidth: 30 },
+        },
+      });
+
+      // Update finalY for next iteration
+      finalY = (doc as any).lastAutoTable.finalY;
+    });
+
+    if (!hasPrintedAny) {
+      doc.text("Tidak ada data jadwal ujian yang ditampilkan.", 14, 15);
+    }
+
+    doc.save("jadwal-ujian-skripsi.pdf");
+  };
+
   return (
     <DataCard>
       {/* Header bar: Search, Filter, View Mode */}
@@ -526,7 +684,7 @@ export default function JadwalUjianTable({
             <Search size={16} />
           </span>
           <Input
-            placeholder="Search"
+            placeholder="Cari berdasarkan Nama atau NIM"
             value={filterNama}
             onChange={(e) => setFilterNama(e.target.value)}
             className="pl-10 w-full bg-white dark:bg-neutral-800"
@@ -534,6 +692,57 @@ export default function JadwalUjianTable({
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-auto">
+          {/* Date Range Picker */}
+          <div className={cn("grid gap-2")}>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant={"outline"}
+                  size="sm"
+                  className={cn(
+                    "w-[240px] justify-start text-left font-normal h-9",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date?.from ? (
+                    date.to ? (
+                      <>
+                        {format(date.from, "dd LLL y", { locale: id })} -{" "}
+                        {format(date.to, "dd LLL y", { locale: id })}
+                      </>
+                    ) : (
+                      format(date.from, "dd LLL y", { locale: id })
+                    )
+                  ) : (
+                    <span>Pilih tanggal</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={date?.from}
+                  selected={date}
+                  onSelect={setDate}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <Button
+            size="sm"
+            className="h-9 gap-1.5 text-xs font-medium bg-blue-600 hover:bg-blue-700"
+            onClick={handleExportPDF}
+          >
+            <FileDown size={14} />
+            <span className="hidden sm:inline">Export PDF</span>
+          </Button>
+
+
+
           {/* Tombol filter Jenis, Bulan, Tahun */}
           <Popover open={openFilter} onOpenChange={setOpenFilter}>
             <PopoverTrigger asChild>
@@ -567,7 +776,7 @@ export default function JadwalUjianTable({
                           }}
                         >
                           <span className="text-sm">
-                            {item === "all" ? "Semua" : item}
+                            {item === "all" ? "Semua" : item === "Ujian Proposal" ? "Seminar Proposal" : item}
                           </span>
                           {filterJenis === item && (
                             <Check size={14} className="ml-2" />
@@ -575,40 +784,6 @@ export default function JadwalUjianTable({
                         </Button>
                       )
                     )}
-                  </div>
-                  <div className="font-semibold text-xs mb-2 text-muted-foreground px-2">
-                    Bulan
-                  </div>
-                  <div className="flex flex-col gap-1 mb-3 px-2">
-                    <input
-                      type="number"
-                      min={1}
-                      max={12}
-                      value={filterBulan === "all" ? "" : filterBulan}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFilterBulan(val === "" ? "all" : val);
-                      }}
-                      placeholder="Bulan (1-12)"
-                      className="w-full px-2 py-1 border rounded text-sm bg-background"
-                    />
-                  </div>
-                  <div className="font-semibold text-xs mb-2 text-muted-foreground px-2">
-                    Tahun
-                  </div>
-                  <div className="flex flex-col gap-1 px-2 pb-2">
-                    <input
-                      type="number"
-                      min={2000}
-                      max={2100}
-                      value={filterTahun === "all" ? "" : filterTahun}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFilterTahun(val === "" ? "all" : val);
-                      }}
-                      placeholder="Tahun"
-                      className="w-full px-2 py-1 border rounded text-sm bg-background"
-                    />
                   </div>
                 </div>
               </ScrollArea>
@@ -631,11 +806,11 @@ export default function JadwalUjianTable({
               </TabsTrigger>
             </TabsList>
           </Tabs>
-        </div>
-      </div>
+        </div >
+      </div >
 
       {/* Table/Card View */}
-      <Tabs value={viewMode} onValueChange={setViewMode}>
+      < Tabs value={viewMode} onValueChange={setViewMode} >
         <TabsContent value="table">
           <TableGlobal table={table} cols={cols} />
         </TabsContent>
@@ -720,7 +895,7 @@ export default function JadwalUjianTable({
                       {/* Exam Type & Room */}
                       <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
                         <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}>
-                          {ujian.jenisUjian.namaJenis}
+                          {ujian.jenisUjian.namaJenis === "Ujian Proposal" ? "Seminar Proposal" : ujian.jenisUjian.namaJenis}
                         </span>
                         <span className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
@@ -812,13 +987,13 @@ export default function JadwalUjianTable({
             )}
           </div>
         </TabsContent>
-      </Tabs>
+      </Tabs >
 
 
 
 
 
 
-    </DataCard>
+    </DataCard >
   );
 }

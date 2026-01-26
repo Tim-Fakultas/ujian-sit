@@ -2,10 +2,12 @@
 use App\Http\Controllers\DaftarKehadiranController;
 use App\Http\Controllers\ImportUjianProposalController;
 use App\Http\Controllers\RuanganController;
-?><?php
+use App\Http\Controllers\CommentController;
+?>
+<?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BimbinganController;
+// use App\Http\Controllers\BimbinganController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\FakultasController;
 use App\Http\Controllers\JadwalPengujiController;
@@ -40,8 +42,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 Route::apiResource('mahasiswa', MahasiswaController::class);
 
-Route::apiResource('bimbingan', BimbinganController::class);
+// Route::apiResource('bimbingan', BimbinganController::class);
 
+Route::get('dosen/monitor-bimbingan', [DosenController::class, 'monitorBimbingan']);
+Route::get('dosen/{id}/bimbingan', [DosenController::class, 'getBimbinganDetails']);
 Route::apiResource('dosen', DosenController::class);
 
 Route::apiResource('fakultas', FakultasController::class);
@@ -82,6 +86,9 @@ Route::apiResource('daftar-hadir', DaftarKehadiranController::class);
 
 Route::apiResource('perbaikan-judul', PerbaikanJudulController::class);
 
+// Get perbaikan judul by Dosen PA
+Route::get('/dosen/{id}/perbaikan-judul', [PerbaikanJudulController::class, 'getByDosenPa']);
+
 // Route::apiResource('judul', JudulController::class);
 
 Route::apiResource('pengajuan-ranpel', PengajuanRanpelController::class);
@@ -97,11 +104,23 @@ Route::prefix('mahasiswa/{id}')->group(function () {
     Route::get('/ranpel', [RanpelController::class, 'getByMahasiswa']);
     Route::post('/ranpel', [RanpelController::class, 'storeByMahasiswa']);
 
+    //perbaikan-judul
+    Route::get('/perbaikan-judul', [PerbaikanJudulController::class, 'getByMahasiswa']);
+    Route::put('/ranpel/{ranpel}', [RanpelController::class, 'updateByMahasiswa']);
+
     //pendaftaran-ujian
     Route::get('/pendaftaran-ujian', [PendaftaranUjianController::class, 'getByMahasiswa']);
     Route::get('/pendaftaran-ujian/{pendaftaran}', [PendaftaranUjianController::class, 'showByMahasiswa']); // satu
     Route::post('/pendaftaran-ujian', [PendaftaranUjianController::class, 'storeByMahasiswa']);
     Route::put('/pendaftaran-ujian/{pendaftaran}', [PendaftaranUjianController::class, 'updateByMahasiswa']);
     Route::delete('/pendaftaran-ujian/{pendaftaran}', [PendaftaranUjianController::class, 'destroyByMahasiswa']);
+
+    //ujian
+    Route::get('/ujian', [UjianController::class, 'getByMahasiswa']);
 });
+
+Route::get('/comments', [CommentController::class, 'index']);
+Route::post('/comments', [CommentController::class, 'store']);
+Route::patch('/comments/{id}/resolve', [CommentController::class, 'resolve']);
+Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
 

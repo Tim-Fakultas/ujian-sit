@@ -73,7 +73,8 @@ class RanpelController extends Controller
 
     public function getByMahasiswa($id)
     {
-        $ranpel = Ranpel::whereHas('pengajuanRanpel', function ($query) use ($id) {$query->where('mahasiswa_id', $id);})->get();
+        $ranpel = Ranpel::whereHas('pengajuanRanpel', function ($query) use ($id) {
+            $query->where('mahasiswa_id', $id); })->get();
 
         if ($ranpel->isEmpty()) {
             return response()->json([
@@ -106,6 +107,25 @@ class RanpelController extends Controller
             'status' => 'menunggu',
             'keterangan' => '',
         ]);
+
+        return new RanpelResource($ranpel);
+    }
+
+    public function updateByMahasiswa(UpdateRanpelRequest $request, $id, Ranpel $ranpel)
+    {
+        $request->validated();
+
+        $data = $request->only([
+            'judul_penelitian',
+            'masalah_dan_penyebab',
+            'alternatif_solusi',
+            'metode_penelitian',
+            'hasil_yang_diharapkan',
+            'kebutuhan_data',
+            'jurnal_referensi',
+        ]);
+
+        $ranpel->update($data);
 
         return new RanpelResource($ranpel);
     }

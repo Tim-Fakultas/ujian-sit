@@ -8,7 +8,7 @@ export default function Page() {
       <PageHeader
         title="Profil Super Admin"
         description="Informasi akun dan pengaturan profil"
-        icon={UserCircle}
+        iconName="UserCircle"
       />
       <DataCard>
         <div className="flex flex-col items-center justify-center py-12 text-center">

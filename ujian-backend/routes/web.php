@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\BimbinganController;
+// use App\Http\Controllers\BimbinganController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\FakultasController;
 use App\Http\Controllers\MahasiswaController;
@@ -15,7 +15,7 @@ Route::get('/', function () {
 
 Route::get('/mahasiswa', [MahasiswaController::class, 'index']);
 Route::get('/dosen', [DosenController::class, 'index']);
-Route::get('/bimbingan', [BimbinganController::class, 'index']);
+// Route::get('/bimbingan', [BimbinganController::class, 'index']);
 Route::get('/fakultas', [FakultasController::class, 'index']);
 Route::get('/pejabat', [PejabatController::class, 'index']);
 Route::get('/prodi', [ProdiController::class, 'index']);

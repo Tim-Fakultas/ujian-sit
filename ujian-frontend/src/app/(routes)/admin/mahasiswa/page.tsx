@@ -31,7 +31,7 @@ export default async function Page() {
       <PageHeader 
         title="Data Mahasiswa" 
         description="Kelola data mahasiswa di sini." 
-        icon={Users}
+        iconName="Users"
         variant="emerald"
         className="mb-6"
       />

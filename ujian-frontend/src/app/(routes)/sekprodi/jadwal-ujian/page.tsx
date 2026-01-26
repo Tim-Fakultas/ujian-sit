@@ -19,12 +19,13 @@ export default async function JadwalUjianPage() {
 
   return (
     <div className="p-6">
-      <PageHeader 
-        title="Jadwal Ujian" 
-        description="Kelola jadwal ujian di sini." 
-        icon={FileText}
+      <PageHeader
+        title="Jadwal Ujian"
+        description="Kelola jadwal ujian di sini."
+        iconName="FileText"
         variant="emerald"
         className="mb-6"
+        showDate={true}
       />
       <Suspense fallback={<Loading />}>
         <JadwalUjianTable
@@ -34,5 +35,5 @@ export default async function JadwalUjianPage() {
       </Suspense>
     </div>
   );
-  
+
 }

@@ -145,7 +145,7 @@ export async function getPengajuanRanpelByProdi(prodiId?: number) {
 export async function updateStatusPengajuanRanpel(
   mahasiswaId: number,
   pengajuanId: number,
-  data: { status: Status["status"]; keterangan?: string }
+  data: { status: Status["status"]; keterangan?: string; catatanKaprodi?: string; skipDateUpdate?: boolean }
 ) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -159,14 +159,33 @@ export async function updateStatusPengajuanRanpel(
         },
         body: JSON.stringify({
           status: data.status,
+          ...(data.status === "ditolak" && !data.skipDateUpdate ? {
+            tanggal_ditolak: new Date().toLocaleDateString('sv-SE') + " " + new Date().toLocaleTimeString('sv-SE')
+          } : {}),
+          ...(data.status === "diterima" && !data.skipDateUpdate ? {
+            tanggal_diterima: new Date().toLocaleDateString('sv-SE') + " " + new Date().toLocaleTimeString('sv-SE')
+          } : {}),
+          ...(data.status === "diverifikasi" && !data.skipDateUpdate ? {
+            tanggal_diverifikasi: new Date().toLocaleDateString('sv-SE') + " " + new Date().toLocaleTimeString('sv-SE')
+          } : {}),
           ...(data.keterangan ? { keterangan: data.keterangan } : {}),
+          ...(data.catatanKaprodi ? { catatan_kaprodi: data.catatanKaprodi } : {}),
         }),
         cache: "no-store",
       }
     );
 
     if (!response.ok) {
-      throw new Error("Failed to update pengajuan ranpel status");
+      const body = await response.text();
+      let errorMessage = `Failed to update pengajuan ranpel status (${response.status} ${response.statusText})`;
+      try {
+        const json = JSON.parse(body);
+        if (json.message) errorMessage += `: ${json.message}`;
+        if (json.errors) errorMessage += `: ${JSON.stringify(json.errors)}`;
+      } catch {
+        errorMessage += `: ${body}`;
+      }
+      throw new Error(errorMessage);
     }
 
     return await response.json();
@@ -176,4 +195,37 @@ export async function updateStatusPengajuanRanpel(
   }
 }
 
+// DELETE FUNCTION
+export async function deletePengajuanRanpel(
+  mahasiswaId: number,
+  pengajuanId: number
+) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+  try {
+    const response = await fetch(
+      `${apiUrl}/mahasiswa/${mahasiswaId}/pengajuan-ranpel/${pengajuanId}`,
+      {
+        method: "DELETE",
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      const body = await response.text();
+      let errorMessage = `Failed to delete pengajuan ranpel (${response.status} ${response.statusText})`;
+      try {
+        const json = JSON.parse(body);
+        if (json.message) errorMessage += `: ${json.message}`;
+      } catch {
+        errorMessage += `: ${body}`;
+      }
+      throw new Error(errorMessage);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error deleting pengajuan ranpel:", error);
+    throw error;
+  }
+}

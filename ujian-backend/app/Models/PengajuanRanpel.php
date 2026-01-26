@@ -17,8 +17,11 @@ class PengajuanRanpel extends Model
         'mahasiswa_id',
         'tanggal_pengajuan',
         'tanggal_diterima',
+        'tanggal_diverifikasi',
+        'tanggal_ditolak',
         'status',
         'keterangan',
+        'catatan_kaprodi',
     ];
 
     protected static function booted()
@@ -30,8 +33,16 @@ class PengajuanRanpel extends Model
         });
 
         static::updating(function ($pengajuan) {
-            if ($pengajuan->isDirty('status') && $pengajuan->status === 'diterima') {
-                $pengajuan->tanggal_diterima = now();
+            if ($pengajuan->isDirty('status')) {
+                if ($pengajuan->status === 'diterima') {
+                    $pengajuan->tanggal_diterima = now();
+                }
+                if ($pengajuan->status === 'diverifikasi') {
+                    $pengajuan->tanggal_diverifikasi = now();
+                }
+                if ($pengajuan->status === 'ditolak') {
+                    $pengajuan->tanggal_ditolak = now();
+                }
             }
         });
     }

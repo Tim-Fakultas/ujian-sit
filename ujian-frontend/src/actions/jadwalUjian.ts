@@ -8,7 +8,32 @@ import { cookies } from "next/headers";
 export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
-    const response = await fetch(`${apiUrl}/ujian`, {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    const response = await fetch(`${apiUrl}/mahasiswa/${mahasiswaId}/ujian`, {
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch ujian by mahasiswa");
+    }
+
+    const data: UjianResponse = await response.json();
+    return data?.data || [];
+  } catch (error) {
+    console.error("Error fetching ujian by mahasiswa:", error);
+    return [];
+  }
+}
+
+export async function getPreviousUjian(mahasiswaId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const response = await fetch(`${apiUrl}/mahasiswa/${mahasiswaId}/ujian?nama_jenis=Proposal`, {
       cache: "no-store",
     });
 
@@ -17,16 +42,12 @@ export async function getJadwalUjianByMahasiswaId(mahasiswaId: number) {
     }
 
     const data: UjianResponse = await response.json();
-    if (!data?.data?.length) return [];
+    const prevUjian = data?.data || [];
 
-    // Filter ujian berdasarkan mahasiswaId dan status dijadwalkan
-    const filteredData = data.data.filter(
-      (ujian) => Number(ujian.mahasiswa?.id) === Number(mahasiswaId)
-    );
+    return prevUjian;
 
-    return filteredData;
   } catch (error) {
-    console.error("Error fetching ujian by mahasiswa:", error);
+    console.error("Error fetching ujian proposal:", error);
     return [];
   }
 }
@@ -69,6 +90,7 @@ export async function getPenjadwalanUjianByProdi(prodiId: number) {
         const dateB = new Date(b.jadwalUjian ?? 0).getTime();
         return dateB - dateA;
       });
+    console.log(filteredData)
     return filteredData;
   } catch (error) {
     console.error("Error fetching ujian by prodi:", error);

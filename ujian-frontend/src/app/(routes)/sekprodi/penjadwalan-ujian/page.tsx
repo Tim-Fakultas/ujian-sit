@@ -1,4 +1,4 @@
-import {  getPenjadwalanUjianByProdi } from "@/actions/jadwalUjian";
+import { getPenjadwalanUjianByProdi } from "@/actions/jadwalUjian";
 import { Ujian } from "@/types/Ujian";
 import { Suspense } from "react";
 import { getCurrentUserAction } from "@/actions/auth";
@@ -16,17 +16,16 @@ export default async function JadwalUjianPage() {
     user?.prodi?.id !== undefined
       ? await getPenjadwalanUjianByProdi(user.prodi.id)
       : [];
-
   const ruanganList = await getRuangan();
   const daftarHadir = await getHadirUjian();
   const dosen = await getDosen(user?.prodi?.id);
 
   return (
     <div className="p-6">
-      <PageHeader 
-        title="Penjadwalan Ujian" 
-        description="Kelola jadwal ujian di sini." 
-        icon={FileText}
+      <PageHeader
+        title="Penjadwalan Ujian"
+        description="Kelola jadwal ujian di sini."
+        iconName="FileText"
         variant="emerald"
         className="mb-6"
       />

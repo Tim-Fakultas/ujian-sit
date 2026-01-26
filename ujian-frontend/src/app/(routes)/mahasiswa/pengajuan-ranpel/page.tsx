@@ -14,7 +14,7 @@ export default async function Page() {
       <PageHeader
         title="Pengajuan Rancangan Penelitian"
         description="Kelola pengajuan rancangan penelitian Anda di sini."
-        icon={FileText}
+        iconName="FileText"
         variant="blue"
         className="mb-6"
       />

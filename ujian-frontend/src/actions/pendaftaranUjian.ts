@@ -36,7 +36,7 @@ export async function getPendaftaranUjianByMahasiswaId(mahasiswaId: number) {
         new Date(a.tanggalPengajuan.replace(" ", "T")).getTime()
       );
     });
-    
+
 
     if (!sortedData && !data.data) {
       return [];
@@ -70,19 +70,19 @@ export async function getPendaftaranUjianByProdi(prodiId: number) {
 
     const filteredData = data.data
       .filter((p) => p.mahasiswa?.prodiId?.id === prodiId)
-      .filter((p) => p.status === "menunggu")
+
       .map((pendaftaran) => ({
         ...pendaftaran,
         berkas: Array.isArray(pendaftaran.berkas)
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            pendaftaran.berkas.map((b: any) => ({
-              id: b.id,
-              namaBerkas: b.namaBerkas,
-              filePath: b.filePath,
-              uploadedAt: b.uploadedAt,
-              createdAt: b.createdAt,
-              updatedAt: b.updatedAt,
-            }))
+          pendaftaran.berkas.map((b: any) => ({
+            id: b.id,
+            namaBerkas: b.namaBerkas,
+            filePath: b.filePath,
+            uploadedAt: b.uploadedAt,
+            createdAt: b.createdAt,
+            updatedAt: b.updatedAt,
+          }))
           : [],
       }))
       .sort(
@@ -111,7 +111,7 @@ export async function createPendaftaranUjian({
   mahasiswaId: number;
   ranpelId: number;
   jenisUjianId: number;
-  berkas: File[];
+  berkas: (File | { file: File; nama: string })[];
   keterangan?: string;
   status?: string;
 }) {
@@ -124,8 +124,16 @@ export async function createPendaftaranUjian({
       formData.append("keterangan", keterangan);
     }
     formData.append("status", status);
-    berkas.forEach((file) => {
-      formData.append("berkas[]", file);
+    berkas.forEach((item) => {
+      if (item instanceof File) {
+        formData.append("berkas[]", item);
+      } else {
+        // Appending file with custom name (Requirement Name)
+        // Ensure extension is preserved or added
+        const ext = item.file.name.split('.').pop();
+        const finalName = item.nama.endsWith(`.${ext}`) ? item.nama : `${item.nama}.${ext}`;
+        formData.append("berkas[]", item.file, finalName);
+      }
     });
 
     const response = await fetch(

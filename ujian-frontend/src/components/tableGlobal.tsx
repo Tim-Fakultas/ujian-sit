@@ -46,9 +46,9 @@ export default function TableGlobal({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -97,128 +97,128 @@ export default function TableGlobal({
           )}{" "}
           dari {totalFiltered} data
         </div>
-        
+
         <div className="flex items-center gap-2 order-1 sm:order-2">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 hidden sm:flex"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">First page</span>
+              <ChevronsLeft size={16} />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Previous page</span>
+              <ChevronLeft size={16} />
+            </Button>
+
+            {/* Page Numbers */}
             <div className="flex items-center gap-1">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 hidden sm:flex"
-                    onClick={() => table.setPageIndex(0)}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    <span className="sr-only">First page</span>
-                    <ChevronsLeft size={16} />
-                </Button>
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    <span className="sr-only">Previous page</span>
-                    <ChevronLeft size={16} />
-                </Button>
+              {(() => {
+                const pageIndex = table.getState().pagination.pageIndex;
+                const pageCount = table.getPageCount();
+                const pages = [];
 
-                {/* Page Numbers */}
-                <div className="flex items-center gap-1">
-                    {(() => {
-                        const pageIndex = table.getState().pagination.pageIndex;
-                        const pageCount = table.getPageCount();
-                        const pages = [];
-                        
-                        // Always show first
-                        pages.push(0);
+                // Always show first
+                pages.push(0);
 
-                        // Calculate range around current page
-                        let start = Math.max(1, pageIndex - 1);
-                        let end = Math.min(pageCount - 2, pageIndex + 1);
+                // Calculate range around current page
+                let start = Math.max(1, pageIndex - 1);
+                let end = Math.min(pageCount - 2, pageIndex + 1);
 
-                        // Adjust if near start or end to show consistent number of items
-                        if (pageIndex < 3) {
-                            end = Math.min(pageCount - 2, 3);
-                        }
-                        if (pageIndex > pageCount - 4) {
-                            start = Math.max(1, pageCount - 4);
-                        }
+                // Adjust if near start or end to show consistent number of items
+                if (pageIndex < 3) {
+                  end = Math.min(pageCount - 2, 3);
+                }
+                if (pageIndex > pageCount - 4) {
+                  start = Math.max(1, pageCount - 4);
+                }
 
-                        // Add ellipsis after first if needed
-                        if (start > 1) {
-                            pages.push('dots-1');
-                        }
+                // Add ellipsis after first if needed
+                if (start > 1) {
+                  pages.push('dots-1');
+                }
 
-                        // Add middle pages
-                        for (let i = start; i <= end; i++) {
-                            pages.push(i);
-                        }
+                // Add middle pages
+                for (let i = start; i <= end; i++) {
+                  pages.push(i);
+                }
 
-                        // Add ellipsis before last if needed
-                        if (end < pageCount - 2) {
-                            pages.push('dots-2');
-                        }
+                // Add ellipsis before last if needed
+                if (end < pageCount - 2) {
+                  pages.push('dots-2');
+                }
 
-                        // Always show last if distinct from first
-                        if (pageCount > 1) {
-                            pages.push(pageCount - 1);
-                        }
+                // Always show last if distinct from first
+                if (pageCount > 1) {
+                  pages.push(pageCount - 1);
+                }
 
-                        // If total pages is small, just show all (simplification of logic above might be needed or just let it handle it)
-                        // Actually, simplified approach for small counts:
-                        if (pageCount <= 6) {
-                            return Array.from({ length: pageCount }).map((_, i) => (
-                                <Button
-                                    key={i}
-                                    variant={pageIndex === i ? "default" : "outline"}
-                                    size="sm"
-                                    className={`h-8 w-8 ${pageIndex === i ? "pointer-events-none" : ""}`}
-                                    onClick={() => table.setPageIndex(i)}
-                                >
-                                    {i + 1}
-                                </Button>
-                            ));
-                        }
+                // If total pages is small, just show all (simplification of logic above might be needed or just let it handle it)
+                // Actually, simplified approach for small counts:
+                if (pageCount <= 6) {
+                  return Array.from({ length: pageCount }).map((_, i) => (
+                    <Button
+                      key={i}
+                      variant={pageIndex === i ? "default" : "outline"}
+                      size="sm"
+                      className={`h-8 w-8 ${pageIndex === i ? "pointer-events-none" : ""}`}
+                      onClick={() => table.setPageIndex(i)}
+                    >
+                      {i + 1}
+                    </Button>
+                  ));
+                }
 
-                        return pages.map((p, idx) => {
-                             if (typeof p === 'string') {
-                                 return <span key={p} className="text-muted-foreground px-1">...</span>;
-                             }
-                             return (
-                                <Button
-                                    key={p}
-                                    variant={pageIndex === p ? "default" : "outline"}
-                                    size="sm"
-                                    className={`h-8 w-8 ${pageIndex === p ? "pointer-events-none" : ""}`}
-                                    onClick={() => table.setPageIndex(p)}
-                                >
-                                    {p + 1}
-                                </Button>
-                             );
-                        });
-                    })()}
-                </div>
-
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    <span className="sr-only">Next page</span>
-                    <ChevronRight size={16} />
-                </Button>
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 hidden sm:flex"
-                    onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                    disabled={!table.getCanNextPage()}
-                >
-                     <span className="sr-only">Last page</span>
-                    <ChevronsRight size={16} />
-                </Button>
+                return pages.map((p, idx) => {
+                  if (typeof p === 'string') {
+                    return <span key={p} className="text-muted-foreground px-1">...</span>;
+                  }
+                  return (
+                    <Button
+                      key={p}
+                      variant={pageIndex === p ? "default" : "outline"}
+                      size="sm"
+                      className={`h-8 w-8 ${pageIndex === p ? "pointer-events-none" : ""}`}
+                      onClick={() => table.setPageIndex(p)}
+                    >
+                      {p + 1}
+                    </Button>
+                  );
+                });
+              })()}
             </div>
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Next page</span>
+              <ChevronRight size={16} />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 hidden sm:flex"
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Last page</span>
+              <ChevronsRight size={16} />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

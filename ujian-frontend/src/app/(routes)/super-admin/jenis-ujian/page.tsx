@@ -171,7 +171,7 @@ export default function JenisUjianPage() {
       <PageHeader
         title="Data Master Jenis Ujian"
         description="Kelola jenis-jenis ujian skripsi"
-        icon={FileText}
+        iconName="FileText"
       />
 
       <DataCard>

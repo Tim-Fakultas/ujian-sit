@@ -1,12 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createPendaftaranUjian } from "@/actions/pendaftaranUjian";
+import { getAllSyarat } from "@/actions/syarat";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { User } from "@/types/Auth";
 import { Ujian } from "@/types/Ujian";
+import { Syarat } from "@/types/Syarat";
 import {
   Select,
   SelectTrigger,
@@ -30,102 +32,51 @@ import {
 } from "lucide-react";
 import { showToast } from "@/components/ui/custom-toast";
 
-export default function PengajuanUjianForm({
-  user,
-  jenisUjianList,
-  pengajuanRanpel,
-  ujian,
-  onCloseModal,
-}: {
+interface Props {
   user: User | null;
   jenisUjianList: Array<{ id: number; namaJenis: string }>;
   pengajuanRanpel: PengajuanRanpel[];
   ujian: Ujian[];
   onCloseModal?: () => void;
-}) {
+}
+
+export default function PendaftaranUjianForm({
+  user,
+  jenisUjianList,
+  pengajuanRanpel,
+  ujian,
+  onCloseModal,
+}: Props) {
   const [selectedJenisUjian, setSelectedJenisUjian] = useState<number | null>(null);
   const [selectedRanpelId, setSelectedRanpelId] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingSyarat, setIsLoadingSyarat] = useState(false);
 
-  // States for Proposal files
-  const [berkasTranskrip, setBerkasTranskrip] = useState<File | null>(null);
-  const [berkasPengesahan, setBerkasPengesahan] = useState<File | null>(null);
-  const [berkasPlagiasi, setBerkasPlagiasi] = useState<File | null>(null);
-  const [berkasProposal, setBerkasProposal] = useState<File | null>(null);
+  // Dynamic Requirements State
+  const [allSyarat, setAllSyarat] = useState<Syarat[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<Record<string, File | null>>({});
 
-  // States for Hasil files
-  const [berkasHasilPlagiasi, setBerkasHasilPlagiasi] = useState<File | null>(null);
-  const [berkasHasilSkripsi, setBerkasHasilSkripsi] = useState<File | null>(null);
-  const [berkasHasilPerbaikan, setBerkasHasilPerbaikan] = useState<File | null>(null);
-  const [berkasHasilPerbaikanHasil, setBerkasHasilPerbaikanHasil] = useState<File | null>(null);
-  const [berkasHasilHafalan, setBerkasHasilHafalan] = useState<File | null>(null);
-  const [berkasHasilIjazah, setBerkasHasilIjazah] = useState<File | null>(null);
-  const [berkasHasilKKN, setBerkasHasilKKN] = useState<File | null>(null);
-  const [berkasHasilSeminar, setBerkasHasilSeminar] = useState<File | null>(null);
-  const [berkasHasilPengesahan, setBerkasHasilPengesahan] = useState<File | null>(null);
-  const [berkasHasilFormUjian, setBerkasHasilFormUjian] = useState<File | null>(null);
-  const [berkasHasilSPP, setBerkasHasilSPP] = useState<File | null>(null);
-  const [berkasHasilKST, setBerkasHasilKST] = useState<File | null>(null);
-  const [berkasHasilTranskrip, setBerkasHasilTranskrip] = useState<File | null>(null);
-  const [berkasHasilLulusProposal, setBerkasHasilLulusProposal] = useState<File | null>(null);
-  const [berkasHasilBTA, setBerkasHasilBTA] = useState<File | null>(null);
-  const [berkasHasilTOEFL, setBerkasHasilTOEFL] = useState<File | null>(null);
+  useEffect(() => {
+    const loadSyarat = async () => {
+      setIsLoadingSyarat(true);
+      try {
+        const data = await getAllSyarat();
+        setAllSyarat(data);
+      } catch (err) {
+        console.error("Failed to load syarat", err);
+        showToast.error("Gagal memuat daftar persyaratan.");
+      } finally {
+        setIsLoadingSyarat(false);
+      }
+    };
+    loadSyarat();
+  }, []);
+
 
   // User stats
   const ipk = user?.ipk ?? 0;
   const semester = user?.semester ?? 0;
-
-  // Syarat Arrays
-  const syaratProposal = [
-    {
-      label: "Halaman Pengesahan Proposal",
-      desc: "Ditandatangani Pembimbing & Ka. Prodi",
-      file: berkasPengesahan,
-      onChange: setBerkasPengesahan,
-      required: true,
-    },
-    {
-      label: "Formulir Ujian Seminar Proposal",
-      desc: "Formulir pendaftaran resmi",
-      file: berkasProposal,
-      onChange: setBerkasProposal,
-      required: true,
-    },
-    {
-      label: "Surat Ket. Lulus Cek Plagiat",
-      desc: "Bukti lolos cek plagiasi",
-      file: berkasPlagiasi,
-      onChange: setBerkasPlagiasi,
-      required: true,
-    },
-    {
-      label: "File Proposal Skripsi Lengkap",
-      desc: "Format PDF (Nama-NIM-Proposal)",
-      file: berkasTranskrip, // Note: variable name kept as is from original but label implies Proposal file
-      onChange: setBerkasTranskrip,
-      required: true,
-    },
-  ];
-
-  const syaratHasil = [
-    { label: "Surat Ket. Lulus Cek Plagiat", desc: "Bukti lolos cek plagiasi final", file: berkasHasilPlagiasi, onChange: setBerkasHasilPlagiasi, required: true },
-    { label: "File Skripsi Lengkap", desc: "Format PDF (Nama-NIM-Hasil)", file: berkasHasilSkripsi, onChange: setBerkasHasilSkripsi, required: true },
-    { label: "Form Perbaikan Proposal", desc: "Bukti perbaikan sebelumnya", file: berkasHasilPerbaikan, onChange: setBerkasHasilPerbaikan, required: true },
-    { label: "Form Perbaikan Hasil", desc: "Hanya untuk ujian ke-2 dst.", file: berkasHasilPerbaikanHasil, onChange: setBerkasHasilPerbaikanHasil, required: false },
-    { label: "Bukti Hafalan Juz 'Amma", desc: "10 Surat pendek", file: berkasHasilHafalan, onChange: setBerkasHasilHafalan, required: false },
-    { label: "Ijazah SMA/MA", desc: "Scan asli/legalisir", file: berkasHasilIjazah, onChange: setBerkasHasilIjazah, required: false },
-    { label: "Sertifikat KKN", desc: "Bukti telah KKN", file: berkasHasilKKN, onChange: setBerkasHasilKKN, required: false },
-    { label: "Bukti Hadir Seminar", desc: "Kartu kendali seminar", file: berkasHasilSeminar, onChange: setBerkasHasilSeminar, required: false },
-    { label: "Halaman Pengesahan Skripsi", desc: "Tanda tangan lengkap", file: berkasHasilPengesahan, onChange: setBerkasHasilPengesahan, required: true },
-    { label: "Formulir Ujian Hasil", desc: "Form pendaftaran ujian", file: berkasHasilFormUjian, onChange: setBerkasHasilFormUjian, required: true },
-    { label: "Bukti Pembayaran SPP", desc: "Semester berjalan", file: berkasHasilSPP, onChange: setBerkasHasilSPP, required: false },
-    { label: "KST (Skripsi)", desc: "Mencantumkan mata kuliah Skripsi", file: berkasHasilKST, onChange: setBerkasHasilKST, required: false },
-    { label: "Transkrip Nilai Sementara", desc: "Dilegalisir", file: berkasHasilTranskrip, onChange: setBerkasHasilTranskrip, required: false },
-    { label: "Surat Lulus Sempro", desc: "Bukti lulus seminar proposal", file: berkasHasilLulusProposal, onChange: setBerkasHasilLulusProposal, required: false },
-    { label: "Sertifikat BTA", desc: "Bukti lulus BTA", file: berkasHasilBTA, onChange: setBerkasHasilBTA, required: false },
-    { label: "Sertifikat TOEFL", desc: "Skor >= 400", file: berkasHasilTOEFL, onChange: setBerkasHasilTOEFL, required: false },
-  ];
 
   // Logic Checks
   const ujianProposal = ujian.find(u => u.jenisUjian?.namaJenis?.toLowerCase().includes("proposal") && u.mahasiswa?.id === user?.id);
@@ -133,13 +84,14 @@ export default function PengajuanUjianForm({
 
   const lulusProposal = ujianProposal?.hasil === "lulus";
   const lulusHasil = ujianHasil?.hasil === "lulus";
-  const pernahDaftarProposal = !!ujianProposal;
-  const pernahDaftarHasil = !!ujianHasil;
+  // const pernahDaftarProposal = !!ujianProposal; // unused
+  // const pernahDaftarHasil = !!ujianHasil; // unused
 
-  const canDaftarProposal = () => ipk >= 2 && semester >= 6;
+  const canDaftarProposal = () => ipk >= 2 && semester >= 6; // Adjusted logic from original
 
   const handleJenisUjianSelect = (id: number) => {
     setSelectedJenisUjian(id);
+    setUploadedFiles({}); // Reset files when changing exam type
     if (pengajuanRanpel.length === 1) {
       setSelectedRanpelId(pengajuanRanpel[0].ranpel.id ?? null);
     } else {
@@ -148,11 +100,21 @@ export default function PengajuanUjianForm({
   };
 
   const selectedJenis = jenisUjianList.find(j => j.id === selectedJenisUjian);
-  const isProposal = selectedJenis?.namaJenis?.toLowerCase().includes("proposal");
-  const isHasil = selectedJenis?.namaJenis?.toLowerCase().includes("hasil");
 
-  const isSyaratWajibTerisi = (syaratArr: typeof syaratProposal) => {
-    return syaratArr.filter(s => s.required).every(s => !!s.file);
+  // Filter requirements based on selected exam type
+  const activeSyarat = selectedJenisUjian
+    ? allSyarat.filter(s => s.jenisUjianId === selectedJenisUjian)
+    : [];
+
+  const handleFileChange = (syaratNama: string, file: File | null) => {
+    setUploadedFiles(prev => ({
+      ...prev,
+      [syaratNama]: file
+    }));
+  };
+
+  const isSyaratWajibTerisi = () => {
+    return activeSyarat.filter(s => s.wajib).every(s => !!uploadedFiles[s.namaSyarat]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -163,34 +125,48 @@ export default function PengajuanUjianForm({
       setErrorMsg("Mohon lengkapi data jenis ujian dan judul penelitian.");
       return;
     }
-    if (isProposal && !isSyaratWajibTerisi(syaratProposal)) {
-      setErrorMsg("Semua syarat wajib untuk ujian proposal harus diunggah.");
-      return;
-    }
-    if (isHasil && !isSyaratWajibTerisi(syaratHasil)) {
-      setErrorMsg("Semua syarat wajib untuk ujian hasil harus diunggah.");
+
+    if (!isSyaratWajibTerisi()) {
+      setErrorMsg("Mohon lengkapi semua berkas persyaratan yang wajib.");
       return;
     }
 
     setIsSubmitting(true);
     try {
+      // Collect files in order matching the simplified logic or adjust backend to accept map?
+      // user request implies backend handles mapped files or just 'berkas' array.
+      // previous implementation sent an array of files. We should probably stick to that 
+      // but we need to know WHICH file is WHICH? 
+      // The previous 'createPendaftaranUjian' action likely just accepts an array of files 
+      // and assumes order or backend handles it? 
+      // Let's look at the backend... standard file upload usually needs keys if order matters.
+      // But purely based on frontend `createPendaftaranUjian` signature seen in previous file:
+      // it takes `berkas: File[]`.
+      // The original code filtered nulls from a mapped array.
+      // So we will just send the files that are present. 
+      // Ideally backend needs to know which file corresponds to which requirement.
+      // BUT for now, to maintain compatibility with existing 'createPendaftaranUjian' signature which takes File[],
+      // we will send them. (Ideally we should refactor backend to accept named keys or handle mapping).
+
+      const filesToSend = activeSyarat
+        .map(s => {
+          const f = uploadedFiles[s.namaSyarat];
+          return f ? { file: f, nama: s.namaSyarat } : null;
+        })
+        .filter((item): item is { file: File; nama: string } => item !== null);
+
       await createPendaftaranUjian({
         mahasiswaId: user.id,
         ranpelId: selectedRanpelId,
         jenisUjianId: selectedJenisUjian,
-        berkas: isProposal
-          ? syaratProposal.map(s => s.file).filter((f): f is File => f !== null)
-          : syaratHasil.map(s => s.file).filter((f): f is File => f !== null),
+        berkas: filesToSend,
       });
 
       showToast.success("Pendaftaran ujian berhasil diajukan!");
 
       // Reset logic
       setSelectedJenisUjian(null);
-      setBerkasTranskrip(null); setBerkasPengesahan(null); setBerkasPlagiasi(null); setBerkasProposal(null);
-      // ... reset others ...
-      // For brevity, skipping granular reset of all Hasil files in this snippet, but ideally should be done or page refresh/close modal handles it.
-
+      setUploadedFiles({});
       onCloseModal?.();
       await revalidateAction("/mahasiswa/pendaftaran-ujian");
     } catch (err: unknown) {
@@ -221,7 +197,7 @@ export default function PengajuanUjianForm({
               Pendaftaran Ujian
             </div>
             <div className="text-xs text-muted-foreground mt-0.5">
-              Ajukan ujian proposal atau hasil skripsi Anda.
+              Ajukan seminar proposal atau hasil skripsi Anda.
             </div>
           </div>
         </div>
@@ -299,9 +275,12 @@ export default function PengajuanUjianForm({
                         else if (!lulusHasil) { disabled = true; reason = "(Belum lulus ujian hasil)"; }
                       }
 
+                      // Render Label with Terminology Check
+                      const label = j.namaJenis === "Ujian Proposal" ? "Seminar Proposal" : j.namaJenis;
+
                       return (
                         <SelectItem key={j.id} value={String(j.id)} disabled={disabled}>
-                          {j.namaJenis} {reason && <span className="text-xs text-muted-foreground ml-1">{reason}</span>}
+                          {label} {reason && <span className="text-xs text-muted-foreground ml-1">{reason}</span>}
                         </SelectItem>
                       )
                     })}
@@ -336,81 +315,89 @@ export default function PengajuanUjianForm({
         </div>
 
         {/* File Upload Sections */}
-        {(isProposal || isHasil || (selectedJenis?.namaJenis?.toLowerCase().includes("skripsi") ?? false)) && (
+        {selectedJenisUjian && (
           <div className="space-y-4 animate-in slide-in-from-bottom-5 duration-500">
             <div className="flex items-center gap-2 px-1">
               <FileText className="text-gray-400" size={18} />
               <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">
-                Berkas Persyaratan {isProposal ? "Proposal" : ((selectedJenis?.namaJenis?.toLowerCase().includes("skripsi") ?? false) ? "Ujian Skripsi" : "Hasil")}
+                Berkas Persyaratan {selectedJenis?.namaJenis === "Ujian Proposal" ? "Seminar Proposal" : selectedJenis?.namaJenis}
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {(isProposal ? syaratProposal : syaratHasil).map((item, idx) => (
-                <div key={idx} className={`relative group border rounded-xl p-4 transition-all duration-200 ${item.file
-                    ? 'bg-blue-50/50 border-blue-200 dark:bg-blue-900/10 dark:border-blue-900/30'
-                    : 'bg-white hover:bg-gray-50 dark:bg-neutral-900 dark:border-neutral-800 dark:hover:bg-neutral-800'
-                  }`}>
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <div className="font-semibold text-sm flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] flex items-center justify-center border dark:bg-neutral-800 dark:border-neutral-700">
-                          {idx + 1}
-                        </span>
-                        {item.label}
-                        {item.required && <span className="text-red-500">*</span>}
+            {isLoadingSyarat ? (
+              <div className="text-center py-8 text-muted-foreground">Memuat persyaratan...</div>
+            ) : activeSyarat.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">Tidak ada persyaratan khusus untuk ujian ini.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {activeSyarat.map((item, idx) => {
+                  const currentFile = uploadedFiles[item.namaSyarat];
+                  return (
+                    <div key={item.id} className={`relative group border rounded-xl p-4 transition-all duration-200 ${currentFile
+                      ? 'bg-blue-50/50 border-blue-200 dark:bg-blue-900/10 dark:border-blue-900/30'
+                      : 'bg-white hover:bg-gray-50 dark:bg-neutral-900 dark:border-neutral-800 dark:hover:bg-neutral-800'
+                      }`}>
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-semibold text-sm flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] flex items-center justify-center border dark:bg-neutral-800 dark:border-neutral-700">
+                              {idx + 1}
+                            </span>
+                            <span className="line-clamp-2" title={item.namaSyarat}>{item.namaSyarat}</span>
+                            {item.wajib && <span className="text-red-500 shrink-0">*</span>}
+                          </div>
+                          {item.deskripsi && <p className="text-xs text-muted-foreground mt-1 ml-7">{item.deskripsi}</p>}
+                        </div>
+                        {currentFile && (
+                          <button
+                            type="button"
+                            onClick={() => handleFileChange(item.namaSyarat, null)}
+                            className="text-gray-400 hover:text-red-500 transition-colors bg-white dark:bg-black rounded-full p-1 shadow-sm border"
+                            title="Hapus file"
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 ml-7">{item.desc}</p>
+
+                      <div className="ml-7">
+                        <input
+                          type="file"
+                          id={`file-${item.id}`}
+                          className="hidden"
+                          accept="application/pdf"
+                          onChange={(e) => handleFileChange(item.namaSyarat, e.target.files?.[0] ?? null)}
+                        />
+
+                        {!currentFile ? (
+                          <label
+                            htmlFor={`file-${item.id}`}
+                            className="flex items-center gap-3 w-full p-2 rounded-lg border border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer transition-all group-hover:shadow-sm"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-500 transition-colors">
+                              <UploadCloud size={16} />
+                            </div>
+                            <div className="text-xs text-muted-foreground group-hover:text-blue-600 transition-colors">
+                              Klik untuk upload (PDF)
+                            </div>
+                          </label>
+                        ) : (
+                          <div className="flex items-center gap-3 w-full p-2 rounded-lg bg-white border border-blue-100 shadow-sm dark:bg-neutral-950 dark:border-blue-900/30">
+                            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                              <FileCheck size={16} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs font-medium truncate text-blue-700 dark:text-blue-300">{currentFile.name}</div>
+                              <div className="text-[10px] text-gray-400">{(currentFile.size / 1024 / 1024).toFixed(2)} MB</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    {item.file && (
-                      <button
-                        type="button"
-                        onClick={() => item.onChange(null)}
-                        className="text-gray-400 hover:text-red-500 transition-colors bg-white dark:bg-black rounded-full p-1 shadow-sm border"
-                        title="Hapus file"
-                      >
-                        <X size={14} />
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="ml-7">
-                    <input
-                      type="file"
-                      id={`file-${idx}`}
-                      className="hidden"
-                      accept="application/pdf"
-                      onChange={(e) => item.onChange(e.target.files?.[0] ?? null)}
-                    // Make required only if submitting (handled in handleSubmit validation manually for better visuals)
-                    />
-
-                    {!item.file ? (
-                      <label
-                        htmlFor={`file-${idx}`}
-                        className="flex items-center gap-3 w-full p-2 rounded-lg border border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer transition-all group-hover:shadow-sm"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-500 transition-colors">
-                          <UploadCloud size={16} />
-                        </div>
-                        <div className="text-xs text-muted-foreground group-hover:text-blue-600 transition-colors">
-                          Klik untuk upload (PDF)
-                        </div>
-                      </label>
-                    ) : (
-                      <div className="flex items-center gap-3 w-full p-2 rounded-lg bg-white border border-blue-100 shadow-sm dark:bg-neutral-950 dark:border-blue-900/30">
-                        <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                          <FileCheck size={16} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium truncate text-blue-700 dark:text-blue-300">{item.file.name}</div>
-                          <div className="text-[10px] text-gray-400">{(item.file.size / 1024 / 1024).toFixed(2)} MB</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -430,7 +417,7 @@ export default function PengajuanUjianForm({
           )}
           <Button
             type="submit"
-            disabled={isSubmitting || (!isProposal && !isHasil && !(selectedJenis?.namaJenis?.toLowerCase().includes("skripsi") ?? false))}
+            disabled={isSubmitting || !selectedJenisUjian}
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white h-11 rounded-xl px-8 shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5"
           >
             {isSubmitting ? (

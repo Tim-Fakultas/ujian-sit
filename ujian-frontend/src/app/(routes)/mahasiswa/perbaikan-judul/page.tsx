@@ -65,7 +65,7 @@ export default async function Page() {
       <PageHeader 
         title="Perbaikan Judul Skripsi"
         description="Halaman ini digunakan untuk mengajukan perubahan judul skripsi yang telah disetujui sebelumnya."
-        icon={PencilLine}
+        iconName="PencilLine"
         variant="blue"
       />
 

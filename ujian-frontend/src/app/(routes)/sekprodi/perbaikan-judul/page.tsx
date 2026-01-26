@@ -17,7 +17,7 @@ export default async function Page() {
       <PageHeader
         title="Perbaikan Judul Skripsi"
         description="Daftar perbaikan judul skripsi program studi Anda."
-        icon={FileText}
+        iconName="FileText"
         variant="emerald"
         className="mb-6"
       />

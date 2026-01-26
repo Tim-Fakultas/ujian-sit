@@ -28,18 +28,16 @@ class Ujian extends Model
         'catatan',
     ];
 
-
-
     public function pendaftaranUjian()
     {
         return $this->belongsTo(PendaftaranUjian::class, 'pendaftaran_ujian_id');
     }
 
-    public function penguji()
+    public function dosenPenguji()
     {
         return $this->belongsToMany(Dosen::class, 'penguji_ujian', 'ujian_id', 'dosen_id')
-                    ->withPivot('peran')
-                    ->withTimestamps();
+            ->withPivot('peran')
+            ->withTimestamps();
     }
 
     public function pengujiUjian()
@@ -109,41 +107,67 @@ class Ujian extends Model
         return $this->belongsTo(Keputusan::class, 'keputusan_id');
     }
 
-   public function hitungNilaiAkhir(): ?self
-{
-    $subQuery = $this->penilaian()
-        ->getQuery()
-        ->join('komponen_penilaian', 'penilaian.komponen_penilaian_id', '=', 'komponen_penilaian.id')
-        ->selectRaw('
+    public function hitungNilaiAkhir(): ?self
+    {
+        $subQuery = $this->penilaian()
+            ->getQuery()
+            ->join('komponen_penilaian', 'penilaian.komponen_penilaian_id', '=', 'komponen_penilaian.id')
+            ->selectRaw('
             penilaian.dosen_id,
             (SUM(penilaian.nilai * komponen_penilaian.bobot) * 1.0)
             / NULLIF(SUM(komponen_penilaian.bobot), 0) AS total
         ')
-        ->groupBy('penilaian.dosen_id');
+            ->groupBy('penilaian.dosen_id');
 
-    $rataRata = DB::query()
-        ->fromSub($subQuery, 't')
-        ->avg('t.total');
+        $rataRata = DB::query()
+            ->fromSub($subQuery, 't')
+            ->avg('t.total');
 
-    if ($rataRata === null) {
-        return null; // tidak ada data
+        if ($rataRata === null) {
+            return null; // tidak ada data
+        }
+
+        $nilaiAkhir = (float) $rataRata;
+        $isLulus = $nilaiAkhir >= 70;
+
+        // Aturan Tambahan: Jika ada salah satu kriteria nilai <= 60, maka TIDAK LULUS
+        // Berlaku untuk: Seminar Proposal, Ujian Hasil, Ujian Skripsi
+        $jenisUjian = $this->jenisUjian;
+        if ($jenisUjian) {
+            $namaLower = strtolower($jenisUjian->nama_jenis ?? '');
+            $targetExams = ['proposal', 'hasil', 'skripsi'];
+
+            // Cek apakah jenis ujian termasuk target
+            $isTargetExam = false;
+            foreach ($targetExams as $target) {
+                if (str_contains($namaLower, $target)) {
+                    $isTargetExam = true;
+                    break;
+                }
+            }
+
+            if ($isTargetExam) {
+                // Cek apakah ada nilai <= 60 di tabel penilaian
+                $hasLowScore = $this->penilaian()->where('nilai', '<=', 60)->exists();
+                if ($hasLowScore) {
+                    $isLulus = false;
+                }
+            }
+        }
+
+        $this->update([
+            'nilai_akhir' => $nilaiAkhir,
+            'hasil' => $isLulus ? 'lulus' : 'tidak lulus',
+        ]);
+
+        return $this;
     }
-
-    $nilaiAkhir = round((float) $rataRata, 2);
-
-    $this->update([
-        'nilai_akhir' => $nilaiAkhir,
-        'hasil'       => $nilaiAkhir >= 70 ? 'lulus' : 'tidak lulus',
-    ]);
-
-    return $this;
-}
 
     protected static function booted()
     {
         static::updating(function ($ujian) {
             // Jika nilai_akhir diubah, otomatis set hasil
-            if($ujian->isDirty('jadwal_ujian') && !empty($ujian->jadwal_ujian)){
+            if ($ujian->isDirty('jadwal_ujian') && !empty($ujian->jadwal_ujian)) {
                 $ujian->pendaftaranUjian()->update(['status' => 'dijadwalkan']);
             }
         });

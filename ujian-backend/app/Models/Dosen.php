@@ -72,12 +72,17 @@ class Dosen extends Model
         return $this->hasMany(Mahasiswa::class, 'pembimbing_2');
     }
 
+    public function mahasiswaPa()
+    {
+        return $this->hasMany(Mahasiswa::class, 'dosen_pa');
+    }
+
     //ujian dosen
     public function ujian()
     {
         return $this->belongsToMany(Ujian::class, 'penguji_ujian', 'dosen_id', 'ujian_id')
-                    ->withPivot('peran')
-                    ->withTimestamps();
+            ->withPivot('peran')
+            ->withTimestamps();
     }
 
     public function pengujiUjian()

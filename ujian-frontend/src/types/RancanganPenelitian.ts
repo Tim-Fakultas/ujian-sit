@@ -56,7 +56,10 @@ export interface PengajuanRanpel {
   ranpel: RancanganPenelitian;
   tanggalPengajuan: string;
   tanggalDiterima?: string | null;
+  tanggalDitolak?: string | null;
+  tanggalDiverifikasi?: string | null;
   keterangan?: string | null;
+  catatanKaprodi?: string | null;
   status: "menunggu" | "diverifikasi" | "diterima" | "ditolak";
   perbaikanJudul?: {
     judulBaru?: string;

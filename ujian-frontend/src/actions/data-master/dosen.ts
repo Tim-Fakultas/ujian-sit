@@ -14,8 +14,41 @@ export async function getAllDosen() {
     const data: DosenResponse = await response.json();
     return data.data;
   } catch (error) {
-    console.error("Error fetching all dosen:", error);
     return [];
+  }
+}
+
+export async function getMonitorBimbingan() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const response = await fetch(`${apiUrl}/dosen/monitor-bimbingan`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch monitor bimbingan");
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching monitor bimbingan:", error);
+    return [];
+  }
+}
+
+export async function getDosenBimbinganDetails(id: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const response = await fetch(`${apiUrl}/dosen/${id}/bimbingan`, {
+      cache: 'no-store'
+    });
+    if (!response.ok) throw new Error("Failed to fetch details");
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error("Error details:", error);
+    return null;
   }
 }
 

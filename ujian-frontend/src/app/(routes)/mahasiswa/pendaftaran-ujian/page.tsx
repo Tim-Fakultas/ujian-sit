@@ -37,7 +37,7 @@ export default async function DaftarUjianPage() {
       <PageHeader
         title="Daftar Ujian"
         description="Lihat dan kelola pendaftaran ujian Anda di sini."
-        icon={FileText}
+        iconName="FileText"
         variant="blue"
         className="mb-6"
       />

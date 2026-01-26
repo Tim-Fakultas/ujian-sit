@@ -210,7 +210,7 @@ export default function MahasiswaPage() {
       <PageHeader
         title="Data Master Mahasiswa"
         description="Kelola data mahasiswa aktif"
-        icon={GraduationCap}
+        iconName="GraduationCap"
       />
 
       <DataCard>

@@ -44,7 +44,7 @@ export function getStatusUjianClass(statusUjian: string) {
 }
 
 export const peranPengujiOptions = [
-  { label: "Semua", value: "all" },
+  { label: "Peran", value: "all" },
   { label: "Ketua Penguji", value: "Ketua Penguji" },
   { label: "Sekretaris Penguji", value: "Sekretaris Penguji" },
   { label: "Penguji 1", value: "Penguji 1" },

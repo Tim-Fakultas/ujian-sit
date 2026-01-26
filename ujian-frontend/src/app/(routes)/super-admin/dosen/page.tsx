@@ -215,7 +215,7 @@ export default function DosenPage() {
       <PageHeader
         title="Data Master Dosen"
         description="Kelola data dosen dan staf pengajar"
-        icon={Users}
+        iconName="Users"
       />
 
       <DataCard>

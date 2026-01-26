@@ -37,20 +37,21 @@ export async function updateJudulRancanganPenelitian(
 ) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
-    const response = await fetch(
-      `${apiUrl}/mahasiswa/${mahasiswaId}/ranpel/${ranpelId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        cache: "no-store",
-      }
+    const url = `${apiUrl}/mahasiswa/${mahasiswaId}/ranpel/${ranpelId}`;
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      cache: "no-store",
+    }
     );
 
     if (!response.ok) {
-      throw new Error("Failed to update rancangan penelitian");
+      const errorText = await response.text();
+      console.error(`Failed to update rancangan penelitian. URL: ${url}. Status: ${response.status}. Response: ${errorText}`);
+      throw new Error(`Failed to update rancangan penelitian: ${response.status} ${errorText}`);
     }
 
     return await response.json();
@@ -60,12 +61,12 @@ export async function updateJudulRancanganPenelitian(
   }
 }
 
-export async function getRanpelByMahasiswaId(mahasiswaId: number ) {
+export async function getRanpelByMahasiswaId(mahasiswaId: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const res = await fetch(`${apiUrl}/mahasiswa/${mahasiswaId}/ranpel`);
 
-    if(!res.ok) {
+    if (!res.ok) {
       throw new Error("Failed to fetch rancangan penelitian");
     }
 

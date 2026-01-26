@@ -198,7 +198,7 @@ export default function KomponenPenilaianPage() {
       <PageHeader
         title="Data Master Komponen Penilaian"
         description="Kelola komponen penilaian untuk setiap jenis ujian"
-        icon={ListChecks}
+        iconName="ListChecks"
       />
 
       <DataCard>

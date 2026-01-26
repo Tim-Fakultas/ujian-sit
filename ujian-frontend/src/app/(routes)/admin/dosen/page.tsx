@@ -15,7 +15,7 @@ export default async function Page() {
       <PageHeader 
         title="Data Dosen" 
         description="Kelola data dosen di sini." 
-        icon={Users}
+        iconName="Users"
         variant="emerald"
         className="mb-6"
       />

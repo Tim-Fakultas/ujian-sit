@@ -93,7 +93,7 @@ export default async function Page() {
       <PageHeader
         title="Dashboard Super Admin"
         description="Ringkasan data akademik Faculty of Science & Technology"
-        icon={LayoutDashboard}
+        iconName="LayoutDashboard"
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

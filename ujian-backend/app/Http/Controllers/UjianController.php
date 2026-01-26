@@ -6,6 +6,7 @@ use App\Http\Requests\StoreUjianRequest;
 use App\Http\Requests\UpdateUjianRequest;
 use App\Http\Resources\UjianResource;
 use App\Models\Ujian;
+use App\Models\Dosen;
 
 class UjianController extends Controller
 {
@@ -20,10 +21,10 @@ class UjianController extends Controller
             'mahasiswa',
             'penilaian',
             'ruangan',
-            'penguji',
+            'dosenPenguji',
             'keputusan',
-            ])
-        ->get();
+        ])
+            ->get();
 
         return UjianResource::collection($ujian);
     }
@@ -36,13 +37,16 @@ class UjianController extends Controller
         $request->validated();
         $ujian = Ujian::create($request->all());
 
-        if($request->has('penguji')){
-            $syncData = collect($request->penguji)
+        if ($request->has('penguji')) {
+            $pengujiRequest = $request->penguji;
+            $syncData = collect($pengujiRequest)
                 ->mapWithKeys(fn($penguji) => [
                     $penguji['dosen_id'] => ['peran' => $penguji['peran']]
                 ])->toArray();
 
-            $ujian->penguji()->sync($syncData);
+            $ujian->dosenPenguji()->sync($syncData);
+
+
         }
 
         return new UjianResource($ujian);
@@ -59,8 +63,9 @@ class UjianController extends Controller
             'mahasiswa',
             'penilaian',
             'ruangan',
-            'penguji'])
-        ->findOrFail($id);
+            'dosenPenguji'
+        ])
+            ->findOrFail($id);
 
         return new UjianResource($ujian);
     }
@@ -96,17 +101,20 @@ class UjianController extends Controller
             ]);
         }
 
-        if($request->has('penguji')){
+        if ($request->has('penguji')) {
+            $pengujiRequest = $request->penguji;
             // Sync penguji
             $syncData = [];
-            foreach($request->penguji as $item){
+            foreach ($pengujiRequest as $item) {
                 $syncData[$item['dosen_id']] = ['peran' => $item['peran']];
             }
-            $ujian->penguji()->sync($syncData);
+            $ujian->dosenPenguji()->sync($syncData);
+
+
         }
 
         return new UjianResource(
-            $ujian->load(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'ruangan', 'penilaian', 'penguji'])
+            $ujian->load(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'ruangan', 'penilaian', 'dosenPenguji'])
         );
     }
 
@@ -119,5 +127,28 @@ class UjianController extends Controller
         $ujian->delete();
 
         return response()->json(['message' => 'Ujian berhasil dihapus.'], 200);
+    }
+
+    public function getByMahasiswa($id)
+    {
+        $ujian = Ujian::with([
+            'pendaftaranUjian.ranpel',
+            'jenisUjian',
+            'mahasiswa',
+            'penilaian',
+            'ruangan',
+            'dosenPenguji',
+            'keputusan',
+        ])
+            ->where('mahasiswa_id', $id)
+            ->when(request('nama_jenis'), function ($q) {
+                $q->whereHas('jenisUjian', function ($query) {
+                    $query->where('nama_jenis', 'like', '%' . request('nama_jenis') . '%');
+                });
+            })
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return UjianResource::collection($ujian);
     }
 }

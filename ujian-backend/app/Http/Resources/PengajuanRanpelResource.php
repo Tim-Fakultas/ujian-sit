@@ -20,8 +20,11 @@ class PengajuanRanpelResource extends JsonResource
             'mahasiswa' => $this->whenLoaded('mahasiswa') ? new MahasiswaResource($this->mahasiswa) : null,
             'tanggalPengajuan' => $this->tanggal_pengajuan,
             'tanggalDiterima' => $this->tanggal_diterima,
+            'tanggalDiverifikasi' => $this->tanggal_diverifikasi,
+            'tanggalDitolak' => $this->tanggal_ditolak,
             'status' => $this->status,
             'keterangan' => $this->keterangan,
+            'catatanKaprodi' => $this->catatan_kaprodi,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];

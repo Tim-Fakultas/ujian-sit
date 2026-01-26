@@ -321,6 +321,7 @@ export default function PenilaianModal({
                     <div className="relative">
                       <Input
                         type="number"
+                        step="0.01"
                         min={0}
                         max={100}
                         value={nilai[k.id] ?? ""}
@@ -328,11 +329,10 @@ export default function PenilaianModal({
                           handleNilaiChange(k.id, e.target.value)
                         }
                         placeholder="0"
-                        className={`w-20 text-center font-bold text-lg h-12 rounded-xl border-2 transition-all duration-200 focus:ring-4 ${
-                          nilai[k.id] !== null && Number(nilai[k.id]) >= 0
-                            ? "border-blue-100 bg-blue-50/50 text-blue-700 focus:border-blue-500 focus:ring-blue-500/20 dark:bg-blue-900/10 dark:border-blue-900/30 dark:text-blue-400"
-                            : "border-gray-200 bg-white focus:border-gray-400 dark:bg-neutral-900 dark:border-neutral-700"
-                        }`}
+                        className={`w-20 text-center font-bold text-lg h-12 rounded-xl border-2 transition-all duration-200 focus:ring-4 ${nilai[k.id] !== null && Number(nilai[k.id]) >= 0
+                          ? "border-blue-100 bg-blue-50/50 text-blue-700 focus:border-blue-500 focus:ring-blue-500/20 dark:bg-blue-900/10 dark:border-blue-900/30 dark:text-blue-400"
+                          : "border-gray-200 bg-white focus:border-gray-400 dark:bg-neutral-900 dark:border-neutral-700"
+                          }`}
                       />
                     </div>
                   </div>
@@ -402,11 +402,10 @@ export default function PenilaianModal({
             </Button>
             <Button
               type="submit"
-              className={`h-11 px-8 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all hover:translate-y-[-1px] ${
-                isSudahNilai
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none dark:bg-neutral-800 dark:text-neutral-600"
-                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-              }`}
+              className={`h-11 px-8 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all hover:translate-y-[-1px] ${isSudahNilai
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none dark:bg-neutral-800 dark:text-neutral-600"
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                }`}
               disabled={isSudahNilai || !isAllFilled || isLoading}
             >
               {isLoading ? (

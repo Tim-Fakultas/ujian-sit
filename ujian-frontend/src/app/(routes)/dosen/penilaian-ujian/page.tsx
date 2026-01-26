@@ -19,7 +19,7 @@ export default async function PenilaianUjianPage() {
       <PageHeader 
         title="Penilaian Ujian" 
         description="Disini anda dapat melakukan penilaian ujian mahasiswa."
-        icon={FileText}
+        iconName="FileText"
         variant="emerald"
         className="mb-6"
         showDate={true}

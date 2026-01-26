@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import * as React from "react";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,6 +14,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import TableGlobal from "@/components/tableGlobal";
+import { useRouter } from "next/navigation";
 
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import PDFPreviewModal from "./PDFPreviewModal";
@@ -22,20 +23,35 @@ import {
   Eye,
   Search,
   Plus,
-  MoreHorizontal,
   LayoutGrid,
   List,
   Check,
   Settings2,
   Calendar,
+  MessageSquareText,
+  Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Form from "./Form";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -44,20 +60,28 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
 import { DataCard } from "@/components/common/DataCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { deletePengajuanRanpel } from "@/actions/pengajuanRanpel";
+import { showToast } from "@/components/ui/custom-toast";
 
 export default function PengajuanTableClient({
   data,
 }: {
   data: PengajuanRanpel[];
 }) {
+  const router = useRouter();
   const [selectedPengajuan, setSelectedPengajuan] =
     useState<PengajuanRanpel | null>(null);
-  // separate modal states: pdf preview and form modal
+
+  // separate modal states: pdf preview, delete confirmation, and form modal
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
+
+  // Delete state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [pengajuanToDelete, setPengajuanToDelete] = useState<PengajuanRanpel | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // view mode: table or card (like dosen)
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
@@ -84,6 +108,7 @@ export default function PengajuanTableClient({
       const status = (p.status ?? "").toLowerCase();
       const tanggal = (p.tanggalPengajuan ?? "").toString().toLowerCase();
       const tanggalDiterima = (p.tanggalDiterima ?? "").toString().toLowerCase();
+      const tanggalDitolak = (p.tanggalDitolak ?? "").toString().toLowerCase();
       const statusMatch =
         filterStatus === "all" ? true : status === filterStatus;
 
@@ -94,7 +119,8 @@ export default function PengajuanTableClient({
         judul.includes(q) ||
         status.includes(q) ||
         tanggal.includes(q) ||
-        tanggalDiterima.includes(q);
+        tanggalDiterima.includes(q) ||
+        tanggalDitolak.includes(q);
       return matchesQ && statusMatch;
     });
   }, [data, search, filterStatus]);
@@ -113,6 +139,7 @@ export default function PengajuanTableClient({
     setSelectedPengajuan(pengajuan);
     setIsPdfOpen(true);
   }, []);
+
   const handleClosePdf = () => {
     setIsPdfOpen(false);
     setSelectedPengajuan(null);
@@ -122,6 +149,29 @@ export default function PengajuanTableClient({
   };
   const handleCloseForm = () => {
     setIsFormOpen(false);
+  };
+
+  const handleDeleteClick = React.useCallback((pengajuan: PengajuanRanpel) => {
+    setPengajuanToDelete(pengajuan);
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  const handleConfirmDelete = async () => {
+    if (!pengajuanToDelete || !pengajuanToDelete.mahasiswa?.id || !pengajuanToDelete.id) return;
+
+    try {
+      setIsDeleting(true);
+      await deletePengajuanRanpel(pengajuanToDelete.mahasiswa.id, pengajuanToDelete.id);
+      showToast.success("Pengajuan berhasil dihapus");
+      router.refresh();
+      setIsDeleteDialogOpen(false);
+      setPengajuanToDelete(null);
+    } catch (error) {
+      console.error(error);
+      showToast.error("Gagal menghapus pengajuan");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const { user } = useAuthStore();
@@ -137,7 +187,7 @@ export default function PengajuanTableClient({
           // compute index from pagination
           const index =
             (table.getState().pagination?.pageIndex ?? 0) *
-              (table.getState().pagination?.pageSize ?? 10) +
+            (table.getState().pagination?.pageSize ?? 10) +
             row.index +
             1;
           return <div>{index}</div>;
@@ -158,7 +208,7 @@ export default function PengajuanTableClient({
         ),
       },
       {
-        accessorFn: (row) => row.ranpel?.judulPenelitian ?? "-",
+        accessorFn: (row) => row.perbaikanJudul?.judulBaru || row.ranpel?.judulPenelitian || "-",
         id: "judul",
         header: "Judul Penelitian",
         cell: ({ row }) => {
@@ -174,27 +224,36 @@ export default function PengajuanTableClient({
       {
         accessorFn: (row) => row.tanggalPengajuan ?? "",
         id: "tanggal",
-        header: "Tanggal Pengajuan",
+        header: () => <div className="text-center">Tanggal Pengajuan</div>,
         cell: ({ row }) => {
           const val = row.getValue("tanggal") as string;
           try {
-            return new Date(val).toLocaleDateString("id-ID");
+            return (
+              <div className="text-center">
+                {new Date(val).toLocaleDateString("id-ID")}
+              </div>
+            );
           } catch {
-            return val;
+            return <div className="text-center">{val}</div>;
           }
         },
       },
       {
-        accessorFn: (row) => row.tanggalDiterima ?? "",
-        id: "tanggalDiterima",
-        header: "Tanggal Diterima",
+        id: "tanggalKeputusan",
+        header: "Tanggal Diterima / Ditolak",
         cell: ({ row }) => {
-          const val = row.getValue("tanggalDiterima") as string;
-          if (!val) return "-";
+          const status = row.original.status;
+          let dateVal = null;
+
+          if (status === "diterima") dateVal = row.original.tanggalDiterima;
+          else if (status === "ditolak") dateVal = row.original.tanggalDitolak;
+
+          if (!dateVal) return "-";
+
           try {
-            return new Date(val).toLocaleDateString("id-ID");
+            return new Date(dateVal).toLocaleDateString("id-ID");
           } catch {
-            return val;
+            return "-";
           }
         },
       },
@@ -208,12 +267,66 @@ export default function PengajuanTableClient({
             s === "menunggu"
               ? "bg-yellow-100 text-yellow-800"
               : s === "diterima"
-              ? "bg-green-100 text-green-800"
-              : s === "ditolak"
-              ? "bg-red-100 text-red-800"
-              : "bg-blue-100 text-blue-800";
+                ? "bg-green-100 text-green-800"
+                : s === "ditolak"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-blue-100 text-blue-800";
           return (
             <span className={`px-2 py-1 rounded text-sm ${cls}`}>{s}</span>
+          );
+        },
+      },
+      {
+        id: "catatan",
+        header: () => <div className="text-center">Catatan</div>,
+        cell: ({ row }) => {
+          const catDosen = row.original.keterangan;
+          const catKaprodi = row.original.catatanKaprodi;
+
+          const hasDosen = catDosen && catDosen !== "-" && catDosen.trim() !== "";
+          const hasKaprodi = catKaprodi && catKaprodi !== "-" && catKaprodi.trim() !== "";
+
+          if (!hasDosen && !hasKaprodi) return <div className="text-center"><span className="text-muted-foreground">-</span></div>;
+
+          return (
+            <div className="flex justify-center">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 bg-blue-50/50 hover:bg-blue-100 hover:text-blue-700 rounded-full">
+                    <MessageSquareText size={15} />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Catatan</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3 pt-2">
+                    {hasDosen && (
+                      <div>
+                        <h4 className="font-semibold mb-1.5 text-xs uppercase tracking-wider text-blue-600 flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                          Dosen PA
+                        </h4>
+                        <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                          {catDosen}
+                        </div>
+                      </div>
+                    )}
+                    {hasKaprodi && (
+                      <div>
+                        <h4 className="font-semibold mb-1.5 text-xs uppercase tracking-wider text-indigo-600 flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                          Kaprodi
+                        </h4>
+                        <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                          {catKaprodi}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           );
         },
       },
@@ -223,26 +336,31 @@ export default function PengajuanTableClient({
         cell: ({ row }) => {
           const item = row.original;
           return (
-            <div className="text-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleLihatClick(item)}>
-                    <Eye size={14} /> Preview
-                  </DropdownMenuItem>
-                 
-                </DropdownMenuContent>
-              </DropdownMenu>
+            <div className="flex items-center justify-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 text-gray-500 hover:text-blue-600"
+                onClick={() => handleLihatClick(item)}
+                title="Lihat Detail"
+              >
+                <Eye size={18} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 text-gray-500 hover:text-red-600"
+                onClick={() => handleDeleteClick(item)}
+                title="Hapus Pengajuan"
+              >
+                <Trash2 size={18} />
+              </Button>
             </div>
           );
         },
       },
     ],
-    [handleLihatClick]
+    [handleLihatClick, handleDeleteClick]
   );
 
   const table = useReactTable({
@@ -267,7 +385,7 @@ export default function PengajuanTableClient({
   useEffect(() => {
     try {
       table.setPageIndex?.(0);
-    } catch {}
+    } catch { }
   }, [search, filterStatus, table]);
 
   return (
@@ -310,9 +428,8 @@ export default function PengajuanTableClient({
                       key={opt.value}
                       variant="ghost"
                       size="sm"
-                      className={`w-full justify-between h-8 px-2 font-normal ${
-                        filterStatus === opt.value ? "bg-accent text-accent-foreground font-medium" : ""
-                      }`}
+                      className={`w-full justify-between h-8 px-2 font-normal ${filterStatus === opt.value ? "bg-accent text-accent-foreground font-medium" : ""
+                        }`}
                       onClick={() => setFilterStatus(opt.value)}
                     >
                       <span className="text-sm">{opt.label}</span>
@@ -392,13 +509,13 @@ export default function PengajuanTableClient({
               const judul = item.ranpel?.judulPenelitian ?? "-";
               const tanggal = item.tanggalPengajuan ?? "";
               const status = item.status ?? "-";
-              
+
               const statusColor =
                 status === "menunggu" ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800" :
-                status === "diterima" ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800" :
-                status === "ditolak" ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800" :
-                status === "diverifikasi" ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800" :
-                "bg-gray-100 text-gray-800 border-gray-200 dark:bg-neutral-800 dark:text-gray-400";
+                  status === "diterima" ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800" :
+                    status === "ditolak" ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800" :
+                      status === "diverifikasi" ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800" :
+                        "bg-gray-100 text-gray-800 border-gray-200 dark:bg-neutral-800 dark:text-gray-400";
 
 
 
@@ -408,46 +525,46 @@ export default function PengajuanTableClient({
                   className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
                 >
                   <div className="p-5 flex flex-col gap-4 flex-1">
-                     
-                     {/* Header: Date & Status */}
-                     <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                           <Calendar size={13} />
-                           <span>
-                             {new Date(String(tanggal)).toLocaleDateString("id-ID", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                             })}
-                           </span>
-                        </div>
-                        
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
-                           {status}
-                        </span>
-                     </div>
 
-                     {/* Content: Title & Name */}
-                     <div className="space-y-2">
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
-                             {judul || "Judul tidak tersedia"}
-                          </h3>
-                          
-                          <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
-                             <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
-                                {nama.charAt(0)}
-                             </div>
-                             <div className="flex flex-col mt-2">
-                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                                   {nama}
-                                </span>
-                             </div>
-                          </div>
-                     </div>
+                    {/* Header: Date & Status */}
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        <Calendar size={13} />
+                        <span>
+                          {new Date(String(tanggal)).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </div>
+
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
+                        {status}
+                      </span>
+                    </div>
+
+                    {/* Content: Title & Name */}
+                    <div className="space-y-2">
+                      <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
+                        {judul || "Judul tidak tersedia"}
+                      </h3>
+
+                      <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
+                        <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
+                          {nama.charAt(0)}
+                        </div>
+                        <div className="flex flex-col mt-2">
+                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
+                            {nama}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Actions Footer */}
-                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
+                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800 gap-2">
                     <Button
                       size="sm"
                       variant="ghost"
@@ -455,6 +572,14 @@ export default function PengajuanTableClient({
                       className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
                     >
                       <Eye size={14} className="mr-1.5" /> Preview
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDeleteClick(item)}
+                      className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                    >
+                      <Trash2 size={14} className="mr-1.5" /> Hapus
                     </Button>
                   </div>
                 </div>
@@ -479,10 +604,10 @@ export default function PengajuanTableClient({
           <div className="max-w-3xl w-full bg-white dark:bg-neutral-800 rounded-xl shadow-2xl relative">
             <div className="h-[90vh] overflow-y-auto w-full rounded-xl">
               {user && (
-                <Form 
-                    mahasiswaId={user?.id} 
-                    onSuccess={handleCloseForm} 
-                    onClose={handleCloseForm}
+                <Form
+                  mahasiswaId={user?.id}
+                  onSuccess={handleCloseForm}
+                  onClose={handleCloseForm}
                 />
               )}
             </div>
@@ -490,7 +615,31 @@ export default function PengajuanTableClient({
         </div>
       )}
 
-    
+      {/* Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Pengajuan?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak dapat dibatalkan. Data pengajuan ini akan dihapus secara permanen dari sistem.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? "Menghapus..." : "Hapus"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </>
   );
 }

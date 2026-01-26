@@ -188,7 +188,7 @@ export default function DaftarProdiPage() {
       <PageHeader
         title="Data Master Program Studi"
         description="Kelola data program studi dalam sistem"
-        icon={University}
+        iconName="University"
       />
 
       <DataCard>

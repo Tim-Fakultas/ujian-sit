@@ -1,10 +1,15 @@
 "use client";
 import { PDFDocument } from "@/components/PDFDocument";
-import SuratPengajuanJudul from "./SuratPengajuanJudul";
-import React, { useRef } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { X } from "lucide-react";
+import { pdf } from "@react-pdf/renderer";
+
+
+import { getAllDosen } from "@/actions/data-master/dosen";
+import SuratPengajuanJudulPDF from "./SuratPengajuanJudulPDF";
+import RancanganPenelitianPDF from "./RancanganPenelitianPDF";
 
 interface PDFPreviewModalProps {
   isOpen: boolean;
@@ -18,39 +23,88 @@ export default function PDFPreviewModal({
   pengajuan,
 }: PDFPreviewModalProps) {
   const [showDetails, setShowDetails] = React.useState(true);
-  const suratRef = useRef<HTMLDivElement>(null);
 
-  // Fungsi untuk print surat
-  const handlePrint = async () => {
-    if (!suratRef.current) return;
+  const [isGeneratingRanpel, setIsGeneratingRanpel] = React.useState(false);
+  const [isGeneratingSurat, setIsGeneratingSurat] = React.useState(false);
+  const [kaprodi, setKaprodi] = React.useState<{ nama: string; nip: string } | undefined>(undefined);
+  const [pembimbingDetails, setPembimbingDetails] = React.useState<{
+    p1?: { nip?: string; nidn?: string };
+    p2?: { nip?: string; nidn?: string };
+  }>({});
 
+  React.useEffect(() => {
+    if (isOpen) {
+      const fetchDosenData = async () => {
+        try {
+          const dosenList = await getAllDosen();
+
+          // 1. Get Kaprodi
+          const targetNipClean = "197508012009122001";
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const kaprodiObj = dosenList?.find((d: any) => d.nip && d.nip.replace(/\s/g, "") === targetNipClean);
+
+          if (kaprodiObj) {
+            setKaprodi({ nama: kaprodiObj.nama || "", nip: kaprodiObj.nip || "" });
+          }
+
+          // 2. Get Pembimbing Details
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const p1 = dosenList?.find((d: any) => d.id === pengajuan.mahasiswa.pembimbing1?.id || d.nama === pengajuan.mahasiswa.pembimbing1?.nama);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const p2 = dosenList?.find((d: any) => d.id === pengajuan.mahasiswa.pembimbing2?.id || d.nama === pengajuan.mahasiswa.pembimbing2?.nama);
+
+          setPembimbingDetails({
+            p1: p1 ? { nip: p1.nip || undefined, nidn: p1.nidn || undefined } : undefined,
+            p2: p2 ? { nip: p2.nip || undefined, nidn: p2.nidn || undefined } : undefined,
+          });
+
+        } catch (error) {
+          console.error("Failed to fetch dosen data:", error);
+        }
+      };
+
+      fetchDosenData();
+    }
+  }, [isOpen, pengajuan]);
+
+  // Fungsi untuk download PDF menggunakan react-pdf/renderer
+
+
+  // Fungsi untuk download Rancangan Penelitian PDF
+  const handleDownloadRanpel = async () => {
+    setIsGeneratingRanpel(true);
     try {
-      // Import secara dinamis untuk menghindari error SSR
-      const html2canvas = (await import("html2canvas")).default;
-      const jsPDF = (await import("jspdf")).default;
-
-      const canvas = await html2canvas(suratRef.current, {
-        scale: 2, // Meningkatkan kualitas
-        useCORS: true, // Mengizinkan gambar dari sumber eksternal
-        logging: false,
-        windowWidth: 794, // Format A4 width in pixels at 96 DPI
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      // Menyesuaikan rasio aspek
-      const imgWidth = pdfWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      pdf.save("Surat Pengajuan Judul dan Pembimbing Skripsi.pdf");
-
-      // Notify user or optional success handling
+      const blob = await pdf(<RancanganPenelitianPDF pengajuan={pengajuan} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Rancangan_Penelitian_${pengajuan.mahasiswa.nama}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Gagal mengunduh PDF:", error);
+      alert('Gagal membuat PDF. Silakan coba lagi.');
+    } finally {
+      setIsGeneratingRanpel(false);
+    }
+  };
+
+  // Fungsi untuk download Surat Pengajuan Judul PDF
+  const handleDownloadSurat = async () => {
+    setIsGeneratingSurat(true);
+    try {
+      const blob = await pdf(<SuratPengajuanJudulPDF pengajuan={pengajuan} kaprodi={kaprodi} pembimbingDetails={pembimbingDetails} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Surat_Pengajuan_Judul_${pengajuan.mahasiswa.nama}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Gagal mengunduh PDF:", error);
+      alert('Gagal membuat PDF. Silakan coba lagi.');
+    } finally {
+      setIsGeneratingSurat(false);
     }
   };
 
@@ -93,11 +147,10 @@ export default function PDFPreviewModal({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className={`p-2 rounded-full transition-colors hidden md:block ${
-                showDetails
-                  ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30"
-                  : "hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
-              }`}
+              className={`p-2 rounded-full transition-colors hidden md:block ${showDetails
+                ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30"
+                : "hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
+                }`}
               title={
                 showDetails
                   ? "Sembunyikan Panel Kanan"
@@ -169,9 +222,8 @@ export default function PDFPreviewModal({
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={`transition-transform duration-300 ${
-                    showDetails ? "rotate-180" : ""
-                  }`}
+                  className={`transition-transform duration-300 ${showDetails ? "rotate-180" : ""
+                    }`}
                 >
                   <polyline points="18 15 12 9 6 15"></polyline>
                 </svg>
@@ -188,28 +240,35 @@ export default function PDFPreviewModal({
                 </h3>
 
                 <div className="bg-gray-50 dark:bg-neutral-900 rounded-xl p-4 space-y-3 border border-gray-100 dark:border-neutral-800">
+
                   <div>
+                    {/* Status Pengajuan */}
                     <span className="text-xs text-gray-500 block mb-1">
                       Status Pengajuan
                     </span>
+                    {/* Status Pengajuan */}
                     <span
                       className={`inline-flex px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wide
-                            ${
-                              pengajuan.status === "diterima"
-                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                : pengajuan.status === "ditolak"
-                                ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                                : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                            }
+                            ${pengajuan.status === "diterima"
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                          : pengajuan.status === "ditolak"
+                            ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                            : pengajuan.status === "diverifikasi"
+                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                        }
                          `}
                     >
                       {pengajuan.status}
                     </span>
                   </div>
+
                   <div>
+                    {/* Tanggal Pengajuan */}
                     <span className="text-xs text-gray-500 block mb-1">
                       Tanggal Pengajuan
                     </span>
+                    {/* Tanggal Pengajuan */}
                     <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
                       {new Date(pengajuan.tanggalPengajuan).toLocaleDateString(
                         "id-ID",
@@ -222,21 +281,75 @@ export default function PDFPreviewModal({
                       )}
                     </span>
                   </div>
+
+                  {pengajuan.tanggalDiverifikasi && (
+                    <div>
+                      {/* Tanggal Diverifikasi */}
+                      <span className="text-xs text-gray-500 block mb-1">
+                        Tanggal Diverifikasi
+                      </span>
+                      {/* Tanggal Diverifikasi */}
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                        {new Date(pengajuan.tanggalDiverifikasi).toLocaleDateString(
+                          "id-ID",
+                          {
+                            weekday: "long",
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          }
+                        )}
+                      </span>
+                    </div>
+                  )}
+
+                  {pengajuan.tanggalDiterima && (
+                    <div>
+                      {/* Tanggal Disetujui */}
+                      <span className="text-xs text-gray-500 block mb-1">
+                        Tanggal Disetujui
+                      </span>
+                      {/* Tanggal Diterima */}
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                        {new Date(pengajuan.tanggalDiterima).toLocaleDateString(
+                          "id-ID",
+                          {
+                            weekday: "long",
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          }
+                        )}
+                      </span>
+                    </div>
+                  )}
+
+
                 </div>
 
-                {/* Keterangan */}
-                <div>
-                  <span className="text-xs font-semibold text-gray-500 mb-2 block">
-                    Keterangan / Catatan
-                  </span>
-                  <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20 text-sm text-gray-700 dark:text-blue-100 leading-relaxed min-h-[60px]">
-                    {pengajuan.keterangan || (
-                      <span className="text-gray-400 italic">
-                        Tidak ada catatan khusus.
-                      </span>
-                    )}
+                {/* Keterangan / Catatan Dosen */}
+                {pengajuan.keterangan && (
+                  <div>
+                    <span className="text-xs font-semibold text-gray-500 mb-2 block">
+                      Catatan Dosen PA
+                    </span>
+                    <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20 text-sm text-gray-700 dark:text-blue-100 leading-relaxed min-h-[60px]">
+                      {pengajuan.keterangan}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* Catatan Kaprodi */}
+                {pengajuan.catatanKaprodi && (
+                  <div>
+                    <span className="text-xs font-semibold text-gray-500 mb-2 block">
+                      Catatan Kaprodi
+                    </span>
+                    <div className="bg-purple-50/50 dark:bg-purple-900/10 p-4 rounded-xl border border-purple-100 dark:border-purple-900/20 text-sm text-gray-700 dark:text-purple-100 leading-relaxed min-h-[60px]">
+                      {pengajuan.catatanKaprodi}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="w-full border-b dark:border-neutral-800 my-4"></div>
@@ -255,7 +368,7 @@ export default function PDFPreviewModal({
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 mb-0.5">
-                        Pembimbing Utama
+                        Pembimbing 1
                       </p>
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {pengajuan.mahasiswa?.pembimbing1?.nama || (
@@ -272,7 +385,7 @@ export default function PDFPreviewModal({
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 mb-0.5">
-                        Pembimbing Pendamping
+                        Pembimbing 2
                       </p>
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {pengajuan.mahasiswa?.pembimbing2?.nama || (
@@ -285,17 +398,13 @@ export default function PDFPreviewModal({
                   </div>
                 </div>
 
-                {/* Print Button moved inside content */}
-                <div className="pt-4">
+                {/* Print Buttons */}
+                <div className="pt-4 space-y-3">
                   <Button
-                    disabled={!pengajuan.mahasiswa?.pembimbing1}
-                    title={
-                      !pengajuan.mahasiswa?.pembimbing1
-                        ? "Belum ada pembimbing"
-                        : "Cetak Surat"
-                    }
-                    onClick={handlePrint}
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white h-10 md:h-12 rounded-xl text-sm font-medium shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                    disabled={isGeneratingRanpel}
+                    title={isGeneratingRanpel ? "Sedang membuat PDF..." : "Download Rancangan Penelitian"}
+                    onClick={handleDownloadRanpel}
+                    className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-white dark:border-neutral-700 h-10 md:h-12 rounded-xl text-sm font-medium shadow-sm flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                   >
                     <svg
                       width="18"
@@ -307,26 +416,36 @@ export default function PDFPreviewModal({
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     >
-                      <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                      <rect x="6" y="14" width="12" height="8"></rect>
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
                     </svg>
-                    Cetak
+                    {isGeneratingRanpel ? "Membuat PDF..." : "Download Rancangan Penelitian"}
                   </Button>
 
-                  {/* Hidden Template for Print - Positioned off-screen but visible for html2canvas */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: -10000,
-                      left: -10000,
-                      width: "794px",
-                    }}
+                  <Button
+                    disabled={isGeneratingSurat}
+                    title={isGeneratingSurat ? "Sedang membuat PDF..." : "Download Surat Pengajuan"}
+                    onClick={handleDownloadSurat}
+                    className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-white dark:border-neutral-700 h-10 md:h-12 rounded-xl text-sm font-medium shadow-sm flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                   >
-                    <div ref={suratRef}>
-                      <SuratPengajuanJudul pengajuan={pengajuan} />
-                    </div>
-                  </div>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    {isGeneratingSurat ? "Membuat PDF..." : "Download Surat Pengajuan Judul"}
+                  </Button>
+
                 </div>
               </div>
             </div>

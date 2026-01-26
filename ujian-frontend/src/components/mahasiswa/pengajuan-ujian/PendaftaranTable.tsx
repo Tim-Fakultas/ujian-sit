@@ -132,7 +132,7 @@ export default function PendaftaranTable({
         cell: ({ row, table }) => {
           const index =
             (table.getState().pagination?.pageIndex ?? 0) *
-              (table.getState().pagination?.pageSize ?? 10) +
+            (table.getState().pagination?.pageSize ?? 10) +
             row.index +
             1;
           return <div >{index}</div>;
@@ -168,16 +168,20 @@ export default function PendaftaranTable({
         accessorFn: (row) => row.tanggalPengajuan ?? "",
         id: "tanggal",
         header: () => (
-          <div className="flex items-center gap-1 select-none">
+          <div className="flex justify-center items-center gap-1 select-none">
             Tanggal Pengajuan
           </div>
         ),
         cell: ({ row }) => {
           const v = String(row.getValue("tanggal") ?? "");
           try {
-            return new Date(v).toLocaleDateString("id-ID");
+            return (
+              <div className="text-center">
+                {new Date(v).toLocaleDateString("id-ID")}
+              </div>
+            );
           } catch {
-            return v;
+            return <div className="text-center">{v}</div>;
           }
         },
       },
@@ -189,19 +193,18 @@ export default function PendaftaranTable({
           const s = String(row.getValue("status"));
           return (
             <span
-              className={`px-2 py-1 rounded text-sm ${getStatusColor(s)} ${
-                s === "menunggu"
-                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                  : s === "diterima"
+              className={`px-2 py-1 rounded text-sm ${getStatusColor(s)} ${s === "menunggu"
+                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                : s === "diterima"
                   ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                   : s === "ditolak"
-                  ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                  : s === "dijadwalkan"
-                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                  : s === "selesai"
-                  ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                  : ""
-              }`}
+                    ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                    : s === "dijadwalkan"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      : s === "selesai"
+                        ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                        : ""
+                }`}
             >
               {s}
             </span>
@@ -222,11 +225,11 @@ export default function PendaftaranTable({
           return (
             <div className="text-center">
               <Button variant="ghost" size="icon"
-              onClick={() => {
-                setKeteranganContent(keterangan);
-                setKeteranganModal(true);
-              }}>
-              <Eye size={16}/>
+                onClick={() => {
+                  setKeteranganContent(keterangan);
+                  setKeteranganModal(true);
+                }}>
+                <Eye size={16} />
               </Button>
             </div>
           );
@@ -261,7 +264,7 @@ export default function PendaftaranTable({
   useEffect(() => {
     try {
       table.setPageIndex?.(0);
-    } catch {}
+    } catch { }
   }, [filterJudul, filterStatus, filterJenisUjian, table]);
 
   const [showForm, setShowForm] = useState(false);
@@ -310,9 +313,8 @@ export default function PendaftaranTable({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`w-full justify-between h-8 px-2 font-normal ${
-                    filterJenisUjian === "all" ? "bg-accent text-accent-foreground font-medium" : ""
-                  }`}
+                  className={`w-full justify-between h-8 px-2 font-normal ${filterJenisUjian === "all" ? "bg-accent text-accent-foreground font-medium" : ""
+                    }`}
                   onClick={() => setFilterJenisUjian("all")}
                 >
                   <span className="text-sm">Semua</span>
@@ -323,11 +325,10 @@ export default function PendaftaranTable({
                     key={jenis.id}
                     variant="ghost"
                     size="sm"
-                    className={`w-full justify-between h-8 px-2 font-normal ${
-                      filterJenisUjian === String(jenis.id)
-                        ? "bg-accent text-accent-foreground font-medium"
-                        : ""
-                    }`}
+                    className={`w-full justify-between h-8 px-2 font-normal ${filterJenisUjian === String(jenis.id)
+                      ? "bg-accent text-accent-foreground font-medium"
+                      : ""
+                      }`}
                     onClick={() => setFilterJenisUjian(String(jenis.id))}
                   >
                     <span className="text-sm">{jenis.namaJenis}</span>
@@ -345,9 +346,8 @@ export default function PendaftaranTable({
                     key={opt.value}
                     variant="ghost"
                     size="sm"
-                    className={`w-full justify-between h-8 px-2 font-normal ${
-                      filterStatus === opt.value ? "bg-accent text-accent-foreground font-medium" : ""
-                    }`}
+                    className={`w-full justify-between h-8 px-2 font-normal ${filterStatus === opt.value ? "bg-accent text-accent-foreground font-medium" : ""
+                      }`}
                     onClick={() => setFilterStatus(opt.value)}
                   >
                     <span className="text-sm">{opt.label}</span>
@@ -382,7 +382,7 @@ export default function PendaftaranTable({
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          
+
           {/* Tombol pengajuan */}
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 flex items-center gap-2 rounded-lg h-9"
@@ -454,11 +454,11 @@ export default function PendaftaranTable({
             const jenis = item.jenisUjian?.namaJenis ?? "-";
             const tanggal = item.tanggalPengajuan ?? "";
             const status = item.status ?? "-";
-            
+
             const tanggalStr = tanggal
               ? new Date(String(tanggal)).toLocaleDateString("id-ID", {
-                  day: "numeric", month: "short", year: "numeric"
-                })
+                day: "numeric", month: "short", year: "numeric"
+              })
               : "-";
 
 
@@ -475,61 +475,60 @@ export default function PendaftaranTable({
                 key={key}
                 className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
               >
-                  <div className="p-5 flex flex-col gap-4 flex-1">
-                     
-                     {/* Header: Date & Status */}
-                     <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                           <Calendar size={13} />
-                           <span>{tanggalStr}</span>
-                        </div>
-                        
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
-                           {status}
-                        </span>
-                     </div>
+                <div className="p-5 flex flex-col gap-4 flex-1">
 
-                     {/* Content: Title & Type */}
-                     <div className="space-y-2">
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
-                             {judul || "Judul tidak tersedia"}
-                          </h3>
-                          
-                          <div className="pt-2">
-                             <span className={`px-2 py-1 rounded-md text-[11px] font-semibold 
-                                 ${
-                                   jenis.toLowerCase().includes("proposal") ? "bg-blue-100 text-blue-700" :
-                                   jenis.toLowerCase().includes("hasil") ? "bg-yellow-100 text-yellow-700" :
-                                   jenis.toLowerCase().includes("skripsi") ? "bg-green-100 text-green-700" : "bg-gray-100"
-                                 }
+                  {/* Header: Date & Status */}
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      <Calendar size={13} />
+                      <span>{tanggalStr}</span>
+                    </div>
+
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
+                      {status}
+                    </span>
+                  </div>
+
+                  {/* Content: Title & Type */}
+                  <div className="space-y-2">
+                    <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
+                      {judul || "Judul tidak tersedia"}
+                    </h3>
+
+                    <div className="pt-2">
+                      <span className={`px-2 py-1 rounded-md text-[11px] font-semibold 
+                                 ${jenis.toLowerCase().includes("proposal") ? "bg-blue-100 text-blue-700" :
+                          jenis.toLowerCase().includes("hasil") ? "bg-yellow-100 text-yellow-700" :
+                            jenis.toLowerCase().includes("skripsi") ? "bg-green-100 text-green-700" : "bg-gray-100"
+                        }
                              `}>
-                               {jenis}
-                             </span>
-                          </div>
-                     </div>
+                        {jenis}
+                      </span>
+                    </div>
                   </div>
+                </div>
 
-                  {/* Actions Footer */}
-                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                    <DropdownMenu>
-                     <DropdownMenuTrigger asChild>
-                       <Button variant="ghost" size="sm" className="text-xs h-8 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
-                         <MoreHorizontal size={14} className="mr-1.5" /> Aksi
-                       </Button>
-                     </DropdownMenuTrigger>
-                     <DropdownMenuContent align="end" className="w-48">
-                       <DropdownMenuItem asChild>
-                         <Link
-                           href={`/mahasiswa/jadwal-ujian`}
-                           className="w-full flex items-center gap-2 text-sm px-3 py-2 cursor-pointer"
-                         >
-                           <List size={14} />
-                           <span>Lihat Jadwal Ujian</span>
-                         </Link>
-                       </DropdownMenuItem>
-                     </DropdownMenuContent>
-                   </DropdownMenu>
-                  </div>
+                {/* Actions Footer */}
+                <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-xs h-8 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                        <MoreHorizontal size={14} className="mr-1.5" /> Aksi
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/mahasiswa/jadwal-ujian`}
+                          className="w-full flex items-center gap-2 text-sm px-3 py-2 cursor-pointer"
+                        >
+                          <List size={14} />
+                          <span>Lihat Jadwal Ujian</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             );
           })}

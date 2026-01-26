@@ -24,9 +24,7 @@ interface FormProps {
 }
 
 export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
-  const MAX_TEXT = 4000;
-  const MIN_JUDUL = 10;
-  const MIN_TEXT = 20;
+
 
   const [formData, setFormData] = useState<RancanganPenelitian>({
     judulPenelitian: "",
@@ -72,56 +70,32 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    // enforce max length on client
-    const val = value.slice(0, MAX_TEXT);
-    setFormData((prev) => ({ ...prev, [name]: val }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
-    // auto resize handled by effect reading formData
   };
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (
-      !formData.judulPenelitian ||
-      formData.judulPenelitian.trim().length < MIN_JUDUL
-    ) {
-      errs.judulPenelitian = `Judul minimal ${MIN_JUDUL} karakter.`;
+    if (!formData.judulPenelitian?.trim()) {
+      errs.judulPenelitian = "Judul wajib diisi.";
     }
-    if (
-      !formData.masalahDanPenyebab ||
-      formData.masalahDanPenyebab.trim().length < MIN_TEXT
-    ) {
-      errs.masalahDanPenyebab = `Jelaskan minimal ${MIN_TEXT} karakter.`;
+    if (!formData.masalahDanPenyebab?.trim()) {
+      errs.masalahDanPenyebab = "Masalah dan penyebab wajib diisi.";
     }
-    if (
-      !formData.alternatifSolusi ||
-      formData.alternatifSolusi.trim().length < MIN_TEXT
-    ) {
-      errs.alternatifSolusi = `Jelaskan minimal ${MIN_TEXT} karakter.`;
+    if (!formData.alternatifSolusi?.trim()) {
+      errs.alternatifSolusi = "Alternatif solusi wajib diisi.";
     }
-    if (
-      !formData.metodePenelitian ||
-      formData.metodePenelitian.trim().length < 3
-    ) {
-      errs.metodePenelitian = `Masukkan metode penelitian yang valid.`;
+    if (!formData.metodePenelitian?.trim()) {
+      errs.metodePenelitian = "Metode penelitian wajib diisi.";
     }
-    if (
-      !formData.hasilYangDiharapkan ||
-      formData.hasilYangDiharapkan.trim().length < MIN_TEXT
-    ) {
-      errs.hasilYangDiharapkan = `Jelaskan minimal ${MIN_TEXT} karakter.`;
+    if (!formData.hasilYangDiharapkan?.trim()) {
+      errs.hasilYangDiharapkan = "Hasil yang diharapkan wajib diisi.";
     }
-    if (
-      !formData.kebutuhanData ||
-      formData.kebutuhanData.trim().length < MIN_TEXT
-    ) {
-      errs.kebutuhanData = `Jelaskan minimal ${MIN_TEXT} karakter.`;
+    if (!formData.kebutuhanData?.trim()) {
+      errs.kebutuhanData = "Kebutuhan data wajib diisi.";
     }
-    if (
-      !formData.jurnalReferensi ||
-      formData.jurnalReferensi.trim().length < MIN_TEXT
-    ) {
-      errs.jurnalReferensi = `Sertakan minimal ${MIN_TEXT} karakter referensi.`;
+    if (!formData.jurnalReferensi?.trim()) {
+      errs.jurnalReferensi = "Jurnal referensi wajib diisi.";
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -207,14 +181,8 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
                 Judul Penelitian
               </Label>
               {formData.judulPenelitian.length > 0 && (
-                <span
-                  className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    formData.judulPenelitian.length > 150
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {formData.judulPenelitian.length}/200
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                  {formData.judulPenelitian.length} karakter
                 </span>
               )}
             </div>
@@ -224,21 +192,13 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
                 id="judulPenelitian"
                 name="judulPenelitian"
                 value={formData.judulPenelitian}
-                onChange={(e) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    [e.target.name]: e.target.value.slice(0, MAX_TEXT),
-                  }));
-                  setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
-                }}
+                onChange={handleChange}
                 placeholder="Tuliskan judul penelitian skripsi Anda di sini..."
                 required
-                className={`min-h-[100px] text-lg font-medium resize-none leading-relaxed transition-all duration-200 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl ${
-                  errors.judulPenelitian
-                    ? "border-red-400 focus-visible:ring-red-400/20"
-                    : ""
-                }`}
-                maxLength={200}
+                className={`min-h-[100px] text-lg font-medium resize-none leading-relaxed transition-all duration-200 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl ${errors.judulPenelitian
+                  ? "border-red-400 focus-visible:ring-red-400/20"
+                  : ""
+                  }`}
               />
             </div>
             {errors.judulPenelitian && (
@@ -249,7 +209,7 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Left Column */}
           <div className="space-y-6">
             <div className="bg-white dark:bg-neutral-900 border dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-6 h-full hover:shadow-md transition-shadow duration-300">
@@ -277,9 +237,8 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
                   onChange={handleChange}
                   placeholder="Uraikan apa masalah utamanya dan penyebab masalah tersebut..."
                   rows={6}
-                  className={`resize-none bg-gray-50 dark:bg-neutral-800/50 border-gray-200 focus:bg-white transition-colors rounded-xl ${
-                    errors.masalahDanPenyebab ? "border-red-400" : ""
-                  }`}
+                  className={`resize-none bg-gray-50 dark:bg-neutral-800/50 border-gray-200 focus:bg-white transition-colors rounded-xl ${errors.masalahDanPenyebab ? "border-red-400" : ""
+                    }`}
                 />
                 <div className="flex justify-end text-xs text-muted-foreground">
                   {errors.masalahDanPenyebab ? (
@@ -306,9 +265,8 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
                   onChange={handleChange}
                   placeholder="Data apa saja yang diperlukan untuk penelitian ini?"
                   rows={4}
-                  className={`resize-none bg-gray-50 dark:bg-neutral-800/50 border-gray-200 focus:bg-white transition-colors rounded-xl ${
-                    errors.kebutuhanData ? "border-red-400" : ""
-                  }`}
+                  className={`resize-none bg-gray-50 dark:bg-neutral-800/50 border-gray-200 focus:bg-white transition-colors rounded-xl ${errors.kebutuhanData ? "border-red-400" : ""
+                    }`}
                 />
                 <div className="flex justify-end text-xs text-muted-foreground">
                   {errors.kebutuhanData ? (
@@ -319,33 +277,7 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
                 </div>
               </div>
 
-              <div className="space-y-3 pt-2">
-                <Label
-                  htmlFor="jurnalReferensi"
-                  className="font-semibold text-sm"
-                >
-                  Jurnal Referensi
-                </Label>
-                <Textarea
-                  id="jurnalReferensi"
-                  name="jurnalReferensi"
-                  ref={refJurnal}
-                  value={formData.jurnalReferensi}
-                  onChange={handleChange}
-                  placeholder="Sebutkan jurnal atau referensi yang mendukung penelitian ini..."
-                  rows={4}
-                  className={`resize-none bg-gray-50 dark:bg-neutral-800/50 border-gray-200 focus:bg-white transition-colors rounded-xl ${
-                    errors.jurnalReferensi ? "border-red-400" : ""
-                  }`}
-                />
-                <div className="flex justify-end text-xs text-muted-foreground">
-                  {errors.jurnalReferensi ? (
-                    <span className="text-red-500 mr-auto">
-                      {errors.jurnalReferensi}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
+
             </div>
           </div>
 
@@ -376,9 +308,8 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
                   onChange={handleChange}
                   placeholder="Jelaskan solusi yang Anda tawarkan..."
                   rows={6}
-                  className={`resize-none bg-gray-50 dark:bg-neutral-800/50 border-gray-200 focus:bg-white transition-colors rounded-xl ${
-                    errors.alternatifSolusi ? "border-red-400" : ""
-                  }`}
+                  className={`resize-none bg-gray-50 dark:bg-neutral-800/50 border-gray-200 focus:bg-white transition-colors rounded-xl ${errors.alternatifSolusi ? "border-red-400" : ""
+                    }`}
                 />
                 <div className="flex justify-end text-xs text-muted-foreground">
                   {errors.alternatifSolusi ? (
@@ -404,9 +335,8 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
                   onChange={handleChange}
                   placeholder="Apa target capaian dari penelitian ini?"
                   rows={4}
-                  className={`resize-none bg-gray-50 dark:bg-neutral-800/50 border-gray-200 focus:bg-white transition-colors rounded-xl ${
-                    errors.hasilYangDiharapkan ? "border-red-400" : ""
-                  }`}
+                  className={`resize-none bg-gray-50 dark:bg-neutral-800/50 border-gray-200 focus:bg-white transition-colors rounded-xl ${errors.hasilYangDiharapkan ? "border-red-400" : ""
+                    }`}
                 />
                 <div className="flex justify-end text-xs text-muted-foreground">
                   {errors.hasilYangDiharapkan ? (
@@ -436,13 +366,41 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
               onChange={handleChange}
               placeholder="Contoh: Kuantitatif dengan algoritma XYZ..."
               required
-              className={`h-12 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 rounded-xl ${
-                errors.metodePenelitian ? "border-red-400" : ""
-              }`}
-              maxLength={200}
+              className={`h-12 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 rounded-xl ${errors.metodePenelitian ? "border-red-400" : ""
+                }`}
             />
             <div className="text-xs text-red-500 mt-1">
               {errors.metodePenelitian}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-neutral-900 border dark:border-neutral-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="space-y-3">
+            <Label
+              htmlFor="jurnalReferensi"
+              className="font-bold text-base flex items-center gap-2"
+            >
+              <span className="w-1 h-4 bg-teal-500 rounded-full"></span>
+              Jurnal Referensi
+            </Label>
+            <Textarea
+              id="jurnalReferensi"
+              name="jurnalReferensi"
+              ref={refJurnal}
+              value={formData.jurnalReferensi}
+              onChange={handleChange}
+              placeholder="Sebutkan jurnal atau referensi yang mendukung penelitian ini..."
+              rows={4}
+              className={`resize-none bg-gray-50 dark:bg-neutral-800/50 border-gray-200 focus:bg-white transition-colors rounded-xl ${errors.jurnalReferensi ? "border-red-400" : ""
+                }`}
+            />
+            <div className="flex justify-end text-xs text-muted-foreground">
+              {errors.jurnalReferensi ? (
+                <span className="text-red-500 mr-auto">
+                  {errors.jurnalReferensi}
+                </span>
+              ) : null}
             </div>
           </div>
         </div>

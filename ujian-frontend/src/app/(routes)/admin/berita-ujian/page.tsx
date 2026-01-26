@@ -19,7 +19,7 @@ export default async function BeritaUjianPage() {
       <PageHeader
         title="Berita Acara Ujian"
         description="Lihat berita acara ujian di sini."
-        icon={FileText}
+        iconName="FileText"
         variant="emerald"
         className="mb-6"
       />

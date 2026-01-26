@@ -80,8 +80,10 @@
   --sidebar-ring: #b5b5b5;
 
   /* Custom sidebar width */
-  --sidebar-width: 16rem; /* 256px - konsisten dengan layout */
-  --sidebar-width-icon: 3.5rem; /* 56px untuk collapsed state - lebih lebar untuk menampung icon dengan baik */
+  --sidebar-width: 16rem;
+  /* 256px - konsisten dengan layout */
+  --sidebar-width-icon: 3.5rem;
+  /* 56px untuk collapsed state - lebih lebar untuk menampung icon dengan baik */
 }
 
 .dark {
@@ -122,6 +124,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
     @apply font-sans;
@@ -132,6 +135,7 @@
   from {
     height: 0;
   }
+
   to {
     height: var(--radix-collapsible-content-height);
   }
@@ -142,11 +146,13 @@
     opacity: 0;
     transform: scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
+
 .animate-fadeIn {
   animation: fadeIn 0.15s ease-in-out;
 }
@@ -155,6 +161,7 @@
   from {
     height: var(--radix-collapsible-content-height);
   }
+
   to {
     height: 0;
   }
@@ -174,6 +181,7 @@
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -185,6 +193,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -192,10 +201,12 @@
 }
 
 @keyframes pulse-glow {
+
   0%,
   100% {
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
   }
+
   50% {
     box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
   }

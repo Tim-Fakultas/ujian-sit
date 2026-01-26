@@ -25,7 +25,7 @@ export default async function PendaftaranUjianPage() {
       <PageHeader
         title="Pendaftaran Ujian"
         description="Kelola pendaftaran ujian mahasiswa di sini."
-        icon={FileText}
+        iconName="FileText"
         variant="emerald"
         className="mb-6"
       />

@@ -49,7 +49,7 @@ export default function PerbaikanJudulTable({
 }: PerbaikanJudulTableProps) {
   const router = useRouter();
   const [data] = useState<PerbaikanJudul[]>(perbaikanJudulList);
-  
+
   // Table States
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -89,6 +89,7 @@ export default function PerbaikanJudulTable({
     // Map PerbaikanJudul to PengajuanRanpel for the preview modal
     // Note: This is an approximation since PDFPreviewModal expects PengajuanRanpel
     // We assume fundamental fields are compatible or mapped here.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mapped: any = {
       ...item,
       tanggalPengajuan: item.tanggalPerbaikan,
@@ -110,7 +111,7 @@ export default function PerbaikanJudulTable({
         header: "No",
         cell: ({ row, table }) =>
           (table.getState().pagination.pageIndex) *
-            table.getState().pagination.pageSize +
+          table.getState().pagination.pageSize +
           row.index +
           1,
         size: 50,
@@ -149,9 +150,9 @@ export default function PerbaikanJudulTable({
         id: "judul_baru",
         header: "Judul Baru",
         cell: ({ row }) => (
-           <div className="min-w-[250px] whitespace-normal leading-relaxed py-1" title={row.original.judulBaru}>
-                {row.original.judulBaru}
-           </div>
+          <div className="min-w-[250px] whitespace-normal leading-relaxed py-1" title={row.original.judulBaru}>
+            {row.original.judulBaru}
+          </div>
         ),
         size: 300,
       },
@@ -175,14 +176,14 @@ export default function PerbaikanJudulTable({
         cell: ({ row }) => (
           <div className="flex gap-2">
             {row.original.status === "menunggu" && (
-                <Button
-                    variant="default"
-                    size="sm"
-                    className="h-8 text-xs"
-                    onClick={() => handleDetail(row.original)}
-                >
-                    Lihat detail
-                </Button>
+              <Button
+                variant="default"
+                size="sm"
+                className="h-8 text-xs"
+                onClick={() => handleDetail(row.original)}
+              >
+                Lihat detail
+              </Button>
             )}
           </div>
         ),
@@ -227,7 +228,7 @@ export default function PerbaikanJudulTable({
         onSearchChange={setFilterNama}
         searchPlaceholder="Cari Nama, NIM, atau Judul..."
         filterGroups={[
-            { label: "Status", key: "status", options: statusOptions }
+          { label: "Status", key: "status", options: statusOptions }
         ]}
         selectedFilterType="status" // Default showing single group selector behavior if needed, or customize DataTableFilter
         selectedFilterValue={filterStatus}
@@ -275,19 +276,19 @@ export default function PerbaikanJudulTable({
               <div>
                 <Label className="text-xs text-muted-foreground">Surat Permohonan</Label>
                 <div className="mt-1">
-                {detailPerbaikan.berkas ? (
-                  <a
-                    href={`${process.env.NEXT_PUBLIC_STORAGE_URL}/storage/${detailPerbaikan.berkas}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 hover:underline"
-                  >
-                    <FileText size={14} />
-                    Lihat Surat
-                  </a>
-                ) : (
-                  <span className="text-muted-foreground text-sm italic">Tidak ada file</span>
-                )}
+                  {detailPerbaikan.berkas ? (
+                    <a
+                      href={`${process.env.NEXT_PUBLIC_STORAGE_URL}/storage/${detailPerbaikan.berkas}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                    >
+                      <FileText size={14} />
+                      Lihat Surat
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground text-sm italic">Tidak ada file</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -299,25 +300,30 @@ export default function PerbaikanJudulTable({
               </Button>
             </DialogClose>
             {/* Implementasi tombol aksi verifikasi/tolak bisa ditambahkan di sini sesuai kebutuhan user nantinya */}
-            <Button 
-                type="button" 
-                variant="default"
-                onClick={async () => {
-                    if (!detailPerbaikan) return;
-                    const tId = showToast.loading("Memverifikasi...");
-                    try {
-                        await updateStatusPerbaikanJudul(detailPerbaikan.id, "diterima");
-                        showToast.dismiss(tId);
-                        showToast.success("Judul berhasil diterima");
-                        await revalidateAction("/sekprodi/perbaikan-judul");
-                        
-                        setDetailPerbaikan(null);
-                        router.refresh();
-                    } catch (error) {
-                         showToast.dismiss(tId);
-                         showToast.error("Gagal memverifikasi");
-                    }
-                }}
+            <Button
+              type="button"
+              variant="default"
+              onClick={async () => {
+                if (!detailPerbaikan) return;
+                const tId = showToast.loading("Memverifikasi...");
+                try {
+                  // 1. Update perbaikan status
+                  await updateStatusPerbaikanJudul(detailPerbaikan.id, "diterima");
+
+                  // 2. Update actual Ranpel title -> Handled by backend automatically now via PerbaikanJudulController observer/transaction
+
+                  showToast.dismiss(tId);
+                  showToast.success("Judul berhasil diterima dan diperbarui");
+                  await revalidateAction("/sekprodi/perbaikan-judul");
+
+                  setDetailPerbaikan(null);
+                  router.refresh();
+                } catch (error) {
+                  console.error(error);
+                  showToast.dismiss(tId);
+                  showToast.error("Gagal memverifikasi");
+                }
+              }}
             >
               Verifikasi
             </Button>

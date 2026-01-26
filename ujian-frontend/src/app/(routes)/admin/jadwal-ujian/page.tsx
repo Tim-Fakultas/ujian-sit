@@ -21,7 +21,7 @@ export default async function JadwalUjianPage() {
       <PageHeader 
         title="Jadwal Ujian" 
         description="Kelola jadwal ujian di sini." 
-        icon={FileText}
+        iconName="FileText"
         variant="emerald"
         className="mb-6"
       />

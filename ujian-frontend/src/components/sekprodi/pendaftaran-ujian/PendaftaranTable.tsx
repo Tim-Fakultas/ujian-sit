@@ -36,6 +36,7 @@ import {
   LayoutGrid,
   Eye,
   FileText,
+  Pencil,
 } from "lucide-react";
 import { getMahasiswaById } from "@/actions/data-master/mahasiswa";
 import { getJenisUjianColor, getStatusColor } from "@/lib/utils";
@@ -58,6 +59,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { DataCard } from "@/components/common/DataCard";
 import { getRanpelByMahasiswaId } from "@/actions/rancanganPenelitian";
 
@@ -67,6 +74,13 @@ export default function PendaftaranUjianTable({
   pendaftaranUjianList: PendaftaranUjian[];
 }) {
   const router = useRouter();
+  const [localData, setLocalData] =
+    useState<PendaftaranUjian[]>(pendaftaranUjianList);
+
+  useEffect(() => {
+    setLocalData(pendaftaranUjianList);
+  }, [pendaftaranUjianList]);
+
   const [selected, setSelected] = useState<PendaftaranUjian | null>(null);
   const [ranpelId, setRanpelId] = useState<number | null>(0);
   type MahasiswaDetail = {
@@ -86,6 +100,11 @@ export default function PendaftaranUjianTable({
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [isRejecting, setIsRejecting] = useState(false);
+
+  // State for Edit Keterangan Dialog
+  const [showEditKeteranganDialog, setShowEditKeteranganDialog] = useState(false);
+  const [editKeterangan, setEditKeterangan] = useState("");
+  const [isEditingKeterangan, setIsEditingKeterangan] = useState(false);
 
   useEffect(() => {
     if (selected) {
@@ -159,7 +178,7 @@ export default function PendaftaranUjianTable({
 
   // Filtered data
   const filteredData = useMemo(() => {
-    return pendaftaranUjianList.filter((u) => {
+    return localData.filter((u) => {
       const searchLower = filterNama.toLowerCase();
       const matchSearch =
         (u.mahasiswa.nama && u.mahasiswa.nama.toLowerCase().includes(searchLower)) ||
@@ -181,13 +200,13 @@ export default function PendaftaranUjianTable({
           : true;
       return matchSearch && matchJenis && matchStatus;
     });
-  }, [filterNama, filterOption]);
+  }, [filterNama, filterOption, localData]);
 
-  // Ambil berkas dari pendaftaranUjianList yang cocok dengan mahasiswa & jenis ujian
+  // Ambil berkas dari localData yang cocok dengan mahasiswa & jenis ujian
   const getBerkasForSelected = () => {
     if (!selected) return [];
     // Cari pendaftaran ujian yang cocok
-    const found = pendaftaranUjianList.find(
+    const found = localData.find(
       (p) =>
         p.mahasiswa.id === selected.mahasiswa.id &&
         p.jenisUjian.id === selected.jenisUjian.id
@@ -268,7 +287,7 @@ export default function PendaftaranUjianTable({
       },
       {
         accessorFn: (row) => {
-          const found = pendaftaranUjianList.find(
+          const found = localData.find(
             (p) =>
               p.mahasiswa.id === row.mahasiswa.id &&
               p.jenisUjian.id === row.jenisUjian.id
@@ -279,7 +298,7 @@ export default function PendaftaranUjianTable({
         header: () => <div className="text-center w-full">Berkas</div>,
         cell: ({ row }) => {
           const u = row.original;
-          const found = pendaftaranUjianList.find(
+          const found = localData.find(
             (p) =>
               p.mahasiswa.id === u.mahasiswa.id &&
               p.jenisUjian.id === u.jenisUjian.id
@@ -305,7 +324,7 @@ export default function PendaftaranUjianTable({
       },
 
     ],
-    [pendaftaranUjianList]
+    [localData]
   );
 
   // create react-table instance used by TableGlobal
@@ -373,7 +392,7 @@ export default function PendaftaranUjianTable({
             ) : (
               filteredData.map((p) => {
                 const status =
-                  pendaftaranUjianList.find(
+                  localData.find(
                     (item) =>
                       item.mahasiswa.id === p.mahasiswa.id &&
                       item.jenisUjian.id === p.jenisUjian.id
@@ -395,8 +414,8 @@ export default function PendaftaranUjianTable({
                       {/* Header: Status & Type */}
                       <div className="flex justify-between items-start">
                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${status === 'selesai' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
-                            status === 'dijadwalkan' ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300" :
-                              "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400"
+                          status === 'dijadwalkan' ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300" :
+                            "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400"
                           }`}>
                           {status || "Menunggu"}
                         </span>
@@ -441,6 +460,8 @@ export default function PendaftaranUjianTable({
                       >
                         <Eye size={14} className="mr-1.5" /> Lihat Berkas
                       </Button>
+
+
                     </div>
 
                   </div>
@@ -479,7 +500,18 @@ export default function PendaftaranUjianTable({
                     </div>
                   )}
                 </div>
-
+                {selected &&
+                  selected.status === "ditolak" &&
+                  selected.keterangan && (
+                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 rounded-lg">
+                      <p className="text-xs font-semibold text-red-800 dark:text-red-300 mb-0.5">
+                        Alasan Penolakan:
+                      </p>
+                      <p className="text-xs text-red-600 dark:text-red-400">
+                        {selected.keterangan}
+                      </p>
+                    </div>
+                  )}
               </div>
               <div className="flex items-center gap-2 self-start">
                 <Button
@@ -505,25 +537,11 @@ export default function PendaftaranUjianTable({
                         process.env.NEXT_PUBLIC_STORAGE_URL || "";
                       const fileUrl = `${apiUrl}/storage/${file.filePath}`;
                       // Tentukan label berdasarkan jenis ujian
-                      const jenis =
-                        selected.jenisUjian.namaJenis.toLowerCase();
-                      let label = "";
-                      if (jenis.includes("proposal")) {
-                        label =
-                          LABELS_PROPOSAL[idx] ||
-                          file.namaBerkas ||
-                          fileUrl.split("/").pop() ||
-                          "";
-                      } else if (jenis.includes("hasil")) {
-                        label =
-                          LABELS_HASIL[idx] ||
-                          file.namaBerkas ||
-                          fileUrl.split("/").pop() ||
-                          "";
-                      } else {
-                        label =
-                          file.namaBerkas || fileUrl.split("/").pop() || "";
-                      }
+                      // Tentukan label berdasarkan nama berkas
+                      // Ambil nama file asli (namaBerkas) yang sekarang berisi deskripsi syarat
+                      const rawName = file.namaBerkas || fileUrl.split("/").pop() || "Berkas Tanpa Nama";
+                      // Hilangkan ekstensi untuk label yang lebih bersih
+                      const label = rawName.replace(/\.[^/.]+$/, "");
                       return (
                         <div
                           key={file.id ?? idx}
@@ -587,6 +605,18 @@ export default function PendaftaranUjianTable({
             <Button
               variant="outline"
               size="sm"
+              className="text-gray-600 border-gray-200 hover:bg-gray-50 dark:text-gray-400 dark:border-neutral-700 dark:hover:bg-neutral-800 transition-all font-medium h-8 text-xs flex items-center gap-1.5"
+              onClick={() => {
+                setEditKeterangan(selected?.keterangan || "");
+                setShowEditKeteranganDialog(true);
+              }}
+            >
+              <Pencil size={12} />
+              Edit Keterangan
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all font-medium h-8 text-xs"
               onClick={() => {
                 setShowRejectDialog(true);
@@ -598,27 +628,36 @@ export default function PendaftaranUjianTable({
               size="sm"
               className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 dark:shadow-none transition-all font-medium h-8 text-xs"
               onClick={async () => {
-                const found = pendaftaranUjianList.find(
+                const found = localData.find(
                   (p) =>
                     p.mahasiswa.id === selected?.mahasiswa.id &&
                     p.jenisUjian.id === selected?.jenisUjian.id
                 );
                 if (found) {
+                  // Optimistic Update
+                  const previousData = [...localData];
+                  const newData = localData.map((item) =>
+                    item.id === found.id
+                      ? { ...item, status: "belum dijadwalkan" }
+                      : item
+                  );
+                  setLocalData(newData);
+                  setShowBerkasModal(false);
+
                   const tId = showToast.loading("Memverifikasi berkas...");
                   try {
                     await updateStatusPendaftaranUjian(
                       found.id,
                       "belum dijadwalkan",
-
                     );
                     showToast.dismiss(tId);
                     showToast.success(`Berkas berhasil diverifikasi`);
-                    await revalidateAction("/sekprodi/daftar-ujian");
+                    await revalidateAction("/sekprodi/pendaftaran-ujian");
                     router.refresh(); // Force refresh data on client
-                    setShowBerkasModal(false);
                   } catch (error) {
                     showToast.dismiss(tId);
                     showToast.error("Gagal memverifikasi berkas");
+                    setLocalData(previousData); // Revert on failure
                   }
                 } else {
                   showToast.error("Data pendaftaran tidak ditemukan");
@@ -670,27 +709,39 @@ export default function PendaftaranUjianTable({
               disabled={!rejectReason.trim() || isRejecting}
               onClick={async () => {
                 setIsRejecting(true);
-                const found = pendaftaranUjianList.find(
+                const found = localData.find(
                   (p) =>
                     p.mahasiswa.id === selected?.mahasiswa.id &&
                     p.jenisUjian.id === selected?.jenisUjian.id
                 );
 
                 if (found) {
+                  // Optimistic Update
+                  const previousData = [...localData];
+                  const newData = localData.map((item) =>
+                    item.id === found.id
+                      ? { ...item, status: "ditolak", keterangan: rejectReason }
+                      : item
+                  );
+                  setLocalData(newData);
+
+                  // Close modals optimistically
+                  setShowRejectDialog(false);
+                  setShowBerkasModal(false);
+
                   const tId = showToast.loading("Menolak pendaftaran...");
                   try {
                     await updateStatusPendaftaranUjian(found.id, "ditolak", rejectReason);
                     showToast.dismiss(tId);
                     showToast.success("Pendaftaran berhasil ditolak");
 
-                    await revalidateAction("/sekprodi/daftar-ujian");
+                    await revalidateAction("/sekprodi/pendaftaran-ujian");
                     router.refresh();
-
-                    setShowRejectDialog(false);
-                    setShowBerkasModal(false);
                   } catch (error) {
                     showToast.dismiss(tId);
                     showToast.error("Gagal menolak pendaftaran");
+                    setLocalData(previousData); // Revert
+                    // Optionally reopen modals if needed, but error toast is usually enough
                   } finally {
                     setIsRejecting(false);
                   }
@@ -706,40 +757,101 @@ export default function PendaftaranUjianTable({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Keterangan Dialog */}
+      <Dialog
+        open={showEditKeteranganDialog}
+        onOpenChange={(open) => {
+          setShowEditKeteranganDialog(open);
+          if (!open) {
+            setEditKeterangan("");
+            setIsEditingKeterangan(false);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Keterangan</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Ubah keterangan atau alasan penolakan untuk pendaftaran ini.
+            </p>
+            <Textarea
+              placeholder="Masukkan keterangan..."
+              value={editKeterangan}
+              onChange={(e) => setEditKeterangan(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowEditKeteranganDialog(false)}
+              disabled={isEditingKeterangan}
+            >
+              Batal
+            </Button>
+            <Button
+              disabled={isEditingKeterangan}
+              onClick={async () => {
+                setIsEditingKeterangan(true);
+                const found = localData.find(
+                  (p) =>
+                    p.mahasiswa.id === selected?.mahasiswa.id &&
+                    p.jenisUjian.id === selected?.jenisUjian.id
+                );
+
+                if (found) {
+                  // Optimistic Update
+                  const previousData = [...localData];
+                  const previousSelected = selected ? { ...selected } : null;
+
+                  const newData = localData.map((item) =>
+                    item.id === found.id
+                      ? { ...item, keterangan: editKeterangan }
+                      : item
+                  );
+                  setLocalData(newData);
+
+                  // Update selected item so modal reflects it if it stays open
+                  if (selected) {
+                    setSelected({ ...selected, keterangan: editKeterangan });
+                  }
+
+                  setShowEditKeteranganDialog(false);
+
+                  const tId = showToast.loading("Menyimpan perubahan...");
+                  try {
+                    // Update with current status to only change detail
+                    await updateStatusPendaftaranUjian(found.id, found.status, editKeterangan);
+                    showToast.dismiss(tId);
+                    showToast.success("Keterangan berhasil diperbarui");
+
+                    await revalidateAction("/sekprodi/pendaftaran-ujian");
+                    router.refresh();
+                  } catch (error) {
+                    showToast.dismiss(tId);
+                    showToast.error("Gagal menyimpan perubahan");
+                    setLocalData(previousData);
+                    if (previousSelected) setSelected(previousSelected);
+                  } finally {
+                    setIsEditingKeterangan(false);
+                  }
+                } else {
+                  setIsEditingKeterangan(false);
+                  setShowEditKeteranganDialog(false);
+                  showToast.error("Data pendaftaran tidak ditemukan");
+                }
+              }}
+            >
+              {isEditingKeterangan ? "Menyimpan..." : "Simpan Perubahan"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DataCard>
   );
 }
 
-// Tambahkan mapping label untuk semua jenis berkas proposal & hasil
-const LABELS_PROPOSAL = [
-  "Transkrip Nilai",
-  "Pengesahan Proposal",
-  "Surat Keterangan Lulus Plagiasi",
-  "Proposal Skripsi",
-  "Form Perbaikan Proposal untuk ujian ke-2, 3 dst.",
-  "Lulus mata kuliah Metodologi Penelitian (minimal C)",
-  "SKS yang telah ditempuh minimal >= 100 sks",
-  "IPK >= 2.00",
-  "Transkrip nilai sementara yang dilegalisir",
-  "Formulir pengajuan judul dan pembimbing skripsi yang telah ditandatangani Koordinator Skripsi dan Ketua Program Studi",
-  "Halaman pengesahan proposal skripsi yang di tanda tangani Pembimbing dan Ketua Program Studi",
-];
 
-const LABELS_HASIL = [
-  "Surat Keterangan Lulus Cek Plagiat",
-  "File Hasil Skripsi Lengkap (PDF, email si@radenfatah.ac.id, Nama-NIM-Hasil)",
-  "Formulir Perbaikan Proposal Skripsi",
-  "Form Perbaikan Hasil untuk ujian ke-2, 3 dst.",
-  "Bukti hafalan 10 surat Juz 'Amma",
-  "Ijazah SMA/MA",
-  "Sertifikat KKN",
-  "Bukti hadir dalam seminar proposal",
-  "Halaman Pengesahan Skripsi untuk ujian hasil yang ditanda tangani Pembimbing dan Ketua Program Studi",
-  "Formulir Mengikuti Ujian Hasil",
-  "Bukti pembayaran SPP semester berjalan",
-  "KST yang tercantum Skripsi",
-  "Transkrip nilai sementara yang dilegalisir",
-  "Surat Keterangan Lulus Ujian Seminar Proposal",
-  "Bukti lulus ujian BTA (sertifikat BTA)",
-  "Bukti lulus TOEFL >= 400",
-];

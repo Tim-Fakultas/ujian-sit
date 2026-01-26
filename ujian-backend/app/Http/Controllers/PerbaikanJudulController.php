@@ -26,8 +26,8 @@ class PerbaikanJudulController extends Controller
      */
     public function store(StorePerbaikanJudulRequest $request)
     {
-        try{
-            return DB::transaction(function () use ($request){
+        try {
+            return DB::transaction(function () use ($request) {
                 $data = $request->validated();
 
                 $ranpelId = $data['ranpel_id'];
@@ -36,17 +36,17 @@ class PerbaikanJudulController extends Controller
                 $ranpel = Ranpel::findOrFail($ranpelId);
 
                 $terakhirDiterima = PerbaikanJudul::query()
-                                    ->where('ranpel_id', $ranpelId)
-                                    ->where('mahasiswa_id', $mahasiswaId)
-                                    ->where('status', 'diterima')
-                                    ->orderByDesc('tanggal_perbaikan')
-                                    ->orderByDesc('id')
-                                    ->first();
+                    ->where('ranpel_id', $ranpelId)
+                    ->where('mahasiswa_id', $mahasiswaId)
+                    ->where('status', 'diterima')
+                    ->orderByDesc('tanggal_perbaikan')
+                    ->orderByDesc('id')
+                    ->first();
 
                 $judul_lama = $terakhirDiterima?->judul_baru ?? $ranpel->judul_penelitian;
 
                 $path = null;
-                if($request->hasFile('berkas')){
+                if ($request->hasFile('berkas')) {
                     $path = $request->file('berkas')->store('uploads/perbaikan_judul', 'public');
                 }
 
@@ -63,8 +63,7 @@ class PerbaikanJudulController extends Controller
                     $perbaikan->load(['mahasiswa', 'ranpel'])
                 );
             });
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Gagal menyimpan perbaikan judul.',
                 'error' => $e->getMessage(),
@@ -87,16 +86,26 @@ class PerbaikanJudulController extends Controller
     public function update(UpdatePerbaikanJudulRequest $request, PerbaikanJudul $perbaikanJudul)
     {
         try {
-            return DB::transaction(function () use ($request, $perbaikanJudul){
+            return DB::transaction(function () use ($request, $perbaikanJudul) {
                 $data = $request->validated();
 
-                if($request->hasFile('berkas')){
+                if ($request->hasFile('berkas')) {
                     $path = $request->file('berkas')->store('uploads/perbaikan_judul', 'public');
                     $data['berkas'] = $path;
                 }
 
-                if(isset($data['status']) && $data['status'] === 'diterima' && empty($perbaikanJudul->tanggal_diterima)){
-                    $data['tanggal_diterima'] = now();
+                if (isset($data['status']) && $data['status'] === 'diterima') {
+                    if (empty($perbaikanJudul->tanggal_diterima)) {
+                        $data['tanggal_diterima'] = now();
+                    }
+
+                    // Update judul asli di tabel Ranpel agar sinkron
+                    $judulBaru = $data['judul_baru'] ?? $perbaikanJudul->judul_baru;
+                    if ($judulBaru) {
+                        $perbaikanJudul->ranpel()->update([
+                            'judul_penelitian' => $judulBaru
+                        ]);
+                    }
                 }
                 $perbaikanJudul->update($data);
 
@@ -123,5 +132,48 @@ class PerbaikanJudulController extends Controller
         return response()->json([
             'message' => 'Perbaikan judul deleted successfully',
         ]);
+    }
+
+    public function getByMahasiswa($mahasiswaId)
+    {
+        $perbaikan = PerbaikanJudul::with(['mahasiswa', 'ranpel'])
+            ->where('mahasiswa_id', $mahasiswaId)
+            ->orderByDesc('created_at')
+            ->get();
+        return PerbaikanJudulResource::collection($perbaikan);
+    }
+
+    public function getByPembimbing($dosenId)
+    {
+        $perbaikan = PerbaikanJudul::whereHas('mahasiswa', function ($query) use ($dosenId) {
+            $query->where('pembimbing_1', $dosenId)
+                ->orWhere('pembimbing_2', $dosenId);
+        })
+            ->with(['mahasiswa', 'ranpel'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return PerbaikanJudulResource::collection($perbaikan);
+    }
+
+    public function getByDosenPa($dosenId)
+    {
+        $perbaikan = PerbaikanJudul::whereHas('mahasiswa', function ($query) use ($dosenId) {
+            $query->where('dosen_pa', $dosenId)
+                ->orWhere('pembimbing_1', $dosenId)
+                ->orWhere('pembimbing_2', $dosenId);
+        })
+            ->with([
+                'mahasiswa.prodi',
+                'mahasiswa.peminatan',
+                'mahasiswa.dosenPembimbingAkademik',
+                'mahasiswa.pembimbing1',
+                'mahasiswa.pembimbing2',
+                'ranpel'
+            ])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return PerbaikanJudulResource::collection($perbaikan);
     }
 }

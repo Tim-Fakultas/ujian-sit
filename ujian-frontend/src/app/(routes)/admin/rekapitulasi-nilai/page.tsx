@@ -13,7 +13,7 @@ export default async function RekapitulasiNilaiPage() {
       <PageHeader
         title="Rekapitulasi Nilai"
         description="Lihat rekapitulasi nilai ujian di sini."
-        icon={FileText}
+        iconName="FileText"
         variant="emerald"
         className="mb-6"
       />

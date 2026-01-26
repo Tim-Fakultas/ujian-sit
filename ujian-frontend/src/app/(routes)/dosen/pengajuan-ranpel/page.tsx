@@ -13,7 +13,7 @@ export default async function Page() {
       <PageHeader
         title="Pengajuan Rancangan Penelitian"
         description="Daftar pengajuan rancangan penelitian mahasiswa anda."
-        icon={FileText}
+        iconName="FileText"
         variant="emerald"
         className="mb-6"
       />

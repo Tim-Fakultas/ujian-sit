@@ -14,7 +14,15 @@ class PengajuanRanpelController extends Controller
      */
     public function index()
     {
-        $pengajuanRanpel = PengajuanRanpel::with(['ranpel', 'mahasiswa'])->get();
+        $pengajuanRanpel = PengajuanRanpel::with([
+            'ranpel',
+            'mahasiswa.prodi',
+            'mahasiswa.peminatan',
+            'mahasiswa.dosenPembimbingAkademik',
+            'mahasiswa.pembimbing1',
+            'mahasiswa.pembimbing2',
+            'mahasiswa.user'
+        ])->get();
         return PengajuanRanpelResource::collection($pengajuanRanpel);
     }
 
@@ -38,7 +46,15 @@ class PengajuanRanpelController extends Controller
      */
     public function show(PengajuanRanpel $pengajuanRanpel)
     {
-        $pengajuanRanpel->load(['ranpel', 'mahasiswa']);
+        $pengajuanRanpel->load([
+            'ranpel',
+            'mahasiswa.prodi',
+            'mahasiswa.peminatan',
+            'mahasiswa.dosenPembimbingAkademik',
+            'mahasiswa.pembimbing1',
+            'mahasiswa.pembimbing2',
+            'mahasiswa.user'
+        ]);
 
         return new PengajuanRanpelResource($pengajuanRanpel);
     }
@@ -70,7 +86,15 @@ class PengajuanRanpelController extends Controller
     //Get pengajuan ranpel by mahasiswa id
     public function getByMahasiswa($id)
     {
-        $pengajuanRanpel = PengajuanRanpel::with(['ranpel', 'mahasiswa'])
+        $pengajuanRanpel = PengajuanRanpel::with([
+            'ranpel',
+            'mahasiswa.prodi',
+            'mahasiswa.peminatan',
+            'mahasiswa.dosenPembimbingAkademik',
+            'mahasiswa.pembimbing1',
+            'mahasiswa.pembimbing2',
+            'mahasiswa.user'
+        ])
             ->where('mahasiswa_id', $id)
             ->get();
 
@@ -96,7 +120,15 @@ class PengajuanRanpelController extends Controller
             'keterangan' => $validated['keterangan'] ?? null,
         ]);
 
-        return new PengajuanRanpelResource($pengajuanRanpel->load(['ranpel', 'mahasiswa']));
+        return new PengajuanRanpelResource($pengajuanRanpel->load([
+            'ranpel',
+            'mahasiswa.prodi',
+            'mahasiswa.peminatan',
+            'mahasiswa.dosenPembimbingAkademik',
+            'mahasiswa.pembimbing1',
+            'mahasiswa.pembimbing2',
+            'mahasiswa.user'
+        ]));
     }
 
     public function updateByMahasiswa(UpdatePengajuanRanpelRequest $request, $id, PengajuanRanpel $pengajuan)
@@ -107,7 +139,15 @@ class PengajuanRanpelController extends Controller
 
         $pengajuan->update($request->validated());
 
-        return new PengajuanRanpelResource($pengajuan->load(['ranpel', 'mahasiswa']));
+        return new PengajuanRanpelResource($pengajuan->load([
+            'ranpel',
+            'mahasiswa.prodi',
+            'mahasiswa.peminatan',
+            'mahasiswa.dosenPembimbingAkademik',
+            'mahasiswa.pembimbing1',
+            'mahasiswa.pembimbing2',
+            'mahasiswa.user'
+        ]));
     }
 
     public function destroyByMahasiswa($id, PengajuanRanpel $pengajuan)

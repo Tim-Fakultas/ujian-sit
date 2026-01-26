@@ -4,7 +4,7 @@ import { PerbaikanJudul, PerbaikanJudulResponse } from "@/types/PerbaikanJudul";
 
 export async function perbaikanJudul(formData: FormData) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    
+
     try {
         const response = await fetch(`${apiUrl}/perbaikan-judul`, {
             method: "POST",
@@ -20,12 +20,12 @@ export async function perbaikanJudul(formData: FormData) {
         try {
             data = JSON.parse(text);
         } catch (error) {
-            console.error("Failed to parse JSON response from perbaikan-judul:", text.substring(0, 500)); 
+            console.error("Failed to parse JSON response from perbaikan-judul:", text.substring(0, 500));
             throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
         }
 
         if (!response.ok) {
-             throw new Error(data.message || `Failed to update perbaikan judul: ${response.statusText}`);
+            throw new Error(data.message || `Failed to update perbaikan judul: ${response.statusText}`);
         }
 
         return data;
@@ -38,7 +38,7 @@ export async function perbaikanJudul(formData: FormData) {
 
 export async function getPerbaikanJudulByProdi(prodiId: number) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    
+
     try {
         const response = await fetch(`${apiUrl}/perbaikan-judul/`, {
             method: "GET",
@@ -58,10 +58,58 @@ export async function getPerbaikanJudulByProdi(prodiId: number) {
     }
 }
 
+export async function getPerbaikanJudulByMahasiswa(mahasiswaId: number) {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    try {
+        const response = await fetch(`${apiUrl}/mahasiswa/${mahasiswaId}/perbaikan-judul`, {
+            method: "GET",
+            cache: "no-store",
+            headers: {
+                "Accept": "application/json",
+            }
+        });
+
+        if (!response.ok) {
+            return [];
+        }
+
+        const data: PerbaikanJudulResponse = await response.json();
+        return data.data;
+    } catch (error) {
+        console.error("Error fetching perbaikan judul by mahasiswa:", error);
+        return [];
+    }
+}
+
+export async function getPerbaikanJudulByDosen(dosenId: number) {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    try {
+        const response = await fetch(`${apiUrl}/dosen/${dosenId}/perbaikan-judul`, {
+            method: "GET",
+            cache: "no-store",
+            headers: {
+                "Accept": "application/json",
+            }
+        });
+
+        if (!response.ok) {
+            return [];
+        }
+
+        const data: PerbaikanJudulResponse = await response.json();
+        return data.data;
+    } catch (error) {
+        console.error("Error fetching perbaikan judul by dosen:", error);
+        return [];
+    }
+}
+
 
 export async function updateStatusPerbaikanJudul(id: number, status: string) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    
+
     try {
         const response = await fetch(`${apiUrl}/perbaikan-judul/${id}`, {
             method: "PATCH",
