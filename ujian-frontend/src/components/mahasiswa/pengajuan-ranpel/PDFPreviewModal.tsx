@@ -286,7 +286,7 @@ export default function PDFPreviewModal({
                     <div>
                       {/* Tanggal Diverifikasi */}
                       <span className="text-xs text-gray-500 block mb-1">
-                        Tanggal Diverifikasi
+                        Tanggal Diverifikasi Dosen PA
                       </span>
                       {/* Tanggal Diverifikasi */}
                       <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
@@ -305,9 +305,9 @@ export default function PDFPreviewModal({
 
                   {pengajuan.tanggalDiterima && (
                     <div>
-                      {/* Tanggal Disetujui */}
+                      {/* Tanggal Diterima */}
                       <span className="text-xs text-gray-500 block mb-1">
-                        Tanggal Disetujui
+                        Tanggal Diterima Kaprodi
                       </span>
                       {/* Tanggal Diterima */}
                       <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
@@ -350,6 +350,31 @@ export default function PDFPreviewModal({
                     </div>
                   </div>
                 )}
+              </div>
+
+              <div className="w-full border-b dark:border-neutral-800 my-4"></div>
+
+              {/* Section: Dosen PA */}
+              <div className="space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                  Dosen PA
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex gap-3 items-start">
+                    <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xs font-bold shrink-0">
+                      PA
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 mb-0.5">
+                        Pembimbing Akademik
+                      </p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        {pengajuan.mahasiswa?.dosenPa?.nama || "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="w-full border-b dark:border-neutral-800 my-4"></div>
