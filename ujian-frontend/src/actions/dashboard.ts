@@ -72,3 +72,23 @@ export async function getTotalPengajuanRanpelMenunggu(prodiId?: number) {
   );
   return filtered?.length ?? 0;
 }
+
+export async function getTotalPeminatan() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${apiUrl}/peminatan`, {
+    cache: "no-store",
+  });
+  if (!res.ok) return 0;
+  const data = await res.json();
+  return data?.data?.length ?? 0;
+}
+
+export async function getTotalProdi() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${apiUrl}/prodi`, {
+    cache: "no-store",
+  });
+  if (!res.ok) return 0;
+  const data = await res.json();
+  return data?.data?.length ?? 0;
+}

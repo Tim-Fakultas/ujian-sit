@@ -44,18 +44,18 @@ export default function LoginForm() {
       </div>
 
       <div className="space-y-2">
-         <div className="flex items-center justify-between">
-            <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Password
-            </Label>
-            <Link 
-              href="#" 
-              className="text-xs font-medium text-blue-600 hover:text-blue-500 hover:underline"
-              aria-disabled={isPending}
-            >
-              Lupa password?
-            </Link>
-         </div>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Password
+          </Label>
+          <Link
+            href="#"
+            className="text-xs font-medium text-blue-600 hover:text-blue-500 hover:underline"
+            aria-disabled={isPending}
+          >
+            Lupa password?
+          </Link>
+        </div>
         <div className="relative group">
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
           <Input
@@ -80,15 +80,15 @@ export default function LoginForm() {
       </div>
 
       <div className="flex items-center space-x-2">
-         <Checkbox id="remember" disabled={isPending} />
-         <Label htmlFor="remember" className="text-sm text-gray-500 font-normal cursor-pointer">
-            Ingat saya di perangkat ini
-         </Label>
+        <Checkbox id="remember" disabled={isPending} />
+        <Label htmlFor="remember" className="text-sm text-gray-500 font-normal cursor-pointer">
+          Ingat saya di perangkat ini
+        </Label>
       </div>
 
       <Button
         type="submit"
-        className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-lg hover:shadow-blue-600/20 transition-all duration-200 rounded-xl group"
+        className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-200 rounded-xl group relative overflow-hidden"
         disabled={isPending}
       >
         {isPending ? (
@@ -97,9 +97,9 @@ export default function LoginForm() {
             <span>Sedang memproses...</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2">
-             <span>Masuk ke Sistem</span>
-             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <div className="flex items-center gap-2 relative z-10">
+            <span>Masuk ke Sistem</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </div>
         )}
       </Button>

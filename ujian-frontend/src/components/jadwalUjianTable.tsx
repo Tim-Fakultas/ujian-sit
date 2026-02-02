@@ -104,9 +104,11 @@ import { cn } from "@/lib/utils";
 export default function JadwalUjianTable({
   jadwalUjian,
   daftarHadir,
+  userRole,
 }: {
   jadwalUjian: Ujian[];
   daftarHadir: daftarKehadiran[] | null;
+  userRole?: string;
 }) {
   /* State for detail dialog (modern) */
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
@@ -132,7 +134,7 @@ export default function JadwalUjianTable({
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  const [viewMode, setViewMode] = useState<string>("table");
+
 
   // Ubah state statusTab ke "all" | "dijadwalkan" | "selesai"
   const [statusTab, setStatusTab] = useState<"all" | "dijadwalkan" | "selesai">(
@@ -677,6 +679,7 @@ export default function JadwalUjianTable({
 
   return (
     <DataCard>
+
       {/* Header bar: Search, Filter, View Mode */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4 w-full">
         <div className="relative flex-1 w-full">
@@ -687,70 +690,76 @@ export default function JadwalUjianTable({
             placeholder="Cari berdasarkan Nama atau NIM"
             value={filterNama}
             onChange={(e) => setFilterNama(e.target.value)}
-            className="pl-10 w-full bg-white dark:bg-neutral-800"
+            className="pl-10 w-full bg-white dark:bg-neutral-800 h-10 lg:h-9"
           />
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          {/* Date Range Picker */}
-          <div className={cn("grid gap-2")}>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  id="date"
-                  variant={"outline"}
-                  size="sm"
-                  className={cn(
-                    "w-[240px] justify-start text-left font-normal h-9",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date?.from ? (
-                    date.to ? (
-                      <>
-                        {format(date.from, "dd LLL y", { locale: id })} -{" "}
-                        {format(date.to, "dd LLL y", { locale: id })}
-                      </>
-                    ) : (
-                      format(date.from, "dd LLL y", { locale: id })
-                    )
-                  ) : (
-                    <span>Pilih tanggal</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={date?.from}
-                  selected={date}
-                  onSelect={setDate}
-                  numberOfMonths={2}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          <Button
-            size="sm"
-            className="h-9 gap-1.5 text-xs font-medium bg-blue-600 hover:bg-blue-700"
-            onClick={handleExportPDF}
-          >
-            <FileDown size={14} />
-            <span className="hidden sm:inline">Export PDF</span>
-          </Button>
+
+          {/* Date Range Picker & Export PDF - Only for Kaprodi/Sekprodi */}
+          {(userRole === "kaprodi" || userRole === "sekprodi") && (
+            <>
+              <div className={cn("grid gap-2")}>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="date"
+                      variant={"outline"}
+                      size="sm"
+                      className={cn(
+                        "w-[240px] justify-start text-left font-normal h-10 lg:h-9",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date?.from ? (
+                        date.to ? (
+                          <>
+                            {format(date.from, "dd LLL y", { locale: id })} -{" "}
+                            {format(date.to, "dd LLL y", { locale: id })}
+                          </>
+                        ) : (
+                          format(date.from, "dd LLL y", { locale: id })
+                        )
+                      ) : (
+                        <span>Pilih tanggal</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={date?.from}
+                      selected={date}
+                      onSelect={setDate}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <Button
+                size="sm"
+                className="h-10 lg:h-9 gap-1.5 text-xs font-medium bg-blue-600 hover:bg-blue-700"
+                onClick={handleExportPDF}
+              >
+                <FileDown size={14} />
+                <span className="hidden sm:inline">Export PDF</span>
+              </Button>
+            </>
+          )}
 
 
 
           {/* Tombol filter Jenis, Bulan, Tahun */}
           <Popover open={openFilter} onOpenChange={setOpenFilter}>
+            {/* ... Popover implementation remains SAME ... */}
             <PopoverTrigger asChild>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-9 w-9 flex items-center justify-center rounded-md"
+                className="h-10 w-10 lg:h-9 lg:w-9 flex items-center justify-center rounded-md"
               >
                 <Settings2 size={16} />
               </Button>
@@ -789,211 +798,31 @@ export default function JadwalUjianTable({
               </ScrollArea>
             </PopoverContent>
           </Popover>
+        </div>
+      </div>
 
-          <Tabs value={viewMode} onValueChange={setViewMode} className="h-9">
-            <TabsList className="rounded-md bg-muted p-1 gap-1 h-9">
-              <TabsTrigger
-                value="table"
-                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
-              >
-                <LayoutGrid size={16} />
-              </TabsTrigger>
-              <TabsTrigger
-                value="card"
-                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
-              >
-                <List size={16} />
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div >
-      </div >
+      {/* Tabs for status filtering */}
+      <Tabs value={statusTab} onValueChange={(v) => setStatusTab(v as any)} className="w-full">
+        <div className="flex items-center justify-between mb-4">
+          <TabsList className="bg-muted p-1 rounded-lg">
+            <TabsTrigger value="all" className="rounded-md px-3 text-sm">Semua</TabsTrigger>
+            <TabsTrigger value="dijadwalkan" className="rounded-md px-3 text-sm">Dijadwalkan</TabsTrigger>
+            <TabsTrigger value="selesai" className="rounded-md px-3 text-sm">Selesai</TabsTrigger>
+          </TabsList>
+        </div>
 
-      {/* Table/Card View */}
-      < Tabs value={viewMode} onValueChange={setViewMode} >
-        <TabsContent value="table">
+        {/* Content - Just TableGlobal */}
+        <TabsContent value="all" className="mt-0">
           <TableGlobal table={table} cols={cols} />
         </TabsContent>
-        <TabsContent value="card">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginatedData.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12 col-span-full flex flex-col items-center gap-3">
-                <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
-                  <List size={24} className="opacity-50" />
-                </div>
-                <p>Tidak ada data ujian yang ditemukan.</p>
-              </div>
-            ) : (
-              paginatedData.map((ujian) => {
-                const isSelesai = completedIds.includes(ujian.id) || ujian.pendaftaranUjian.status === "selesai";
-                const jenisColor = getJenisUjianColor(ujian.jenisUjian.namaJenis); // e.g., bg-blue-100 text-blue-700
-                // Extract base color name from the utility if possible, or fallback to simple mapping for borders
-
-
-                return (
-                  <div
-                    key={ujian.id}
-                    className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-                  >
-                    {/* Status Strip if needed, or stick to border-l */}
-
-                    <div className="p-5 flex flex-col gap-4 flex-1">
-
-                      {/* Header: Date & Status */}
-                      <div className="flex justify-between items-start">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                            <CalendarClock size={13} />
-                            <span>
-                              {ujian.jadwalUjian
-                                ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
-                                  weekday: "short",
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric"
-                                })
-                                : "Belum dijadwalkan"}
-                            </span>
-                          </div>
-                          <div className="text-xs font-medium text-gray-400">
-                            {ujian.waktuMulai?.slice(0, 5)} - {ujian.waktuSelesai?.slice(0, 5)} WIB
-                          </div>
-                        </div>
-
-                        {isSelesai ? (
-                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                            Selesai
-                          </span>
-                        ) : (
-                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
-                            Dijadwalkan
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Content: Title & Name */}
-                      <div className="space-y-2">
-                        <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
-                          {ujian.judulPenelitian || "Judul belum tersedia"}
-                        </h3>
-
-                        <div className="flex items-center gap-2 pt-1">
-                          <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
-                            {ujian.mahasiswa.nama.charAt(0)}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                              {ujian.mahasiswa.nama}
-                            </span>
-                            <span className="text-[11px] text-gray-400">
-                              {ujian.mahasiswa.nim}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Exam Type & Room */}
-                      <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
-                        <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}>
-                          {ujian.jenisUjian.namaJenis === "Ujian Proposal" ? "Seminar Proposal" : ujian.jenisUjian.namaJenis}
-                        </span>
-                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
-                          {ujian.ruangan?.namaRuangan || "Ruangan -"}
-                        </span>
-                      </div>
-
-                    </div>
-
-                    {/* Actions Footer - Hidden by default, shown on hover or always visible in mobile */}
-                    <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            className="h-8 text-xs gap-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-neutral-700 w-full"
-                          >
-                            <Users size={14} />
-                            Lihat Penguji
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-72 p-0" align="end">
-                          <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 border-b border-gray-100 dark:border-neutral-800">
-                            <h4 className="font-semibold text-xs text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-                              <Users size={14} className="text-blue-500" />
-                              Tim Penguji
-                            </h4>
-                          </div>
-                          <div className="p-4 space-y-0">
-                            {(ujian.penguji || []).map((p, idx) => {
-                              const roleMap: Record<string, string> = {
-                                ketua_penguji: "Ketua Penguji",
-                                sekretaris_penguji: "Sekretaris Penguji",
-                                penguji_1: "Penguji I",
-                                penguji_2: "Penguji II",
-                              };
-                              const label = roleMap[p.peran] || p.peran;
-                              // Cek kehadiran
-                              const hadir = daftarHadir?.some(
-                                (d) =>
-                                  d.dosenId === p.id &&
-                                  d.statusKehadiran === "hadir" &&
-                                  d.ujianId === ujian.id
-                              );
-
-                              return (
-                                <div
-                                  key={idx}
-                                  className="relative pl-6 pb-4 border-l-2 border-gray-100 dark:border-neutral-800 last:border-0 last:pb-0"
-                                >
-                                  {/* Dot Indicator */}
-                                  <div
-                                    className={`absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full ring-4 ring-white dark:ring-neutral-900
-                                        ${hadir ? "bg-emerald-500" : "bg-gray-300 dark:bg-neutral-600"}
-                                    `}
-                                  ></div>
-
-                                  <div>
-                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-1">
-                                      {p.nama ?? "-"}
-                                    </p>
-                                    <div className="flex items-center justify-between mt-1 gap-2">
-                                      <span className="text-xs text-gray-500 capitalize">
-                                        {label}
-                                      </span>
-                                      <span
-                                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border
-                                          ${hadir
-                                            ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
-                                            : "bg-gray-50 text-gray-500 border-gray-100 dark:bg-neutral-800 dark:text-gray-400 dark:border-neutral-700"
-                                          }
-                                        `}
-                                      >
-                                        {hadir ? "Hadir" : "Belum"}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
+        <TabsContent value="dijadwalkan" className="mt-0">
+          <TableGlobal table={table} cols={cols} />
         </TabsContent>
-      </Tabs >
+        <TabsContent value="selesai" className="mt-0">
+          <TableGlobal table={table} cols={cols} />
+        </TabsContent>
+      </Tabs>
 
-
-
-
-
-
-    </DataCard >
-  );
+    </DataCard>
+  )
 }

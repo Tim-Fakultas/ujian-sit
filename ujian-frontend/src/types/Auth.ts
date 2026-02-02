@@ -121,4 +121,5 @@ export interface User {
   dosen_pa?: Dosen;
   pembimbing1?: Dosen;
   pembimbing2?: Dosen;
+  is_default_password?: boolean;
 }

@@ -18,9 +18,9 @@ export default async function JadwalUjianPage() {
   const daftarHadir = await getHadirUjian();
   return (
     <div className="p-6">
-      <PageHeader 
-        title="Jadwal Ujian" 
-        description="Kelola jadwal ujian di sini." 
+      <PageHeader
+        title="Jadwal Ujian"
+        description="Kelola jadwal ujian di sini."
         iconName="FileText"
         variant="emerald"
         className="mb-6"
@@ -29,6 +29,7 @@ export default async function JadwalUjianPage() {
         <JadwalUjianTable
           jadwalUjian={jadwalUjian}
           daftarHadir={daftarHadir}
+          userRole={user?.role}
         />
       </Suspense>
     </div>

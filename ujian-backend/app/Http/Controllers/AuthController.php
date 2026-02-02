@@ -27,6 +27,8 @@ class AuthController extends Controller
             // Get user data based on their role
             $userData = $this->getUserDataByRole($user);
 
+            $isDefaultPassword = \Illuminate\Support\Facades\Hash::check($request->nip_nim, $user->password);
+
             return response()->json([
                 'message' => 'Login berhasil',
                 'success' => true,
@@ -34,12 +36,36 @@ class AuthController extends Controller
                 'roles' => $user->getRoleNames(), // All roles
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'user' => $userData,
+                'is_default_password' => $isDefaultPassword,
                 'access_token' => $token,
                 'token_type' => 'Bearer',
             ], 200);
         }
 
         return response()->json(['message' => 'Invalid login details'], 401);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        if (!\Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'message' => 'Password saat ini tidak sesuai',
+            ], 422);
+        }
+
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Password berhasil diubah',
+        ]);
     }
 
     private function getUserDataByRole($user)
@@ -85,20 +111,20 @@ class AuthController extends Controller
         if ($user->hasRole('dosen')) {
             $dosen = $user->dosen()->with('prodi')->first();
 
-        if ($dosen) {
-            return [
-                'id' => $dosen->id,               // dosen_id
-                'user_id' => $user->id,           // user_id
-                'nidn' => $dosen->nidn,
-                'nip' => $dosen->nip,
-                'nama' => $dosen->nama,
-                'email' => $user->email,
-                'no_hp' => $dosen->noHp,
-                'alamat' => $dosen->alamat,
-                'prodi' => $dosen->prodi,
-            ];
+            if ($dosen) {
+                return [
+                    'id' => $dosen->id,               // dosen_id
+                    'user_id' => $user->id,           // user_id
+                    'nidn' => $dosen->nidn,
+                    'nip' => $dosen->nip,
+                    'nama' => $dosen->nama,
+                    'email' => $user->email,
+                    'no_hp' => $dosen->noHp,
+                    'alamat' => $dosen->alamat,
+                    'prodi' => $dosen->prodi,
+                ];
+            }
         }
-}
 
 
         // For other roles (admin, kaprodi, sekprodi, admin prodi)

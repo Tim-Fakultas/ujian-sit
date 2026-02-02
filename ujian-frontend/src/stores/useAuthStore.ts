@@ -16,6 +16,7 @@ interface User {
     id: number;
     nama: string;
   };
+  is_default_password?: boolean;
 }
 
 interface AuthState {
@@ -70,21 +71,21 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   refreshUser: async () => {
-     try {
-        // Dynamically import to avoid server-client issues if any, 
-        // but server actions can be imported in client files.
-        const { refreshUserAction } = await import("@/actions/auth");
-        const refreshedUser = await refreshUserAction();
-        if (refreshedUser) {
-           set({ user: refreshedUser });
-           // Coordinate with cookie is handled in server action, but 
-           // we update local state immediately.
-           // Also update client cookie to match
-           Cookies.set("user", JSON.stringify(refreshedUser), { expires: 7 });
-        }
-     } catch (err) {
-        console.error("Failed to refresh user:", err);
-     }
+    try {
+      // Dynamically import to avoid server-client issues if any, 
+      // but server actions can be imported in client files.
+      const { refreshUserAction } = await import("@/actions/auth");
+      const refreshedUser = await refreshUserAction();
+      if (refreshedUser) {
+        set({ user: refreshedUser });
+        // Coordinate with cookie is handled in server action, but 
+        // we update local state immediately.
+        // Also update client cookie to match
+        Cookies.set("user", JSON.stringify(refreshedUser), { expires: 7 });
+      }
+    } catch (err) {
+      console.error("Failed to refresh user:", err);
+    }
   }
 
 }));

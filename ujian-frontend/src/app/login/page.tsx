@@ -4,74 +4,90 @@ import { GraduationCap } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen w-full lg:grid lg:grid-cols-2">
-      {/* Left Side - Branding */}
-      <div className="hidden lg:flex flex-col justify-between bg-zinc-900 p-12 text-white relative overflow-hidden">
-        {/* Decorative background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-zinc-900 to-zinc-900" />
-        
-        {/* Abstract shapes/glow */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-             <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] rounded-full bg-blue-600/10 blur-[100px]" />
-             <div className="absolute top-[40%] right-[10%] w-[50%] h-[50%] rounded-full bg-indigo-600/10 blur-[100px]" />
-        </div>
-
-        <div className="relative z-10 flex items-center gap-3 text-lg font-medium">
-             <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
-                <GraduationCap className="h-6 w-6 text-blue-400" />
-             </div>
-            <span className="tracking-wide">E-Skripsi</span>
-        </div>
-
-        <div className="relative z-10 space-y-6">
-           <div className="relative w-24 h-24 mb-6 bg-white/5 rounded-2xl p-4 backdrop-blur-sm border border-white/10 shadow-2xl">
-              <Image
-                  src="/images/uin-raden-fatah.webp"
-                  alt="UIN Logo"
-                  fill
-                  className="object-contain p-2"
-                  priority
-                />
-           </div>
-          <h1 className="text-5xl font-bold leading-tight tracking-tight">
-             Fakultas Sains <br/>
-             <span className="text-blue-400">dan Teknologi</span>
-          </h1>
-          <p className="text-lg text-gray-400 max-w-md leading-relaxed">
-            Sistem Informasi Pengelolaan Skripsi, Tugas Akhir, dan Penilaian Ujian Mahasiswa UIN Raden Fatah Palembang.
-          </p>
-        </div>
-
-        <div className="relative z-10 text-sm text-gray-500 font-medium">
-           &copy; {new Date().getFullYear()} UIN Raden Fatah Palembang
-        </div>
+    <div className="min-h-screen w-full flex items-center justify-center bg-zinc-950 relative overflow-hidden selection:bg-blue-500/30">
+      {/* Background Effects */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse delay-1000" />
+        <div className="absolute top-[40%] left-[40%] w-[300px] h-[300px] bg-violet-600/10 rounded-full blur-[100px]" />
       </div>
 
-      {/* Right Side - Form */}
-      <div className="flex items-center justify-center min-h-screen lg:min-h-0 p-4 sm:p-8 bg-gray-50 dark:bg-black">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:space-y-8 sm:w-[400px] bg-white dark:bg-zinc-900 p-6 sm:p-10 rounded-2xl shadow-xl dark:shadow-none border border-gray-100 dark:border-zinc-800">
-          <div className="flex flex-col space-y-2 text-center">
-             {/* Mobile Logo */}
-            <div className="mx-auto mb-6 h-16 w-16 relative lg:hidden">
-                 <Image
+      {/* Main Card */}
+      <div className="w-full max-w-[1000px] h-auto lg:h-[500px] m-4 lg:m-0 grid lg:grid-cols-2 rounded-[24px] overflow-hidden border border-white/10 shadow-2xl bg-zinc-900/60 backdrop-blur-xl relative z-10 transition-all duration-300 hover:shadow-blue-900/10">
+
+        {/* Left Side - Visual */}
+        <div className="relative h-full hidden lg:flex flex-col justify-between p-10 overflow-hidden bg-gradient-to-br from-blue-600/10 to-transparent">
+          <div className="absolute inset-0 bg-blue-600/5 mix-blend-overlay" />
+
+          {/* Decorative Circles */}
+          <div className="absolute top-10 right-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl" />
+          <div className="absolute bottom-10 left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl" />
+
+          {/* Header */}
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20 backdrop-blur-md shadow-inner">
+              <GraduationCap className="w-5 h-5 text-blue-400" />
+            </div>
+            <span className="text-lg font-semibold text-white tracking-wide">E-Skripsi</span>
+          </div>
+
+          {/* Center Content */}
+          <div className="relative z-10 space-y-6">
+            <div className="relative w-24 h-24 bg-white/5 rounded-2xl p-4 border border-white/10 shadow-2xl backdrop-blur-sm group hover:scale-105 transition-transform duration-500">
+              <Image
+                src="/images/uin-raden-fatah.webp"
+                alt="UIN Raden Fatah"
+                fill
+                className="object-contain p-2 drop-shadow-xl"
+                priority
+              />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-3 leading-tight tracking-tight">
+                Fakultas Sains <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                  dan Teknologi
+                </span>
+              </h1>
+              <p className="text-base text-zinc-400 leading-relaxed max-w-sm font-light">
+                Sistem Informasi Pengelolaan Skripsi, Tugas Akhir, dan Penilaian Ujian Mahasiswa UIN Raden Fatah Palembang.
+              </p>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="relative z-10">
+            <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-500/5 border border-blue-500/10 backdrop-blur-md w-fit">
+              <span className="text-xs font-medium text-blue-200 tracking-wide">V.1.0.0</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Form */}
+        <div className="flex flex-col justify-center p-8 lg:p-12 bg-white dark:bg-zinc-950/80 backdrop-blur-md">
+          <div className="w-full max-w-sm mx-auto space-y-6">
+            <div className="space-y-1.5 text-center lg:text-left">
+              {/* Mobile Logo */}
+              <div className="lg:hidden mx-auto w-14 h-14 relative mb-4">
+                <Image
                   src="/images/uin-raden-fatah.webp"
                   alt="UIN Logo"
                   fill
                   className="object-contain"
-                  priority
                 />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Selamat Datang</h2>
+              <p className="text-sm text-gray-500 dark:text-zinc-400">Masuk untuk mengakses dashboard Anda</p>
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-              Selamat Datang
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Masuk untuk mengakses dashboard Anda
-            </p>
-          </div>
+            <LoginForm />
 
-          <LoginForm />
-          
+            <div className="text-center pt-2">
+              <p className="text-xs text-zinc-400">
+                &copy; {new Date().getFullYear()} UIN Raden Fatah Palembang
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,114 +1,130 @@
-import { LayoutDashboard, Users, BookOpen, GraduationCap, Building2 } from "lucide-react";
-import PageHeader from "@/components/common/PageHeader";
-import { DataCard } from "@/components/common/DataCard";
+import {
+  getTotalDosen,
+  getTotalMahasiswa,
+  getTotalPeminatan,
+  getTotalProdi,
+} from "@/actions/dashboard";
+import {
+  BookOpen,
+  Building2,
+  ClipboardCheck,
+  ClipboardList,
+  GraduationCap,
+  LayoutDashboard,
+  Users,
+  UserSquare2,
+} from "lucide-react";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { StatCard } from "@/components/dashboard/StatCard";
+import { ActionGrid } from "@/components/dashboard/ActionGrid";
 
-async function getTotalDosen() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  try {
-    const res = await fetch(`${apiUrl}/dosen`, { cache: "no-store" });
-    if (!res.ok) return 0;
-    const data = await res.json();
-    return data?.data?.length ?? 0;
-  } catch (error) {
-    return 0;
-  }
-}
-async function getTotalMahasiswa() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  try {
-    const res = await fetch(`${apiUrl}/mahasiswa`, { cache: "no-store" });
-    if (!res.ok) return 0;
-    const data = await res.json();
-    return data?.data?.length ?? 0;
-  } catch (error) {
-    return 0;
-  }
-}
-async function getTotalPeminatan() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  try {
-    const res = await fetch(`${apiUrl}/peminatan`, { cache: "no-store" });
-    if (!res.ok) return 0;
-    const data = await res.json();
-    return data?.data?.length ?? 0;
-  } catch (error) {
-    return 0;
-  }
-}
-async function getTotalProdi() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  try {
-    const res = await fetch(`${apiUrl}/prodi`, { cache: "no-store" });
-    if (!res.ok) return 0;
-    const data = await res.json();
-    return data?.data?.length ?? 0;
-  } catch (error) {
-    return 0;
-  }
-}
+export default async function SuperAdminDashboardPage() {
+  const [totalDosen, totalMahasiswa, totalPeminatan, totalProdi] = await Promise.all([
+    getTotalDosen(),
+    getTotalMahasiswa(),
+    getTotalPeminatan(),
+    getTotalProdi(),
+  ]);
 
-export default async function Page() {
-  const totalDosen = await getTotalDosen();
-  const totalMahasiswa = await getTotalMahasiswa();
-  const totalPeminatan = await getTotalPeminatan();
-  const totalProdi = await getTotalProdi();
-
-  const stats = [
+  // Data for Action Grid
+  const quickActions = [
     {
-      label: "Total Dosen",
-      value: totalDosen,
+      label: "Master Dosen",
+      description: "Kelola data seluruh dosen universitas.",
       icon: Users,
-      color: "text-blue-600 dark:text-blue-400",
-      bg: "bg-blue-50 dark:bg-blue-900/20",
-      border: "border-blue-100 dark:border-blue-900",
+      href: "/super-admin/dosen",
+      color: "blue" as const,
     },
     {
-      label: "Total Mahasiswa",
-      value: totalMahasiswa,
+      label: "Master Mahasiswa",
+      description: "Kelola data seluruh mahasiswa.",
       icon: GraduationCap,
-      color: "text-green-600 dark:text-green-400",
-      bg: "bg-green-50 dark:bg-green-900/20",
-      border: "border-green-100 dark:border-green-900",
+      href: "/super-admin/mahasiswa",
+      color: "emerald" as const,
     },
     {
-      label: "Total Peminatan",
-      value: totalPeminatan,
+      label: "Data Peminatan",
+      description: "Kelola data peminatan skripsi.",
       icon: BookOpen,
-      color: "text-purple-600 dark:text-purple-400",
-      bg: "bg-purple-50 dark:bg-purple-900/20",
-      border: "border-purple-100 dark:border-purple-900",
+      href: "/super-admin/peminatan",
+      color: "violet" as const,
     },
     {
-      label: "Total Prodi",
-      value: totalProdi,
+      label: "Master Prodi",
+      description: "Kelola data program studi.",
       icon: Building2,
-      color: "text-amber-600 dark:text-amber-400",
-      bg: "bg-amber-50 dark:bg-amber-900/20",
-      border: "border-amber-100 dark:border-amber-900",
+      href: "/super-admin/prodi",
+      color: "amber" as const,
+    },
+    {
+      label: "Jenis Ujian",
+      description: "Kelola master data jenis ujian.",
+      icon: ClipboardList,
+      href: "/super-admin/jenis-ujian",
+      color: "rose" as const,
+    },
+    {
+      label: "Komponen Penilaian",
+      description: "Atur komponen penilaian skripsi.",
+      icon: ClipboardCheck,
+      href: "/super-admin/komponen-penilaian",
+      color: "violet" as const,
     },
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      <PageHeader
+    <div className="p-6 md:p-8 min-h-screen space-y-8 max-w-7xl mx-auto">
+      {/* Header Section */}
+      <DashboardHeader
         title="Dashboard Super Admin"
-        description="Ringkasan data akademik Faculty of Science & Technology"
-        iconName="LayoutDashboard"
+        subtitle="Ringkasan data akademik Faculty of Science & Technology"
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <DataCard key={index} className={`p-4 flex items-center gap-4 ${stat.border}`}>
-            <div className={`p-3 rounded-full ${stat.bg}`}>
-              <stat.icon className={`w-6 h-6 ${stat.color}`} />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</h3>
-            </div>
-          </DataCard>
-        ))}
-      </div>
+      {/* Stats Grid */}
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold tracking-tight text-foreground flex items-center gap-2">
+          <LayoutDashboard size={18} className="text-primary" />
+          Statistik Universitas
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <StatCard
+            title="Total Dosen"
+            value={totalDosen}
+            icon={Users}
+            color="blue"
+            className=""
+          />
+          <StatCard
+            title="Total Mahasiswa"
+            value={totalMahasiswa}
+            icon={GraduationCap}
+            color="emerald"
+            className=""
+          />
+          <StatCard
+            title="Total Peminatan"
+            value={totalPeminatan}
+            icon={BookOpen}
+            color="violet"
+            className=""
+          />
+          <StatCard
+            title="Total Prodi"
+            value={totalProdi}
+            icon={Building2}
+            color="amber"
+            className=""
+          />
+        </div>
+      </section>
+
+      {/* Quick Actions Section */}
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">
+          Akses Cepat
+        </h2>
+        <ActionGrid items={quickActions} columns={4} />
+      </section>
     </div>
   );
 }

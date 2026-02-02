@@ -35,18 +35,16 @@ interface DataTableFilterProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
   searchPlaceholder?: string;
-  
+
   // Array of filter groups to display in the dropdown
   filterGroups?: FilterGroup[];
-  
+
   // Current filter state
-  selectedFilterType?: string; 
+  selectedFilterType?: string;
   selectedFilterValue?: string;
   onFilterChange?: (type: string, value: string) => void;
 
-  // View mode toggles
-  viewMode?: "table" | "card";
-  onViewModeChange?: (mode: "table" | "card") => void;
+
 
   children?: React.ReactNode;
   className?: string;
@@ -60,8 +58,7 @@ export function DataTableFilter({
   selectedFilterType,
   selectedFilterValue,
   onFilterChange,
-  viewMode,
-  onViewModeChange,
+
   children,
   className,
 }: DataTableFilterProps) {
@@ -74,7 +71,7 @@ export function DataTableFilter({
             placeholder={searchPlaceholder}
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9 w-full bg-white dark:bg-[#1f1f1f]"
+            className="pl-9 w-full bg-white dark:bg-[#1f1f1f] h-10 lg:h-9"
             aria-label="Search"
           />
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -96,7 +93,7 @@ export function DataTableFilter({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="h-9 px-3 rounded-lg border flex items-center gap-2 bg-white dark:bg-[#1f1f1f]"
+                className="h-10 lg:h-9 px-3 rounded-lg border flex items-center gap-2 bg-white dark:bg-[#1f1f1f]"
                 aria-label="Filter"
               >
                 <Settings2 size={18} />
@@ -135,22 +132,7 @@ export function DataTableFilter({
           </DropdownMenu>
         )}
 
-        {/* View Mode Toggle */}
-        {viewMode && onViewModeChange && (
-          <Tabs
-            value={viewMode}
-            onValueChange={(v) => onViewModeChange(v as "table" | "card")}
-          >
-            <TabsList className="h-9">
-              <TabsTrigger value="table" className="h-7 px-2.5">
-                <LayoutGrid size={16} />
-              </TabsTrigger>
-              <TabsTrigger value="card" className="h-7 px-2.5">
-                <List size={16} />
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        )}
+
       </div>
     </div>
   );

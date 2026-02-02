@@ -337,80 +337,80 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
             {data.map((dosen) => (
               <div
                 key={dosen.id}
-                 className="group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                className="group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
               >
                 <div className="p-5 flex flex-col gap-4 flex-1">
-                   <div className="flex items-center gap-4">
-                      <Avatar className="h-14 w-14 border-2 border-gray-100 dark:border-neutral-800 shadow-sm">
-                        <AvatarImage
-                          src={dosen.foto || undefined}
-                          alt={dosen.nama}
-                          className="object-cover"
-                        />
-                        <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
-                          {dosen.nama
-                            ?.split(" ")
-                            .map((n) => n[0])
-                            .join("")
-                            .toUpperCase()
-                            .slice(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col">
-                        <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-tight">
-                           {dosen.nama}
-                        </h3>
-                        <span className="text-xs text-muted-foreground mt-1 bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full w-fit">
-                           {dosen.jabatan || "-"}
-                        </span>
-                      </div>
-                   </div>
-                   
-                   <div className="grid grid-cols-1 gap-y-2 mt-2">
-                      <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
-                         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">NIDN</span>
-                         <span className="font-medium text-gray-700 dark:text-gray-300">{dosen.nidn || "-"}</span>
-                      </div>
-                      <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
-                         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">NIP</span>
-                         <span className="font-medium text-gray-700 dark:text-gray-300">{dosen.nip || "-"}</span>
-                      </div>
-                      <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
-                         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Prodi</span>
-                         <span className="font-medium text-gray-700 dark:text-gray-300 line-clamp-1">{dosen.prodi?.nama || "-"}</span>
-                      </div>
-                      <div className="flex flex-col text-sm">
-                         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">No HP</span>
-                         <span className="font-medium text-gray-700 dark:text-gray-300">{dosen.noHp || "-"}</span>
-                      </div>
-                   </div>
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-14 w-14 border-2 border-gray-100 dark:border-neutral-800 shadow-sm">
+                      <AvatarImage
+                        src={dosen.foto || undefined}
+                        alt={dosen.nama}
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
+                        {dosen.nama
+                          ?.split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()
+                          .slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                        {dosen.nama}
+                      </h3>
+                      <span className="text-xs text-muted-foreground mt-1 bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full w-fit">
+                        {dosen.jabatan || "-"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-y-2 mt-2">
+                    <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">NIDN</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">{dosen.nidn || "-"}</span>
+                    </div>
+                    <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">NIP</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">{dosen.nip || "-"}</span>
+                    </div>
+                    <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Prodi</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300 line-clamp-1">{dosen.prodi?.nama || "-"}</span>
+                    </div>
+                    <div className="flex flex-col text-sm">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">No HP</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">{dosen.noHp || "-"}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 grid grid-cols-3 gap-2 border-t border-gray-100 dark:border-neutral-800">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full text-xs h-8"
-                      onClick={() => setDetailDosen(dosen)}
-                    >
-                      <Info size={14} className="mr-1.5" /> Detail
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full text-xs h-8"
-                      onClick={() => setEditDosen(dosen)}
-                    >
-                      <Pencil size={14} className="mr-1.5" /> Edit
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost" 
-                      className="w-full text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      onClick={() => setDeleteDosen(dosen)}
-                    >
-                      <Trash2 size={14} className="mr-1.5" /> Hapus
-                    </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full text-xs h-8"
+                    onClick={() => setDetailDosen(dosen)}
+                  >
+                    <Info size={14} className="mr-1.5" /> Detail
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full text-xs h-8"
+                    onClick={() => setEditDosen(dosen)}
+                  >
+                    <Pencil size={14} className="mr-1.5" /> Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-full text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                    onClick={() => setDeleteDosen(dosen)}
+                  >
+                    <Trash2 size={14} className="mr-1.5" /> Hapus
+                  </Button>
                 </div>
               </div>
             ))}
@@ -429,101 +429,101 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
               Detail Dosen
             </DialogTitle>
           </DialogHeader>
-          
+
           {detailDosen && (
             <div className="p-0">
-               {/* Profile Header */}
-               <div className="px-6 py-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
-                   <Avatar className="h-24 w-24 border-4 border-white dark:border-neutral-800 shadow-lg ring-1 ring-gray-100 dark:ring-neutral-700">
-                      <AvatarImage
-                        src={detailDosen.foto || undefined}
-                        alt={detailDosen.nama}
-                        className="object-cover"
-                      />
-                      <AvatarFallback className="text-2xl font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
-                        {detailDosen.nama
-                          ?.split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()
-                          .slice(0, 2)}
-                      </AvatarFallback>
-                   </Avatar>
-                   
-                   <div className="space-y-1 text-center sm:text-left mt-2 flex-1">
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
-                         {detailDosen.nama}
-                      </h2>
-                      <p className="text-sm text-muted-foreground font-medium">
-                         {detailDosen.jabatan || "-"}
-                      </p>
-                      
-                       <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
-                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-200">
-                              {detailDosen.nidn ? `NIDN. ${detailDosen.nidn}` : 'NIDN -'}
-                           </span>
-                           {detailDosen.prodi?.nama && (
-                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
-                                   {detailDosen.prodi.nama}
-                               </span>
-                           )}
-                       </div>
-                   </div>
-               </div>
-               
-               {/* Details Grid */}
-               <div className="px-6 pb-8">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
-                      <div className="space-y-1">
-                          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">NIP</label>
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-200 break-words">
-                              {detailDosen.nip || "-"}
-                          </div>
-                      </div>
-                      
-                      <div className="space-y-1">
-                          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Pangkat / Golongan</label>
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                              {detailDosen.pangkat || "-"} {detailDosen.golongan ? `(${detailDosen.golongan})` : ""}
-                          </div>
-                      </div>
+              {/* Profile Header */}
+              <div className="px-6 py-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                <Avatar className="h-24 w-24 border-4 border-white dark:border-neutral-800 shadow-lg ring-1 ring-gray-100 dark:ring-neutral-700">
+                  <AvatarImage
+                    src={detailDosen.foto || undefined}
+                    alt={detailDosen.nama}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="text-2xl font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                    {detailDosen.nama
+                      ?.split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
 
-                      <div className="space-y-1">
-                          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Tempat, Tgl Lahir</label>
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                              {detailDosen.tempatTanggalLahir || "-"}
-                          </div>
-                      </div>
-                      
-                       <div className="space-y-1">
-                          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">TMT FST</label>
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                              {detailDosen.tmtFst
-                                ? new Date(detailDosen.tmtFst).toLocaleDateString("id-ID", {
-                                    day: "numeric", month: "long", year: "numeric"
-                                  })
-                                : "-"}
-                          </div>
-                      </div>
+                <div className="space-y-1 text-center sm:text-left mt-2 flex-1">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                    {detailDosen.nama}
+                  </h2>
+                  <p className="text-sm text-muted-foreground font-medium">
+                    {detailDosen.jabatan || "-"}
+                  </p>
 
-                      <div className="space-y-1">
-                          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">No HP</label>
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                              {detailDosen.noHp || "-"}
-                          </div>
-                      </div>
-                      
-                      <div className="space-y-1">
-                          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Alamat</label>
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                              {detailDosen.alamat || "-"}
-                          </div>
-                      </div>
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-200">
+                      {detailDosen.nidn ? `NIDN. ${detailDosen.nidn}` : 'NIDN -'}
+                    </span>
+                    {detailDosen.prodi?.nama && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+                        {detailDosen.prodi.nama}
+                      </span>
+                    )}
                   </div>
-               </div>
+                </div>
+              </div>
+
+              {/* Details Grid */}
+              <div className="px-6 pb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">NIP</label>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-200 break-words">
+                      {detailDosen.nip || "-"}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Pangkat / Golongan</label>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                      {detailDosen.pangkat || "-"} {detailDosen.golongan ? `(${detailDosen.golongan})` : ""}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Tempat, Tgl Lahir</label>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                      {detailDosen.tempatTanggalLahir || "-"}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">TMT FST</label>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                      {detailDosen.tmtFst
+                        ? new Date(detailDosen.tmtFst).toLocaleDateString("id-ID", {
+                          day: "numeric", month: "long", year: "numeric"
+                        })
+                        : "-"}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">No HP</label>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                      {detailDosen.noHp || "-"}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Alamat</label>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                      {detailDosen.alamat || "-"}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
-          
+
           <DialogFooter className="p-6 bg-gray-50 dark:bg-neutral-800/50 border-t border-gray-100 dark:border-neutral-800">
             <DialogClose asChild>
               <Button type="button" variant="outline" className="w-full sm:w-auto">
@@ -541,148 +541,148 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
       >
         <DialogContent className="w-full  max-w-lg p-0 border-none shadow-2xl bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden">
           <DialogHeader className="px-6 py-5 border-b border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900">
-             <DialogTitle className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-               Edit Dosen
-             </DialogTitle>
+            <DialogTitle className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+              Edit Dosen
+            </DialogTitle>
           </DialogHeader>
-          
+
           <form onSubmit={handleEditSubmit}>
             <div className="p-6 space-y-5 max-h-[60vh] overflow-y-auto">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Nama Lengkap</Label>
-                    <Input
-                      name="nama"
-                      value={editForm.nama ?? ""}
-                      onChange={handleEditFormChange}
-                      required
-                      className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                      placeholder="Nama lengkap dosen"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">No HP</Label>
-                    <Input
-                      name="noHp"
-                      value={editForm.noHp ?? ""}
-                      onChange={handleEditFormChange}
-                      className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="08xxxxxxxxxx"
-                    />
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Nama Lengkap</Label>
+                  <Input
+                    name="nama"
+                    value={editForm.nama ?? ""}
+                    onChange={handleEditFormChange}
+                    required
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="Nama lengkap dosen"
+                  />
+                </div>
 
-                  <div className="space-y-2 col-span-1 sm:col-span-2">
-                    <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Alamat</Label>
-                    <Input
-                      name="alamat"
-                      value={editForm.alamat ?? ""}
-                      onChange={handleEditFormChange}
-                      className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Alamat domisili"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tempat, Tanggal Lahir</Label>
-                    <Input
-                      name="tempatTanggalLahir"
-                      value={editForm.tempatTanggalLahir ?? ""}
-                      onChange={handleEditFormChange}
-                      placeholder="Contoh: Maninjau, 01-08-1975"
-                      className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">No HP</Label>
+                  <Input
+                    name="noHp"
+                    value={editForm.noHp ?? ""}
+                    onChange={handleEditFormChange}
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="08xxxxxxxxxx"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                     <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Jabatan</Label>
-                     <Input
-                       name="jabatan"
-                       value={editForm.jabatan ?? ""}
-                       onChange={handleEditFormChange}
-                       className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
-                       placeholder="Contoh: Lektor"
-                     />
-                  </div>
-                  
-                   <div className="space-y-2">
-                     <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Pangkat</Label>
-                     <Input
-                       name="pangkat"
-                       value={editForm.pangkat ?? ""}
-                       onChange={handleEditFormChange}
-                       className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
-                       placeholder="Contoh: Penata Tk."
-                     />
-                  </div>
+                <div className="space-y-2 col-span-1 sm:col-span-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Alamat</Label>
+                  <Input
+                    name="alamat"
+                    value={editForm.alamat ?? ""}
+                    onChange={handleEditFormChange}
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Alamat domisili"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                     <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Golongan</Label>
-                     <Input
-                       name="golongan"
-                       value={editForm.golongan ?? ""}
-                       onChange={handleEditFormChange}
-                       className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
-                       placeholder="Contoh: III.d"
-                     />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">TMT FST</Label>
-                    <Input
-                      name="tmtFst"
-                      type="date"
-                      value={editForm.tmtFst ?? ""}
-                      onChange={handleEditFormChange}
-                      className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tempat, Tanggal Lahir</Label>
+                  <Input
+                    name="tempatTanggalLahir"
+                    value={editForm.tempatTanggalLahir ?? ""}
+                    onChange={handleEditFormChange}
+                    placeholder="Contoh: Maninjau, 01-08-1975"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
 
-                   <div className="space-y-2 col-span-1 sm:col-span-2">
-                    <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 block">Foto Profil</Label>
-                    
-                    <div className="flex items-center gap-4 bg-gray-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-neutral-700">
-                      {editForm.foto && typeof editForm.foto === "string" ? (
-                         <div className="relative group shrink-0">
-                            <Image
-                              src={editForm.foto}
-                              alt="Foto Dosen"
-                              width={80}
-                              height={80}
-                              className="rounded-full h-16 w-16 object-cover border-2 border-white shadow-sm"
-                            />
-                            <button
-                              type="button"
-                              onClick={handleRemoveFoto}
-                              className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                              title="Hapus foto"
-                            >
-                               <X size={12} />
-                            </button>
-                         </div>
-                      ) : (
-                         <div className="h-16 w-16 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center text-gray-400 shrink-0">
-                            <span className="text-xs">No Img</span>
-                         </div>
-                      )}
-                      
-                      <div className="flex-1">
-                         <Input
-                           name="foto"
-                           type="file"
-                           accept="image/*"
-                           onChange={handleEditFormChange}
-                           className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
-                         />
-                         <p className="text-xs text-muted-foreground mt-1">
-                            Format: JPG, PNG, GIF. Maks 2MB.
-                         </p>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Jabatan</Label>
+                  <Input
+                    name="jabatan"
+                    value={editForm.jabatan ?? ""}
+                    onChange={handleEditFormChange}
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Contoh: Lektor"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Pangkat</Label>
+                  <Input
+                    name="pangkat"
+                    value={editForm.pangkat ?? ""}
+                    onChange={handleEditFormChange}
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Contoh: Penata Tk."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Golongan</Label>
+                  <Input
+                    name="golongan"
+                    value={editForm.golongan ?? ""}
+                    onChange={handleEditFormChange}
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Contoh: III.d"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">TMT FST</Label>
+                  <Input
+                    name="tmtFst"
+                    type="date"
+                    value={editForm.tmtFst ?? ""}
+                    onChange={handleEditFormChange}
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="space-y-2 col-span-1 sm:col-span-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 block">Foto Profil</Label>
+
+                  <div className="flex items-center gap-4 bg-gray-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-neutral-700">
+                    {editForm.foto && typeof editForm.foto === "string" ? (
+                      <div className="relative group shrink-0">
+                        <Image
+                          src={editForm.foto}
+                          alt="Foto Dosen"
+                          width={80}
+                          height={80}
+                          className="rounded-full h-16 w-16 object-cover border-2 border-white shadow-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemoveFoto}
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                          title="Hapus foto"
+                        >
+                          <X size={12} />
+                        </button>
                       </div>
+                    ) : (
+                      <div className="h-16 w-16 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center text-gray-400 shrink-0">
+                        <span className="text-xs">No Img</span>
+                      </div>
+                    )}
+
+                    <div className="flex-1">
+                      <Input
+                        name="foto"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleEditFormChange}
+                        className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Format: JPG, PNG, GIF. Maks 2MB.
+                      </p>
                     </div>
                   </div>
                 </div>
+              </div>
             </div>
-            
+
             <DialogFooter className="p-6 bg-gray-50 dark:bg-neutral-800/50 border-t border-gray-100 dark:border-neutral-800 flex gap-2 justify-end">
               <DialogClose asChild>
                 <Button type="button" variant="outline" className="px-6 rounded-lg">

@@ -11,14 +11,23 @@ export async function loginAction(formData: FormData) {
   const password = String(formData.get("password") || "");
 
   let data: any = null;
+  let res;
 
-  const res = await fetch(`${apiUrl}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nip_nim, password }),
-  });
+  try {
+    res = await fetch(`${apiUrl}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nip_nim, password }),
+    });
+  } catch (error) {
+    console.error("Login fetch error:", error);
+    return {
+      success: false,
+      message: "Gagal terhubung ke server backend. Pastikan server nyala.",
+    };
+  }
 
-  // 🔥 1. Handle RATE LIMIT 429 (tanpa parsing JSON)
+  // 1. Handle RATE LIMIT 429
   if (res.status === 429) {
     return {
       success: false,
@@ -26,11 +35,10 @@ export async function loginAction(formData: FormData) {
     };
   }
 
-  // 🔥 2. Coba parse JSON, kalau gagal -> berarti HTML (error Laravel)
+  // 2. Parse JSON
   try {
     data = await res.json();
-  } catch (err) {
-    // Ini terjadi kalau response HTML dari Laravel
+  } catch {
     return {
       success: false,
       message: "Terjadi kesalahan server. Coba lagi nanti.",
@@ -44,15 +52,13 @@ export async function loginAction(formData: FormData) {
     };
   }
 
-  // ================================
-  // ⬇️ Kalau sukses login baru lanjut
-  // ================================
+  // Success login
   const role =
     typeof data.role === "string"
       ? data.role.toLowerCase()
       : Array.isArray(data.roles)
-      ? data.roles[0]?.toLowerCase()
-      : "user";
+        ? data.roles[0]?.toLowerCase()
+        : "user";
 
   const normalizedRoles = Array.isArray(data.roles)
     ? data.roles.map((r: string, i: number) => ({ id: i + 1, name: r }))
@@ -62,6 +68,7 @@ export async function loginAction(formData: FormData) {
     ...data.user,
     role,
     roles: normalizedRoles,
+    is_default_password: data.is_default_password,
   };
 
   const cookieStore = await cookies();
@@ -231,5 +238,52 @@ export async function refreshUserAction() {
   } catch (error) {
     console.error("Failed to refresh user data:", error);
     return null;
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function changePasswordAction(data: any) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  if (!token) {
+    return { success: false, message: "Unauthenticated" };
+  }
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/change-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        current_password: data.current_password,
+        new_password: data.new_password,
+        new_password_confirmation: data.confirm_password,
+      }),
+    });
+
+    const responseData = await res.json();
+
+    if (!res.ok) {
+      if (res.status === 422) {
+        return {
+          success: false,
+          message: responseData.message || "Validasi gagal",
+          errors: responseData.errors,
+        };
+      }
+      return {
+        success: false,
+        message: responseData.message || "Gagal mengubah password",
+      };
+    }
+
+    return { success: true, message: "Password berhasil diubah" };
+  } catch (error) {
+    console.error("Change password error:", error);
+    return { success: false, message: "Terjadi kesalahan sistem" };
   }
 }

@@ -39,6 +39,7 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:login');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/change-password', [AuthController::class, 'changePassword'])->middleware('auth:sanctum');
 
 Route::apiResource('mahasiswa', MahasiswaController::class);
 

@@ -3,6 +3,7 @@
 import { useEffect, useTransition, useState } from "react";
 import {
   IconDotsVertical,
+  IconLock,
   IconLogout,
   IconNotification,
   IconUserCircle,
@@ -38,6 +39,9 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
+import { ChangePasswordDialog } from "@/components/auth/ChangePasswordDialog";
+
+
 export type UserRole = {
   id: number;
   name: string;
@@ -59,6 +63,9 @@ export function NavUser({ user: serverUser }: { user?: User }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+
 
   // 🚀 Pastikan store langsung punya data user dari server
   useEffect(() => {
@@ -155,6 +162,8 @@ export function NavUser({ user: serverUser }: { user?: User }) {
 
             <DropdownMenuSeparator />
 
+
+
             <DropdownMenuGroup className="p-1">
               <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
                 <Link
@@ -167,11 +176,21 @@ export function NavUser({ user: serverUser }: { user?: User }) {
                 </Link>
               </DropdownMenuItem>
 
+              <DropdownMenuItem
+                className="rounded-lg cursor-pointer"
+                onClick={() => setChangePasswordOpen(true)}
+              >
+                <IconLock className="mr-2 h-4 w-4 text-muted-foreground" />
+                Ganti Password
+              </DropdownMenuItem>
+
               <DropdownMenuItem className="rounded-lg cursor-pointer">
                 <IconNotification className="mr-2 h-4 w-4 text-muted-foreground" />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
+
+
 
             <DropdownMenuSeparator />
 
@@ -187,6 +206,11 @@ export function NavUser({ user: serverUser }: { user?: User }) {
           </DropdownMenuContent>
         </DropdownMenu>
 
+        <ChangePasswordDialog
+          open={changePasswordOpen}
+          onOpenChange={setChangePasswordOpen}
+        />
+
         {/* Dialog konfirmasi logout - Premium & Mobile Friendly */}
         <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <DialogContent className="w-[90vw] max-w-[400px] rounded-2xl p-0 overflow-hidden border-none shadow-2xl gap-0 font-sans">
@@ -194,7 +218,7 @@ export function NavUser({ user: serverUser }: { user?: User }) {
               <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center mb-6 ring-8 ring-red-50 dark:ring-red-900/10">
                 <IconLogout size={32} stroke={2} />
               </div>
-              
+
               <DialogHeader className="text-center sm:text-center space-y-2">
                 <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                   Keluar dari Akun?
@@ -206,19 +230,19 @@ export function NavUser({ user: serverUser }: { user?: User }) {
             </div>
 
             <DialogFooter className="grid grid-cols-2 gap-3 p-6 bg-gray-50/50 dark:bg-neutral-800/50 border-t border-gray-100 dark:border-neutral-800">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setConfirmOpen(false)}
                 className="w-full h-11 rounded-xl border-gray-200 dark:border-neutral-700 hover:bg-white dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-gray-100 font-medium transition-colors"
               >
                 Batal
               </Button>
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 onClick={() => {
                   setConfirmOpen(false);
                   handleLogout();
-                }} 
+                }}
                 disabled={isPending}
                 className="w-full h-11 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-200 dark:shadow-none font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
               >

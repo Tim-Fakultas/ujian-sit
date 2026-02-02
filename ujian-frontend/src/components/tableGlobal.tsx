@@ -33,7 +33,7 @@ export default function TableGlobal({
 
   return (
     <div className="w-full">
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-x-auto rounded-md border bg-white dark:bg-neutral-900">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup: any, idx: number) => (
@@ -103,7 +103,7 @@ export default function TableGlobal({
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 hidden sm:flex"
+              className="h-9 w-9 hidden sm:flex touch-manipulation"
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage()}
             >
@@ -113,7 +113,7 @@ export default function TableGlobal({
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-9 w-9 touch-manipulation"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
@@ -201,7 +201,7 @@ export default function TableGlobal({
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-9 w-9 touch-manipulation"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
@@ -211,7 +211,7 @@ export default function TableGlobal({
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 hidden sm:flex"
+              className="h-9 w-9 hidden sm:flex touch-manipulation"
               onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               disabled={!table.getCanNextPage()}
             >

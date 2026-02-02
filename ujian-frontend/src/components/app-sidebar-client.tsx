@@ -188,10 +188,10 @@ export const AppSidebarClient = memo(function AppSidebarClient({
                     </div>
                   </div>
                   <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
-                    <h1 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+                    <h1 className="text-sm font-bold text-foreground tracking-tight leading-none">
                       E-Skripsi
                     </h1>
-                    <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">
+                    <p className="text-[10px] font-medium text-muted-foreground mt-1 uppercase tracking-wider">
                       Fakultas Saintek
                     </p>
                   </div>
@@ -203,7 +203,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
           {isMobile && (
             <button
               onClick={() => setOpenMobile(false)}
-              className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+              className="p-3 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
             >
               <X size={20} />
             </button>

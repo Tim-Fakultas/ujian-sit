@@ -23,6 +23,7 @@ export default async function JadwalUjianPage() {
       <JadwalUjianTable
         jadwalUjian={jadwalUjian}
         daftarHadir={daftarHadir}
+        userRole={user?.role}
       />
     </div>
   );

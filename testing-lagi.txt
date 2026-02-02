@@ -1,0 +1,43 @@
+PENGAJUAN RANPEL
+- isi form RANPEL (mahasiswa)
+- verifikasi (Dosen PA)
+- catatan (Dosen PA)
+- filter berdasarkan nim (Kaprodi)
+- terima/tolak (Kaprodi)
+- catatan jika tolak (Kaprodi)
+- Menentukan pembimbing (Kaprodi)
+- Donwload RANPEL (Mahasiswa)
+- Download Surat Pengajuan Judul & pembimbing (Mahasiswa)
+- lihat catatan dosen PA dan Kaprodi (mahasiswa)
+
+
+
+PENDAFTARAN UJIAN (SEMINAR PROPOSAL, UJIAN HASIL, UJIAN SKRIPSI)
+- upload berkas ujian (mahasiswa)
+- syarat ujian sesuai dengan silayak
+- verifikasi berkas (Sekprodi)
+- terima / tolak berkas ujian (Sekprodi)
+- beri catatan jika tolak ujian (Sekprodi)
+- lihat catatan penolakan (mahasiswa)
+- data pendaftaran masuk ke penjadwalan ujian (Sekprodi)
+- set jadwal ujian (Sekprodi)
+- lihat jadwal ujian (mahasiswa)
+- export jadwal ujian (Sekprodi)
+- pilih rentan tanggal ujian (Sekprodi)
+- 
+
+
+PENILAIAN UJIAN
+- lihat jadwal ujian (Mahasiswa, Dosen Penguji)
+- Melakukan penilaian (Dosen Penguji)
+- Bisa memberikan catatan (Sekretaris Penguji)
+- Edit penilaian (Ketua Penguji)
+- Finalisasi penilaian (Ketua Penguji)
+- Lihat Nilai (Mahasiswa)
+- Download Form Berita Acara, Daftar Hadir, Surat Keterangan Lulus (Mahasiswa)
+
+
+
+
+GAGAL 
+- daftar ujian hasil (mahasiswa)

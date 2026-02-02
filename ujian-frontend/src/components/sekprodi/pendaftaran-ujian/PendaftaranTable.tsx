@@ -347,14 +347,8 @@ export default function PendaftaranUjianTable({
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  // Add viewMode state
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
-
-
   return (
     <DataCard>
-      {/* Filter Bar - match admin design */}
-      {/* Filter Bar - match admin design */}
       <DataTableFilter
         searchValue={filterNama}
         onSearchChange={setFilterNama}
@@ -368,109 +362,10 @@ export default function PendaftaranUjianTable({
         onFilterChange={(type, value) => {
           setFilterOption({ type, value });
         }}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
       />
 
-      {/* Table/Card View */}
-      <Tabs
-        value={viewMode}
-        onValueChange={(v) => setViewMode(v as "table" | "card")}
-      >
-        <TabsContent value="table">
-          <TableGlobal table={table} cols={cols} />
-        </TabsContent>
-        <TabsContent value="card">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredData.length === 0 ? (
-              <div className="text-center text-muted-foreground py-12 col-span-full flex flex-col items-center gap-3">
-                <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
-                  <List size={24} className="opacity-50" />
-                </div>
-                <p>Tidak ada data pendaftaran.</p>
-              </div>
-            ) : (
-              filteredData.map((p) => {
-                const status =
-                  localData.find(
-                    (item) =>
-                      item.mahasiswa.id === p.mahasiswa.id &&
-                      item.jenisUjian.id === p.jenisUjian.id
-                  )?.status ??
-                  p.status ??
-                  "";
-
-
-
-                const jenisColor = getJenisUjianColor(p.jenisUjian.namaJenis);
-
-                return (
-                  <div
-                    key={p.id}
-                    className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-                  >
-                    <div className="p-5 flex flex-col gap-4 flex-1">
-
-                      {/* Header: Status & Type */}
-                      <div className="flex justify-between items-start">
-                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${status === 'selesai' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
-                          status === 'dijadwalkan' ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300" :
-                            "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400"
-                          }`}>
-                          {status || "Menunggu"}
-                        </span>
-                      </div>
-
-                      {/* Content: Title & Name */}
-                      <div className="space-y-2">
-                        <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={p.judulPenelitian}>
-                          {p.judulPenelitian || "Judul tidak tersedia"}
-                        </h3>
-
-                        <div className="flex items-center gap-2 pt-1">
-                          <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
-                            {p.mahasiswa.nama.charAt(0)}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                              {p.mahasiswa.nama}
-                            </span>
-                            <span className="text-[11px] text-gray-400">
-                              {p.mahasiswa.nim}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Type Badge */}
-                      <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
-                        <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${jenisColor}`}>
-                          {p.jenisUjian.namaJenis}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Actions Footer */}
-                    <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleBerkas(p)}
-                        className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
-                      >
-                        <Eye size={14} className="mr-1.5" /> Lihat Berkas
-                      </Button>
-
-
-                    </div>
-
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* Table View Only */}
+      <TableGlobal table={table} cols={cols} />
 
 
 
@@ -536,11 +431,7 @@ export default function PendaftaranUjianTable({
                       const apiUrl =
                         process.env.NEXT_PUBLIC_STORAGE_URL || "";
                       const fileUrl = `${apiUrl}/storage/${file.filePath}`;
-                      // Tentukan label berdasarkan jenis ujian
-                      // Tentukan label berdasarkan nama berkas
-                      // Ambil nama file asli (namaBerkas) yang sekarang berisi deskripsi syarat
                       const rawName = file.namaBerkas || fileUrl.split("/").pop() || "Berkas Tanpa Nama";
-                      // Hilangkan ekstensi untuk label yang lebih bersih
                       const label = rawName.replace(/\.[^/.]+$/, "");
                       return (
                         <div
@@ -605,7 +496,7 @@ export default function PendaftaranUjianTable({
             <Button
               variant="outline"
               size="sm"
-              className="text-gray-600 border-gray-200 hover:bg-gray-50 dark:text-gray-400 dark:border-neutral-700 dark:hover:bg-neutral-800 transition-all font-medium h-8 text-xs flex items-center gap-1.5"
+              className="text-gray-600 border-gray-200 hover:bg-gray-50 dark:text-gray-400 dark:border-neutral-700 dark:hover:bg-neutral-800 transition-all font-medium h-10 px-4 text-sm flex items-center gap-1.5 touch-manipulation"
               onClick={() => {
                 setEditKeterangan(selected?.keterangan || "");
                 setShowEditKeteranganDialog(true);
@@ -617,7 +508,7 @@ export default function PendaftaranUjianTable({
             <Button
               variant="outline"
               size="sm"
-              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all font-medium h-8 text-xs"
+              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all font-medium h-10 px-4 text-sm touch-manipulation"
               onClick={() => {
                 setShowRejectDialog(true);
               }}
@@ -626,7 +517,7 @@ export default function PendaftaranUjianTable({
             </Button>
             <Button
               size="sm"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 dark:shadow-none transition-all font-medium h-8 text-xs"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 dark:shadow-none transition-all font-medium h-10 px-4 text-sm touch-manipulation"
               onClick={async () => {
                 const found = localData.find(
                   (p) =>
@@ -850,7 +741,7 @@ export default function PendaftaranUjianTable({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </DataCard>
+    </DataCard >
   );
 }
 
