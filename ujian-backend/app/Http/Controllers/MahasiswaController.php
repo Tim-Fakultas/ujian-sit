@@ -51,9 +51,21 @@ class MahasiswaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-   public function update(UpdateMahasiswaRequest $request, Mahasiswa $mahasiswa)
+    public function update(UpdateMahasiswaRequest $request, Mahasiswa $mahasiswa)
     {
         $validated = $request->validated();
+
+        if ($request->hasFile('file_ktm')) {
+            $file = $request->file('file_ktm');
+            // Simpan di storage/app/public/ktm
+            $path = $file->store('public/ktm');
+            // Generate URL yang bisa diakses publik (pastikan run php artisan storage:link)
+            // Gunakan url() agar sesuai dengan host:port yang sedang berjalan (misal localhost:8000)
+            $url = url('storage/' . str_replace('public/', '', $path));
+
+            $mahasiswa->url_ktm = $url;
+            $mahasiswa->save();
+        }
 
         // Ambil hanya versi snake_case
         $merged = array_filter($request->only([
@@ -64,6 +76,8 @@ class MahasiswaController extends Controller
             'pembimbing_1',
             'pembimbing_2',
             'user_id',
+            'ipk',
+            'semester',
         ]), fn($v) => !is_null($v));
 
         Log::info('DEBUG UPDATE MAHASISWA', [
@@ -75,6 +89,7 @@ class MahasiswaController extends Controller
         $mahasiswa->load(['prodi', 'peminatan', 'dosenPembimbingAkademik']);
 
         Cache::forget('mahasiswa_all');
+        Cache::forget("mahasiswa_{$mahasiswa->id}");
 
         return new MahasiswaResource($mahasiswa);
     }
