@@ -24,6 +24,7 @@ class MahasiswaResource extends JsonResource
             'ipk' => $this->ipk ? (float) $this->ipk : 0.00,
             'status' => $this->status,
             'angkatan' => $this->angkatan,
+            'urlKtm' => $this->url_ktm,
             'userId' => $this->user_id,
             'prodi' => $this->prodi ? [
                 'id' => $this->prodi->id,

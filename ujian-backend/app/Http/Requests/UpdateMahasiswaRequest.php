@@ -37,6 +37,7 @@ class UpdateMahasiswaRequest extends FormRequest
             'status' => 'sometimes|string|in:aktif,cuti,lulus,nonaktif',
             'angkatan' => 'sometimes|string|size:4',
             'userId' => 'sometimes|exists:users,id',
+            'file_ktm' => 'sometimes|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ];
     }
 
