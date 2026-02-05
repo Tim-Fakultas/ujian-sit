@@ -1,10 +1,12 @@
 import Image from "next/image";
 import LoginForm from "./LoginForm";
 import { GraduationCap } from "lucide-react";
+import { FaqModal } from "@/components/common/FaqModal";
 
 export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-zinc-950 relative overflow-hidden selection:bg-blue-500/30">
+
       {/* Background Effects */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
@@ -13,7 +15,7 @@ export default function LoginPage() {
       </div>
 
       {/* Main Card */}
-      <div className="w-full max-w-[1000px] h-auto lg:h-[500px] m-4 lg:m-0 grid lg:grid-cols-2 rounded-[24px] overflow-hidden border border-white/10 shadow-2xl bg-zinc-900/60 backdrop-blur-xl relative z-10 transition-all duration-300 hover:shadow-blue-900/10">
+      <div className="w-full max-w-[1000px] h-auto lg:h-[500px] m-4 lg:m-0 grid lg:grid-cols-2 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-zinc-900/60 backdrop-blur-xl relative z-10 transition-all duration-300 hover:shadow-blue-900/10">
 
         {/* Left Side - Visual */}
         <div className="relative h-full hidden lg:flex flex-col justify-between p-10 overflow-hidden bg-gradient-to-br from-blue-600/10 to-transparent">
@@ -64,7 +66,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right Side - Form */}
-        <div className="flex flex-col justify-center p-8 lg:p-12 bg-white dark:bg-zinc-950/80 backdrop-blur-md">
+        <div className="relative flex flex-col justify-center p-8 lg:p-12 bg-white dark:bg-zinc-950/80 backdrop-blur-md">
           <div className="w-full max-w-sm mx-auto space-y-6">
             <div className="space-y-1.5 text-center lg:text-left">
               {/* Mobile Logo */}
@@ -82,11 +84,17 @@ export default function LoginPage() {
 
             <LoginForm />
 
-            <div className="text-center pt-2">
+            <div className="text-center gap-1 flex flex-col items-center -mt-2">
+              <FaqModal />
               <p className="text-xs text-zinc-400">
                 &copy; {new Date().getFullYear()} UIN Raden Fatah Palembang
               </p>
             </div>
+          </div>
+
+          {/* Version Number */}
+          <div className="absolute bottom-4 left-4 text-[10px] text-zinc-900 dark:text-zinc-700 font-mono">
+            V.1.0.0
           </div>
         </div>
       </div>

@@ -92,7 +92,7 @@ export default function CatatanDialog({ pengajuan }: CatatanDialogProps) {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className={`h-8 w-8 rounded-full ${(!hasDosen && !hasKaprodi) ? "text-gray-400 hover:text-blue-600 bg-gray-50 hover:bg-blue-50" : "text-blue-600 bg-blue-50/50 hover:bg-blue-100 hover:text-blue-700"}`}
+                    className={`h-8 w-8 rounded-full ${(!hasDosen && !hasKaprodi) ? "text-gray-400 hover:text-primary bg-gray-50 hover:bg-primary/10" : "text-primary bg-primary/10 hover:bg-primary/20 hover:text-primary"}`}
                 >
                     <MessageSquareText size={15} />
                 </Button>
@@ -106,8 +106,8 @@ export default function CatatanDialog({ pengajuan }: CatatanDialogProps) {
                     {/* Notes from Dosen PA (Read Only) */}
                     {hasDosen && (
                         <div>
-                            <h4 className="font-semibold mb-1.5 text-xs uppercase tracking-wider text-blue-600 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                            <h4 className="font-semibold mb-1.5 text-xs uppercase tracking-wider text-primary flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                                 Dosen PA
                             </h4>
                             <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border text-sm leading-relaxed text-gray-700 dark:text-gray-300">

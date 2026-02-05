@@ -14,7 +14,7 @@ export default async function Page() {
         title="Pengajuan Rancangan Penelitian"
         description="Daftar pengajuan rancangan penelitian mahasiswa anda."
         iconName="FileText"
-        variant="emerald"
+        variant="blue"
         className="mb-6"
       />
       <Suspense fallback={<Loading />}>

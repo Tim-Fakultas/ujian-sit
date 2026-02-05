@@ -5,21 +5,19 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { getAllDosen } from "@/actions/data-master/dosen";
 import { getAllUsers } from "@/actions/user";
+import { showToast } from "@/components/ui/custom-toast";
 
 import { BeritaUjian } from "@/types/BeritaUjian";
 import { Button } from "../../ui/button";
 import {
-  X,
   Search,
-  MoreHorizontal,
   Check,
-  LayoutGrid,
-  List,
   Settings2,
   Calendar,
   AlertCircle,
   Eye,
   Download,
+  List,
 } from "lucide-react";
 
 import {
@@ -29,8 +27,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import TableGlobal from "@/components/tableGlobal";
+import { getStatusColor } from "@/lib/utils";
 import { DataCard } from "@/components/common/DataCard";
 import { getPenilaianByUjianId } from "@/actions/penilaian";
 import {
@@ -49,6 +48,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useUrlSearch } from "@/hooks/use-url-search";
 
 export default function NilaiUjianTable({
   ujian,
@@ -71,7 +71,7 @@ export default function NilaiUjianTable({
   }, [openDialog, selected?.id]);
 
   // Tambah state untuk search
-  const [search, setSearch] = useState("");
+  const { search, setSearch } = useUrlSearch();
   // Tambah state untuk filter jenis ujian
   const [jenisFilter, setJenisFilter] = useState<
     "all" | "proposal" | "hasil" | "skripsi"
@@ -81,11 +81,8 @@ export default function NilaiUjianTable({
     "all" | "lulus" | "tidak lulus"
   >("all");
 
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
 
-  // Tambah state untuk filter bulan dan tahun
-  const [filterBulan, setFilterBulan] = useState<string>("all");
-  const [filterTahun, setFilterTahun] = useState<string>("all");
+
 
   // ... filtering logic (same as before) ...
   const filteredData = ujian.filter((item) => {
@@ -105,25 +102,7 @@ export default function NilaiUjianTable({
       matchHasil = (item.hasil?.toLowerCase() ?? "") === hasilFilter;
     }
 
-    // Filter bulan
-    let matchBulan = true;
-    if (filterBulan !== "all") {
-      if (!item.jadwalUjian) matchBulan = false;
-      else {
-        const bulan = String(new Date(item.jadwalUjian).getMonth() + 1);
-        matchBulan = bulan === filterBulan;
-      }
-    }
-    // Filter tahun
-    let matchTahun = true;
-    if (filterTahun !== "all") {
-      if (!item.jadwalUjian) matchTahun = false;
-      else {
-        const tahun = String(new Date(item.jadwalUjian).getFullYear());
-        matchTahun = tahun === filterTahun;
-      }
-    }
-    return matchSearch && matchJenis && matchHasil && matchBulan && matchTahun;
+
   });
 
   // Pagination state
@@ -138,7 +117,7 @@ export default function NilaiUjianTable({
   // Reset page ke 1 saat search atau filter berubah
   useEffect(() => {
     setPage(1);
-  }, [search, jenisFilter, hasilFilter, filterBulan, filterTahun]);
+  }, [search, jenisFilter, hasilFilter]);
 
   const handleDetail = (ujian: BeritaUjian) => {
     setSelected(ujian);
@@ -771,14 +750,14 @@ export default function NilaiUjianTable({
       cell: ({ row }: any) => {
         const jenis = row.getValue("jenis")?.toLowerCase() ?? "";
         const badgeClass = jenis.includes("proposal")
-          ? "bg-blue-100 text-blue-700"
+          ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800"
           : jenis.includes("hasil")
-            ? "bg-yellow-100 text-yellow-700"
+            ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800"
             : jenis.includes("skripsi")
-              ? "bg-green-100 text-green-700"
-              : "bg-gray-100";
+              ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+              : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800";
         return (
-          <span className={`px-2 py-1 rounded font-medium ${badgeClass}`}>
+          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${badgeClass}`}>
             {row.getValue("jenis")}
           </span>
         );
@@ -796,7 +775,7 @@ export default function NilaiUjianTable({
           <TooltipProvider>
             <Tooltip delayDuration={300}>
               <TooltipTrigger asChild>
-                <div className="cursor-help text-gray-400 hover:text-blue-500 transition-colors">
+                <div className="cursor-help text-gray-400 hover:text-primary transition-colors">
                   <AlertCircle size={14} />
                 </div>
               </TooltipTrigger>
@@ -825,19 +804,12 @@ export default function NilaiUjianTable({
       header: () => <div className="text-center">Status</div>,
       cell: ({ row }: any) => {
         const hasil = row.getValue("hasil")?.toLowerCase();
-        const badgeClass =
-          hasil === "lulus"
-            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-            : hasil === "tidak lulus"
-              ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
-              : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200";
         return hasil && hasil !== "" ? (
           <div className="flex items-center justify-center">
-
             <span
-              className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${badgeClass}`}
+              className={`px-3 py-1 rounded-full text-xs font-medium capitalize border ${getStatusColor(hasil)}`}
             >
-              {row.getValue("hasil")}
+              {hasil}
             </span>
           </div>
         ) : (
@@ -1102,7 +1074,7 @@ export default function NilaiUjianTable({
 
     const mainRecord = skripsi || hasil || proposal || ujian[0];
     if (!mainRecord) {
-      console.error("Data ujian tidak ditemukan.");
+      showToast.error("Anda belum mendaftar ujian apapun. Silakan mendaftar ujian terlebih dahulu.");
       return;
     }
 
@@ -1383,13 +1355,8 @@ export default function NilaiUjianTable({
                         const isTidakLulus = displayStatus.toLowerCase() === "tidak lulus";
 
                         return (
-                          <span className={`px-3 py-1 rounded-lg text-sm font-bold uppercase tracking-wide
-                                ${isLulus
-                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
-                              : isTidakLulus
-                                ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-200 dark:border-rose-800"
-                                : "bg-gray-100 text-gray-600 border border-gray-200"
-                            }
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize border 
+                                ${getStatusColor(displayStatus)}
                              `}>
                             {displayStatus}
                           </span>
@@ -1613,7 +1580,7 @@ export default function NilaiUjianTable({
                 <Button
                   size="sm"
                   onClick={handleDownloadRekapNilai}
-                  className="h-9 px-3 gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/20 border-0"
+                  className="h-9 px-3 gap-2 bg-primary hover:bg-primary/80 text-white shadow-sm shadow-primary/20 border-0"
                   title="Download Rekap Nilai Skripsi"
                 >
                   <Download size={16} />
@@ -1632,7 +1599,7 @@ export default function NilaiUjianTable({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 w-9 p-0 grid place-items-center"
+                  className="h-9 w-9 p-0 grid place-items-center bg-white dark:bg-neutral-800"
                   aria-label="Filter status"
                   title="Filter status"
                 >
@@ -1659,198 +1626,16 @@ export default function NilaiUjianTable({
                       </DropdownMenuItem>
                     );
                   })}
-                  <div className="my-1 h-px bg-border" />
-                  <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                    Hasil
-                  </div>
-                  {["all", "lulus", "tidak lulus"].map((opt) => {
-                    const isActive = hasilFilter === opt;
-                    return (
-                      <DropdownMenuItem
-                        key={opt}
-                        onClick={() => setHasilFilter(opt as any)}
-                        className={`flex items-center justify-between text-sm px-2 py-1.5 cursor-pointer ${isActive ? "bg-accent text-accent-foreground font-medium" : ""
-                          }`}
-                      >
-                        <span className="capitalize">{opt === "all" ? "Semua" : opt}</span>
-                        {isActive && <Check size={14} />}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                  <div className="my-1 h-px bg-border" />
-                  <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                    Bulan
-                  </div>
-                  <div className="px-2 pb-2">
-                    <input
-                      type="number"
-                      min={1}
-                      max={12}
-                      value={filterBulan === "all" ? "" : filterBulan}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFilterBulan(val === "" ? "all" : val);
-                      }}
-                      placeholder="Bulan (1-12)"
-                      className="w-full px-2 py-1.5 border rounded text-sm bg-background"
-                    />
-                  </div>
-                  <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                    Tahun
-                  </div>
-                  <div className="px-2 pb-2">
-                    <input
-                      type="number"
-                      min={2000}
-                      max={2100}
-                      value={filterTahun === "all" ? "" : filterTahun}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFilterTahun(val === "" ? "all" : val);
-                      }}
-                      placeholder="Tahun"
-                      className="w-full px-2 py-1.5 border rounded text-sm bg-background"
-                    />
-                  </div>
                 </ScrollArea>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
-          <div className="">
-            <Tabs
-              value={viewMode}
-              onValueChange={(v) => setViewMode(v as any)}
-              className="sm:mb-0 h-9"
-            >
-              <TabsList>
-                <TabsTrigger value="table">
-                  <LayoutGrid size={16} />
-                </TabsTrigger>
-                <TabsTrigger value="card">
-                  <List />
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+
         </div>
-        {/* Tabs for view mode */}
+
       </div>
-
-      {/* Table Mode */}
-      {viewMode === "table" && <TableGlobal table={table} cols={cols} />}
-
-      {/* Card Mode */}
-      {viewMode === "card" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {paginatedData.length > 0 ? (
-            paginatedData.map((ujian) => {
-
-
-              const hasilColor = ujian.hasil?.toLowerCase() === 'lulus'
-                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200"
-                : ujian.hasil?.toLowerCase() === 'tidak lulus'
-                  ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200"
-                  : "bg-gray-100 text-gray-700 dark:bg-neutral-800 dark:text-gray-400 border-gray-200";
-
-              return (
-                <div
-                  key={ujian.id}
-                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-                >
-                  <div className="p-5 flex flex-col gap-4 flex-1">
-
-                    {/* Header: Date & Result */}
-                    <div className="flex justify-between items-start">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                          <Calendar size={13} />
-                          <span>
-                            {ujian.jadwalUjian
-                              ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric"
-                              })
-                              : "Tgl -"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {ujian.hasil ? (
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${hasilColor}`}>
-                          {ujian.hasil}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Belum Dinilai</span>
-                      )}
-                    </div>
-
-                    {/* Content: Title & Name */}
-                    <div className="space-y-2">
-                      <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
-                        {ujian.judulPenelitian || "Judul tidak tersedia"}
-                      </h3>
-
-                      <div className="flex items-center gap-2 pt-1">
-                        <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
-                          {ujian.mahasiswa?.nama?.charAt(0) ?? "?"}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                            {ujian.mahasiswa?.nama ?? "-"}
-                          </span>
-                          <span className="text-[11px] text-gray-400">
-                            {ujian.mahasiswa?.nim ?? "-"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Footer Info: Type & Grade */}
-                    <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
-                      <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold 
-                             ${ujian.jenisUjian?.namaJenis?.toLowerCase().includes("proposal") ? "bg-blue-100 text-blue-700" :
-                          ujian.jenisUjian?.namaJenis?.toLowerCase().includes("hasil") ? "bg-yellow-100 text-yellow-700" :
-                            ujian.jenisUjian?.namaJenis?.toLowerCase().includes("skripsi") ? "bg-green-100 text-green-700" : "bg-gray-100"
-                        }
-                        `}>
-                        {ujian.jenisUjian?.namaJenis ?? "-"}
-                      </span>
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400">Nilai:</span>
-                        <span className="text-sm font-bold text-gray-900 dark:text-white">
-                          {ujian.nilaiAkhir ?? "-"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions Footer */}
-                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDetail(ujian)}
-                      className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
-                    >
-                      <MoreHorizontal size={14} className="mr-1.5" /> Detail
-                    </Button>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="col-span-full flex flex-col items-center justify-center py-12 gap-3">
-              <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
-                <List size={24} className="opacity-50" />
-              </div>
-              <p className="text-muted-foreground">Tidak ada data rekapitulasi nilai.</p>
-            </div>
-          )}
-        </div>
-      )}
+      <TableGlobal table={table} cols={cols} emptyMessage="Belum ada data nilai ujian." />
     </DataCard>
   );
 }

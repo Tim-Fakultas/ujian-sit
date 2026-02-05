@@ -15,9 +15,11 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-r
 export default function TableGlobal({
   table,
   cols,
+  emptyMessage = "Tidak ada data.",
 }: {
   table: any;
   cols: any[];
+  emptyMessage?: string;
 }) {
   // Total data (use filtered row model if available so count updates with filters)
   const totalFiltered =
@@ -81,7 +83,7 @@ export default function TableGlobal({
                   colSpan={cols.length}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  Tidak ada data.
+                  {emptyMessage}
                 </TableCell>
               </TableRow>
             )}

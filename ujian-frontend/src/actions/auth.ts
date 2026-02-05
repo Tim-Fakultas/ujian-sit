@@ -4,11 +4,23 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import type { User } from "@/types/Auth";
+import { loginSchema } from "@/lib/validations/auth";
 
 export async function loginAction(formData: FormData) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  const nip_nim = String(formData.get("nip_nim") || "");
-  const password = String(formData.get("password") || "");
+
+  // Validate with Zod server-side
+  const rawData = Object.fromEntries(formData.entries());
+  const validatedFields = loginSchema.safeParse(rawData);
+
+  if (!validatedFields.success) {
+    return {
+      success: false,
+      message: "Data input tidak valid.",
+    };
+  }
+
+  const { nip_nim, password } = validatedFields.data;
 
   let data: any = null;
   let res;
@@ -48,7 +60,7 @@ export async function loginAction(formData: FormData) {
   if (!res.ok || !data.success) {
     return {
       success: false,
-      message: "Username / Password salah",
+      message: data.message || "Username / Password salah",
     };
   }
 
@@ -176,15 +188,19 @@ export async function refreshUserAction() {
           id: m.id,
           nama: m.nama,
           nim: m.nim,
-          no_hp: m.noHp,
-          alamat: m.alamat,
+          no_hp: m.noHp || m.no_hp || m.phone,
+          alamat: m.alamat || m.address,
           semester: m.semester,
           ipk: m.ipk,
           status: m.status,
           angkatan: m.angkatan,
-          user_id: m.userId,
+          user_id: m.userId || m.user_id,
           prodi: m.prodi, // {id, nama} from resource
           peminatan: m.peminatan,
+          url_ktm: m.urlKtm || m.url_ktm,
+          url_transkrip_nilai: m.urlTranskripNilai || m.url_transkrip_nilai,
+          url_bukti_lulus_metopen: m.urlBuktiLulusMetopen || m.url_bukti_lulus_metopen,
+          email: m.user?.email || newUser.email,
           // map pembimbing if needed
         };
       }
@@ -201,6 +217,12 @@ export async function refreshUserAction() {
           nip: d.nip,
           no_hp: d.noHp,
           alamat: d.alamat,
+          tempat_tanggal_lahir: d.tempatTanggalLahir,
+          pangkat: d.pangkat,
+          golongan: d.golongan,
+          jabatan: d.jabatan,
+          tmt_fst: d.tmtFst,
+          foto: d.foto,
           prodi: d.prodi,
           user_id: d.userId,
         };
@@ -227,12 +249,21 @@ export async function refreshUserAction() {
       }
     }
 
-    // Refresh the cookie
-    cookieStore.set("user", JSON.stringify(newUser), {
-      httpOnly: false,
-      path: "/",
-      maxAge: 60 * 60 * 6,
-    });
+    // Log the refreshed user data for debugging
+    console.log("REFRESH USER DATA:", newUser);
+
+    // Refresh the cookie (only works in Server Actions / Route Handlers)
+    try {
+      cookieStore.set("user", JSON.stringify(newUser), {
+        httpOnly: false,
+        path: "/",
+        maxAge: 60 * 60 * 6,
+      });
+    } catch (e) {
+      // Ignore error if called during render (Server Component)
+      // New data is still returned to the caller
+      console.warn("Could not update user cookie during render:", e);
+    }
 
     return newUser;
   } catch (error) {

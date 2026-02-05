@@ -8,14 +8,13 @@ import {
   Search,
   MoreHorizontal,
   X,
-  LayoutGrid,
-  List,
   Settings2,
   Calendar,
   Clock,
   MapPin,
   User,
   Check,
+  List,
 } from "lucide-react";
 import { IconClipboardText } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
@@ -47,6 +46,7 @@ import {
 import TableGlobal from "@/components/tableGlobal";
 import { DataCard } from "@/components/common/DataCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useUrlSearch } from "@/hooks/use-url-search";
 // ...existing code...
 
 interface JadwalUjianTableProps {
@@ -80,17 +80,17 @@ export default function JadwalUjianTable({
     if (!open) return null;
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-black/50 backdrop-blur-sm p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-black/60 backdrop-blur-sm p-4"
         onClick={onClose}
       >
         <Card
-          className={`relative bg-white dark:bg-[#1f1f1f] rounded-lg shadow-lg p-6 ${className}`}
+          className={`relative bg-white dark:bg-neutral-900 border-0 dark:border dark:border-neutral-800 rounded-2xl shadow-xl p-6 ${className}`}
           onClick={(e) => e.stopPropagation()}
         >
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 text-gray-500"
+            className="absolute top-2 right-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full"
             onClick={onClose}
           >
             <X size={16} />
@@ -139,7 +139,7 @@ export default function JadwalUjianTable({
   }
 
   // Filter & Pagination State
-  const [filterNama, setFilterNama] = useState("");
+  const { search: filterNama, setSearch: setFilterNama } = useUrlSearch();
   const [filterJenis, setFilterJenis] = useState("all");
   const [filterJadwal, setFilterJadwal] = useState<"all" | "mine">("all");
   const [openFilter, setOpenFilter] = useState(false);
@@ -213,31 +213,6 @@ export default function JadwalUjianTable({
     return ujian.nilaiAkhir;
   }
 
-  // Tambahkan fungsi untuk styling badge status
-  function statusBadge(status: string) {
-    let color =
-      "bg-gray-100 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700";
-    if (status === "dijadwalkan")
-      color =
-        "bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-800";
-    else if (status === "menunggu")
-      color =
-        "bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-800";
-    else if (status === "belum diterima")
-      color =
-        "bg-green-100 text-green-700 border border-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-800";
-    else if (status === "selesai")
-      color =
-        "bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-800";
-    return (
-      <span
-        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${color}`}
-        style={{ minWidth: 80, textAlign: "center" }}
-      >
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
-    );
-  }
 
   // { changed code }
   // TanStack Table column defs menggunakan paginatedData sebagai sumber
@@ -264,26 +239,40 @@ export default function JadwalUjianTable({
         );
       },
     }),
-    // Tambahkan kolom Judul (tampilkan seluruh judul, batasi lebar dengan wrapping)
-    columnHelper.accessor((row) => row.judulPenelitian ?? "-", {
-      id: "judul",
-      header: "Judul",
-      cell: (info) => (
-        <span
-          className="block max-w-[320px] whitespace-normal break-words"
-          title={info.getValue()}
-        >
-          {info.getValue()}
-        </span>
-      ),
+    // Kolom Waktu
+    columnHelper.accessor((row) => row.jadwalUjian, {
+      id: "waktu",
+      header: "Waktu",
+      cell: (info) => {
+        const row = info.row.original;
+        const date = row.jadwalUjian ? new Date(row.jadwalUjian) : null;
+        const formattedDate = date
+          ? date.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+          : "-";
+        const timeRange =
+          (row.waktuMulai?.slice(0, 5) || "") +
+          " - " +
+          (row.waktuSelesai?.slice(0, 5) || "");
+
+        return (
+          <div className="flex items-center gap-2 min-w-[250px]">
+            <span className="font-medium">{formattedDate}</span>
+            <span className="text-muted-foreground">•</span>
+            <span className="text-sm text-muted-foreground">{timeRange}</span>
+          </div>
+        );
+      },
     }),
-    columnHelper.accessor((row) => row.jenisUjian?.namaJenis ?? "-", {
-      id: "jenis",
-      header: "Jenis Ujian",
+    // Kolom Ruangan
+    columnHelper.accessor((row) => row.ruangan?.namaRuangan ?? "-", {
+      id: "ruangan",
+      header: "Ruangan",
       cell: (info) => (
-        <span className=" px-2 py-1 rounded font-medium inline-block bg-blue-50 text-blue-600">
-          {info.getValue()}
-        </span>
+        <span className="font-medium">{info.getValue()}</span>
       ),
     }),
 
@@ -338,7 +327,7 @@ export default function JadwalUjianTable({
               <DropdownMenuContent
                 align="end"
                 sideOffset={8}
-                className="w-48 p-1 rounded-lg shadow-lg"
+                className="w-48 p-1 rounded-2xl shadow-lg"
               >
                 {/* Hapus Lihat Penguji di dropdown, karena sudah ada tombol khusus */}
                 <DropdownMenuItem
@@ -366,8 +355,7 @@ export default function JadwalUjianTable({
   });
   // end changed code
 
-  // Tambahkan state untuk view mode
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
 
   // Komponen modal detail jadwal ujian dengan layout lebih bagus
   function JadwalDetailModal({
@@ -384,7 +372,7 @@ export default function JadwalUjianTable({
       <Modal open={open} onClose={onClose}>
         <div className="w-full max-w-lg">
           <div className="flex items-center gap-2 mb-4">
-            <IconClipboardText size={22} className="text-blue-500" />
+            <IconClipboardText size={22} className="text-primary" />
             <span className="text-xl font-bold text-gray-900 dark:text-white">
               Detail Jadwal Ujian
             </span>
@@ -392,10 +380,10 @@ export default function JadwalUjianTable({
           <div className="flex flex-col gap-3 text-sm">
             {/* Judul Penelitian */}
             <div>
-              <span className="font-semibold text-gray-700 dark:text-gray-200">
+              <span className="font-semibold text-gray-700 dark:text-gray-300">
                 Judul Penelitian:
               </span>
-              <span className="ml-1 text-gray-900 dark:text-white">
+              <span className="ml-1 text-gray-900 dark:text-gray-100">
                 {ujian.judulPenelitian ?? "-"}
               </span>
             </div>
@@ -416,10 +404,10 @@ export default function JadwalUjianTable({
             {/* Info Ruangan, Hari, Waktu */}
             <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
               <div>
-                <span className="font-semibold text-gray-700 dark:text-gray-200">
+                <span className="font-semibold text-gray-700 dark:text-gray-300">
                   Ruangan:
                 </span>
-                <span className="ml-1 text-gray-900 dark:text-white">
+                <span className="ml-1 text-gray-900 dark:text-gray-100">
                   {ujian.ruangan?.namaRuangan ?? "-"}
                 </span>
               </div>
@@ -465,7 +453,7 @@ export default function JadwalUjianTable({
               placeholder="Search"
               value={filterNama}
               onChange={(e) => setFilterNama(e.target.value)}
-              className="pl-10 w-full text-sm bg-white dark:bg-neutral-900 rounded-md"
+              className="pl-10 w-full text-sm bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 focus:ring-primary/20 rounded-md"
               inputMode="text"
             />
           </div>
@@ -476,7 +464,7 @@ export default function JadwalUjianTable({
                 type="button"
                 variant="outline"
                 size="icon"
-                className="h-9 w-9 p-0 grid place-items-center"
+                className="h-9 w-9 p-0 grid place-items-center bg-white dark:bg-neutral-900"
                 aria-label="Filter"
                 title="Filter"
               >
@@ -540,40 +528,9 @@ export default function JadwalUjianTable({
               </ScrollArea>
             </PopoverContent>
           </Popover>
-          {/* Tabs Table/Card */}
-          <Tabs
-            value={viewMode}
-            onValueChange={(v) => setViewMode(v as "table" | "card")}
-            className="h-9"
-          >
-            <TabsList className="rounded-md bg-muted p-1 gap-2">
-              <TabsTrigger
-                value="table"
-                className="inline-flex items-center gap-2 h-9 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                aria-label="Table view"
-              >
-                <span className="hidden sm:inline">
-                  <LayoutGrid size={16} />
-                </span>
-                <span className="sm:hidden">
-                  <LayoutGrid size={16} />
-                </span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="card"
-                className="inline-flex items-center gap-2 h-9 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                aria-label="Card view"
-              >
-                <span className="hidden sm:inline">
-                  <List />
-                </span>
-                <span className="sm:hidden">
-                  <List />
-                </span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+
         </div>
+
         {/* Tabs untuk filter status selesai/dijadwalkan */}
         <div className="flex w-full mt-2">
           <Tabs
@@ -582,7 +539,7 @@ export default function JadwalUjianTable({
               setFilterStatus(v as "all" | "selesai" | "dijadwalkan")
             }
           >
-            <TabsList className="bg-muted rounded-md p-1 gap-2">
+            <TabsList className="bg-muted/50 dark:bg-neutral-900 rounded-2xl p-1 gap-2">
               <TabsTrigger
                 value="all"
                 className="px-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -607,143 +564,17 @@ export default function JadwalUjianTable({
       </div>
 
       {/* Table/Card view */}
-      {viewMode === "table" ? (
-        <TableGlobal table={table} cols={columns} />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-          {paginatedData.map((ujian, idx) => {
-            const judul = ujian.judulPenelitian ?? "-";
-            const jenis = ujian.jenisUjian?.namaJenis ?? "-";
-            const ruangan = ujian.ruangan?.namaRuangan ?? "-";
-            const hari = ujian?.hariUjian
-              ? ujian.hariUjian.charAt(0).toUpperCase() +
-              ujian.hariUjian.slice(1)
-              : "-";
-            const tanggal = ujian.jadwalUjian
-              ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
-                day: "numeric", month: "short", year: "numeric"
-              })
-              : "-";
-            const waktu =
-              (ujian.waktuMulai?.slice(0, 5) || "-") +
-              " - " +
-              (ujian.waktuSelesai?.slice(0, 5) || "-");
-            const status = ujian.pendaftaranUjian?.status ?? "-";
-            const nilaiAkhir = nilaiAkhirTotalUjian(ujian);
-
-
-
-            // Status badge color logic
-            let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
-            if (status === "dijadwalkan")
-              statusColor = "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
-            else if (status === "menunggu")
-              statusColor = "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800";
-            else if (status === "belum dijadwalkan")
-              statusColor = "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
-            else if (status === "selesai")
-              statusColor = "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800";
-
-            return (
-              <div
-                key={ujian.id ?? idx}
-                className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-              >
-                {/* Decoration Gradient */}
-                <div className={`absolute top-0 right-0 p-4 opacity-5 pointer-events-none`}>
-                  <Calendar size={100} />
-                </div>
-
-                <div className="p-5 flex flex-col gap-4 flex-1 z-10">
-                  {/* Header */}
-                  <div className="flex justify-between items-start">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                        {jenis}
-                      </span>
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
-                        <Calendar size={13} />
-                        <span>{hari}, {tanggal}</span>
-                      </div>
-                    </div>
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
-                      {status}
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
-                    {ujian.judulPenelitian || "Judul tidak tersedia"}
-                  </h3>
-
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-2 gap-3 text-xs mt-1">
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg">
-                      <Clock size={14} className="shrink-0 text-blue-500" />
-                      <span className="truncate">{waktu}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg">
-                      <MapPin size={14} className="shrink-0 text-red-500" />
-                      <span className="truncate">{ruangan}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-neutral-800/50 p-2 rounded-lg col-span-2">
-                      <User size={14} className="shrink-0 text-green-500" />
-                      <span className="truncate">Mahasiswa: {ujian.mahasiswa?.nama ?? "-"}</span>
-                    </div>
-                  </div>
-
-                  {/* Footer: Grade */}
-                  <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] text-gray-400 font-medium">Nilai Akhir</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">
-                        {nilaiAkhir !== null ? nilaiAkhir : "-"}
-                      </span>
-                    </div>
-
-                    {/* Actions Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800">
-                          <MoreHorizontal size={16} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelected(ujian);
-                            setOpenDaftarHadir(true);
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          <span>Lihat Penguji</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelected(ujian);
-                            setOpenDetail(true);
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <IconClipboardText className="mr-2 h-4 w-4" />
-                          <span>Lihat Detail</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <TableGlobal
+        table={table}
+        cols={columns}
+        emptyMessage="Belum ada jadwal ujian."
+      />
 
       {/* Modal Lihat Penguji */}
       <Modal open={openDaftarHadir} onClose={() => setOpenDaftarHadir(false)}>
         <div className="w-full max-w-md">
           <div className="text-lg font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-            <Eye size={20} className="text-blue-500" />
+            <Eye size={20} className="text-primary" />
             Daftar Penguji
           </div>
           {selected?.penguji && selected.penguji.length > 0 ? (
@@ -751,25 +582,25 @@ export default function JadwalUjianTable({
               {selected.penguji.map((penguji, idx) => (
                 <li
                   key={penguji.id ?? idx}
-                  className="flex items-center justify-between bg-gray-50 dark:bg-neutral-800 rounded-lg px-4 py-3 shadow-sm border border-gray-100 dark:border-neutral-700"
+                  className="flex items-center justify-between bg-gray-50 dark:bg-neutral-800/50 rounded-2xl px-4 py-3 shadow-sm border border-gray-100 dark:border-neutral-800/60"
                 >
                   <div className="flex flex-col">
                     <span className="font-semibold text-gray-900 dark:text-white">
                       {penguji.nama ?? "-"}
                     </span>
-                    <span className="inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 w-fit">
+                    <span className="inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded bg-gray-200 dark:bg-neutral-700/50 text-gray-700 dark:text-gray-300 w-fit">
                       {roleLabel(penguji.peran)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     {getHadirStatus(selected, penguji.id) ? (
-                      <span className="inline-flex items-center gap-1 text-green-600 text-xs font-semibold bg-green-50 dark:bg-green-900 px-2 py-1 rounded">
-                        <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                      <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 text-xs font-medium bg-emerald-50 border border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800 px-3 py-1 rounded-full capitalize">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 inline-block" />
                         Hadir
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-red-600 text-xs font-semibold bg-red-50 dark:bg-red-900 px-2 py-1 rounded">
-                        <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+                      <span className="inline-flex items-center gap-1 text-red-700 dark:text-red-400 text-xs font-medium bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800 px-3 py-1 rounded-full capitalize">
+                        <span className="w-2 h-2 rounded-full bg-red-500 dark:bg-red-400 inline-block" />
                         Tidak Hadir
                       </span>
                     )}

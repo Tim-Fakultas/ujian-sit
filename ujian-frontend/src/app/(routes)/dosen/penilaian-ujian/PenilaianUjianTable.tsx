@@ -19,14 +19,8 @@ import {
 import {
   Pencil,
   Eye,
-  SearchIcon,
-  MoreHorizontal,
-  Check,
   NotebookPen,
   Gavel,
-  Settings2,
-  LayoutGrid,
-  List,
   Calendar,
   MoreVertical,
   AlertCircle,
@@ -39,7 +33,6 @@ import PenilaianModal from "./PenilaianModal";
 
 import { Button } from "../../../../components/ui/button";
 import { getHadirUjian, setHadirUjian } from "@/actions/daftarHadirUjian";
-import { Input } from "../../../../components/ui/input";
 import { getPenilaianByUjianId } from "@/actions/penilaian";
 import { postCatatanByUjianId } from "@/actions/catatan";
 import { postKeputusanByUjianId } from "@/actions/keputusan";
@@ -61,7 +54,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
 import DaftarHadirDialog from "./DaftarHadirDialog";
 import {
   getPengujiList,
@@ -79,6 +72,9 @@ import {
 import DetailDialog from "./DetailDialog";
 import RekapitulasiNilaiModal from "./RekapitulasiNilaiModal";
 import { DataCard } from "@/components/common/DataCard";
+import { useUrlFilter } from "@/hooks/use-url-filter";
+import { useDebounce } from "@/hooks/use-debounce";
+import SearchInput from "@/components/common/Search";
 
 function ActionCell({
   ujian,
@@ -286,7 +282,7 @@ export default function PenilaianUjianTable({
   const [hadirData, setHadirData] = useState<HadirUjian[]>([]);
   const [catatanText, setCatatanText] = useState<string>("");
 
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
   const [refreshKey, setRefreshKey] = useState(0);
 
   async function handleHadir(currentDosenId: number, ujianId: number) {
@@ -311,8 +307,10 @@ export default function PenilaianUjianTable({
   }
 
 
+  // const { search } = useUrlSearch();
   const [search, setSearch] = useState("");
-  const [filterJenisUjian, setFilterJenisUjian] = useState("all");
+  const debouncedSearch = useDebounce(search, 300);
+  const [filterJenisUjian, setFilterJenisUjian] = useUrlFilter("jenis", "all");
 
   const jenisUjianList = ["Seminar Proposal", "Ujian Hasil", "Ujian Skripsi"];
 
@@ -322,7 +320,7 @@ export default function PenilaianUjianTable({
     if (filterJenisUjian !== "all") {
       matchJenis = ujian.jenisUjian?.namaJenis === filterJenisUjian;
     }
-    const q = search.toLowerCase();
+    const q = debouncedSearch.toLowerCase();
     const matchSearch =
       (ujian.mahasiswa?.nama?.toLowerCase() ?? "").includes(q) ||
       (ujian.judulPenelitian?.toLowerCase() ?? "").includes(q) ||
@@ -533,13 +531,13 @@ export default function PenilaianUjianTable({
       header: () => <div className="py-2">Jenis Ujian</div>,
       cell: ({ row }: any) => (
         <span
-          className={`px-2 py-1 rounded font-semibold ${row.original.jenisUjian?.namaJenis === "Ujian Proposal"
-            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
+          className={`px-3 py-1 rounded-full text-xs font-medium border ${row.original.jenisUjian?.namaJenis === "Ujian Proposal"
+            ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800"
             : row.original.jenisUjian?.namaJenis === "Ujian Hasil"
-              ? "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
+              ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800"
               : row.original.jenisUjian?.namaJenis === "Ujian Skripsi"
-                ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-                : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-200"
+                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+                : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800"
             }`}
         >
           {row.getValue("jenis")}
@@ -574,7 +572,7 @@ export default function PenilaianUjianTable({
               {mulai && selesai ? `${mulai} - ${selesai}` : "-"}
             </div>
             {ruangan && (
-              <div className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded inline-flex items-center gap-1">
+              <div className="text-xs font-medium text-primary dark:text-primary bg-primary/10 dark:bg-primary/20 px-2 py-0.5 rounded inline-flex items-center gap-1">
                 <MapPin size={12} /> {ruangan}
               </div>
             )}
@@ -644,7 +642,7 @@ export default function PenilaianUjianTable({
                 variant="ghost"
                 size="icon"
                 onClick={onOpenRekap}
-                className="h-8 w-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                className="h-8 w-8 rounded-full bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary/20 dark:text-primary dark:hover:bg-primary/30"
               >
                 <Eye size={16} />
               </Button>
@@ -767,27 +765,23 @@ export default function PenilaianUjianTable({
 
   return (
     <DataCard>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4 w-full">
+      <div className="flex items-center gap-2 mb-4 w-full md:justify-end">
         {/* Search bar */}
-        <div className="relative flex-1 w-full">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <SearchIcon size={16} className="text-muted-foreground" />
-          </div>
-          <Input
-            placeholder="Search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 bg-white dark:bg-neutral-800"
-          />
-        </div>
+        <SearchInput
+          placeholder="Search"
+          className="flex-1 w-full md:flex-none md:w-[300px]"
+          value={search}
+          onChange={setSearch}
+          disableUrlParams={true}
+        />
 
         {/* Controls */}
-        <div className="flex items-center gap-2 self-end sm:self-auto">
+        <div className="flex items-center gap-2 shrink-0">
 
 
           {/* Filter Jenis Ujian */}
           <Select value={filterJenisUjian} onValueChange={setFilterJenisUjian}>
-            <SelectTrigger className="h-9 w-[200px]">
+            <SelectTrigger className="h-9 w-[130px] sm:w-[200px]">
               <SelectValue placeholder="Jenis Ujian: Semua" />
             </SelectTrigger>
             <SelectContent>
@@ -800,346 +794,108 @@ export default function PenilaianUjianTable({
             </SelectContent>
           </Select>
 
-          <Tabs
-            value={viewMode}
-            onValueChange={(v) => setViewMode(v as "table" | "card")}
-            className="h-9"
-          >
-            <TabsList className="rounded-md bg-muted p-1 gap-1 h-9">
-              <TabsTrigger
-                value="table"
-                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
-                aria-label="Table view"
-              >
-                <LayoutGrid size={16} />
-              </TabsTrigger>
-              <TabsTrigger
-                value="card"
-                className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
-                aria-label="Card view"
-              >
-                <List size={16} />
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+
         </div>
       </div>
 
-      <Tabs
-        value={viewMode}
-        onValueChange={(v) => setViewMode(v as "table" | "card")}
-      >
-        <TabsContent value="table">
-          <TableGlobal table={table} cols={cols} />
-        </TabsContent>
 
-        <TabsContent value="card">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredData.length === 0 ? (
-              <div className="col-span-full text-center text-muted-foreground py-8">
-                Tidak ada jadwal ujian
-              </div>
-            ) : (
-              filteredData.map((ujian) => {
-                const waktuMulai = ujian.waktuMulai?.slice(0, 5) ?? "-";
-                const waktuSelesai = ujian.waktuSelesai?.slice(0, 5) ?? "-";
-                const tanggal = ujian.jadwalUjian?.split(/[ T]/)[0] ?? "-";
-                function capitalize(str: string) {
-                  return str.charAt(0).toUpperCase() + str.slice(1);
-                }
-                const peranPenguji = getPeranPenguji(ujian, currentDosenId);
-                const resultStatus = ujian.hasil ?? "-";
+      <TableGlobal table={table} cols={cols} />
 
-                // Format Date
-                const tanggalObj = ujian.jadwalUjian
-                  ? new Date(ujian.jadwalUjian)
-                  : null;
-                const tanggalStr = tanggalObj
-                  ? tanggalObj.toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })
-                  : "-";
 
-                let statusColor =
-                  "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
-                if (resultStatus.toLowerCase() === "lulus")
-                  statusColor =
-                    "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800";
-                else if (resultStatus.toLowerCase() === "tidak lulus")
-                  statusColor =
-                    "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800";
-
-                return (
-                  <div
-                    key={ujian.id}
-                    className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-                  >
-                    <div className="p-5 flex flex-col gap-4 flex-1">
-                      {/* Header: Date & Result Status */}
-                      <div className="flex justify-between items-start">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                            {ujian.jenisUjian?.namaJenis ?? "-"}
-                          </span>
-                          <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
-                            <Calendar size={13} />
-                            <span>
-                              {capitalize(ujian.hariUjian ?? "-")}, {tanggalStr}
-                            </span>
-                          </div>
-                        </div>
-                        <span
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}
-                        >
-                          {resultStatus}
-                        </span>
-                      </div>
-
-                      {/* Title */}
-                      <h3
-                        className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2"
-                        title={ujian.judulPenelitian}
-                      >
-                        {ujian.judulPenelitian || "Judul tidak tersedia"}
-                      </h3>
-
-                      {/* Details */}
-                      <div className="flex flex-col gap-2 mt-1">
-                        <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
-                            Mahasiswa
-                          </span>
-                          <span className="truncate">
-                            {ujian.mahasiswa?.nama ?? "-"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
-                            Peran
-                          </span>
-                          <span
-                            className={`text-xs font-bold ${getPeranPengujiClass(
-                              peranPenguji ?? undefined
-                            )} px-1.5 py-0.5 rounded`}
-                          >
-                            {peranPenguji ?? "-"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-semibold text-xs bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded text-gray-500">
-                            Nilai
-                          </span>
-                          <span className="font-bold">
-                            {ujian.nilaiAkhir ?? "-"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                          <span>
-                            {waktuMulai} - {waktuSelesai}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Actions Footer */}
-                    <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-xs h-8 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                          >
-                            <MoreHorizontal size={14} className="mr-1.5" /> Aksi
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() =>
-                              dispatchModal({ type: "OPEN_DETAIL", ujian })
-                            }
-                            className=""
-                          >
-                            <Eye size={16} className="mr-2" /> Detail
-                          </DropdownMenuItem>
-
-                          <DropdownMenuItem
-                            onClick={() =>
-                              dispatchModal({
-                                type: "OPEN_DAFTAR_HADIR",
-                                ujian,
-                              })
-                            }
-                          >
-                            <UserCheck size={16} className="mr-2" /> Daftar
-                            Hadir
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              dispatchModal({
-                                type: "OPEN_PENILAIAN",
-                                ujian,
-                              })
-                            }
-                          >
-                            <Pencil size={16} className="mr-2" /> Penilaian
-                          </DropdownMenuItem>
-                          {/* role check */}
-                          {(() => {
-                            const isKetuaAtauSek = ujian.penguji?.some(
-                              (p) =>
-                                p.id === Number(currentDosenId) &&
-                                (p.peran === "ketua_penguji" ||
-                                  p.peran === "sekretaris_penguji")
-                            );
-                            const jenis = ujian.jenisUjian?.namaJenis ?? "";
-                            const isJenisUntukKeputusan =
-                              jenis === "Ujian Hasil" ||
-                              jenis === "Ujian Skripsi";
-                            return (
-                              isKetuaAtauSek && (
-                                <>
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      dispatchModal({
-                                        type: "OPEN_CATATAN",
-                                        ujian,
-                                      })
-                                    }
-                                  >
-                                    <NotebookPen size={16} className="mr-2" />{" "}
-                                    Catatan
-                                  </DropdownMenuItem>
-                                  {isJenisUntukKeputusan && (
-                                    <DropdownMenuItem
-                                      onClick={() => {
-                                        const initId =
-                                          (ujian as any).keputusanId ??
-                                          keputusanOptions.find(
-                                            (o) => o.label === ujian.hasil
-                                          )?.id ??
-                                          null;
-                                        dispatchModal({
-                                          type: "OPEN_KEPUTUSAN",
-                                          ujian,
-                                          keputusanChoice: initId,
-                                        });
-                                      }}
-                                    >
-                                      <Gavel size={16} className="mr-2" />{" "}
-                                      <span className="mr-2">Keputusan</span>
-                                    </DropdownMenuItem>
-                                  )}
-                                </>
-                              )
-                            );
-                          })()}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </TabsContent>
-
-        {modal.openDetail && modal.selected && (
-          <DetailDialog dispatchModal={dispatchModal} ujian={modal.selected} />
-        )}
-        {modal.openRekapitulasi && modal.selected && (
-          <RekapitulasiNilaiModal
-            dispatchModal={dispatchModal}
-            ujian={modal.selected}
-            rekapPenilaian={rekapPenilaian}
-            rekapLoading={rekapLoading}
-            currentDosenId={typeof currentDosenId === 'string' ? parseInt(currentDosenId) : currentDosenId}
-            onRefresh={() => setRefreshKey((prev) => prev + 1)}
-          />
-        )}
-        <DaftarHadirDialog
-          openDaftarHadir={modal.openDaftarHadir}
-          setOpenDaftarHadir={(open) =>
-            open && modal.selected
-              ? dispatchModal({
-                type: "OPEN_DAFTAR_HADIR",
-                ujian: modal.selected!,
-              })
-              : dispatchModal({ type: "CLOSE_DAFTAR_HADIR" })
-          }
-          ujian={modal.selected!}
-          getPengujiList={getPengujiList}
-          sudahHadir={(ujianId, dosenId) =>
-            sudahHadir(ujianId, dosenId, hadirData)
-          }
-          handleHadir={handleHadir}
-          hadirLoading={hadirLoading}
-          currentDosenId={currentDosenId ?? null}
+      {modal.openDetail && modal.selected && (
+        <DetailDialog dispatchModal={dispatchModal} ujian={modal.selected} />
+      )}
+      {modal.openRekapitulasi && modal.selected && (
+        <RekapitulasiNilaiModal
+          dispatchModal={dispatchModal}
+          ujian={modal.selected}
+          rekapPenilaian={rekapPenilaian}
+          rekapLoading={rekapLoading}
+          currentDosenId={typeof currentDosenId === 'string' ? parseInt(currentDosenId) : currentDosenId}
+          onRefresh={() => setRefreshKey((prev) => prev + 1)}
         />
-        {modal.selected && (
-          <PenilaianModal
-            open={modal.openPenilaian}
-            onClose={() => dispatchModal({ type: "CLOSE_PENILAIAN" })}
-            ujian={modal.selected}
-            currentDosenId={currentDosenId}
-            onSuccess={(dosenId) => {
-              if (modal.selected?.id) {
-                setPenilaianMap((prev) => {
-                  const newMap = { ...prev };
-                  if (!newMap[modal.selected!.id]) {
-                    newMap[modal.selected!.id] = new Set();
-                  }
-                  newMap[modal.selected!.id] = new Set(
-                    newMap[modal.selected!.id]
-                  );
-                  newMap[modal.selected!.id].add(dosenId);
-                  return newMap;
-                });
-              }
-            }}
-          />
-        )}
-        <CatatanSheet
-          openCatatan={modal.openCatatan}
-          setOpenCatatan={(open) =>
-            open && modal.selected
-              ? dispatchModal({ type: "OPEN_CATATAN", ujian: modal.selected })
-              : dispatchModal({ type: "CLOSE_CATATAN" })
+      )}
+      <DaftarHadirDialog
+        openDaftarHadir={modal.openDaftarHadir}
+        setOpenDaftarHadir={(open) =>
+          open && modal.selected
+            ? dispatchModal({
+              type: "OPEN_DAFTAR_HADIR",
+              ujian: modal.selected!,
+            })
+            : dispatchModal({ type: "CLOSE_DAFTAR_HADIR" })
+        }
+        ujian={modal.selected!}
+        getPengujiList={getPengujiList}
+        sudahHadir={(ujianId, dosenId) =>
+          sudahHadir(ujianId, dosenId, hadirData)
+        }
+        handleHadir={handleHadir}
+        hadirLoading={hadirLoading}
+        currentDosenId={currentDosenId ?? null}
+      />
+      {modal.selected && (
+        <PenilaianModal
+          open={modal.openPenilaian}
+          onClose={() => dispatchModal({ type: "CLOSE_PENILAIAN" })}
+          ujian={modal.selected}
+          currentDosenId={currentDosenId}
+          onSuccess={(dosenId) => {
+            if (modal.selected?.id) {
+              setPenilaianMap((prev) => {
+                const newMap = { ...prev };
+                if (!newMap[modal.selected!.id]) {
+                  newMap[modal.selected!.id] = new Set();
+                }
+                newMap[modal.selected!.id] = new Set(
+                  newMap[modal.selected!.id]
+                );
+                newMap[modal.selected!.id].add(dosenId);
+                return newMap;
+              });
+            }
+          }}
+        />
+      )}
+      <CatatanSheet
+        openCatatan={modal.openCatatan}
+        setOpenCatatan={(open) =>
+          open && modal.selected
+            ? dispatchModal({ type: "OPEN_CATATAN", ujian: modal.selected })
+            : dispatchModal({ type: "CLOSE_CATATAN" })
+        }
+        selected={modal.selected}
+        ujian={modal.selected!}
+        catatanText={catatanText}
+        setCatatanText={setCatatanText}
+        handleSaveCatatan={handleSaveCatatan}
+      />
+      {modal.selected && (
+        <KeputusanSheet
+          openKeputusan={modal.openKeputusan}
+          setOpenKeputusan={(open) =>
+            open
+              ? dispatchModal({
+                type: "OPEN_KEPUTUSAN",
+                ujian: modal.selected!,
+                keputusanChoice: modal.keputusanChoice,
+              })
+              : dispatchModal({ type: "CLOSE_KEPUTUSAN" })
           }
           selected={modal.selected}
-          ujian={modal.selected!}
-          catatanText={catatanText}
-          setCatatanText={setCatatanText}
-          handleSaveCatatan={handleSaveCatatan}
+          ujian={modal.selected}
+          keputusanOptions={keputusanOptions}
+          keputusanChoice={modal.keputusanChoice}
+          setKeputusanChoice={(val) =>
+            dispatchModal({
+              type: "SET_KEPUTUSAN_CHOICE",
+              keputusanChoice: val,
+            })
+          }
+          handleSetKeputusan={handleSetKeputusan}
         />
-        {modal.selected && (
-          <KeputusanSheet
-            openKeputusan={modal.openKeputusan}
-            setOpenKeputusan={(open) =>
-              open
-                ? dispatchModal({
-                  type: "OPEN_KEPUTUSAN",
-                  ujian: modal.selected!,
-                  keputusanChoice: modal.keputusanChoice,
-                })
-                : dispatchModal({ type: "CLOSE_KEPUTUSAN" })
-            }
-            selected={modal.selected}
-            ujian={modal.selected}
-            keputusanOptions={keputusanOptions}
-            keputusanChoice={modal.keputusanChoice}
-            setKeputusanChoice={(val) =>
-              dispatchModal({
-                type: "SET_KEPUTUSAN_CHOICE",
-                keputusanChoice: val,
-              })
-            }
-            handleSetKeputusan={handleSetKeputusan}
-          />
-        )}
-      </Tabs>
+      )}
+
     </DataCard>
   );
 }

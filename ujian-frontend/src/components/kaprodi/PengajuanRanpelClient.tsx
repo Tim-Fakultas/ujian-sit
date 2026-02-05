@@ -45,15 +45,13 @@ import {
   Search,
   ListFilter,
   ArrowUpDown,
-  LayoutGrid,
-  List,
   Check,
   Calendar as CalendarIcon,
   X,
   MessageSquareText,
 } from "lucide-react";
 import { truncateTitle } from "@/lib/utils";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { DataCard } from "@/components/common/DataCard";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
@@ -81,8 +79,7 @@ export default function PengajuanTableClient({
     setIsStudentModalOpen(true);
   };
 
-  // view mode + sorting state for react-table
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
 
@@ -124,11 +121,12 @@ export default function PengajuanTableClient({
     setSorting([{ id, desc: order === "desc" }]);
   };
 
-  //* filtered data (global search across nama, judul, status, tanggal)
+  //* filtered data (global search across nama, nim, judul, status, tanggal)
   const filteredData = useMemo(() => {
     const q = (search || "").trim().toLowerCase();
     return (pengajuanRanpel || []).filter((p) => {
       const nama = (p.mahasiswa?.nama ?? "").toLowerCase();
+      const nim = (p.mahasiswa?.nim ?? "").toLowerCase();
       const judul = (p.ranpel?.judulPenelitian ?? "").toLowerCase();
       const status = (p.status ?? "").toLowerCase();
       const tanggal = (p.tanggalPengajuan ?? "").toString().toLowerCase();
@@ -159,6 +157,7 @@ export default function PengajuanTableClient({
       const matchesQ =
         qEmpty ||
         nama.includes(q) ||
+        nim.includes(q) ||
         judul.includes(q) ||
         status.includes(q) ||
         tanggal.includes(q);
@@ -190,7 +189,8 @@ export default function PengajuanTableClient({
 
       {
         id: "no",
-        header: "No",
+        header: () => <div className="text-center">No</div>,
+        size: 50,
         cell: ({ row, table }) => {
           const index =
             (table.getState().pagination?.pageIndex ?? 0) *
@@ -203,11 +203,8 @@ export default function PengajuanTableClient({
       {
         accessorFn: (row) => row.mahasiswa?.nama ?? "-",
         id: "nama",
-        header: () => (
-          <div className="flex items-center gap-1">
-            <span>Mahasiswa</span>
-          </div>
-        ),
+        header: "Mahasiswa",
+        size: 180,
         cell: ({ row }) => (
           <div
             className="flex flex-col cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors group"
@@ -218,7 +215,7 @@ export default function PengajuanTableClient({
             }}
           >
             <span
-              className="font-medium max-w-[140px] truncate text-blue-600 group-hover:text-blue-800 transition-colors"
+              className="font-medium max-w-[140px] truncate text-primary group-hover:text-primary/80 transition-colors"
               title={String(row.getValue("nama"))}
             >
               {String(row.getValue("nama"))}
@@ -232,7 +229,8 @@ export default function PengajuanTableClient({
       {
         accessorFn: (row) => row.ranpel?.judulPenelitian ?? "-",
         id: "judul",
-        header: "Judul",
+        header: "Judul Penelitian",
+        size: 250,
         cell: ({ row }) => (
           <div
             className="max-w-[200px] truncate"
@@ -245,7 +243,8 @@ export default function PengajuanTableClient({
       {
         accessorFn: (row) => row.tanggalPengajuan ?? "",
         id: "tanggal",
-        header: () => <div className="text-center">Tanggal Pengajuan</div>,
+        header: () => <div className="text-center">Tgl Pengajuan</div>,
+        size: 120,
         cell: ({ row }) => {
           const val = row.getValue("tanggal") as string;
           try {
@@ -261,7 +260,8 @@ export default function PengajuanTableClient({
       },
       {
         id: "tanggalKeputusan",
-        header: () => <div className="text-center">Tanggal Diterima / Ditolak</div>,
+        header: () => <div className="text-center">Tgl Keputusan</div>,
+        size: 120,
         cell: ({ row }) => {
           const status = row.original.status;
           let dateVal = null;
@@ -285,7 +285,8 @@ export default function PengajuanTableClient({
       {
         accessorFn: (row) => row.status ?? "-",
         id: "status",
-        header: "Status",
+        header: () => <div className="text-center">Status</div>,
+        size: 120,
         cell: ({ row }) => {
           const s = String(row.getValue("status"));
           const cls =
@@ -295,7 +296,7 @@ export default function PengajuanTableClient({
                 ? "bg-green-100 text-green-800"
                 : s === "ditolak"
                   ? "bg-red-100 text-red-800"
-                  : "bg-blue-100 text-blue-800";
+                  : "bg-primary/10 text-primary";
           return (
             <span className={`px-2 py-1 rounded text-sm ${cls}`}>{s}</span>
           );
@@ -304,6 +305,7 @@ export default function PengajuanTableClient({
       {
         id: "catatan",
         header: () => <div className="text-center">Catatan</div>,
+        size: 80,
         cell: ({ row }) => {
           return (
             <div className="flex justify-center">
@@ -314,7 +316,8 @@ export default function PengajuanTableClient({
       },
       {
         id: "actions",
-        header: "Aksi",
+        header: () => <div className="text-center">Aksi</div>,
+        size: 70,
         cell: ({ row }) => {
           const item = row.original;
           return (
@@ -322,7 +325,7 @@ export default function PengajuanTableClient({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 text-gray-500 hover:text-blue-600"
+                className="h-8 w-8 p-0 text-gray-500 hover:text-primary"
                 onClick={() => handleLihatClick(item)}
               >
                 <Eye size={18} />
@@ -449,14 +452,14 @@ export default function PengajuanTableClient({
                         >
                           <span
                             className={`w-2 h-2 rounded-full ${opt.value === "menunggu"
-                              ? "bg-yellow-500"
+                              ? "bg-warning"
                               : opt.value === "diterima"
-                                ? "bg-green-500"
+                                ? "bg-success"
                                 : opt.value === "ditolak"
-                                  ? "bg-red-500"
+                                  ? "bg-destructive"
                                   : opt.value === "diverifikasi"
-                                    ? "bg-blue-500"
-                                    : "bg-gray-400"
+                                    ? "bg-primary"
+                                    : "bg-muted-foreground"
                               }`}
                           />
                           {opt.label}
@@ -532,22 +535,7 @@ export default function PengajuanTableClient({
 
 
           {/* view tabs */}
-          <div>
-            <Tabs
-              value={viewMode}
-              onValueChange={(v) => setViewMode(v as "table" | "card")}
-              className="h-8"
-            >
-              <TabsList className="rounded-md bg-muted p-1 gap-1">
-                <TabsTrigger value="table" className="h-7 px-2 rounded-md">
-                  <LayoutGrid size={14} />
-                </TabsTrigger>
-                <TabsTrigger value="card" className="h-7 px-2 rounded-md">
-                  <List size={14} />
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+
         </div>
 
         {/* Table or Card view */}
@@ -571,98 +559,8 @@ export default function PengajuanTableClient({
               </Button>
             </div>
           </div>
-        ) : viewMode === "table" ? (
-          <TableGlobal table={table} cols={cols} />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {filteredData.map((item, idx) => {
-              const key = (item as any).id ?? idx;
-              const nama = item.mahasiswa?.nama ?? "-";
-              const nim = item.mahasiswa?.nim ?? "-";
-              const judul = item.ranpel?.judulPenelitian ?? "-";
-              const tanggal = item.tanggalPengajuan ?? "";
-              const status = item.status ?? "-";
-
-              const statusColor =
-                status === "menunggu"
-                  ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800"
-                  : status === "diterima"
-                    ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
-                    : status === "ditolak"
-                      ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800"
-                      : status === "diverifikasi"
-                        ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800"
-                        : "bg-gray-100 text-gray-800 border-gray-200 dark:bg-neutral-800 dark:text-gray-400";
-
-              return (
-                <div
-                  key={key}
-                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-                >
-                  <div className="p-5 flex flex-col gap-4 flex-1">
-                    {/* Header: Date & Status */}
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                        <CalendarIcon size={13} />
-                        <span>
-                          {new Date(String(tanggal)).toLocaleDateString(
-                            "id-ID",
-                            {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            }
-                          )}
-                        </span>
-                      </div>
-
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}
-                      >
-                        {status}
-                      </span>
-                    </div>
-
-                    {/* Content: Title & Name */}
-                    <div className="space-y-2">
-                      <h3
-                        className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3"
-                        title={judul}
-                      >
-                        {judul || "Judul tidak tersedia"}
-                      </h3>
-
-                      <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
-                        <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
-                          {nama.charAt(0)}
-                        </div>
-                        <div className="flex flex-col mt-2">
-                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                            {nama}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {nim}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions Footer */}
-                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleLihatClick(item)}
-                      className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
-                    >
-                      <Eye size={14} className="mr-1.5" /> Preview
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <TableGlobal table={table} cols={cols} />
         )}
       </DataCard>
 

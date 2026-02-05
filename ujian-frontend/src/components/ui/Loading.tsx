@@ -27,14 +27,14 @@ export default function Loading({
       {/* Background Glow Effect */}
       <div
         className={cn(
-          "absolute inset-0 rounded-full bg-blue-500/20 blur-xl animate-pulse",
+          "absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse",
           size === "sm" && "blur-sm"
         )}
       />
       {/* The component */}
       <Spinner
         className={cn(
-          "relative z-10 text-blue-600 dark:text-blue-400",
+          "relative z-10 text-primary dark:text-primary",
           sizeClasses[size]
         )}
       />

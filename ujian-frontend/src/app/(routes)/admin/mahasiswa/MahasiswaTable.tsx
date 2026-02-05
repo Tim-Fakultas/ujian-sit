@@ -25,6 +25,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import SearchInput from "@/components/common/Search";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -62,6 +63,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useUrlSearch } from "@/hooks/use-url-search";
 
 interface MahasiswaTableProps {
   mahasiswa: Mahasiswa[];
@@ -80,24 +82,24 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
     // If the API doesn't filter by prodi, we might want to do it here
     // But typically the API should handle it or we show all to admin
     if (user?.prodi?.id) {
-       setMahasiswaData(newData.filter((m: Mahasiswa) => m.prodi?.id === user.prodi?.id));
+      setMahasiswaData(newData.filter((m: Mahasiswa) => m.prodi?.id === user.prodi?.id));
     } else {
-       setMahasiswaData(newData);
+      setMahasiswaData(newData);
     }
   }, [user]);
 
   React.useEffect(() => {
     // Initial filter if needed
     if (mahasiswa && user?.prodi?.id) {
-        setMahasiswaData(mahasiswa.filter((m) => m.prodi?.id === user.prodi?.id));
+      setMahasiswaData(mahasiswa.filter((m) => m.prodi?.id === user.prodi?.id));
     } else {
-        setMahasiswaData(mahasiswa ?? []);
+      setMahasiswaData(mahasiswa ?? []);
     }
   }, [mahasiswa, user]);
 
   const data = React.useMemo(() => mahasiswaData ?? [], [mahasiswaData]);
 
-  const [search, setSearch] = React.useState("");
+  const { search, setSearch } = useUrlSearch();
   const [viewMode, setViewMode] = React.useState<"table" | "card">("table");
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -186,7 +188,7 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
       setCreateOpen(false);
       await refreshMahasiswa();
     } catch (error) {
-        showToast.error("Gagal menambahkan mahasiswa");
+      showToast.error("Gagal menambahkan mahasiswa");
     }
   }
 
@@ -319,15 +321,13 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
     <div className="w-full bg-white dark:bg-neutral-900 rounded-md border border-gray-200 dark:border-neutral-700 p-4 space-y-4">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <div className="flex items-center gap-2 w-full">
-          <Input
+          <SearchInput
             placeholder="Search..."
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            className="max-w-full bg-white dark:bg-neutral-800"
+            className="max-w-full"
           />
-           <Button onClick={() => setCreateOpen(true)} className="whitespace-nowrap">
-             <Plus className="mr-2 h-4 w-4" /> Tambah
-           </Button>
+          <Button onClick={() => setCreateOpen(true)} className="whitespace-nowrap">
+            <Plus className="mr-2 h-4 w-4" /> Tambah
+          </Button>
         </div>
         <Tabs
           value={viewMode}
@@ -381,42 +381,42 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
                       </span>
                     </div>
                   </div>
-                   <div className="grid grid-cols-1 gap-y-2 mt-2">
-                       <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Semester</span>
-                          <span className="font-medium text-gray-700 dark:text-gray-300">{m.semester || "-"}</span>
-                       </div>
-                       <div className="flex flex-col text-sm">
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Dosen PA</span>
-                          <span className="font-medium text-gray-700 dark:text-gray-300">{m.dosenPa?.nama || "-"}</span>
-                       </div>
-                   </div>
+                  <div className="grid grid-cols-1 gap-y-2 mt-2">
+                    <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Semester</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">{m.semester || "-"}</span>
+                    </div>
+                    <div className="flex flex-col text-sm">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Dosen PA</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">{m.dosenPa?.nama || "-"}</span>
+                    </div>
+                  </div>
                 </div>
-                 <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 grid grid-cols-3 gap-2 border-t border-gray-100 dark:border-neutral-800">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full text-xs h-8"
-                      onClick={() => setDetailMahasiswa(m)}
-                    >
-                      <Info size={14} className="mr-1.5" /> Detail
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full text-xs h-8"
-                      onClick={() => setEditMahasiswa(m)}
-                    >
-                      <Pencil size={14} className="mr-1.5" /> Edit
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost" 
-                      className="w-full text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      onClick={() => setDeleteMahasiswaState(m)}
-                    >
-                      <Trash2 size={14} className="mr-1.5" /> Hapus
-                    </Button>
+                <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 grid grid-cols-3 gap-2 border-t border-gray-100 dark:border-neutral-800">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full text-xs h-8"
+                    onClick={() => setDetailMahasiswa(m)}
+                  >
+                    <Info size={14} className="mr-1.5" /> Detail
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full text-xs h-8"
+                    onClick={() => setEditMahasiswa(m)}
+                  >
+                    <Pencil size={14} className="mr-1.5" /> Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-full text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                    onClick={() => setDeleteMahasiswaState(m)}
+                  >
+                    <Trash2 size={14} className="mr-1.5" /> Hapus
+                  </Button>
                 </div>
               </div>
             ))}
@@ -437,38 +437,38 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                   <Label className="text-xs text-muted-foreground">Nama</Label>
-                   <div className="font-medium">{detailMahasiswa.nama}</div>
+                  <Label className="text-xs text-muted-foreground">Nama</Label>
+                  <div className="font-medium">{detailMahasiswa.nama}</div>
                 </div>
                 <div>
-                   <Label className="text-xs text-muted-foreground">NIM</Label>
-                   <div className="font-medium">{detailMahasiswa.nim}</div>
+                  <Label className="text-xs text-muted-foreground">NIM</Label>
+                  <div className="font-medium">{detailMahasiswa.nim}</div>
                 </div>
                 <div>
-                   <Label className="text-xs text-muted-foreground">Semester</Label>
-                   <div className="font-medium">{detailMahasiswa.semester}</div>
+                  <Label className="text-xs text-muted-foreground">Semester</Label>
+                  <div className="font-medium">{detailMahasiswa.semester}</div>
                 </div>
                 <div>
-                   <Label className="text-xs text-muted-foreground">No HP</Label>
-                   <div className="font-medium">{detailMahasiswa.noHp || "-"}</div>
+                  <Label className="text-xs text-muted-foreground">No HP</Label>
+                  <div className="font-medium">{detailMahasiswa.noHp || "-"}</div>
                 </div>
                 <div className="col-span-2">
-                   <Label className="text-xs text-muted-foreground">Alamat</Label>
-                   <div className="font-medium">{detailMahasiswa.alamat || "-"}</div>
+                  <Label className="text-xs text-muted-foreground">Alamat</Label>
+                  <div className="font-medium">{detailMahasiswa.alamat || "-"}</div>
                 </div>
                 <div className="col-span-2">
-                   <Label className="text-xs text-muted-foreground">Dosen PA</Label>
-                   <div className="font-medium">{detailMahasiswa.dosenPa?.nama || "-"}</div>
+                  <Label className="text-xs text-muted-foreground">Dosen PA</Label>
+                  <div className="font-medium">{detailMahasiswa.dosenPa?.nama || "-"}</div>
                 </div>
                 <div className="col-span-2">
-                   <Label className="text-xs text-muted-foreground">Prodi</Label>
-                   <div className="font-medium">{detailMahasiswa.prodi?.nama || "-"}</div>
+                  <Label className="text-xs text-muted-foreground">Prodi</Label>
+                  <div className="font-medium">{detailMahasiswa.prodi?.nama || "-"}</div>
                 </div>
               </div>
             </div>
           )}
           <DialogFooter>
-             <DialogClose asChild><Button variant="outline">Tutup</Button></DialogClose>
+            <DialogClose asChild><Button variant="outline">Tutup</Button></DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -481,43 +481,43 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
           </DialogHeader>
           <form onSubmit={handleCreateSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-               <div className="space-y-2">
-                 <Label>Nama</Label>
-                 <Input name="nama" value={formData.nama} onChange={handleFormChange} required />
-               </div>
-               <div className="space-y-2">
-                 <Label>NIM</Label>
-                 <Input name="nim" value={formData.nim} onChange={handleFormChange} required />
-               </div>
-               <div className="space-y-2">
-                 <Label>No HP</Label>
-                 <Input name="noHp" value={formData.noHp} onChange={handleFormChange} />
-               </div>
-               <div className="space-y-2">
-                 <Label>Semester</Label>
-                 <Input name="semester" type="number" value={formData.semester} onChange={handleFormChange} required />
-               </div>
-               <div className="col-span-2 space-y-2">
-                 <Label>Alamat</Label>
-                 <Input name="alamat" value={formData.alamat} onChange={handleFormChange} />
-               </div>
-               <div className="col-span-2 space-y-2">
-                 <Label>Dosen PA</Label>
-                 <Select value={formData.dosenPaId} onValueChange={(val) => handleSelectChange('dosenPaId', val)}>
-                    <SelectTrigger>
-                       <SelectValue placeholder="Pilih Dosen PA" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {dosenList.map(d => (
-                        <SelectItem key={d.id} value={String(d.id)}>{d.nama}</SelectItem>
-                      ))}
-                    </SelectContent>
-                 </Select>
-               </div>
+              <div className="space-y-2">
+                <Label>Nama</Label>
+                <Input name="nama" value={formData.nama} onChange={handleFormChange} required />
+              </div>
+              <div className="space-y-2">
+                <Label>NIM</Label>
+                <Input name="nim" value={formData.nim} onChange={handleFormChange} required />
+              </div>
+              <div className="space-y-2">
+                <Label>No HP</Label>
+                <Input name="noHp" value={formData.noHp} onChange={handleFormChange} />
+              </div>
+              <div className="space-y-2">
+                <Label>Semester</Label>
+                <Input name="semester" type="number" value={formData.semester} onChange={handleFormChange} required />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label>Alamat</Label>
+                <Input name="alamat" value={formData.alamat} onChange={handleFormChange} />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label>Dosen PA</Label>
+                <Select value={formData.dosenPaId} onValueChange={(val) => handleSelectChange('dosenPaId', val)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Dosen PA" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dosenList.map(d => (
+                      <SelectItem key={d.id} value={String(d.id)}>{d.nama}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <DialogFooter>
-               <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>Batal</Button>
-               <Button type="submit">Simpan</Button>
+              <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>Batal</Button>
+              <Button type="submit">Simpan</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -531,43 +531,43 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-               <div className="space-y-2">
-                 <Label>Nama</Label>
-                 <Input name="nama" value={formData.nama} onChange={handleFormChange} required />
-               </div>
-               <div className="space-y-2">
-                 <Label>NIM</Label>
-                 <Input name="nim" value={formData.nim} onChange={handleFormChange} required />
-               </div>
-               <div className="space-y-2">
-                 <Label>No HP</Label>
-                 <Input name="noHp" value={formData.noHp} onChange={handleFormChange} />
-               </div>
-               <div className="space-y-2">
-                 <Label>Semester</Label>
-                 <Input name="semester" type="number" value={formData.semester} onChange={handleFormChange} required />
-               </div>
-               <div className="col-span-2 space-y-2">
-                 <Label>Alamat</Label>
-                 <Input name="alamat" value={formData.alamat} onChange={handleFormChange} />
-               </div>
-               <div className="col-span-2 space-y-2">
-                 <Label>Dosen PA</Label>
-                 <Select value={formData.dosenPaId} onValueChange={(val) => handleSelectChange('dosenPaId', val)}>
-                    <SelectTrigger>
-                       <SelectValue placeholder="Pilih Dosen PA" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {dosenList.map(d => (
-                        <SelectItem key={d.id} value={String(d.id)}>{d.nama}</SelectItem>
-                      ))}
-                    </SelectContent>
-                 </Select>
-               </div>
+              <div className="space-y-2">
+                <Label>Nama</Label>
+                <Input name="nama" value={formData.nama} onChange={handleFormChange} required />
+              </div>
+              <div className="space-y-2">
+                <Label>NIM</Label>
+                <Input name="nim" value={formData.nim} onChange={handleFormChange} required />
+              </div>
+              <div className="space-y-2">
+                <Label>No HP</Label>
+                <Input name="noHp" value={formData.noHp} onChange={handleFormChange} />
+              </div>
+              <div className="space-y-2">
+                <Label>Semester</Label>
+                <Input name="semester" type="number" value={formData.semester} onChange={handleFormChange} required />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label>Alamat</Label>
+                <Input name="alamat" value={formData.alamat} onChange={handleFormChange} />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label>Dosen PA</Label>
+                <Select value={formData.dosenPaId} onValueChange={(val) => handleSelectChange('dosenPaId', val)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Dosen PA" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dosenList.map(d => (
+                      <SelectItem key={d.id} value={String(d.id)}>{d.nama}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <DialogFooter>
-               <Button type="button" variant="outline" onClick={() => setEditMahasiswa(null)}>Batal</Button>
-               <Button type="submit">Simpan</Button>
+              <Button type="button" variant="outline" onClick={() => setEditMahasiswa(null)}>Batal</Button>
+              <Button type="submit">Simpan</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -575,16 +575,16 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
 
       {/* Modal Delete */}
       <Dialog open={!!deleteMahasiswaState} onOpenChange={(val) => !val && setDeleteMahasiswaState(null)}>
-         <DialogContent>
-            <DialogHeader>
-               <DialogTitle>Hapus Mahasiswa</DialogTitle>
-            </DialogHeader>
-            <p>Apakah Anda yakin ingin menghapus mahasiswa <strong>{deleteMahasiswaState?.nama}</strong>?</p>
-            <DialogFooter>
-               <Button variant="outline" onClick={() => setDeleteMahasiswaState(null)}>Batal</Button>
-               <Button variant="destructive" onClick={handleDeleteSubmit}>Hapus</Button>
-            </DialogFooter>
-         </DialogContent>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Mahasiswa</DialogTitle>
+          </DialogHeader>
+          <p>Apakah Anda yakin ingin menghapus mahasiswa <strong>{deleteMahasiswaState?.nama}</strong>?</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteMahasiswaState(null)}>Batal</Button>
+            <Button variant="destructive" onClick={handleDeleteSubmit}>Hapus</Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

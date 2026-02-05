@@ -102,12 +102,12 @@ export async function updateDosen(
   id: number,
   payload: {
     nama?: string;
-    noHp?: string;
+    no_hp?: string;
     alamat?: string;
-    tempatTanggalLahir?: string;
+    tempat_tanggal_lahir?: string;
     pangkat?: string;
     golongan?: string;
-    tmtFst?: string;
+    tmt_fst?: string;
     jabatan?: string;
     foto?: string | null;
   }

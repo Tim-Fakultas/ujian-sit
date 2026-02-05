@@ -9,8 +9,6 @@ import {
   Search,
   MoreHorizontal,
   Check,
-  LayoutGrid,
-  List,
   Settings2,
   Calendar,
   Clock,
@@ -30,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import TableGlobal from "@/components/tableGlobal";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -57,7 +55,7 @@ export default function BeritaAcaraUjianTable({
     "all" | "lulus" | "tidak lulus"
   >("all");
 
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
 
   // Tambah state untuk filter bulan dan tahun
   const [filterBulan, setFilterBulan] = useState<string>("all");
@@ -182,7 +180,7 @@ export default function BeritaAcaraUjianTable({
       cell: ({ row, table }: any) => {
         const index =
           (table.getState().pagination?.pageIndex ?? 0) *
-            (table.getState().pagination?.pageSize ?? 10) +
+          (table.getState().pagination?.pageSize ?? 10) +
           row.index +
           1;
         return <div>{index}</div>;
@@ -213,21 +211,21 @@ export default function BeritaAcaraUjianTable({
         const hari = row.original.hariUjian ? capitalize(row.original.hariUjian) : "-";
         const jamMulai = row.original.waktuMulai?.slice(0, 5) ?? "";
         const jamSelesai = row.original.waktuSelesai?.slice(0, 5) ?? "";
-        
+
         return (
           <div className="flex flex-col text-sm gap-0.5">
             <span className="font-medium">{hari}</span>
             <span className="text-gray-600 dark:text-gray-400">
-                {date
+              {date
                 ? new Date(date).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                    })
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })
                 : "-"}
             </span>
-             <span className="text-gray-500 text-sm">
-                {jamMulai} - {jamSelesai}
+            <span className="text-gray-500 text-sm">
+              {jamMulai} - {jamSelesai}
             </span>
           </div>
         );
@@ -254,10 +252,10 @@ export default function BeritaAcaraUjianTable({
         const badgeClass = jenis.includes("proposal")
           ? "bg-blue-100 text-blue-700"
           : jenis.includes("hasil")
-          ? "bg-yellow-100 text-yellow-700"
-          : jenis.includes("skripsi")
-          ? "bg-green-100 text-green-700"
-          : "bg-gray-100";
+            ? "bg-yellow-100 text-yellow-700"
+            : jenis.includes("skripsi")
+              ? "bg-green-100 text-green-700"
+              : "bg-gray-100";
         return (
           <span className={`px-2 py-1 text-sm rounded font-medium ${badgeClass}`}>
             {row.getValue("jenis")}
@@ -273,7 +271,7 @@ export default function BeritaAcaraUjianTable({
         const item = row.original;
         const nilai = item.nilaiAkhir ?? 0;
         let predikat = "";
-        
+
         if (nilai >= 80) predikat = "A";
         else if (nilai >= 70) predikat = "B";
         else if (nilai >= 60) predikat = "C";
@@ -283,22 +281,22 @@ export default function BeritaAcaraUjianTable({
         const isProposal = item.jenisUjian?.namaJenis?.toLowerCase().includes("proposal");
         let decisionText = "-";
         let colorClass = "text-gray-600";
-        
+
         if (isProposal) {
-             const isLulus = ["A", "B", "C"].includes(predikat);
-             decisionText = isLulus ? "Lulus" : "Tidak Lulus";
-             colorClass = isLulus ? "text-green-600" : "text-red-600";
+          const isLulus = ["A", "B", "C"].includes(predikat);
+          decisionText = isLulus ? "Lulus" : "Tidak Lulus";
+          colorClass = isLulus ? "text-green-600" : "text-red-600";
         } else {
-             decisionText = item.keputusan?.namaKeputusan || "-";
-             // Basic styling for common decisions
-             if (decisionText.toLowerCase().includes("lulus")) colorClass = "text-green-600";
-             else if (decisionText.toLowerCase().includes("tidak")) colorClass = "text-red-600";
+          decisionText = item.keputusan?.namaKeputusan || "-";
+          // Basic styling for common decisions
+          if (decisionText.toLowerCase().includes("lulus")) colorClass = "text-green-600";
+          else if (decisionText.toLowerCase().includes("tidak")) colorClass = "text-red-600";
         }
 
         return <div className={`text-sm font-bold ${colorClass} bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-full text-center `}>{decisionText}</div>;
       },
       size: 140,
-    },    {
+    }, {
       id: "actions",
       header: "",
       cell: ({ row }: any) => (
@@ -536,141 +534,11 @@ export default function BeritaAcaraUjianTable({
             </DropdownMenu>
           </div>
 
-          <div className="">
-            <Tabs
-              value={viewMode}
-              onValueChange={(v) => setViewMode(v as any)}
-              className="sm:mb-0 h-9"
-            >
-              <TabsList>
-                <TabsTrigger value="table">
-                  <LayoutGrid size={16} />
-                </TabsTrigger>
-                <TabsTrigger value="card">
-                  <List />
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+
         </div>
-        {/* Tabs for view mode */}
+
       </div>
-
-      {/* Table Mode */}
-      {viewMode === "table" && <TableGlobal table={table} cols={cols} />}
-
-      {/* Card Mode */}
-      {viewMode === "card" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {paginatedData.length > 0 ? (
-            paginatedData.map((ujian) => {
-
-                 
-                 const hasilColor = ujian.hasil?.toLowerCase() === 'lulus' 
-                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200" 
-                    : ujian.hasil?.toLowerCase() === 'tidak lulus' 
-                    ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200"
-                    : "bg-gray-100 text-gray-700 dark:bg-neutral-800 dark:text-gray-400 border-gray-200";
-
-              return (
-              <div
-                key={ujian.id}
-                className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-              >
-                 <div className="p-5 flex flex-col gap-4 flex-1">
-                     
-                     {/* Header: Date & Result */}
-                     <div className="flex justify-between items-start">
-                        <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                                <Calendar size={13} />
-                                <span>
-                                    {ujian.jadwalUjian
-                                        ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
-                                            day: "numeric",
-                                            month: "short",
-                                            year: "numeric"
-                                        })
-                                        : "Tgl -"}
-                                </span>
-                            </div>
-                         </div>
-                         
-                         {ujian.hasil ? (
-                             <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${hasilColor}`}>
-                                {ujian.hasil}
-                             </span>
-                         ) : (
-                             <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Belum Dinilai</span>
-                         )}
-                     </div>
-
-                     {/* Content: Title & Name */}
-                     <div className="space-y-2">
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
-                             {ujian.judulPenelitian || "Judul tidak tersedia"}
-                          </h3>
-                          
-                          <div className="flex items-center gap-2 pt-1">
-                             <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
-                                {ujian.mahasiswa?.nama?.charAt(0) ?? "?"}
-                             </div>
-                             <div className="flex flex-col">
-                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                                   {ujian.mahasiswa?.nama ?? "-"}
-                                </span>
-                                <span className="text-[11px] text-gray-400">
-                                   {ujian.mahasiswa?.nim ?? "-"}
-                                </span>
-                             </div>
-                          </div>
-                     </div>
-
-                     {/* Footer Info: Type & Grade */}
-                     <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
-                        <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold 
-                             ${
-                               ujian.jenisUjian?.namaJenis?.toLowerCase().includes("proposal") ? "bg-blue-100 text-blue-700" :
-                               ujian.jenisUjian?.namaJenis?.toLowerCase().includes("hasil") ? "bg-yellow-100 text-yellow-700" :
-                               ujian.jenisUjian?.namaJenis?.toLowerCase().includes("skripsi") ? "bg-green-100 text-green-700" : "bg-gray-100"
-                             }
-                        `}>
-                           {ujian.jenisUjian?.namaJenis ?? "-"}
-                        </span>
-                        
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-400">Nilai:</span>
-                            <span className="text-sm font-bold text-gray-900 dark:text-white">
-                                {ujian.nilaiAkhir ?? "-"}
-                            </span>
-                        </div>
-                     </div>
-                 </div>
-
-                 {/* Actions Footer */}
-                 <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDetail(ujian)}
-                        className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
-                    >
-                        <MoreHorizontal size={14} className="mr-1.5" /> Detail
-                    </Button>
-                 </div>
-              </div>
-              );
-            })
-          ) : (
-            <div className="col-span-full flex flex-col items-center justify-center py-12 gap-3">
-                <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
-                    <List size={24} className="opacity-50" />
-                </div>
-               <p className="text-muted-foreground">Tidak ada berita acara ujian.</p>
-            </div>
-          )}
-        </div>
-      )}
+      <TableGlobal table={table} cols={cols} />
 
       {/* ========== MODAL DETAIL (DESAIN MODERN) ========== */}
       <Modal
@@ -694,9 +562,9 @@ export default function BeritaAcaraUjianTable({
                       ,{" "}
                       {selected.jadwalUjian
                         ? new Date(selected.jadwalUjian).toLocaleDateString(
-                            "id-ID",
-                            { day: "numeric", month: "long", year: "numeric" }
-                          )
+                          "id-ID",
+                          { day: "numeric", month: "long", year: "numeric" }
+                        )
                         : "-"}
                     </span>
                   </div>
@@ -708,34 +576,33 @@ export default function BeritaAcaraUjianTable({
                       {selected.waktuSelesai?.slice(0, 5) ?? "-"}
                     </span>
                   </div>
-                   <div className="hidden sm:block text-gray-300">|</div>
-                   <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md">
-                      <MapPin size={14} />
-                      <span className="font-medium">{selected.ruangan?.namaRuangan ?? "-"}</span>
-                   </div>
+                  <div className="hidden sm:block text-gray-300">|</div>
+                  <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md">
+                    <MapPin size={14} />
+                    <span className="font-medium">{selected.ruangan?.namaRuangan ?? "-"}</span>
+                  </div>
                 </div>
                 <div>
-                   <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase
-                        ${
-                          selected.jenisUjian?.namaJenis
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase
+                        ${selected.jenisUjian?.namaJenis
+                        ?.toLowerCase()
+                        .includes("proposal")
+                        ? "bg-blue-50 text-blue-700 border border-blue-100"
+                        : selected.jenisUjian?.namaJenis
+                          ?.toLowerCase()
+                          .includes("hasil")
+                          ? "bg-yellow-50 text-yellow-700 border border-yellow-100"
+                          : selected.jenisUjian?.namaJenis
                             ?.toLowerCase()
-                            .includes("proposal")
-                            ? "bg-blue-50 text-blue-700 border border-blue-100"
-                            : selected.jenisUjian?.namaJenis
-                                ?.toLowerCase()
-                                .includes("hasil")
-                            ? "bg-yellow-50 text-yellow-700 border border-yellow-100"
-                            : selected.jenisUjian?.namaJenis
-                                ?.toLowerCase()
-                                .includes("skripsi")
+                            .includes("skripsi")
                             ? "bg-green-50 text-green-700 border border-green-100"
                             : "bg-gray-100 border border-gray-200"
-                        }
+                      }
                       `}
-                    >
-                      {selected.jenisUjian?.namaJenis ?? "-"}
-                    </span>
+                  >
+                    {selected.jenisUjian?.namaJenis ?? "-"}
+                  </span>
                 </div>
               </div>
 
@@ -757,72 +624,72 @@ export default function BeritaAcaraUjianTable({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column: Details */}
               <div className="lg:col-span-2 space-y-6">
-                
+
                 {/* Judul Penelitian */}
                 <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm">
                   <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
                     <Search size={14} /> Judul Penelitian
                   </h3>
-                   <p className="text-base font-medium leading-relaxed text-gray-800 dark:text-gray-200">
+                  <p className="text-base font-medium leading-relaxed text-gray-800 dark:text-gray-200">
                     {selected.judulPenelitian ?? "-"}
                   </p>
                 </div>
 
 
 
-                 {/* Catatan */}
-                 <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm">
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <FileText size={14} /> Catatan / Revisi
-                    </h3>
-                    <div className="bg-gray-50 dark:bg-neutral-900/50 p-4 rounded-lg border">
-                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-                            {selected.catatan || "Tidak ada catatan penguji."}
-                        </p>
-                    </div>
-                 </div>
+                {/* Catatan */}
+                <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <FileText size={14} /> Catatan / Revisi
+                  </h3>
+                  <div className="bg-gray-50 dark:bg-neutral-900/50 p-4 rounded-lg border">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                      {selected.catatan || "Tidak ada catatan penguji."}
+                    </p>
+                  </div>
+                </div>
 
               </div>
 
               {/* Right Column: Dosen Penguji */}
               <div className="space-y-4">
-                  <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm h-full">
-                       <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
-                            <User size={14} /> Tim Penguji
-                       </h3>
-                       <div className="space-y-4">
-                          {selected.penguji.map((p, idx) => {
-                               const status = getStatusHadir(p.id);
-                               const isHadir = status === 'hadir';
-                               const isIzin = status === 'izin';
-                               
-                               return (
-                                   <div key={idx} className="relative pl-4 border-l-2 border-gray-100 last:border-0 pb-1">
-                                       <div className={`absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full ring-2 ring-white
+                <div className="bg-white dark:bg-neutral-800 rounded-xl border p-5 shadow-sm h-full">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <User size={14} /> Tim Penguji
+                  </h3>
+                  <div className="space-y-4">
+                    {selected.penguji.map((p, idx) => {
+                      const status = getStatusHadir(p.id);
+                      const isHadir = status === 'hadir';
+                      const isIzin = status === 'izin';
+
+                      return (
+                        <div key={idx} className="relative pl-4 border-l-2 border-gray-100 last:border-0 pb-1">
+                          <div className={`absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full ring-2 ring-white
                                            ${isHadir ? 'bg-green-500' : isIzin ? 'bg-yellow-500' : 'bg-gray-300'}
                                        `}></div>
-                                       <div>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
-                                                {p.nama}
-                                            </p>
-                                            <div className="flex items-center justify-between mt-1">
-                                                <span className="text-xs text-gray-500 capitalize">{p.peran.replace(/_/g, " ")}</span>
-                                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium border
-                                                    ${isHadir 
-                                                        ? 'bg-green-50 text-green-700 border-green-100' 
-                                                        : isIzin
-                                                        ? 'bg-yellow-50 text-yellow-700 border-yellow-100'
-                                                        : 'bg-gray-50 text-gray-600 border-gray-200'}
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
+                              {p.nama}
+                            </p>
+                            <div className="flex items-center justify-between mt-1">
+                              <span className="text-xs text-gray-500 capitalize">{p.peran.replace(/_/g, " ")}</span>
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium border
+                                                    ${isHadir
+                                  ? 'bg-green-50 text-green-700 border-green-100'
+                                  : isIzin
+                                    ? 'bg-yellow-50 text-yellow-700 border-yellow-100'
+                                    : 'bg-gray-50 text-gray-600 border-gray-200'}
                                                 `}>
-                                                    {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Belum Isi"}
-                                                </span>
-                                            </div>
-                                       </div>
-                                   </div>
-                               )
-                          })}
-                       </div>
+                                {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Belum Isi"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
+                </div>
               </div>
             </div>
 

@@ -1,6 +1,7 @@
 import { getCurrentUserAction } from "@/actions/auth";
 import { getJadwalUjianDosen } from "@/actions/jadwalUjian";
 import { getPengajuanRanpelByDosenPA } from "@/actions/pengajuanRanpel";
+import { getDosenBimbinganDetails } from "@/actions/data-master/dosen";
 import {
   Calendar,
   CheckCircle2,
@@ -13,6 +14,7 @@ import {
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActionGrid } from "@/components/dashboard/ActionGrid";
+import { getDisplayName } from "@/lib/utils";
 
 export default async function DashboardDosenPage() {
   const { user } = await getCurrentUserAction();
@@ -24,6 +26,16 @@ export default async function DashboardDosenPage() {
   const ranpelMenunggu = ranpelList.filter(
     (r) => r.status === "menunggu"
   ).length;
+
+  const bimbinganDetails = await getDosenBimbinganDetails(user?.id || 0);
+  const mhsBimbinganIds = new Set<number>();
+  if (bimbinganDetails) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    bimbinganDetails.pembimbing1?.forEach((m: any) => mhsBimbinganIds.add(m.id));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    bimbinganDetails.pembimbing2?.forEach((m: any) => mhsBimbinganIds.add(m.id));
+  }
+  const totalBimbingan = mhsBimbinganIds.size;
 
   const jadwalList = await getJadwalUjianDosen(user?.id || 0);
   const jadwalMenguji = jadwalList.length;
@@ -78,7 +90,7 @@ export default async function DashboardDosenPage() {
     <div className="p-6 md:p-8 min-h-screen space-y-8 max-w-7xl mx-auto">
       {/* Header Section */}
       <DashboardHeader
-        title={`Selamat Datang, ${user?.nama?.split(" ")[0]}`}
+        title={`Selamat Datang, ${getDisplayName(user?.nama)}`}
         subtitle={`Dashboard Dosen - ${user?.email || ""}`}
       />
 
@@ -105,7 +117,7 @@ export default async function DashboardDosenPage() {
           />
           <StatCard
             title="Total Bimbingan"
-            value={ranpelList.length}
+            value={totalBimbingan}
             icon={Users}
             color="emerald"
             className=""

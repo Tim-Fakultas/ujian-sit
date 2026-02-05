@@ -1,6 +1,6 @@
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
-import React, { useState } from "react";
-import { MessageSquarePlus } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { MessageSquare, MessageSquarePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CommentDrawer from "@/components/common/CommentDrawer";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -63,6 +63,47 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
     },
   ];
 
+
+  /* State for Revision Badges */
+  const [badges, setBadges] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const fetchBadges = async () => {
+      if (!pengajuan?.id) return;
+
+      const sectionIds = [
+        "latar-belakang",
+        "alternatif-solusi",
+        "hasil-diharapkan",
+        "kebutuhan-data",
+        "metode",
+        "referensi",
+      ];
+
+      try {
+        const results = await Promise.all(
+          sectionIds.map(async (secId) => {
+            const comments = await import("@/actions/comments").then((mod) =>
+              mod.getComments(pengajuan.id, secId)
+            );
+            const hasUnresolved = comments.some((c) => !c.isResolved);
+            return { secId, hasUnresolved };
+          })
+        );
+
+        const newBadges: Record<string, boolean> = {};
+        results.forEach((res) => {
+          newBadges[res.secId] = res.hasUnresolved;
+        });
+        setBadges(newBadges);
+      } catch (error) {
+        console.error("Failed to fetch badges", error);
+      }
+    };
+
+    fetchBadges();
+  }, [pengajuan?.id]);
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8 p-4 md:p-8">
       {/* Header Modern */}
@@ -96,15 +137,27 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
               </h3>
               {/* Access Control: Only Dosen and Mahasiswa can see revision button */}
               {(user?.role === 'dosen' || user?.role === 'mahasiswa') && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 text-xs text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full px-3 gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => handleOpenComments(section.id, section.title)}
-                >
-                  <MessageSquarePlus size={14} />
-                  <span>Revisi</span>
-                </Button>
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-xs text-gray-400 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20 rounded-full px-3 gap-1.5  group-hover:opacity-100 transition-opacity"
+                    onClick={() => handleOpenComments(section.id, section.title)}
+                  >
+                    {user?.role === "mahasiswa" ? (
+                      <MessageSquare size={14} />
+                    ) : (
+                      <MessageSquarePlus size={14} />
+                    )}
+                    <span>Revisi</span>
+                    {badges[section.id] && (
+                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                      </span>
+                    )}
+                  </Button>
+                </div>
               )}
             </div>
 
@@ -121,7 +174,13 @@ export const PDFDocument: React.FC<PDFDocumentProps> = ({
 
       <CommentDrawer
         isOpen={!!activeSectionId}
-        onClose={() => setActiveSectionId(null)}
+        onClose={() => {
+          setActiveSectionId(null);
+          // Optional: Refetch badges when drawer closes to update status if resolved
+          // But relying on useEffect with [pengajuan?.id] might not trigger re-run unless pengajuan changes.
+          // A simple way would be adding a trigger state.
+          // For now, let's keep it simple. If live update is needed, we'll add it.
+        }}
         proposalId={pengajuan?.id || 0}
         sectionId={activeSectionId || ""}
         sectionTitle={activeSectionTitle}

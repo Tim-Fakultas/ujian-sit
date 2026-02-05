@@ -30,11 +30,11 @@ export function DashboardHeader({
             )}
         >
             {/* Decorative background element */}
-            <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-blue-500/5 blur-3xl rounded-full pointer-events-none" />
+            <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-primary/5 blur-3xl rounded-full pointer-events-none" />
 
             <div className="space-y-2 relative z-10 w-full max-w-3xl">
                 <div className="flex items-center gap-2 text-muted-foreground mb-3">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold uppercase tracking-wider">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/5 dark:bg-blue-900/20 border border-primary/10 dark:border-blue-900/30 text-primary dark:text-blue-400 text-xs font-semibold uppercase tracking-wider">
                         <CalendarDays size={12} />
                         <span>{dateStr}</span>
                     </div>

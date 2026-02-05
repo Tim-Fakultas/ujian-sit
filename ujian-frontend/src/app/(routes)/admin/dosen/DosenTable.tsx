@@ -24,6 +24,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import SearchInput from "@/components/common/Search";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -50,6 +51,7 @@ import {
   updateDosen,
 } from "@/actions/data-master/dosen";
 import { showToast } from "@/components/ui/custom-toast";
+import { useUrlSearch } from "@/hooks/use-url-search";
 
 import TableGlobal from "@/components/tableGlobal";
 import Image from "next/image";
@@ -70,7 +72,17 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
 
   const data = React.useMemo(() => dosenData ?? [], [dosenData]);
 
-  const [search, setSearch] = React.useState("");
+  const { search, setSearch } = useUrlSearch();
+
+  const filteredData = React.useMemo(() => {
+    if (!search) return data;
+    const lowerSearch = search.toLowerCase();
+    return data.filter((item) =>
+      item.nama?.toLowerCase().includes(lowerSearch) ||
+      item.nidn?.toLowerCase().includes(lowerSearch) ||
+      item.nip?.toLowerCase().includes(lowerSearch)
+    );
+  }, [data, search]);
 
   // State untuk mode tampilan
   const [viewMode, setViewMode] = React.useState<"table" | "card">("table");
@@ -242,7 +254,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
   );
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns: cols,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -301,11 +313,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
     <div className="w-full bg-white dark:bg-neutral-900 rounded-md border border-gray-200 dark:border-neutral-700 p-4 space-y-4">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <div className="flex items-center gap-2 w-full">
-          <Input
+          <SearchInput
             placeholder="Search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            className="max-w-full bg-white dark:bg-neutral-800"
+            className="max-w-full"
           />
         </div>
         <Tabs
@@ -329,12 +339,12 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
         </TabsContent>
         <TabsContent value="card">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.length === 0 && (
+            {filteredData.length === 0 && (
               <div className="col-span-full text-center text-muted-foreground py-8">
                 Tidak ada data dosen.
               </div>
             )}
-            {data.map((dosen) => (
+            {filteredData.map((dosen) => (
               <div
                 key={dosen.id}
                 className="group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
@@ -440,7 +450,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                     alt={detailDosen.nama}
                     className="object-cover"
                   />
-                  <AvatarFallback className="text-2xl font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                  <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
                     {detailDosen.nama
                       ?.split(" ")
                       .map((n) => n[0])
@@ -463,7 +473,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                       {detailDosen.nidn ? `NIDN. ${detailDosen.nidn}` : 'NIDN -'}
                     </span>
                     {detailDosen.prodi?.nama && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
                         {detailDosen.prodi.nama}
                       </span>
                     )}
@@ -556,7 +566,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                     value={editForm.nama ?? ""}
                     onChange={handleEditFormChange}
                     required
-                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary transition-all"
                     placeholder="Nama lengkap dosen"
                   />
                 </div>
@@ -567,7 +577,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                     name="noHp"
                     value={editForm.noHp ?? ""}
                     onChange={handleEditFormChange}
-                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary"
                     placeholder="08xxxxxxxxxx"
                   />
                 </div>
@@ -578,7 +588,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                     name="alamat"
                     value={editForm.alamat ?? ""}
                     onChange={handleEditFormChange}
-                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary"
                     placeholder="Alamat domisili"
                   />
                 </div>
@@ -590,7 +600,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                     value={editForm.tempatTanggalLahir ?? ""}
                     onChange={handleEditFormChange}
                     placeholder="Contoh: Maninjau, 01-08-1975"
-                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary"
                   />
                 </div>
 
@@ -600,7 +610,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                     name="jabatan"
                     value={editForm.jabatan ?? ""}
                     onChange={handleEditFormChange}
-                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary"
                     placeholder="Contoh: Lektor"
                   />
                 </div>
@@ -611,7 +621,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                     name="pangkat"
                     value={editForm.pangkat ?? ""}
                     onChange={handleEditFormChange}
-                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary"
                     placeholder="Contoh: Penata Tk."
                   />
                 </div>
@@ -622,7 +632,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                     name="golongan"
                     value={editForm.golongan ?? ""}
                     onChange={handleEditFormChange}
-                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary"
                     placeholder="Contoh: III.d"
                   />
                 </div>
@@ -634,7 +644,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                     type="date"
                     value={editForm.tmtFst ?? ""}
                     onChange={handleEditFormChange}
-                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-blue-500 focus:border-blue-500"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary"
                   />
                 </div>
 
@@ -672,7 +682,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                         type="file"
                         accept="image/*"
                         onChange={handleEditFormChange}
-                        className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                        className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
                         Format: JPG, PNG, GIF. Maks 2MB.

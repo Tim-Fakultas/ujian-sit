@@ -290,14 +290,14 @@ export default function RekapitulasiNilaiModal({
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-blue-100 dark:bg-blue-500/10 rounded-2xl text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 shadow-sm">
+              <div className="p-3 bg-primary/10 dark:bg-primary/20 rounded-2xl text-primary dark:text-primary border border-primary/20 dark:border-primary/30 shadow-sm">
                 <IconClipboardList size={24} stroke={2} />
               </div>
               <div className="flex flex-col">
                 <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                   Detail nilai penguji
                 </h3>
-                <span className="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+                <span className="flex items-center gap-2 text-sm font-medium text-primary dark:text-primary">
                   {ujian.jenisUjian?.namaJenis}
                   {isUjianSelesai && (
                     <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs px-2 py-0.5 rounded-full border border-green-200 dark:border-green-800">
@@ -405,7 +405,7 @@ export default function RekapitulasiNilaiModal({
               <div className="bg-white dark:bg-neutral-800 p-4 rounded-2xl border border-gray-100 dark:border-neutral-700 flex flex-col items-center justify-center text-center shadow-sm">
                 <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Nilai</div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <IconHash size={20} className="text-blue-500" />
+                  <IconHash size={20} className="text-primary" />
                   {totalNilai.toFixed(2)}
                 </div>
               </div>
@@ -431,10 +431,10 @@ export default function RekapitulasiNilaiModal({
 
                 return (
                   <div className={`p-4 rounded-2xl border flex flex-col items-center justify-center text-center shadow-md ${forcedFail
-                      ? "bg-red-600 border-red-700 shadow-red-500/20"
-                      : "bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-900 border-blue-500 dark:border-blue-800 shadow-blue-500/20"
+                    ? "bg-red-600 border-red-700 shadow-red-500/20"
+                    : "bg-gradient-to-br from-primary to-primary/90 dark:from-primary dark:to-primary/80 border-primary dark:border-primary shadow-primary/20"
                     }`}>
-                    <div className={`text-xs font-semibold uppercase tracking-wider mb-1 ${forcedFail ? "text-red-100" : "text-blue-100"}`}>
+                    <div className={`text-xs font-semibold uppercase tracking-wider mb-1 ${forcedFail ? "text-red-100" : "text-primary-foreground"}`}>
                       Nilai Huruf
                     </div>
                     <div className="text-3xl font-extrabold text-white flex items-center gap-2">

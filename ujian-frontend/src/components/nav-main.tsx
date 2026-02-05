@@ -53,8 +53,8 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                   className={cn(
                     "group/btn relative overflow-hidden transition-all duration-200",
                     isActive
-                      ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 font-semibold shadow-sm ring-1 ring-blue-100 dark:ring-blue-500/20"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+                      ? "bg-primary/5 text-primary dark:bg-primary/10 dark:text-primary font-semibold shadow-sm ring-1 ring-primary/20 dark:ring-primary/20"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   )}
                 >
                   <Link
@@ -72,7 +72,7 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                         stroke={isActive ? 2 : 1.5}
                         className={cn(
                           "flex-shrink-0 transition-colors",
-                          isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-500 group-hover/btn:text-slate-700 dark:group-hover/btn:text-slate-300",
+                          isActive ? "text-primary dark:text-primary" : "text-muted-foreground group-hover/btn:text-foreground",
                           isExpanded ? "" : "mx-auto",
                           "group-data-[collapsible=icon]:mx-auto"
                         )}
@@ -88,7 +88,7 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
                       {item.title}
                     </span>
                     {isActive && (
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-l-full opacity-100 dark:bg-blue-400" />
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-l-full opacity-100 dark:bg-primary" />
                     )}
                   </Link>
                 </SidebarMenuButton>
@@ -102,7 +102,7 @@ function NavMain({ navItems }: { navItems: NavItem[] }) {
           return (
             <Collapsible
               key={item.title}
-              defaultOpen={isGroupActive && isExpanded}
+              defaultOpen={true}
               className="group/collapsible"
             >
               <SidebarMenuItem>

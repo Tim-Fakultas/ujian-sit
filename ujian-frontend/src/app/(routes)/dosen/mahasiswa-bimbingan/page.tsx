@@ -16,47 +16,37 @@ export default async function MahasiswaBimbinganPage() {
     if (dosenId) {
         const details = await getDosenBimbinganDetails(dosenId);
         if (details) {
-            // Mapping Pembimbing 1
-            const b1 = details.pembimbing1?.map((m: any) => ({
-                id: m.id,
-                nama: m.nama,
-                nim: String(m.nim),
-                status: m.status,
-                prodi: m.prodi,
-                angkatan: String(m.angkatan),
-                judul: m.judul,
-                peran: 'Pembimbing 1'
-            })) || [];
+            const studentMap = new Map<number, MahasiswaBimbingan>();
 
-            // Mapping Pembimbing 2
-            const b2 = details.pembimbing2?.map((m: any) => ({
-                id: m.id,
-                nama: m.nama,
-                nim: String(m.nim),
-                status: m.status,
-                prodi: m.prodi,
-                angkatan: String(m.angkatan),
-                judul: m.judul,
-                peran: 'Pembimbing 2'
-            })) || [];
+            const processList = (list: any[], role: string) => {
+                if (!list) return;
+                list.forEach((m) => {
+                    const existing = studentMap.get(m.id);
+                    if (existing) {
+                        if (!existing.peran.includes(role)) {
+                            existing.peran += `, ${role}`;
+                        }
+                    } else {
+                        studentMap.set(m.id, {
+                            id: m.id,
+                            nama: m.nama,
+                            nim: String(m.nim),
+                            status: m.status,
+                            prodi: m.prodi,
+                            angkatan: String(m.angkatan),
+                            judul: m.judul,
+                            peran: role,
+                            pembimbing1: m.pembimbing1,
+                            pembimbing2: m.pembimbing2,
+                        });
+                    }
+                });
+            };
 
-            // Mapping Dosen PA
-            const pa = details.pa?.map((m: any) => ({
-                id: m.id,
-                nama: m.nama,
-                nim: String(m.nim),
-                status: m.status,
-                prodi: m.prodi,
-                angkatan: String(m.angkatan),
-                judul: m.judul,
-                peran: 'Dosen PA'
-            })) || [];
+            processList(details.pembimbing1, 'Pembimbing 1');
+            processList(details.pembimbing2, 'Pembimbing 2');
 
-            // Gabungkan semua data
-            // Note: Satu mahasiswa bisa muncul lebih dari sekali jika dosen memiliki peran ganda (misal PA dan Pembimbing 1)
-            // Jika ingin dimerge per mahasiswa dan peran digabung (misal "PA & Pembimbing 1"), logic nya akan lebih kompleks.
-            // Untuk sekarang biarkan terpisah barisnya agar jelas perannya.
-            dataGabungan = [...b1, ...b2, ...pa];
+            dataGabungan = Array.from(studentMap.values());
         }
     }
 

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { createRancanganPenelitian } from "@/actions/rancanganPenelitian";
+import { createRancanganPenelitian, updateJudulRancanganPenelitian } from "@/actions/rancanganPenelitian";
 import { RancanganPenelitian } from "@/types/RancanganPenelitian";
 import { showToast } from "@/components/ui/custom-toast";
 import revalidateAction from "@/actions/revalidate";
@@ -21,12 +21,13 @@ interface FormProps {
   mahasiswaId: number;
   onSuccess?: () => void;
   onClose?: () => void;
+  status?: string;
 }
 
-export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
+export default function Form({ mahasiswaId, onSuccess, onClose, initialData, ranpelId, status }: FormProps & { initialData?: RancanganPenelitian; ranpelId?: number }) {
 
 
-  const [formData, setFormData] = useState<RancanganPenelitian>({
+  const [formData, setFormData] = useState<RancanganPenelitian>(initialData || {
     judulPenelitian: "",
     masalahDanPenyebab: "",
     alternatifSolusi: "",
@@ -110,23 +111,34 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
     setIsSubmitting(true);
 
     try {
-      await createRancanganPenelitian(mahasiswaId, formData);
+      if (ranpelId) {
+        // Edit Mode
+        await updateJudulRancanganPenelitian(mahasiswaId, ranpelId, formData);
+        showToast.success("Berhasil!", "Rancangan penelitian berhasil diperbarui.");
+      } else {
+        // Create Mode
+        await createRancanganPenelitian(mahasiswaId, formData);
+        showToast.success("Berhasil!", "Rancangan penelitian berhasil disimpan.");
+      }
+
       await revalidateAction("/mahasiswa/pengajuan-ranpel");
-      showToast.success("Berhasil!", "Rancangan penelitian berhasil disimpan.");
-      setFormData({
-        judulPenelitian: "",
-        masalahDanPenyebab: "",
-        alternatifSolusi: "",
-        metodePenelitian: "",
-        hasilYangDiharapkan: "",
-        kebutuhanData: "",
-        jurnalReferensi: "",
-      });
+
+      if (!ranpelId) { // Only reset form on create
+        setFormData({
+          judulPenelitian: "",
+          masalahDanPenyebab: "",
+          alternatifSolusi: "",
+          metodePenelitian: "",
+          hasilYangDiharapkan: "",
+          kebutuhanData: "",
+          jurnalReferensi: "",
+        });
+      }
       onSuccess?.();
     } catch {
       showToast.error(
         "Gagal!",
-        "Gagal menyimpan rancangan penelitian. Silakan coba lagi."
+        `Gagal ${ranpelId ? 'memperbarui' : 'menyimpan'} rancangan penelitian. Silakan coba lagi.`
       );
     } finally {
       setIsSubmitting(false);
@@ -134,22 +146,25 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full relative" noValidate>
+    <form onSubmit={handleSubmit} className="w-full h-full flex flex-col relative overflow-hidden" noValidate>
       {/* Sticky Header */}
-      <div className="sticky top-0 z-40 bg-white/95 dark:bg-neutral-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b dark:border-neutral-800 px-6 py-4 flex items-center justify-between gap-4 shadow-sm">
+      <div className="flex-none bg-white/95 dark:bg-neutral-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b dark:border-neutral-800 px-6 py-4 flex items-center justify-between gap-4 shadow-sm z-40">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white shadow-lg shadow-blue-500/20">
+          <div className="p-2.5 bg-gradient-to-br from-primary to-primary/80 rounded-xl text-white shadow-lg shadow-primary/20">
             <FileText className="h-5 w-5" />
           </div>
           <div>
             <div className="text-lg font-bold text-gray-900 dark:text-white leading-tight flex items-center gap-2">
-              Form Rancangan Penelitian
-              <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider border border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/30">
-                Baru
+              {ranpelId ? "Edit Rancangan Penelitian" : "Form Rancangan Penelitian"}
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${ranpelId
+                ? "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-900/30"
+                : "bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary dark:border-primary/30"
+                }`}>
+                {ranpelId ? "Edit Mode" : "Baru"}
               </span>
             </div>
             <div className="text-xs text-muted-foreground mt-0.5">
-              Isi data rancangan penelitian Anda dengan jelas dan lengkap.
+              {ranpelId ? "Perbarui data rancangan penelitian Anda." : "Isi data rancangan penelitian Anda dengan jelas dan lengkap."}
             </div>
           </div>
         </div>
@@ -168,7 +183,7 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
       </div>
 
       {/* Scrollable Content Body */}
-      <div className="p-6 space-y-8 bg-gray-50/50 dark:bg-[#0a0a0a]">
+      <div className="flex-1 p-6 space-y-8 bg-gray-50/50 dark:bg-[#0a0a0a] overflow-y-auto custom-scrollbar">
         {/* Judul Section */}
         <div className="bg-white dark:bg-neutral-900 border dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-300">
           <div className="space-y-4">
@@ -177,7 +192,7 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
                 htmlFor="judulPenelitian"
                 className="text-base font-bold flex items-center gap-2"
               >
-                <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
+                <span className="w-1 h-4 bg-primary rounded-full"></span>
                 Judul Penelitian
               </Label>
               {formData.judulPenelitian.length > 0 && (
@@ -195,11 +210,27 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
                 onChange={handleChange}
                 placeholder="Tuliskan judul penelitian skripsi Anda di sini..."
                 required
-                className={`min-h-[100px] text-lg font-medium resize-none leading-relaxed transition-all duration-200 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl ${errors.judulPenelitian
+                disabled={status ? status !== "menunggu" : false}
+                className={`min-h-[100px] text-lg font-medium resize-none leading-relaxed transition-all duration-200 border-gray-200 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-xl ${errors.judulPenelitian
                   ? "border-red-400 focus-visible:ring-red-400/20"
                   : ""
-                  }`}
+                  } ${status && status !== "menunggu" ? "bg-gray-100 dark:bg-neutral-800 text-gray-500 cursor-not-allowed" : ""}`}
               />
+              {status && status !== "menunggu" && (
+                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 rounded-xl flex items-start gap-3">
+                  <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg shrink-0 mt-0.5">
+                    <Sparkles size={14} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
+                      Perubahan Judul Dibatasi
+                    </p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 leading-relaxed">
+                      Status saat ini tidak memungkinkan perubahan judul secara langsung. Jika Anda ingin mengajukan perubahan judul, silakan gunakan menu <a href="/mahasiswa/perbaikan-judul" className="underline hover:text-blue-800 font-semibold">Perbaikan Judul</a>.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
             {errors.judulPenelitian && (
               <p className="text-sm text-red-500 flex items-center gap-1 animate-in slide-in-from-left-2">
@@ -404,31 +435,36 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="flex gap-4 pt-4 border-t dark:border-neutral-800 sticky bottom-0 bg-gray-50/90 dark:bg-[#0a0a0a]/90 backdrop-blur p-4 -mx-6 -mb-6 mt-4 z-30">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center justify-center gap-2 h-12 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5"
-            aria-live="polite"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="animate-spin" size={18} />
-                Menyimpan...
-              </>
-            ) : (
-              <>
-                <CheckCircle2 size={18} />
-                Simpan Rancangan
-              </>
-            )}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-12 px-6 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-neutral-800"
-            onClick={() =>
+      <div className="flex-none flex gap-4 p-4 border-t dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 backdrop-blur z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="flex-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white flex items-center justify-center gap-2 h-12 rounded-xl shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5"
+          aria-live="polite"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="animate-spin" size={18} />
+              {ranpelId ? "Memperbarui..." : "Menyimpan..."}
+            </>
+          ) : (
+            <>
+              <CheckCircle2 size={18} />
+              {ranpelId ? "Simpan Perubahan" : "Simpan Rancangan"}
+            </>
+          )}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-12 px-6 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-neutral-800"
+          onClick={() => {
+            if (ranpelId && initialData) {
+              setFormData(initialData); // Reset to initial data if editing
+              showToast.info("Form telah di-reset ke data awal");
+            } else {
               setFormData({
                 judulPenelitian: "",
                 masalahDanPenyebab: "",
@@ -437,12 +473,12 @@ export default function Form({ mahasiswaId, onSuccess, onClose }: FormProps) {
                 hasilYangDiharapkan: "",
                 kebutuhanData: "",
                 jurnalReferensi: "",
-              })
+              });
             }
-          >
-            Reset
-          </Button>
-        </div>
+          }}
+        >
+          Reset
+        </Button>
       </div>
     </form>
   );

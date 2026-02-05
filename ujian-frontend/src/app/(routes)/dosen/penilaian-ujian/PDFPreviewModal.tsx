@@ -323,7 +323,7 @@ export default function PDFPreviewModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b dark:border-neutral-800 bg-white dark:bg-[#1f1f1f] z-10">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
+            <div className="p-2 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary rounded-lg">
               {/* Document Icon */}
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-current stroke-2">
                 <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
@@ -332,7 +332,7 @@ export default function PDFPreviewModal({
             </div>
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-                Preview Rancangan Penelitian
+                Rancangan Penelitian
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 {pengajuan.mahasiswa.nama} • {pengajuan.mahasiswa.nim}
@@ -342,7 +342,7 @@ export default function PDFPreviewModal({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className={`p-2 rounded-full transition-colors hidden md:block ${showDetails ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30' : 'hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500'}`}
+              className={`p-2 rounded-full transition-colors hidden md:block ${showDetails ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500'}`}
               title={showDetails ? "Sembunyikan Panel Kanan" : "Tampilkan Panel Kanan"}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-current stroke-2">
@@ -388,7 +388,7 @@ export default function PDFPreviewModal({
               <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1 bg-gray-200 dark:bg-neutral-700 rounded-full"></div>
 
               <div className="flex items-center gap-2 mt-2">
-                <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse box-content border-2 border-blue-100 dark:border-blue-900/30"></div>
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse box-content border-2 border-primary/20 dark:border-primary/30"></div>
                 <h3 className="text-sm font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200">Status Dokumen</h3>
               </div>
               <button className="p-2 mt-2 rounded-full bg-gray-100 dark:bg-neutral-800 text-gray-500 transition-transform">
@@ -406,7 +406,7 @@ export default function PDFPreviewModal({
               {/* Section: Status Details */}
               <div className="space-y-4">
                 <h3 className="hidden md:flex text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                   Status Dokumen
                 </h3>
 
@@ -421,48 +421,96 @@ export default function PDFPreviewModal({
                       {pengajuan.status}
                     </span>
                   </div>
-                  <div>
-                    <span className="text-xs text-gray-500 block mb-1">Tanggal Pengajuan</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                      {new Date(pengajuan.tanggalPengajuan).toLocaleDateString('id-ID', {
-                        weekday: 'long',
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                      })}
-                    </span>
-                  </div>
 
-                  {/* Tampilkan 'Tanggal Diverifikasi' jika sudah ada datanya, ATAU jika user adalah Dosen/Kaprodi (agar terlihat fieldnya meskipun kosong/belum diverifikasi) */}
-                  {(pengajuan.tanggalDiverifikasi || canApproveReject || user?.roles?.[0]?.name === 'kaprodi' || user?.roles?.[0]?.name === 'dosen') && (
-                    <div>
-                      <span className="text-xs text-gray-500 block mb-1">Tanggal Diverifikasi Dosen PA</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                        {pengajuan.tanggalDiverifikasi
-                          ? new Date(pengajuan.tanggalDiverifikasi).toLocaleDateString('id-ID', {
+                  {/* Timeline Design */}
+                  <div className="mt-4 space-y-0">
+                    {/* Tanggal Pengajuan */}
+                    <div className="flex gap-3 items-start relative">
+                      <div className="flex flex-col items-center">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-500 dark:border-blue-400 flex items-center justify-center shrink-0 z-10">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600 dark:text-blue-400">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                          </svg>
+                        </div>
+                        {(pengajuan.tanggalDiverifikasi || canApproveReject || user?.roles?.[0]?.name === 'kaprodi' || user?.roles?.[0]?.name === 'dosen') && (
+                          <div className="w-0.5 h-8 bg-gradient-to-b from-blue-300 to-orange-300 dark:from-blue-700 dark:to-orange-700"></div>
+                        )}
+                      </div>
+                      <div className="flex-1 pb-2">
+                        <span className="text-xs text-gray-500 block">Tanggal Pengajuan</span>
+                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                          {new Date(pengajuan.tanggalPengajuan).toLocaleDateString('id-ID', {
                             weekday: 'long',
                             day: 'numeric',
                             month: 'long',
                             year: 'numeric'
-                          })
-                          : "-"}
-                      </span>
+                          })}
+                        </span>
+                      </div>
                     </div>
-                  )}
 
-                  {pengajuan.tanggalDiterima && (
-                    <div>
-                      <span className="text-xs text-gray-500 block mb-1">Tanggal Diterima Kaprodi</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                        {new Date(pengajuan.tanggalDiterima).toLocaleDateString('id-ID', {
-                          weekday: 'long',
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                  )}
+                    {/* Tanggal Diverifikasi */}
+                    {(pengajuan.tanggalDiverifikasi || canApproveReject || user?.roles?.[0]?.name === 'kaprodi' || user?.roles?.[0]?.name === 'dosen') && (
+                      <div className="flex gap-3 items-start relative">
+                        <div className="flex flex-col items-center">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 ${pengajuan.tanggalDiverifikasi
+                              ? 'bg-orange-100 dark:bg-orange-900/30 border-2 border-orange-500 dark:border-orange-400'
+                              : 'bg-gray-100 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600'
+                            }`}>
+                            {pengajuan.tanggalDiverifikasi ? (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-orange-600 dark:text-orange-400">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                            ) : (
+                              <div className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600"></div>
+                            )}
+                          </div>
+                          {pengajuan.tanggalDiterima && (
+                            <div className="w-0.5 h-8 bg-gradient-to-b from-orange-300 to-green-300 dark:from-orange-700 dark:to-green-700"></div>
+                          )}
+                        </div>
+                        <div className="flex-1 pb-2">
+                          <span className="text-xs text-gray-500 block">Tanggal Diverifikasi Dosen PA</span>
+                          <span className={`text-sm font-semibold ${pengajuan.tanggalDiverifikasi ? 'text-gray-900 dark:text-gray-200' : 'text-gray-400 dark:text-gray-600'}`}>
+                            {pengajuan.tanggalDiverifikasi
+                              ? new Date(pengajuan.tanggalDiverifikasi).toLocaleDateString('id-ID', {
+                                weekday: 'long',
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                              })
+                              : "Belum diverifikasi"}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tanggal Diterima */}
+                    {pengajuan.tanggalDiterima && (
+                      <div className="flex gap-3 items-start relative">
+                        <div className="flex flex-col items-center">
+                          <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 border-2 border-green-500 dark:border-green-400 flex items-center justify-center shrink-0 z-10">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-green-600 dark:text-green-400">
+                              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-xs text-gray-500 block">Tanggal Diterima Kaprodi</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                            {new Date(pengajuan.tanggalDiterima).toLocaleDateString('id-ID', {
+                              weekday: 'long',
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric'
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Keterangan */}
@@ -471,7 +519,7 @@ export default function PDFPreviewModal({
                     {/* Catatan Dosen PA */}
                     <div>
                       <span className="text-xs font-semibold text-gray-500 mb-2 block">Catatan Dosen PA</span>
-                      <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20 text-sm text-gray-700 dark:text-blue-100 leading-relaxed min-h-[60px]">
+                      <div className="bg-primary/5 dark:bg-primary/10 p-4 rounded-xl border border-primary/10 dark:border-primary/20 text-sm text-gray-700 dark:text-primary leading-relaxed min-h-[60px]">
                         {pengajuan.keterangan ? (
                           pengajuan.keterangan
                         ) : (
@@ -483,7 +531,7 @@ export default function PDFPreviewModal({
                     {/* Catatan Kaprodi */}
                     <div>
                       <span className="text-xs font-semibold text-gray-500 mb-2 block">Catatan Kaprodi</span>
-                      <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20 text-sm text-gray-700 dark:text-blue-100 leading-relaxed min-h-[60px]">
+                      <div className="bg-primary/5 dark:bg-primary/10 p-4 rounded-xl border border-primary/10 dark:border-primary/20 text-sm text-gray-700 dark:text-primary leading-relaxed min-h-[60px]">
                         {pengajuan.catatanKaprodi ? (
                           pengajuan.catatanKaprodi
                         ) : (
@@ -681,7 +729,7 @@ export default function PDFPreviewModal({
                     !selectedPembimbing2 ||
                     selectedPembimbing1 === selectedPembimbing2
                   }
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                  className="bg-primary hover:bg-primary/90 text-white rounded-lg"
                   onClick={(e) => {
                     // The form submit will handle this, but AlertDialogAction triggers automatic close if not prevented
                     // We need to rely on form submit, so we use `type="submit"` and let it bubble up to `handlePembimbingSubmit`

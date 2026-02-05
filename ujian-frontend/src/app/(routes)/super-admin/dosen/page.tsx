@@ -7,7 +7,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   createColumnHelper,
-  flexRender,
+
 } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -97,14 +97,8 @@ export default function DosenPage() {
     if (!selectedItem) return;
     try {
       await updateDosen(selectedItem.id, {
-        ...formData,
-        // prodiId: parseInt(formData.prodiId), // Api might handle update differently related to relation
-        // Checking updateDosen signature: it takes specific fields. 
-        // We might need to adjust action if we want to update prodi relation.
-        // For now adhering to existing action signature if possible, or assumed expansion.
-        // Only expanding standard fields:
         nama: formData.nama,
-        noHp: formData.noHp,
+        no_hp: formData.noHp,
       });
       toast.success("Dosen berhasil diupdate");
       setIsEditOpen(false);
@@ -256,22 +250,22 @@ export default function DosenPage() {
                 />
               </div>
               <div>
-                 <label className="text-sm font-medium">Prodi</label>
-                 <Select
-                    value={formData.prodiId}
-                    onValueChange={(v) => setFormData({...formData, prodiId: v})}
-                 >
-                    <SelectTrigger>
-                        <SelectValue placeholder="Pilih Prodi" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {prodiList.map((p) => (
-                            <SelectItem key={p.id} value={p.id.toString()}>
-                                {p.nama}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                 </Select>
+                <label className="text-sm font-medium">Prodi</label>
+                <Select
+                  value={formData.prodiId}
+                  onValueChange={(v) => setFormData({ ...formData, prodiId: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Prodi" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {prodiList.map((p) => (
+                      <SelectItem key={p.id} value={p.id.toString()}>
+                        {p.nama}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div>
@@ -285,14 +279,14 @@ export default function DosenPage() {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="text-sm font-medium">No HP</label>
-                    <Input
-                        value={formData.noHp}
-                        onChange={(e) => setFormData({...formData, noHp: e.target.value})}
-                        placeholder="08..."
-                    />
-                </div>
+              <div>
+                <label className="text-sm font-medium">No HP</label>
+                <Input
+                  value={formData.noHp}
+                  onChange={(e) => setFormData({ ...formData, noHp: e.target.value })}
+                  placeholder="08..."
+                />
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -310,10 +304,10 @@ export default function DosenPage() {
           <DialogHeader>
             <DialogTitle>Edit Dosen</DialogTitle>
           </DialogHeader>
-           <div className="grid gap-4 py-4">
-             {/* Simplified Edit Form: UpdateDosen action assumes some fields */}
-             {/* Usually NIDN is unchangeable? */}
-             <div>
+          <div className="grid gap-4 py-4">
+            {/* Simplified Edit Form: UpdateDosen action assumes some fields */}
+            {/* Usually NIDN is unchangeable? */}
+            <div>
               <label className="text-sm font-medium">Nama Lengkap</label>
               <Input
                 value={formData.nama}
@@ -323,13 +317,13 @@ export default function DosenPage() {
               />
             </div>
             <div>
-                <label className="text-sm font-medium">No HP</label>
-                <Input
-                    value={formData.noHp}
-                    onChange={(e) => setFormData({...formData, noHp: e.target.value})}
-                />
+              <label className="text-sm font-medium">No HP</label>
+              <Input
+                value={formData.noHp}
+                onChange={(e) => setFormData({ ...formData, noHp: e.target.value })}
+              />
             </div>
-           </div>
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>
               Batal

@@ -42,6 +42,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
 }
 
 :root {
@@ -107,6 +110,14 @@
   /* Custom Dimensions */
   --sidebar-width: 16rem;
   --sidebar-width-icon: 3.5rem;
+
+  /* Semantic - Status Colors */
+  --success: var(--chart-2);
+  /* Emerald */
+  --warning: var(--chart-3);
+  /* Amber */
+  --info: var(--chart-1);
+  /* Blue */
 }
 
 .dark {
@@ -120,8 +131,8 @@
   --popover: #0a0a0a;
   --popover-foreground: #ededed;
 
-  /* Brand Identity - Lighter Blue for Dark Mode */
-  --primary: #3b82f6;
+  /* Brand Identity - Deep Academic Blue */
+  --primary: #0047AB;
   --primary-foreground: #ffffff;
 
   /* Secondary - Subtle Dark Grays */
@@ -143,10 +154,10 @@
   /* Borders & Inputs */
   --border: #262626;
   --input: #262626;
-  --ring: #3b82f6;
+  --ring: #0047AB;
 
   /* Charts */
-  --chart-1: #3b82f6;
+  --chart-1: #0047AB;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
   --chart-4: #a855f7;
@@ -156,12 +167,17 @@
   --sidebar: #0a0a0a;
   /* Seamless sidebar */
   --sidebar-foreground: #a3a3a3;
-  --sidebar-primary: #3b82f6;
+  --sidebar-primary: #0047AB;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #1f1f1f;
   --sidebar-accent-foreground: #ededed;
   --sidebar-border: #262626;
-  --sidebar-ring: #3b82f6;
+  --sidebar-ring: #0047AB;
+
+  /* Semantic - Status Colors */
+  --success: var(--chart-2);
+  --warning: var(--chart-3);
+  --info: var(--chart-1);
 }
 
 @layer base {
@@ -247,11 +263,11 @@
 
     0%,
     100% {
-      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+      box-shadow: 0 0 0 0 rgba(0, 71, 171, 0.4);
     }
 
     50% {
-      box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+      box-shadow: 0 0 0 8px rgba(0, 71, 171, 0);
     }
   }
 

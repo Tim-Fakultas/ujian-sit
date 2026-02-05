@@ -1,6 +1,8 @@
 "use client"
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import SearchInput from "@/components/common/Search";
+import { useUrlSearch } from "@/hooks/use-url-search";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -99,7 +101,7 @@ const mockProdiData: Prodi[] = [
 ];
 
 export default function DaftarProdiPage() {
-  const [search, setSearch] = useState("");
+  const { search } = useUrlSearch();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selected, setSelected] = useState<Prodi | null>(null);
@@ -194,15 +196,10 @@ export default function DaftarProdiPage() {
       <DataCard>
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           {/* Search Bar */}
-          <div className="relative flex-1 max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Cari berdasarkan nama, kode, atau jenjang"
-              className="pl-10 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 rounded-lg"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+          <SearchInput
+            placeholder="Cari berdasarkan nama, kode, atau jenjang"
+            className="flex-1 max-w-xs"
+          />
 
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
@@ -318,7 +315,7 @@ export default function DaftarProdiPage() {
                     <TableCell className="text-center">
                       {startIndex + index + 1}
                     </TableCell>
-                    <TableCell className="font-mono font-semibold text-blue-600 dark:text-blue-400">
+                    <TableCell className="font-mono font-semibold text-primary dark:text-primary">
                       {item.kode}
                     </TableCell>
                     <TableCell className="max-w-md">
@@ -341,21 +338,20 @@ export default function DaftarProdiPage() {
                       </TooltipProvider>
                     </TableCell>
                     <TableCell>
-                      <span className="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded">
+                      <span className="inline-flex px-2 py-1 text-xs font-medium bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary rounded">
                         {item.jenjang}
                       </span>
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded ${
-                          item.akreditasi === "A" ||
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded ${item.akreditasi === "A" ||
                           item.akreditasi === "Unggul"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                            : item.akreditasi === "B" ||
-                              item.akreditasi === "Baik Sekali"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                          : item.akreditasi === "B" ||
+                            item.akreditasi === "Baik Sekali"
                             ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
                             : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
-                        }`}
+                          }`}
                       >
                         {item.akreditasi}
                       </span>
@@ -414,9 +410,9 @@ export default function DaftarProdiPage() {
 
         {/* Footer Pagination */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Halaman {currentPage} dari {totalPages}</span>
-            </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>Halaman {currentPage} dari {totalPages}</span>
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">Tampil:</span>
             <Select

@@ -26,6 +26,7 @@ import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useEffect, memo } from "react";
 import NavMain, { NavItem } from "./nav-main";
+import { ModeToggle } from "@/app/theme-toggle";
 
 /**
  * Sidebar client yang hanya meng-hydrate bagian kecil (navigasi + collapsible)
@@ -59,6 +60,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
         { title: "Prodi", url: "/super-admin/prodi" },
         { title: "Jenis Ujian", url: "/super-admin/jenis-ujian" },
         { title: "Komponen Penilaian", url: "/super-admin/komponen-penilaian" },
+        { title: "Manage FAQ", url: "/super-admin/manage-faq" },
       ],
     },
   ];
@@ -122,8 +124,8 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       title: "Skripsi",
       icon: IconBook,
       items: [
-        { title: "Mahasiswa Bimbingan", url: "/dosen/mahasiswa-bimbingan" },
         { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
+        { title: "Mahasiswa Bimbingan", url: "/dosen/mahasiswa-bimbingan" },
         { title: "Perbaikan Judul", url: "/dosen/riwayat-judul" },
         { title: "Jadwal Ujian", url: "/dosen/jadwal-ujian" },
         { title: "Penilaian Ujian", url: "/dosen/penilaian-ujian" },
@@ -138,7 +140,9 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       title: "Skripsi",
       icon: IconListDetails,
       items: [
-        { title: "Rancangan Penelitian", url: "/mahasiswa/pengajuan-ranpel" },
+        { title: "Pengajuan Rancangan Penelitian", url: "/mahasiswa/pengajuan-ranpel" },
+        { title: "Judul diterima", url: "/mahasiswa/judul-diterima" },
+        { title: "Judul ditolak", url: "/mahasiswa/judul-ditolak" },
         { title: "Perbaikan judul", url: "/mahasiswa/perbaikan-judul" },
         { title: "Pendaftaran Ujian", url: "/mahasiswa/pendaftaran-ujian" },
         { title: "Jadwal Ujian", url: "/mahasiswa/jadwal-ujian" },
@@ -215,10 +219,17 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       <SidebarContent className="flex-1 overflow-y-auto">
         <NavMain navItems={navItems} />
       </SidebarContent>
-
       {/* Footer */}
       <SidebarFooter className="border-t border-slate-200/30 dark:border-slate-700/30 mt-auto p-2">
-        <NavUser user={currentUser} />
+        <div className="flex flex-col gap-2">
+          {isMobile && (
+            <div className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-accent/50 transition-colors">
+              <span className="text-xs font-medium text-muted-foreground">Tampilan</span>
+              <ModeToggle />
+            </div>
+          )}
+          <NavUser user={currentUser} />
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

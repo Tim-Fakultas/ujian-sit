@@ -86,14 +86,14 @@ export default function DaftarHadirDialog({
           </div>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-blue-100 dark:bg-blue-500/10 rounded-2xl text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 shadow-sm">
+              <div className="p-3 bg-primary/10 dark:bg-primary/20 rounded-2xl text-primary dark:text-primary border border-primary/20 dark:border-primary/30 shadow-sm">
                 <IconClipboardList size={24} stroke={2} />
               </div>
               <div className="flex flex-col">
                 <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                   Absensi Kehadiran
                 </h3>
-                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                <span className="text-sm font-medium text-primary dark:text-primary">
                   {ujian?.jenisUjian?.namaJenis}
                 </span>
               </div>
@@ -137,7 +137,7 @@ export default function DaftarHadirDialog({
                   className={cn(
                     "group flex flex-col sm:flex-row gap-4 p-4 rounded-2xl border transition-all duration-300",
                     isCurrent
-                      ? "bg-white dark:bg-neutral-800 border-blue-200 dark:border-blue-900/50 shadow-lg shadow-blue-500/5 ring-1 ring-blue-100 dark:ring-blue-900/20"
+                      ? "bg-white dark:bg-neutral-800 border-primary/20 dark:border-primary/30 shadow-lg shadow-primary/5 ring-1 ring-primary/10 dark:ring-primary/20"
                       : "bg-white dark:bg-neutral-900 border-gray-100 dark:border-neutral-800 hover:border-gray-300 dark:hover:border-neutral-700 shadow-sm"
                   )}
                 >
@@ -147,7 +147,7 @@ export default function DaftarHadirDialog({
                         className={cn(
                           "font-bold text-xs",
                           isCurrent
-                            ? "bg-blue-600 text-white"
+                            ? "bg-primary text-white"
                             : "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-300"
                         )}
                       >
@@ -160,7 +160,7 @@ export default function DaftarHadirDialog({
                           {penguji.nama || "-"}
                         </span>
                         {isCurrent && (
-                          <span className="text-[9px] font-extrabold px-1.5 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-lg uppercase tracking-wider">
+                          <span className="text-[9px] font-extrabold px-1.5 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary rounded-lg uppercase tracking-wider">
                             Anda
                           </span>
                         )}

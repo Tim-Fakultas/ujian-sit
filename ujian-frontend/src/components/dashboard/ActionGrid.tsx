@@ -18,12 +18,12 @@ interface ActionGridProps {
 }
 
 const colorMap = {
-    blue: "text-blue-600 dark:text-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20",
-    emerald: "text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20",
-    amber: "text-amber-600 dark:text-amber-400 group-hover:bg-amber-50 dark:group-hover:bg-amber-900/20",
-    violet: "text-violet-600 dark:text-violet-400 group-hover:bg-violet-50 dark:group-hover:bg-violet-900/20",
-    rose: "text-rose-600 dark:text-rose-400 group-hover:bg-rose-50 dark:group-hover:bg-rose-900/20",
-    slate: "text-slate-600 dark:text-slate-400 group-hover:bg-slate-50 dark:group-hover:bg-slate-900/20",
+    blue: "text-primary dark:text-blue-400 group-hover:bg-primary/5 dark:group-hover:bg-blue-900/20",
+    emerald: "text-primary dark:text-blue-400 group-hover:bg-primary/5 dark:group-hover:bg-blue-900/20",
+    amber: "text-primary dark:text-blue-400 group-hover:bg-primary/5 dark:group-hover:bg-blue-900/20",
+    violet: "text-primary dark:text-blue-400 group-hover:bg-primary/5 dark:group-hover:bg-blue-900/20",
+    rose: "text-primary dark:text-blue-400 group-hover:bg-primary/5 dark:group-hover:bg-blue-900/20",
+    slate: "text-primary dark:text-blue-400 group-hover:bg-primary/5 dark:group-hover:bg-blue-900/20",
 };
 
 export function ActionCard({ item, className }: { item: ActionItem, className?: string }) {

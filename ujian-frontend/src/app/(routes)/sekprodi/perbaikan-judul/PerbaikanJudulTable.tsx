@@ -39,6 +39,8 @@ import { PerbaikanJudul } from "@/types/PerbaikanJudul";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import PDFPreviewModal from "@/components/mahasiswa/pengajuan-ranpel/PDFPreviewModal";
 import { getStatusColor } from "@/lib/utils";
+import { useUrlSearch } from "@/hooks/use-url-search";
+import { useUrlFilter } from "@/hooks/use-url-filter";
 
 interface PerbaikanJudulTableProps {
   perbaikanJudulList: PerbaikanJudul[];
@@ -57,8 +59,8 @@ export default function PerbaikanJudulTable({
   const [rowSelection, setRowSelection] = useState({});
 
   // Filter States
-  const [filterNama, setFilterNama] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const { search: filterNama, setSearch: setFilterNama } = useUrlSearch();
+  const [filterStatus, setFilterStatus] = useUrlFilter("status", "all");
 
   // Modal States
   const [selectedPengajuan, setSelectedPengajuan] = useState<PengajuanRanpel | null>(null);
@@ -269,7 +271,7 @@ export default function PerbaikanJudulTable({
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground">Judul Baru (Usulan)</Label>
-                <div className="text-sm font-medium mt-1 p-2 bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-300 rounded border border-blue-100 dark:border-blue-800">
+                <div className="text-sm font-medium mt-1 p-2 bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary rounded border border-primary/10 dark:border-primary/20">
                   {detailPerbaikan.judulBaru || "-"}
                 </div>
               </div>
@@ -281,7 +283,7 @@ export default function PerbaikanJudulTable({
                       href={`${process.env.NEXT_PUBLIC_STORAGE_URL}/storage/${detailPerbaikan.berkas}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                      className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 hover:underline"
                     >
                       <FileText size={14} />
                       Lihat Surat

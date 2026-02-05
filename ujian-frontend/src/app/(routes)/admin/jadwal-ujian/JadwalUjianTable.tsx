@@ -39,6 +39,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useUrlSearch } from "@/hooks/use-url-search";
+import { useUrlFilter } from "@/hooks/use-url-filter";
+import SearchInput from "@/components/common/Search";
 
 // { changed code }
 // imports untuk TanStack Table + TableGlobal
@@ -139,9 +142,9 @@ export default function JadwalUjianTable({
   }
 
   // Filter & Pagination State
-  const [filterNama, setFilterNama] = useState("");
-  const [filterJenis, setFilterJenis] = useState("all");
-  const [filterJadwal, setFilterJadwal] = useState<"all" | "mine">("all");
+  const { search: filterNama } = useUrlSearch();
+  const [filterJenis, setFilterJenis] = useUrlFilter("jenis", "all");
+  const [filterJadwal, setFilterJadwal] = useUrlFilter("jadwal", "all") as ["all" | "mine", (val: string) => void, boolean];
   const [openFilter, setOpenFilter] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -197,7 +200,7 @@ export default function JadwalUjianTable({
       "bg-gray-100 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700";
     if (status === "dijadwalkan")
       color =
-        "bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-800";
+        "bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-primary dark:border-primary/30";
     else if (status === "menunggu")
       color =
         "bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-800";
@@ -236,7 +239,7 @@ export default function JadwalUjianTable({
       id: "jenis",
       header: "Jenis Ujian",
       cell: (info) => (
-        <span className="px-2 py-1 rounded font-medium inline-block bg-blue-50 text-blue-600">
+        <span className="px-2 py-1 rounded font-medium inline-block bg-primary/10 text-primary">
           {info.getValue()}
         </span>
       ),
@@ -331,18 +334,10 @@ export default function JadwalUjianTable({
       <div className="flex flex-col gap-2  mb-4 w-full">
         <div className="flex flex-row flex-1 items-center gap-2 w-full sm:justify-end">
           {/* Search input di luar filter popover */}
-          <div className="relative w-full  sm:max-w-full ">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              <Search size={16} />
-            </span>
-            <Input
-              placeholder="Search"
-              value={filterNama}
-              onChange={(e) => setFilterNama(e.target.value)}
-              className="pl-10 w-full text-sm bg-white dark:bg-neutral-900 rounded-md"
-              inputMode="text"
-            />
-          </div>
+          <SearchInput
+            placeholder="Search"
+            className="w-full sm:max-w-full"
+          />
           {/* Filter popover hanya untuk jenis ujian & jadwal */}
           <Popover open={openFilter} onOpenChange={setOpenFilter}>
             <PopoverTrigger asChild>
@@ -457,7 +452,7 @@ export default function JadwalUjianTable({
 
             let statusColor = "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
             if (status === "dijadwalkan")
-              statusColor = "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
+              statusColor = "bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary dark:border-primary/30";
             else if (status === "menunggu")
               statusColor = "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800";
             else if (status === "belum dijadwalkan")
@@ -575,7 +570,7 @@ export default function JadwalUjianTable({
                         {penguji.nama ?? "-"}
                       </div>
                       <div className="flex flex-wrap items-center gap-2 mt-1">
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 font-medium border border-blue-100 dark:border-blue-800">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary font-medium border border-primary/20 dark:border-primary/30">
                           {roleLabel(penguji.peran)}
                         </span>
                       </div>
@@ -636,7 +631,7 @@ export default function JadwalUjianTable({
                     className="flex items-center gap-4 bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 p-4 rounded-xl shadow-sm relative overflow-hidden group"
                   >
                     {/* Decorative side bar */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${hasNilai ? 'bg-blue-500' : 'bg-gray-300 dark:bg-neutral-700'}`}></div>
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${hasNilai ? 'bg-primary' : 'bg-gray-300 dark:bg-neutral-700'}`}></div>
 
                     <div className="flex-1 pl-2">
                       <div className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
@@ -650,7 +645,7 @@ export default function JadwalUjianTable({
                     <div className="text-right">
                       <div className="text-[10px] uppercase font-bold text-gray-400 mb-0.5 tracking-wider">Nilai Akhir</div>
                       {hasNilai ? (
-                        <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                        <div className="text-xl font-bold text-primary dark:text-primary">
                           {nilai}
                         </div>
                       ) : (

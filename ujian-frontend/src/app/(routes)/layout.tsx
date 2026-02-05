@@ -3,11 +3,15 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { PasswordWarning } from "@/components/auth/PasswordWarning";
 
-export default function MainLayout({
+import { getAuthFromCookies } from "@/lib/auth";
+
+export default async function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { user } = await getAuthFromCookies();
+
   return (
     <SidebarProvider
       style={
@@ -18,9 +22,9 @@ export default function MainLayout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar />
+      <AppSidebar user={user} />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader user={user} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2 bg-[#fafafa] dark:bg-neutral-950 ">
             <PasswordWarning />

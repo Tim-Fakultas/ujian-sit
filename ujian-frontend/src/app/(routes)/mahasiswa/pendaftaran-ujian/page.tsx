@@ -35,7 +35,7 @@ export default async function DaftarUjianPage() {
   return (
     <div className="p-6 space-y-8">
       <PageHeader
-        title="Daftar Ujian"
+        title="Pendaftaran Ujian"
         description="Lihat dan kelola pendaftaran ujian Anda di sini."
         iconName="FileText"
         variant="blue"

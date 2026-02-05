@@ -40,6 +40,10 @@ export function GlobalBreadcrumb() {
                                     <BreadcrumbPage className="font-semibold text-neutral-800 dark:text-gray-100 line-clamp-1">
                                         {label}
                                     </BreadcrumbPage>
+                                ) : index === 0 ? (
+                                    <span className="hidden md:block text-muted-foreground cursor-default">
+                                        {label}
+                                    </span>
                                 ) : (
                                     <BreadcrumbLink
                                         href={href}

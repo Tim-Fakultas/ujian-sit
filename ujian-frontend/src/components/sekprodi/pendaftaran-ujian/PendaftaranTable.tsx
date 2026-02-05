@@ -39,7 +39,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { getMahasiswaById } from "@/actions/data-master/mahasiswa";
-import { getJenisUjianColor, getStatusColor } from "@/lib/utils";
+import { getJenisUjianColor, getStatusColor, getStorageUrl } from "@/lib/utils";
 import revalidateAction from "@/actions/revalidate";
 import {
   DropdownMenu,
@@ -67,6 +67,7 @@ import {
 } from "@/components/ui/tooltip";
 import { DataCard } from "@/components/common/DataCard";
 import { getRanpelByMahasiswaId } from "@/actions/rancanganPenelitian";
+import { useUrlSearch } from "@/hooks/use-url-search";
 
 export default function PendaftaranUjianTable({
   pendaftaranUjianList,
@@ -141,7 +142,7 @@ export default function PendaftaranUjianTable({
   const statusOptions = [
     { value: "all", label: "Semua" },
     { value: "belum dijadwalkan", label: "Belum dijadwalkan" },
-    { value: "ditolak", label: "Ditolak" },
+    { value: "revisi", label: "Revisi" }, // Replace/Add revisi
     { value: "dijadwalkan", label: "Dijadwalkan" },
     { value: "selesai", label: "Selesai" },
   ];
@@ -166,7 +167,7 @@ export default function PendaftaranUjianTable({
   }, [filterOption]);
 
   // Filter & Pagination State
-  const [filterNama, setFilterNama] = useState("");
+  const { search: filterNama, setSearch: setFilterNama } = useUrlSearch();
   const [filterJenis, setFilterJenis] = useState<string>("all");
 
   // react-table states (for TableGlobal)
@@ -396,13 +397,13 @@ export default function PendaftaranUjianTable({
                   )}
                 </div>
                 {selected &&
-                  selected.status === "ditolak" &&
+                  selected.status === "revisi" &&
                   selected.keterangan && (
-                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 rounded-lg">
-                      <p className="text-xs font-semibold text-red-800 dark:text-red-300 mb-0.5">
-                        Alasan Penolakan:
+                    <div className="p-3 border rounded-lg bg-orange-50 border-orange-100 dark:bg-orange-900/20 dark:border-orange-900/50">
+                      <p className="text-xs font-semibold mb-0.5 text-orange-800 dark:text-orange-300">
+                        Catatan Revisi:
                       </p>
-                      <p className="text-xs text-red-600 dark:text-red-400">
+                      <p className="text-xs text-orange-700 dark:text-orange-400">
                         {selected.keterangan}
                       </p>
                     </div>
@@ -427,49 +428,52 @@ export default function PendaftaranUjianTable({
               <div className="p-6 overflow-y-auto flex-1 ">
                 <div className="space-y-3">
                   {getBerkasForSelected().length > 0 ? (
-                    getBerkasForSelected().map((file, idx) => {
-                      const apiUrl =
-                        process.env.NEXT_PUBLIC_STORAGE_URL || "";
-                      const fileUrl = `${apiUrl}/storage/${file.filePath}`;
-                      const rawName = file.namaBerkas || fileUrl.split("/").pop() || "Berkas Tanpa Nama";
-                      const label = rawName.replace(/\.[^/.]+$/, "");
-                      return (
-                        <div
-                          key={file.id ?? idx}
-                          className="group flex items-center justify-between gap-4 p-4 rounded-xl bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200"
-                        >
-                          <div className="flex items-center gap-4 min-w-0">
-                            <div className="h-10 w-10 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-                              <FileText size={20} />
-                            </div>
-                            <div className="min-w-0 flex flex-col gap-0.5">
-                              <span className="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-1">
-                                {label}
-                              </span>
-                              <a
-                                href={fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 truncate max-w-[300px] hover:underline"
-                                title={
-                                  file.namaBerkas || fileUrl.split("/").pop()
-                                }
-                              >
-                                {file.namaBerkas || fileUrl.split("/").pop()}
-                              </a>
-                            </div>
+                    getBerkasForSelected().map((file, idx) => (
+                      <div
+                        key={file.id ?? idx}
+                        className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-accent/5 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <div className="bg-primary/10 p-2 rounded-lg text-primary shrink-0">
+                            <FileText size={18} />
                           </div>
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            className="bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-900 dark:text-gray-100 font-medium shrink-0"
-                            onClick={() => window.open(fileUrl, "_blank")}
-                          >
-                            Lihat
-                          </Button>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium truncate max-w-[160px]" title={file.namaBerkas}>
+                                {file.namaBerkas || "Dokumen"}
+                              </p>
+                              {(() => {
+                                if (!selected) return null;
+                                const fileTime = new Date(file.createdAt || file.uploadedAt || "").getTime();
+                                const pendaftaranTime = new Date(selected.createdAt).getTime();
+                                const isRevision = fileTime - pendaftaranTime > 60 * 1000;
+                                if (isRevision) {
+                                  return (
+                                    <span className="text-[10px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded border border-orange-200 font-medium shrink-0">
+                                      Revisi
+                                    </span>
+                                  )
+                                }
+                                return null;
+                              })()}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {file.uploadedAt ? new Date(file.uploadedAt).toLocaleDateString("id-ID") : "-"}
+                            </p>
+                          </div>
                         </div>
-                      );
-                    })
+                        <Button variant="ghost" size="icon" asChild className="shrink-0">
+                          <a
+                            href={getStorageUrl(file.filePath)}
+                            target="_blank"
+                            rel="noreferrer"
+                            title="Lihat Berkas"
+                          >
+                            <Eye size={16} />
+                          </a>
+                        </Button>
+                      </div>
+                    ))
                   ) : (
                     <div className="flex flex-col items-center justify-center py-12 text-center">
                       <div className="h-12 w-12 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center mb-3">
@@ -508,12 +512,12 @@ export default function PendaftaranUjianTable({
             <Button
               variant="outline"
               size="sm"
-              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-all font-medium h-10 px-4 text-sm touch-manipulation"
+              className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300 dark:border-orange-900/50 dark:text-orange-400 dark:hover:bg-orange-900/20 transition-all font-medium h-10 px-4 text-sm touch-manipulation"
               onClick={() => {
                 setShowRejectDialog(true);
               }}
             >
-              Tolak
+              Minta Revisi
             </Button>
             <Button
               size="sm"
@@ -544,7 +548,7 @@ export default function PendaftaranUjianTable({
                     showToast.dismiss(tId);
                     showToast.success(`Berkas berhasil diverifikasi`);
                     await revalidateAction("/sekprodi/pendaftaran-ujian");
-                    router.refresh(); // Force refresh data on client
+                    // router.refresh(); // Removed: causes status to revert due to stale cache
                   } catch (error) {
                     showToast.dismiss(tId);
                     showToast.error("Gagal memverifikasi berkas");
@@ -574,14 +578,14 @@ export default function PendaftaranUjianTable({
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Tolak Pendaftaran</DialogTitle>
+            <DialogTitle>Minta Revisi Pendaftaran</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Apakah Anda yakin ingin menolak pendaftaran ini? Silakan masukkan alasan penolakan.
+              Apakah Anda yakin ingin meminta revisi untuk pendaftaran ini? Silakan masukkan catatan revisi.
             </p>
             <Textarea
-              placeholder="Contoh: Berkas proposal belum lengkap, Surat keterangan plagiasi buram..."
+              placeholder="Contoh: Berkas proposal belum lengkap..."
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               className="min-h-[100px]"
@@ -596,7 +600,7 @@ export default function PendaftaranUjianTable({
               Batal
             </Button>
             <Button
-              variant="destructive"
+              className="bg-orange-600 hover:bg-orange-700 text-white"
               disabled={!rejectReason.trim() || isRejecting}
               onClick={async () => {
                 setIsRejecting(true);
@@ -607,32 +611,32 @@ export default function PendaftaranUjianTable({
                 );
 
                 if (found) {
-                  // Optimistic Update
-                  const previousData = [...localData];
-                  const newData = localData.map((item) =>
-                    item.id === found.id
-                      ? { ...item, status: "ditolak", keterangan: rejectReason }
-                      : item
-                  );
-                  setLocalData(newData);
+                  const tId = showToast.loading("Mengirim permintaan revisi...");
 
-                  // Close modals optimistically
-                  setShowRejectDialog(false);
-                  setShowBerkasModal(false);
-
-                  const tId = showToast.loading("Menolak pendaftaran...");
                   try {
-                    await updateStatusPendaftaranUjian(found.id, "ditolak", rejectReason);
+                    const result = await updateStatusPendaftaranUjian(found.id, "revisi", rejectReason);
+
+                    // Update with actual response from server
+                    if (result?.data) {
+                      const newData = localData.map((item) =>
+                        item.id === found.id
+                          ? { ...item, status: result.data.status, keterangan: result.data.keterangan }
+                          : item
+                      );
+                      setLocalData(newData);
+                    }
+
+                    // Close modals after successful update
+                    setShowRejectDialog(false);
+                    setShowBerkasModal(false);
+
                     showToast.dismiss(tId);
-                    showToast.success("Pendaftaran berhasil ditolak");
+                    showToast.success("Permintaan revisi berhasil dikirim");
 
                     await revalidateAction("/sekprodi/pendaftaran-ujian");
-                    router.refresh();
                   } catch (error) {
                     showToast.dismiss(tId);
-                    showToast.error("Gagal menolak pendaftaran");
-                    setLocalData(previousData); // Revert
-                    // Optionally reopen modals if needed, but error toast is usually enough
+                    showToast.error("Gagal mengirim permintaan revisi");
                   } finally {
                     setIsRejecting(false);
                   }
@@ -643,7 +647,7 @@ export default function PendaftaranUjianTable({
                 }
               }}
             >
-              {isRejecting ? "Menolak..." : "Tolak Pendaftaran"}
+              {isRejecting ? "Mengirim..." : "Kirim Revisi"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -720,7 +724,7 @@ export default function PendaftaranUjianTable({
                     showToast.success("Keterangan berhasil diperbarui");
 
                     await revalidateAction("/sekprodi/pendaftaran-ujian");
-                    router.refresh();
+                    // router.refresh(); // Removed: causes status to revert due to stale cache
                   } catch (error) {
                     showToast.dismiss(tId);
                     showToast.error("Gagal menyimpan perubahan");

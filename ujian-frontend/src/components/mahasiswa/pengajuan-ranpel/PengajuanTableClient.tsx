@@ -2,6 +2,7 @@
 "use client";
 import * as React from "react";
 import { useState, useMemo, useEffect } from "react";
+import { DataTableFilter } from "@/components/data-table/DataTableFilter";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,7 +15,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import TableGlobal from "@/components/tableGlobal";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import PDFPreviewModal from "./PDFPreviewModal";
@@ -23,13 +24,13 @@ import {
   Eye,
   Search,
   Plus,
-  LayoutGrid,
-  List,
   Check,
   Settings2,
   Calendar,
   MessageSquareText,
   Trash2,
+  X,
+  MoreHorizontal,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -39,7 +40,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import {
   AlertDialog,
@@ -52,7 +61,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import Form from "./Form";
 import { useAuthStore } from "@/stores/useAuthStore";
 import {
@@ -83,12 +92,14 @@ export default function PengajuanTableClient({
   const [pengajuanToDelete, setPengajuanToDelete] = useState<PengajuanRanpel | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // view mode: table or card (like dosen)
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
+
+  const searchParams = useSearchParams();
+  const initialStatus = searchParams.get("status") || "all";
 
   // Controls
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterStatus, setFilterStatus] = useState(initialStatus);
   const [openFilter, setOpenFilter] = useState(false);
 
   const statusOptions = [
@@ -182,7 +193,7 @@ export default function PengajuanTableClient({
     () => [
       {
         id: "no",
-        header: "No",
+        header: () => <div className="text-center font-semibold">No</div>,
         cell: ({ row, table }) => {
           // compute index from pagination
           const index =
@@ -190,19 +201,20 @@ export default function PengajuanTableClient({
             (table.getState().pagination?.pageSize ?? 10) +
             row.index +
             1;
-          return <div>{index}</div>;
+          return <div className="text-center">{index}</div>;
         },
+        size: 50,
       },
       {
         accessorFn: (row) => row.mahasiswa?.nama ?? "-",
         id: "nama",
         header: () => (
-          <div className="flex items-center gap-1">
+          <div className="whitespace-nowrap font-semibold">
             <span>Nama Mahasiswa</span>
           </div>
         ),
         cell: ({ row }) => (
-          <div className="max-w-[150px] truncate" title={row.getValue("nama")}>
+          <div className="max-w-[180px] truncate font-medium" title={row.getValue("nama")}>
             {row.getValue("nama")}
           </div>
         ),
@@ -210,12 +222,12 @@ export default function PengajuanTableClient({
       {
         accessorFn: (row) => row.perbaikanJudul?.judulBaru || row.ranpel?.judulPenelitian || "-",
         id: "judul",
-        header: "Judul Penelitian",
+        header: () => <div className="whitespace-nowrap font-semibold">Judul Penelitian</div>,
         cell: ({ row }) => {
           const judul = String(row.getValue("judul") ?? "");
           return (
             // single-line truncation to keep rows aligned
-            <div className="max-w-[250px] truncate" title={judul}>
+            <div className="max-w-[280px] truncate text-muted-foreground" title={judul}>
               {judul}
             </div>
           );
@@ -224,13 +236,17 @@ export default function PengajuanTableClient({
       {
         accessorFn: (row) => row.tanggalPengajuan ?? "",
         id: "tanggal",
-        header: () => <div className="text-center">Tanggal Pengajuan</div>,
+        header: () => <div className="text-center whitespace-nowrap font-semibold">Tgl. Pengajuan</div>,
         cell: ({ row }) => {
           const val = row.getValue("tanggal") as string;
           try {
             return (
-              <div className="text-center">
-                {new Date(val).toLocaleDateString("id-ID")}
+              <div className="text-center whitespace-nowrap">
+                {new Date(val).toLocaleDateString("id-ID", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
               </div>
             );
           } catch {
@@ -240,7 +256,11 @@ export default function PengajuanTableClient({
       },
       {
         id: "tanggalKeputusan",
-        header: "Tanggal Diterima / Ditolak",
+        header: () => (
+          <div className="text-center whitespace-nowrap font-semibold" title="Tanggal Diterima / Ditolak">
+            Tgl. Keputusan
+          </div>
+        ),
         cell: ({ row }) => {
           const status = row.original.status;
           let dateVal = null;
@@ -248,37 +268,49 @@ export default function PengajuanTableClient({
           if (status === "diterima") dateVal = row.original.tanggalDiterima;
           else if (status === "ditolak") dateVal = row.original.tanggalDitolak;
 
-          if (!dateVal) return "-";
+          if (!dateVal) return <div className="text-center">-</div>;
 
           try {
-            return new Date(dateVal).toLocaleDateString("id-ID");
+            return (
+              <div className="text-center whitespace-nowrap">
+                {new Date(dateVal).toLocaleDateString("id-ID", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </div>
+            );
           } catch {
-            return "-";
+            return <div className="text-center">-</div>;
           }
         },
       },
       {
         accessorFn: (row) => row.status ?? "-",
         id: "status",
-        header: "Status",
+        header: () => <div className="text-center font-semibold">Status</div>,
         cell: ({ row }) => {
           const s = String(row.getValue("status"));
           const cls =
             s === "menunggu"
-              ? "bg-yellow-100 text-yellow-800"
+              ? "bg-yellow-50 text-yellow-700 border-yellow-200"
               : s === "diterima"
-                ? "bg-green-100 text-green-800"
+                ? "bg-green-50 text-green-700 border-green-200"
                 : s === "ditolak"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-blue-100 text-blue-800";
+                  ? "bg-red-50 text-red-700 border-red-200"
+                  : "bg-primary/5 text-primary border-primary/20";
           return (
-            <span className={`px-2 py-1 rounded text-sm ${cls}`}>{s}</span>
+            <div className="flex justify-center">
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${cls} capitalize`}>
+                {s}
+              </span>
+            </div>
           );
         },
       },
       {
         id: "catatan",
-        header: () => <div className="text-center">Catatan</div>,
+        header: () => <div className="text-center font-semibold">Catatan</div>,
         cell: ({ row }) => {
           const catDosen = row.original.keterangan;
           const catKaprodi = row.original.catatanKaprodi;
@@ -286,25 +318,41 @@ export default function PengajuanTableClient({
           const hasDosen = catDosen && catDosen !== "-" && catDosen.trim() !== "";
           const hasKaprodi = catKaprodi && catKaprodi !== "-" && catKaprodi.trim() !== "";
 
-          if (!hasDosen && !hasKaprodi) return <div className="text-center"><span className="text-muted-foreground">-</span></div>;
+          if (!hasDosen && !hasKaprodi)
+            return (
+              <div className="text-center">
+                <span className="text-muted-foreground">-</span>
+              </div>
+            );
 
           return (
-            <div className="flex justify-center">
+            <div className="flex justify-center ">
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 bg-blue-50/50 hover:bg-blue-100 hover:text-blue-700 rounded-full">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-primary bg-primary/5 hover:bg-primary/10 hover:text-primary rounded-full transition-colors"
+                  >
                     <MessageSquareText size={15} />
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="rounded-xl max-w-[90%] sm:max-w-lg max-h-[90vh] overflow-y-auto" showCloseButton={false}>
                   <DialogHeader>
-                    <DialogTitle>Catatan</DialogTitle>
+                    <div className="flex items-center justify-between">
+                      <DialogTitle>Catatan</DialogTitle>
+                      <DialogClose asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full text-muted-foreground hover:text-foreground">
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </DialogClose>
+                    </div>
                   </DialogHeader>
                   <div className="space-y-3 pt-2">
                     {hasDosen && (
                       <div>
-                        <h4 className="font-semibold mb-1.5 text-xs uppercase tracking-wider text-blue-600 flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                        <h4 className="font-semibold mb-1.5 text-xs uppercase tracking-wider text-primary flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                           Dosen PA
                         </h4>
                         <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border text-sm leading-relaxed text-gray-700 dark:text-gray-300">
@@ -336,25 +384,30 @@ export default function PengajuanTableClient({
         cell: ({ row }) => {
           const item = row.original;
           return (
-            <div className="flex items-center justify-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 text-gray-500 hover:text-blue-600"
-                onClick={() => handleLihatClick(item)}
-                title="Lihat Detail"
-              >
-                <Eye size={18} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 text-gray-500 hover:text-red-600"
-                onClick={() => handleDeleteClick(item)}
-                title="Hapus Pengajuan"
-              >
-                <Trash2 size={18} />
-              </Button>
+            <div className="flex items-center justify-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleLihatClick(item)}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    Lihat Detail
+                  </DropdownMenuItem>
+                  {item.status === "menunggu" && (
+                    <DropdownMenuItem
+                      onClick={() => handleDeleteClick(item)}
+                      className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Hapus Pengajuan
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           );
         },
@@ -391,82 +444,22 @@ export default function PengajuanTableClient({
   return (
     <>
       <DataCard className="w-full max-w-full">
-        {/* Header controls: search/filter/add/tabs */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4 w-full">
-          {/* Search input */}
-          <div className="relative flex-1 w-full">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={16} className="text-muted-foreground" />
-            </div>
-            <Input
-              placeholder="Search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className="w-full pl-10 bg-white dark:bg-neutral-800"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 self-end sm:self-auto">
-            {/* Filter popover */}
-            <Popover open={openFilter} onOpenChange={setOpenFilter}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 w-9 flex items-center justify-center rounded-md"
-                >
-                  <Settings2 size={16} />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-[200px] p-0">
-                <ScrollArea className="max-h-[300px] p-1">
-                  <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                    Status
-                  </div>
-                  {statusOptions.map((opt) => (
-                    <Button
-                      key={opt.value}
-                      variant="ghost"
-                      size="sm"
-                      className={`w-full justify-between h-8 px-2 font-normal ${filterStatus === opt.value ? "bg-accent text-accent-foreground font-medium" : ""
-                        }`}
-                      onClick={() => setFilterStatus(opt.value)}
-                    >
-                      <span className="text-sm">{opt.label}</span>
-                      {filterStatus === opt.value && (
-                        <Check size={14} className="ml-auto" />
-                      )}
-                    </Button>
-                  ))}
-                </ScrollArea>
-              </PopoverContent>
-            </Popover>
-            {/* Tabs */}
-            <Tabs
-              value={viewMode}
-              onValueChange={(v) => setViewMode(v as any)}
-              className="h-9"
-            >
-              <TabsList className="rounded-md bg-muted p-1 gap-1 h-9">
-                <TabsTrigger
-                  value="table"
-                  className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
-                  aria-label="Table view"
-                >
-                  <LayoutGrid size={16} />
-                </TabsTrigger>
-                <TabsTrigger
-                  value="card"
-                  className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
-                  aria-label="Card view"
-                >
-                  <List size={16} />
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            {/* Tombol tambah pengajuan */}
+        <DataTableFilter
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search"
+          filters={[
+            {
+              key: "status",
+              title: "Status",
+              value: filterStatus,
+              onChange: setFilterStatus,
+              options: statusOptions,
+            },
+          ]}
+          actions={
             <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 flex items-center justify-center rounded-lg h-9"
+              className="bg-primary hover:bg-primary/80 text-white text-sm px-4 flex items-center justify-center rounded-lg h-9"
               onClick={handleOpenForm}
               title="Tambah pengajuan"
               aria-label="Tambah pengajuan"
@@ -474,119 +467,17 @@ export default function PengajuanTableClient({
               <Plus size={16} />
               <span className="hidden sm:inline ml-2">Tambah Pengajuan</span>
             </Button>
-          </div>
-        </div>
+          }
+        />
 
         {/* Table / Card */}
-        {filteredData.length === 0 ? (
-          <div className="p-6 flex flex-col items-center justify-center gap-3">
-            <div className="text-sm text-muted-foreground text-center">
-              Tidak ada data pengajuan rancangan penelitian.
-            </div>
-            <div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setFilterStatus("all");
-                  setSearch("");
-                }}
-              >
-                Reset filter
-              </Button>
-            </div>
-          </div>
-        ) : viewMode === "table" ? (
-          // Hapus overflow-x-auto agar table tidak scroll ke samping
-          <div className="w-full">
-            <TableGlobal table={table} cols={cols} />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-            {filteredData.map((item, idx) => {
-              const key = (item as any).id ?? idx;
-              const nama = item.mahasiswa?.nama ?? "-";
-              const judul = item.ranpel?.judulPenelitian ?? "-";
-              const tanggal = item.tanggalPengajuan ?? "";
-              const status = item.status ?? "-";
-
-              const statusColor =
-                status === "menunggu" ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800" :
-                  status === "diterima" ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800" :
-                    status === "ditolak" ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800" :
-                      status === "diverifikasi" ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800" :
-                        "bg-gray-100 text-gray-800 border-gray-200 dark:bg-neutral-800 dark:text-gray-400";
-
-
-
-              return (
-                <div
-                  key={key}
-                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-                >
-                  <div className="p-5 flex flex-col gap-4 flex-1">
-
-                    {/* Header: Date & Status */}
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                        <Calendar size={13} />
-                        <span>
-                          {new Date(String(tanggal)).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </div>
-
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}>
-                        {status}
-                      </span>
-                    </div>
-
-                    {/* Content: Title & Name */}
-                    <div className="space-y-2">
-                      <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3" title={judul}>
-                        {judul || "Judul tidak tersedia"}
-                      </h3>
-
-                      <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
-                        <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
-                          {nama.charAt(0)}
-                        </div>
-                        <div className="flex flex-col mt-2">
-                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                            {nama}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions Footer */}
-                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800 gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleLihatClick(item)}
-                      className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
-                    >
-                      <Eye size={14} className="mr-1.5" /> Preview
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDeleteClick(item)}
-                      className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
-                    >
-                      <Trash2 size={14} className="mr-1.5" /> Hapus
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div className="w-full">
+          <TableGlobal
+            table={table}
+            cols={cols}
+            emptyMessage="Tidak ada data pengajuan rancangan penelitian."
+          />
+        </div>
       </DataCard>
 
       {/* PDF Preview Modal */}
@@ -600,9 +491,9 @@ export default function PengajuanTableClient({
 
       {/* Card Form Modal */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-6">
-          <div className="max-w-3xl w-full bg-white dark:bg-neutral-800 rounded-xl shadow-2xl relative">
-            <div className="h-[90vh] overflow-y-auto w-full rounded-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="max-w-4xl w-full bg-white dark:bg-neutral-800 rounded-xl shadow-2xl relative">
+            <div className="h-[90vh] w-full rounded-xl overflow-hidden">
               {user && (
                 <Form
                   mahasiswaId={user?.id}

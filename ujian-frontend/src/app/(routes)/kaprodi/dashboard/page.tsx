@@ -17,6 +17,7 @@ import {
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActionGrid } from "@/components/dashboard/ActionGrid";
+import { getDisplayName } from "@/lib/utils";
 
 export default async function KaprodiDashboardPage() {
   const { user } = await getCurrentUserAction();
@@ -65,8 +66,8 @@ export default async function KaprodiDashboardPage() {
     <div className="p-6 md:p-8 min-h-screen space-y-8 max-w-7xl mx-auto">
       {/* Header Section */}
       <DashboardHeader
-        title="Selamat Datang, Kaprodi!"
-        subtitle={`Dashboard Ketua Prodi ${user?.prodi?.nama_prodi || "Informatika"}`}
+        title={`Selamat Datang, ${getDisplayName(user?.nama)}`}
+        subtitle={`Dashboard Ketua Prodi ${user?.prodi?.nama || "Informatika"}`}
       />
 
       {/* Stats Grid */}

@@ -76,7 +76,7 @@
 
 export interface Prodi {
   id: number;
-  nama_prodi: string;
+  nama: string;
   fakultas_id?: number;
   created_at?: string;
   updated_at?: string;
@@ -106,20 +106,36 @@ export interface User {
   user_id?: number; // kadang backend kirim ini untuk relasi ke tabel users
   nim?: string; // khusus mahasiswa
   nip_nim?: string; // untuk dosen/admin
+  nidn?: string; // khusus dosen
+  nip?: string; // khusus dosen
   nama: string;
   email: string;
   no_hp?: string;
   alamat?: string;
+  tempat_tanggal_lahir?: string;
+  pangkat?: string;
+  golongan?: string;
+  jabatan?: string;
+  tmt_fst?: string;
   semester?: number;
   ipk?: number;
   status?: string; // contoh: "aktif"
   angkatan?: string;
+  foto?: string | null;
+  fakultas?: string;
   roles?: Role[]; // role dari sistem permission (Spatie-style)
   role?: string; // role tunggal dari backend
   prodi?: Prodi;
-  peminatan?: Peminatan;
+  peminatan?: {
+    id: number;
+    nama: string;
+  };
   dosen_pa?: Dosen;
   pembimbing1?: Dosen;
   pembimbing2?: Dosen;
   is_default_password?: boolean;
+  url_ktm?: string;
+  url_transkrip_nilai?: string;
+  url_bukti_lulus_metopen?: string;
+  url_sertifikat_bta?: string;
 }

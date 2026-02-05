@@ -206,7 +206,7 @@ export default function PenilaianModal({
       return {
         label: "B",
         color:
-          "text-blue-600 bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-800",
+          "text-primary bg-primary/10 border-primary/20 dark:bg-primary/20 dark:border-primary/30",
       };
     if (score >= 60)
       return {
@@ -242,11 +242,11 @@ export default function PenilaianModal({
       >
         {/* Header with decorative elements */}
         <div className="relative px-8 py-6 border-b dark:border-neutral-800 overflow-hidden bg-white dark:bg-[#121212]">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
 
           <div className="relative flex items-center justify-between z-10 pb-6">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white shadow-lg shadow-primary/20">
                 <ClipboardList strokeWidth={1.5} size={24} />
               </div>
               <div>
@@ -289,7 +289,7 @@ export default function PenilaianModal({
               {komponen.map((k, idx) => (
                 <div
                   key={k.id}
-                  className="group bg-white dark:bg-[#18181b] rounded-2xl p-4 sm:p-0 sm:grid sm:grid-cols-12 sm:gap-4 sm:items-center border border-transparent hover:border-blue-100 dark:hover:border-blue-900/30 shadow-sm hover:shadow-md transition-all duration-200"
+                  className="group bg-white dark:bg-[#18181b] rounded-2xl p-4 sm:p-0 sm:grid sm:grid-cols-12 sm:gap-4 sm:items-center border border-transparent hover:border-primary/20 dark:hover:border-primary/20 shadow-sm hover:shadow-md transition-all duration-200"
                 >
                   {/* Component Name */}
                   <div className="col-span-6 flex items-center gap-4 sm:pl-4 sm:py-4 mb-3 sm:mb-0">
@@ -330,7 +330,7 @@ export default function PenilaianModal({
                         }
                         placeholder="0"
                         className={`w-20 text-center font-bold text-lg h-12 rounded-xl border-2 transition-all duration-200 focus:ring-4 ${nilai[k.id] !== null && Number(nilai[k.id]) >= 0
-                          ? "border-blue-100 bg-blue-50/50 text-blue-700 focus:border-blue-500 focus:ring-blue-500/20 dark:bg-blue-900/10 dark:border-blue-900/30 dark:text-blue-400"
+                          ? "border-primary/20 bg-primary/5 text-primary focus:border-primary focus:ring-primary/20 dark:bg-primary/10 dark:border-primary/20 dark:text-primary"
                           : "border-gray-200 bg-white focus:border-gray-400 dark:bg-neutral-900 dark:border-neutral-700"
                           }`}
                       />
@@ -353,7 +353,7 @@ export default function PenilaianModal({
             </div>
 
             {/* Resume Card */}
-            <div className="bg-white dark:bg-[#18181b] rounded-2xl p-6 shadow-sm border border-blue-100 dark:border-blue-900/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="bg-white dark:bg-[#18181b] rounded-2xl p-6 shadow-sm border border-primary/10 dark:border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-4">
                 <div
                   className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold border-4 ${gradeInfo.color}`}
@@ -381,7 +381,7 @@ export default function PenilaianModal({
                   </div>
                 )}
                 {isSudahNilai && (
-                  <div className="flex items-center gap-2 text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg text-xs font-medium">
+                  <div className="flex items-center gap-2 text-primary bg-primary/10 dark:bg-primary/20 px-3 py-1.5 rounded-lg text-xs font-medium">
                     <CheckCircle2 size={14} />
                     Penilaian telah tersimpan
                   </div>
@@ -402,9 +402,9 @@ export default function PenilaianModal({
             </Button>
             <Button
               type="submit"
-              className={`h-11 px-8 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all hover:translate-y-[-1px] ${isSudahNilai
+              className={`h-11 px-8 rounded-xl font-semibold shadow-lg shadow-primary/20 transition-all hover:translate-y-[-1px] ${isSudahNilai
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none dark:bg-neutral-800 dark:text-neutral-600"
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                : "bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white"
                 }`}
               disabled={isSudahNilai || !isAllFilled || isLoading}
             >

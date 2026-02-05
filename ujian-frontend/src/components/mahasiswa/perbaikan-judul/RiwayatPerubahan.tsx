@@ -40,7 +40,7 @@ export default function RiwayatPerubahan({ currentJudul, updatedAt, mahasiswaId,
     <Card className={`shadow-sm bg-white dark:bg-neutral-900 flex flex-col max-h-[calc(100vh-12rem)] ${className}`}>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
-          <History className="h-5 w-5 text-indigo-500" />
+          <History className="h-5 w-5 text-primary" />
           Riwayat Perubahan Judul
         </CardTitle>
       </CardHeader>
@@ -56,7 +56,7 @@ export default function RiwayatPerubahan({ currentJudul, updatedAt, mahasiswaId,
                   <span className="text-xs font-semibold text-muted-foreground bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded">
                     {formatDate(updatedAt || new Date().toISOString())}
                   </span>
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 uppercase tracking-wide">
+                  <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 capitalize dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800">
                     Aktif
                   </span>
                 </div>
@@ -73,7 +73,7 @@ export default function RiwayatPerubahan({ currentJudul, updatedAt, mahasiswaId,
             {history.map((item) => (
               <div key={item.id} className="relative pl-8">
                 <div className={`absolute -left-[9px] top-1 h-5 w-5 rounded-full border-4 border-white dark:border-neutral-900 
-                                    ${item.status === 'diterima' ? 'bg-blue-500' :
+                                    ${item.status === 'diterima' ? 'bg-primary' :
                     item.status === 'ditolak' ? 'bg-red-500' : 'bg-gray-300'}
                                 `} />
 
@@ -82,10 +82,10 @@ export default function RiwayatPerubahan({ currentJudul, updatedAt, mahasiswaId,
                     <span className="text-xs font-semibold text-muted-foreground bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded">
                       {formatDate(item.tanggalPerbaikan)}
                     </span>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide
-                                            ${item.status === 'diterima' ? 'text-blue-600 bg-blue-50 border-blue-100' :
-                        item.status === 'ditolak' ? 'text-red-600 bg-red-50 border-red-100' :
-                          'text-gray-600 bg-gray-50 border-gray-100'}
+                    <span className={`text-xs font-medium px-3 py-1 rounded-full border capitalize
+                                            ${item.status === 'diterima' ? 'text-primary bg-primary/5 border-primary/20 dark:text-primary dark:border-primary/20' :
+                        item.status === 'ditolak' ? 'text-red-700 bg-red-50 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800' :
+                          'text-gray-700 bg-gray-50 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800'}
                                         `}>
                       {item.status}
                     </span>
@@ -93,8 +93,8 @@ export default function RiwayatPerubahan({ currentJudul, updatedAt, mahasiswaId,
 
                   <div className="mt-2 space-y-2">
                     {/* Judul Baru */}
-                    <div className="bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded border border-blue-100 dark:border-blue-800">
-                      <p className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 mb-0.5">Usulan Baru</p>
+                    <div className="bg-primary/5 dark:bg-primary/10 p-2 rounded border border-primary/10 dark:border-primary/20">
+                      <p className="text-[10px] uppercase font-bold text-primary dark:text-primary mb-0.5">Usulan Baru</p>
                       <p className="text-sm font-medium text-gray-800 dark:text-gray-200 leading-snug">
                         {item.judulBaru}
                       </p>

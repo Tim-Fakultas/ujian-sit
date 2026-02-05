@@ -1,5 +1,7 @@
 "use client"
 import { useState, useMemo, Fragment } from "react";
+import SearchInput from "@/components/common/Search";
+import { useDebounce } from "@/hooks/use-debounce";
 import {
     ColumnDef,
     SortingState,
@@ -13,10 +15,9 @@ import {
     Row,
     flexRender,
 } from "@tanstack/react-table";
-import { Download, Search, User, GraduationCap, MapPin, Phone, BookOpen, Calendar, ChevronRight, ChevronDown } from "lucide-react";
+import { Download, User, GraduationCap, MapPin, Phone, BookOpen, Calendar, ChevronRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { DataCard } from "@/components/common/DataCard";
 import { PerbaikanJudul } from "@/types/PerbaikanJudul";
 import { Mahasiswa } from "@/types/Mahasiswa";
@@ -54,8 +55,9 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
     const [sorting, setSorting] = useState<SortingState>([
         { id: "latestUpdate", desc: true }
     ]);
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = useState("");
+    const debouncedFilter = useDebounce(globalFilter, 300);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [expanded, setExpanded] = useState({});
 
     // State for Profile Modal
@@ -161,7 +163,7 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
                 header: "Status Terakhir",
                 cell: ({ row }) => (
                     <span
-                        className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${getStatusColor(
+                        className={`px-3 py-1 rounded-full text-xs font-medium capitalize border ${getStatusColor(
                             row.original.latestStatus
                         )}`}
                     >
@@ -198,13 +200,13 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
         getExpandedRowModel: getExpandedRowModel(),
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
-        onGlobalFilterChange: setGlobalFilter,
+
         onExpandedChange: setExpanded,
         getRowCanExpand: () => true,
         state: {
             sorting,
             columnFilters,
-            globalFilter,
+            globalFilter: debouncedFilter,
             expanded,
         },
         globalFilterFn: (row, columnId, filterValue) => {
@@ -217,16 +219,14 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
 
     return (
         <DataCard>
-            <div className="flex items-center justify-between mb-4">
-                <div className="relative w-full max-w-sm">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Cari Mahasiswa atau NIM..."
-                        value={globalFilter ?? ""}
-                        onChange={(event) => setGlobalFilter(event.target.value)}
-                        className="pl-9 bg-white dark:bg-neutral-800"
-                    />
-                </div>
+            <div className="flex items-center justify-between mb-4 md:justify-end gap-2">
+                <SearchInput
+                    placeholder="Cari Mahasiswa atau NIM..."
+                    className="flex-1 w-full md:flex-none md:w-[300px]"
+                    value={globalFilter}
+                    onChange={setGlobalFilter}
+                    disableUrlParams={true}
+                />
             </div>
 
             <div className="rounded-md border overflow-hidden">
@@ -309,7 +309,7 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
                                                                         </TableCell>
                                                                         <TableCell className="py-2.5 align-top">
                                                                             <span
-                                                                                className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${getStatusColor(item.status)}`}
+                                                                                className={`px-3 py-1 rounded-full text-xs font-medium capitalize border ${getStatusColor(item.status)}`}
                                                                             >
                                                                                 {item.status}
                                                                             </span>

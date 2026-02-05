@@ -135,7 +135,7 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
                         }}
                         title="Klik untuk melihat detail mahasiswa"
                     >
-                        <span className="font-medium text-sm text-blue-600 dark:text-blue-400 group-hover:underline decoration-blue-600/30 underline-offset-2">
+                        <span className="font-medium text-sm text-primary dark:text-primary group-hover:underline decoration-primary/30 underline-offset-2">
                             {row.original.mahasiswa.nama}
                         </span>
                         <span className="text-xs text-muted-foreground">{row.original.mahasiswa.nim}</span>
@@ -148,7 +148,7 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
                 header: "Total Revisi",
                 cell: ({ getValue }) => (
                     <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center justify-center bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-100">
+                        <span className="inline-flex items-center justify-center bg-primary/5 text-primary text-xs font-bold px-2.5 py-0.5 rounded-full border border-primary/20">
                             {getValue() as number}
                         </span>
                         <span className="text-xs text-muted-foreground">kali</span>
@@ -271,7 +271,7 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
                                                 <div className="p-4 pl-12">
                                                     <div className="rounded-md border bg-white dark:bg-neutral-950 shadow-sm overflow-hidden">
                                                         <div className="px-4 py-2 border-b bg-slate-50 dark:bg-neutral-900 flex items-center gap-2">
-                                                            <div className="h-6 w-1 bg-blue-500 rounded-full"></div>
+                                                            <div className="h-6 w-1 bg-primary rounded-full"></div>
                                                             <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                                                                 Riwayat Pengajuan Judul
                                                             </h4>
@@ -302,7 +302,7 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
                                                                             "{item.judulLama}"
                                                                         </TableCell>
                                                                         <TableCell className="py-2.5 align-top">
-                                                                            <div className="text-sm font-medium text-blue-700 dark:text-blue-400 leading-snug">
+                                                                            <div className="text-sm font-medium text-primary dark:text-primary leading-snug">
                                                                                 {item.judulBaru}
                                                                             </div>
                                                                         </TableCell>
@@ -320,7 +320,7 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
                                                                                     target="_blank"
                                                                                     rel="noopener noreferrer"
                                                                                 >
-                                                                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-blue-600 hover:text-blue-700 hover:bg-blue-50" title="Unduh Surat">
+                                                                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:text-primary hover:bg-primary/10" title="Unduh Surat">
                                                                                         <Download className="w-3.5 h-3.5" />
                                                                                     </Button>
                                                                                 </Link>
@@ -376,7 +376,7 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle className="text-xl flex items-center gap-2">
-                            <User className="h-5 w-5 text-blue-600" />
+                            <User className="h-5 w-5 text-primary" />
                             Profil Mahasiswa
                         </DialogTitle>
                     </DialogHeader>
@@ -385,7 +385,7 @@ export default function RiwayatJudulTable({ data }: RiwayatJudulTableProps) {
                         <div className="mt-4 space-y-6">
                             {/* Header Info */}
                             <div className="text-center pb-2">
-                                <div className="h-16 w-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-3 border-2 border-white dark:border-neutral-800 shadow-sm">
+                                <div className="h-16 w-16 bg-primary/10 dark:bg-primary/30 text-primary dark:text-primary rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-3 border-2 border-white dark:border-neutral-800 shadow-sm">
                                     {selectedMahasiswa.nama.charAt(0)}
                                 </div>
                                 <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100">{selectedMahasiswa.nama}</h3>

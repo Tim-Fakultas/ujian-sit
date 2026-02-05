@@ -68,11 +68,17 @@ export default function MahasiswaBimbinganTable({ data }: { data: MonitorBimbing
         {
             accessorKey: "nama",
             header: "Nama Dosen",
-            cell: ({ row }) => <div className="font-medium text-left">{row.original.nama}</div>
-        },
-        {
-            accessorKey: "nip",
-            header: "NIP / NIDN",
+            cell: ({ row }) => (
+                <div
+                    className="flex flex-col gap-0.5 cursor-pointer hover:bg-gray-100 dark:hover:bg-neutral-800 p-2 -m-2 rounded-md transition-colors group"
+                    onClick={() => handleViewDetail(row.original.id)}
+                >
+                    <span className="font-medium text-sm text-blue-600 dark:text-blue-400 group-hover:underline decoration-blue-600/30 underline-offset-2">
+                        {row.original.nama}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{row.original.nip}</span>
+                </div>
+            )
         },
         {
             accessorKey: "total_bimbingan",
@@ -80,24 +86,14 @@ export default function MahasiswaBimbinganTable({ data }: { data: MonitorBimbing
             cell: ({ row }) => <div className="text-center font-bold px-4">{row.original.total_bimbingan}</div>
         },
         {
-            accessorKey: "selesai",
-            header: () => <div className="text-center">Lulus/Selesai</div>,
-            cell: ({ row }) => <div className="text-center text-green-600 font-medium px-4">{row.original.selesai}</div>
-        },
-        {
-            accessorKey: "belum_selesai",
-            header: () => <div className="text-center">Belum Selesai</div>,
-            cell: ({ row }) => <div className="text-center text-orange-600 font-medium px-4">{row.original.belum_selesai}</div>
-        },
-        {
             id: "actions",
-            header: "Aksi",
+            header: () => <div className="text-center">Aksi</div>,
             cell: ({ row }) => (
                 <div className="text-center">
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                        className="h-8 w-8 p-0 text-primary hover:text-primary/80 hover:bg-primary/10"
                         onClick={() => handleViewDetail(row.original.id)}
                     >
                         <Eye size={18} />

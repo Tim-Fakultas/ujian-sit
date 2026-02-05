@@ -4,6 +4,9 @@ import { FileText } from "lucide-react";
 import { Suspense } from "react";
 import PageLoading from "./loading";
 
+
+export const dynamic = "force-dynamic";
+
 export default function MahasiswaBimbinganPage() {
     return (
         <div className="p-6">

@@ -104,7 +104,7 @@ export default function FormPerbaikanJudul({
         <Card className="shadow-sm shrink-0">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <History className="h-5 w-5 text-blue-500" />
+              <History className="h-5 w-5 text-primary" />
               Judul Saat Ini
             </CardTitle>
             <CardDescription>
@@ -115,8 +115,8 @@ export default function FormPerbaikanJudul({
             <div className="p-4 bg-muted/50 rounded-lg border border-dashed text-sm leading-relaxed font-medium text-muted-foreground">
               {judulLama}
             </div>
-            <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground bg-blue-50 dark:bg-blue-900/10 p-3 rounded-md">
-              <CheckCircle2 className="h-4 w-4 text-blue-600 mt-0.5" />
+            <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground bg-primary/5 dark:bg-primary/10 p-3 rounded-md">
+              <CheckCircle2 className="h-4 w-4 text-primary mt-0.5" />
               <p>Pastikan judul baru yang Anda ajukan sudah disetujui oleh Dosen Pembimbing melalui proses konsultasi.</p>
             </div>
           </CardContent>

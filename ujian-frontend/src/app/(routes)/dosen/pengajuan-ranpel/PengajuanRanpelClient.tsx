@@ -14,29 +14,30 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import TableGlobal from "@/components/tableGlobal";
+import SearchInput from "@/components/common/Search";
+import { useUrlFilter } from "@/hooks/use-url-filter";
+import { useDebounce } from "@/hooks/use-debounce";
 
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import PDFPreviewModal from "../penilaian-ujian/PDFPreviewModal";
 import { Button } from "@/components/ui/button";
 import {
   Eye,
-  Search,
   MoreHorizontal,
-  LayoutGrid,
-  List,
+
   Check,
   Settings2,
   Calendar,
   MessageSquareText,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
   Popover,
   PopoverTrigger,
@@ -75,9 +76,10 @@ export default function PengajuanRanpelClient({
 
   // Controls
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const debouncedSearch = useDebounce(search, 300);
+  const [filterStatus, setFilterStatus] = useUrlFilter("status", "all");
   const [openFilter, setOpenFilter] = useState(false);
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
 
   const statusOptions = [
     { value: "all", label: "Semua" },
@@ -89,7 +91,7 @@ export default function PengajuanRanpelClient({
 
   // filtered data (global search across nama, judul, status, tanggal)
   const filteredData = useMemo(() => {
-    const q = (search || "").trim().toLowerCase();
+    const q = (debouncedSearch || "").trim().toLowerCase();
     return (pengajuanRanpel || []).filter((p) => {
       const nama = (p.mahasiswa?.nama ?? "").toLowerCase();
       const judul = (p.ranpel?.judulPenelitian ?? "").toLowerCase();
@@ -98,17 +100,18 @@ export default function PengajuanRanpelClient({
       const tanggalDitolak = (p.tanggalDitolak ?? "").toString().toLowerCase();
       const statusMatch =
         filterStatus === "all" ? true : status === filterStatus;
-      const qEmpty = q === "";
-      const matchesQ =
-        qEmpty ||
+      const nim = (p.mahasiswa?.nim ?? "").toLowerCase();
+      const matchSearch =
+        q === "" ||
         nama.includes(q) ||
+        nim.includes(q) ||
         judul.includes(q) ||
         status.includes(q) ||
         tanggal.includes(q) ||
         tanggalDitolak.includes(q);
-      return matchesQ && statusMatch;
+      return matchSearch && statusMatch;
     });
-  }, [pengajuanRanpel, search, filterStatus]);
+  }, [pengajuanRanpel, debouncedSearch, filterStatus]);
 
   // table state
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -134,24 +137,21 @@ export default function PengajuanRanpelClient({
     () => [
       {
         id: "no",
-        header: "No",
+        header: () => <div className="text-center font-semibold">No</div>,
         cell: ({ row, table }) => {
           const index =
             (table.getState().pagination?.pageIndex ?? 0) *
             (table.getState().pagination?.pageSize ?? 10) +
             row.index +
             1;
-          return <div>{index}</div>;
+          return <div className="text-center">{index}</div>;
         },
+        size: 50,
       },
       {
         accessorFn: (row) => row.mahasiswa?.nama ?? "-",
         id: "nama",
-        header: () => (
-          <div className="flex items-center gap-1">
-            <span>Nama Mahasiswa</span>
-          </div>
-        ),
+        header: "Nama",
         cell: ({ row }) => (
           <div
             className="flex flex-col cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors group"
@@ -161,7 +161,7 @@ export default function PengajuanRanpelClient({
               }
             }}
           >
-            <span className="max-w-[150px] truncate font-medium text-blue-600 group-hover:text-blue-800 transition-colors" title={row.getValue("nama")}>
+            <span className="font-medium text-primary group-hover:text-primary/80 transition-colors" title={row.getValue("nama")}>
               {row.getValue("nama")}
             </span>
             <span className="text-xs text-muted-foreground group-hover:text-gray-600">
@@ -169,40 +169,43 @@ export default function PengajuanRanpelClient({
             </span>
           </div>
         ),
+        size: 200,
       },
       {
         accessorFn: (row) => row.ranpel?.judulPenelitian ?? "-",
         id: "judul",
-        header: "Judul Penelitian",
+        header: "Judul",
         cell: ({ row }) => {
           const judul = String(row.getValue("judul") ?? "");
           return (
-            <div className="max-w-[250px] truncate" title={judul}>
+            <div className="line-clamp-1" title={judul}>
               {judul}
             </div>
           );
         },
+        size: 300,
       },
       {
         accessorFn: (row) => row.tanggalPengajuan ?? "",
         id: "tanggal",
-        header: () => <div className="text-center">Tanggal Pengajuan</div>,
+        header: () => <div className="text-center">Tgl Pengajuan</div>,
         cell: ({ row }) => {
           const val = row.getValue("tanggal") as string;
           try {
             return (
               <div className="text-center">
-                {new Date(val).toLocaleDateString("id-ID")}
+                {new Date(val).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })}
               </div>
             );
           } catch {
             return <div className="text-center">{val}</div>;
           }
         },
+        size: 150,
       },
       {
         id: "tanggalKeputusan",
-        header: "Tanggal Diterima / Ditolak",
+        header: () => <div className="text-center">Tgl Keputusan</div>,
         cell: ({ row }) => {
           const status = row.original.status;
           let dateVal = null;
@@ -210,33 +213,37 @@ export default function PengajuanRanpelClient({
           if (status === "diterima") dateVal = row.original.tanggalDiterima;
           else if (status === "ditolak") dateVal = row.original.tanggalDitolak;
 
-          if (!dateVal) return "-";
+          if (!dateVal) return <div className="text-center">-</div>;
 
           try {
-            return new Date(dateVal).toLocaleDateString("id-ID");
+            return <div className="text-center">{new Date(dateVal).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })}</div>;
           } catch {
-            return "-";
+            return <div className="text-center">-</div>;
           }
         },
+        size: 150,
       },
       {
         accessorFn: (row) => row.status ?? "-",
         id: "status",
-        header: "Status",
+        header: () => <div className="text-center">Status</div>,
         cell: ({ row }) => {
           const s = String(row.getValue("status"));
           const cls =
             s === "menunggu"
-              ? "bg-yellow-100 text-yellow-800"
+              ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800"
               : s === "diterima"
-                ? "bg-green-100 text-green-800"
+                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
                 : s === "ditolak"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-blue-100 text-blue-800";
+                  ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+                  : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800";
           return (
-            <span className={`px-2 py-1 rounded text-sm ${cls}`}>{s}</span>
+            <div className="text-center">
+              <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize border ${cls}`}>{s}</span>
+            </div>
           );
         },
+        size: 120,
       },
       {
         id: "catatan",
@@ -254,7 +261,7 @@ export default function PengajuanRanpelClient({
             <div className="flex justify-center">
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 bg-blue-50/50 hover:bg-blue-100 hover:text-blue-700 rounded-full">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-primary bg-primary/5 hover:bg-primary/10 hover:text-primary rounded-full">
                     <MessageSquareText size={15} />
                   </Button>
                 </DialogTrigger>
@@ -265,8 +272,8 @@ export default function PengajuanRanpelClient({
                   <div className="space-y-3 pt-2">
                     {hasDosen && (
                       <div>
-                        <h4 className="font-semibold mb-1.5 text-xs uppercase tracking-wider text-blue-600 flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                        <h4 className="font-semibold mb-1.5 text-xs uppercase tracking-wider text-primary flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                           Dosen PA
                         </h4>
                         <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border text-sm leading-relaxed text-gray-700 dark:text-gray-300">
@@ -288,29 +295,32 @@ export default function PengajuanRanpelClient({
                   </div>
                 </DialogContent>
               </Dialog>
-            </div>
+            </div >
           );
         },
+        size: 80,
       },
       {
         id: "actions",
+        header: () => <div className="text-center">Aksi</div>,
         enableHiding: false,
         cell: ({ row }) => {
           const item = row.original;
           return (
             <div className="text-center">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                className="h-8 w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                className="h-8 w-8 p-0 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary dark:border-primary/30"
                 onClick={() => handleLihatClick(item)}
-                title="Preview"
+                title="Lihat Detail"
               >
                 <Eye size={16} />
               </Button>
             </div>
           );
         },
+        size: 80,
       },
     ],
     [handleLihatClick]
@@ -340,27 +350,23 @@ export default function PengajuanRanpelClient({
     try {
       table.setPageIndex?.(0);
     } catch { }
-  }, [search, filterStatus, table]);
+  }, [debouncedSearch, filterStatus, table]);
 
   return (
     <>
       <DataCard className="w-full max-w-full">
         {/* Header controls: search/filter/tabs */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4 w-full">
+        <div className="flex items-center gap-2 mb-4 w-full md:justify-end">
           {/* Search input */}
-          <div className="relative flex-1 w-full">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={16} className="text-muted-foreground" />
-            </div>
-            <Input
-              placeholder="Search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className="w-full pl-10 bg-white dark:bg-neutral-800"
-            />
-          </div>
+          <SearchInput
+            placeholder="Cari Nama, NIM, atau Judul..."
+            className="flex-1 w-full md:flex-none md:w-[300px]"
+            value={search}
+            onChange={setSearch}
+            disableUrlParams={true}
+          />
 
-          <div className="flex items-center gap-2 self-end sm:self-auto">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Filter popover */}
             <Popover open={openFilter} onOpenChange={setOpenFilter}>
               <PopoverTrigger asChild>
@@ -398,155 +404,26 @@ export default function PengajuanRanpelClient({
               </PopoverContent>
             </Popover>
 
-            {/* Tabs */}
-            <Tabs
-              value={viewMode}
-              onValueChange={(v) => setViewMode(v as any)}
-              className="h-9"
-            >
-              <TabsList className="rounded-md bg-muted p-1 gap-1 h-9">
-                <TabsTrigger
-                  value="table"
-                  className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
-                  aria-label="Table view"
-                >
-                  <LayoutGrid size={16} />
-                </TabsTrigger>
-                <TabsTrigger
-                  value="card"
-                  className="inline-flex items-center gap-2 h-7 px-2 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:text-foreground shadow-sm"
-                  aria-label="Card view"
-                >
-                  <List size={16} />
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
           </div>
         </div>
 
         {/* Table / Card */}
-        {filteredData.length === 0 ? (
-          <div className="p-6 flex flex-col items-center justify-center gap-3">
-            <div className="text-sm text-muted-foreground text-center">
-              Tidak ada data pengajuan rancangan penelitian.
-            </div>
-            <div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setFilterStatus("all");
-                  setSearch("");
-                }}
-              >
-                Reset filter
-              </Button>
-            </div>
-          </div>
-        ) : viewMode === "table" ? (
-          <div className="w-full">
-            <TableGlobal table={table} cols={cols} />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-            {filteredData.map((item, idx) => {
-              const key = (item as any).id ?? idx;
-              const nama = item.mahasiswa?.nama ?? "-";
-              const judul = item.ranpel?.judulPenelitian ?? "-";
-              const tanggal = item.tanggalPengajuan ?? "";
-              const status = item.status ?? "-";
-
-              const statusColor =
-                status === "menunggu"
-                  ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800"
-                  : status === "diterima"
-                    ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
-                    : status === "ditolak"
-                      ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800"
-                      : status === "diverifikasi"
-                        ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800"
-                        : "bg-gray-100 text-gray-800 border-gray-200 dark:bg-neutral-800 dark:text-gray-400";
-
-              return (
-                <div
-                  key={key}
-                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-                >
-                  <div className="p-5 flex flex-col gap-4 flex-1">
-                    {/* Header: Date & Status */}
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                        <Calendar size={13} />
-                        <span>
-                          {new Date(String(tanggal)).toLocaleDateString(
-                            "id-ID",
-                            {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            }
-                          )}
-                        </span>
-                      </div>
-
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}`}
-                      >
-                        {status}
-                      </span>
-                    </div>
-
-                    {/* Content: Title & Name */}
-                    <div className="space-y-2">
-                      <h3
-                        className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-3"
-                        title={judul}
-                      >
-                        {judul || "Judul tidak tersedia"}
-                      </h3>
-
-                      <div className="flex items-center gap-2 pt-1 border-t border-gray-50 dark:border-neutral-800 mt-2">
-                        <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 mt-2">
-                          {nama.charAt(0)}
-                        </div>
-                        <div className="flex flex-col mt-2">
-                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                            {nama}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {item.mahasiswa?.nim ?? "-"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions Footer */}
-                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleLihatClick(item)}
-                      className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
-                    >
-                      <Eye size={14} className="mr-1.5" /> Preview
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div className="w-full">
+          <TableGlobal table={table} cols={cols} />
+        </div>
       </DataCard>
 
+
       {/* PDF Preview Modal */}
-      {selectedPengajuan && (
-        <PDFPreviewModal
-          isOpen={isPdfOpen}
-          onClose={handleClosePdf}
-          pengajuan={selectedPengajuan}
-        />
-      )}
+      {
+        selectedPengajuan && (
+          <PDFPreviewModal
+            isOpen={isPdfOpen}
+            onClose={handleClosePdf}
+            pengajuan={selectedPengajuan}
+          />
+        )
+      }
 
       {/* Student Detail Modal */}
       <StudentDetailModal

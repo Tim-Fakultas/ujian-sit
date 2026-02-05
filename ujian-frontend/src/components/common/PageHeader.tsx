@@ -32,8 +32,8 @@ const colorMap = {
   blue: {
     bg: "bg-white dark:bg-neutral-900",
     text: "text-neutral-900 dark:text-neutral-100",
-    iconBg: "bg-blue-100 dark:bg-blue-900/30",
-    iconColor: "text-blue-600 dark:text-blue-400"
+    iconBg: "bg-primary/10 dark:bg-primary/30",
+    iconColor: "text-primary dark:text-primary"
   },
   amber: {
     bg: "bg-white dark:bg-neutral-900",
@@ -130,7 +130,7 @@ export default function PageHeader({
                   <Icon className={cn("h-6 w-6", styles.iconColor)} />
                 </div>
               )}
-              <span>{title}</span>
+              <span className="text-xl md:text-2xl">{title}</span>
             </CardTitle>
             {description && (
               <CardDescription className="text-base mt-2">
@@ -139,12 +139,12 @@ export default function PageHeader({
             )}
           </div>
           {showDate && (
-            <div className="flex flex-col gap-1 items-end hidden sm:block">
+            <div className="hidden sm:flex flex-col gap-1 items-end">
               <div className="text-sm font-medium text-muted-foreground bg-gray-50 dark:bg-neutral-800 px-3 py-1.5 rounded-lg border border-gray-100 dark:border-neutral-700">
                 {today}
               </div>
-              <div className="text-sm font-bold text-gray-900 dark:text-white bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg border border-blue-100 dark:border-blue-800 flex items-center gap-2 mt-1">
-                <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <div className="text-sm font-bold text-gray-900 dark:text-white bg-primary/5 dark:bg-primary/20 px-3 py-1.5 rounded-lg border border-primary/10 dark:border-primary/30 flex items-center gap-2 mt-1">
+                <Clock className="h-4 w-4 text-primary dark:text-primary" />
                 {time}
               </div>
             </div>

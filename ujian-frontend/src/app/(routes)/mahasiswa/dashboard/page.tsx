@@ -1,27 +1,34 @@
-import { getCurrentUserAction } from "@/actions/auth";
+import { refreshUserAction } from "@/actions/auth";
 import { getPendaftaranUjianByMahasiswaId } from "@/actions/pendaftaranUjian";
 import { getPengajuanRanpelByMahasiswaId } from "@/actions/pengajuanRanpel";
 import { getPerbaikanJudulByMahasiswa } from "@/actions/perbaikanJudul";
+import { getAcceptedRanpels, getRejectedRanpels } from "@/actions/rancanganPenelitian";
 import {
   BookOpen,
   Calendar,
+  CheckCircle,
   ClipboardList,
   FileText,
   LayoutDashboard,
+  XCircle,
+  Edit,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActionGrid } from "@/components/dashboard/ActionGrid";
+import { getDisplayName } from "@/lib/utils";
 
 export default async function MahasiswaDashboardPage() {
-  const { user } = await getCurrentUserAction();
+  const user = await refreshUserAction();
   const mahasiswaId = Number(user?.id);
 
   // Fetch data
-  const [ranpelList, pendaftaranList, perbaikanList] = await Promise.all([
+  const [ranpelList, pendaftaranList, perbaikanList, globalAccepted, globalRejected] = await Promise.all([
     getPengajuanRanpelByMahasiswaId(mahasiswaId),
     getPendaftaranUjianByMahasiswaId(mahasiswaId),
     getPerbaikanJudulByMahasiswa(mahasiswaId),
+    getAcceptedRanpels(),
+    getRejectedRanpels(),
   ]);
 
   // Process data for stats
@@ -32,20 +39,36 @@ export default async function MahasiswaDashboardPage() {
 
   const perbaikanStatus = perbaikanList && perbaikanList.length > 0 ? perbaikanList[0].status : "Tidak Ada";
 
+  const acceptedCount = globalAccepted?.length || 0;
+  const rejectedCount = globalRejected?.length || 0;
 
-  // Data for Action Grid
+  // Data for Action Grid - matching sidebar menu order
   const quickActions = [
     {
-      label: "Rancangan Penelitian",
-      description: "Ajukan dan pantau status rancangan penelitian skripsi.",
+      label: "Pengajuan Rancangan Penelitian",
+      description: "Ajukan and pantau status rancangan penelitian skripsi.",
       icon: BookOpen,
       href: "/mahasiswa/pengajuan-ranpel",
       color: "blue" as const,
     },
     {
+      label: "Judul Diterima",
+      description: `${acceptedCount} judul telah diterima.`,
+      icon: CheckCircle,
+      href: "/mahasiswa/judul-diterima",
+      color: "emerald" as const,
+    },
+    {
+      label: "Judul Ditolak",
+      description: `${rejectedCount} judul ditolak, perlu perbaikan.`,
+      icon: XCircle,
+      href: "/mahasiswa/judul-ditolak",
+      color: "rose" as const,
+    },
+    {
       label: "Perbaikan Judul",
       description: "Lihat riwayat dan status perbaikan judul.",
-      icon: FileText,
+      icon: Edit,
       href: "/mahasiswa/perbaikan-judul",
       color: "amber" as const,
     },
@@ -54,14 +77,14 @@ export default async function MahasiswaDashboardPage() {
       description: "Daftar ujian proposal, hasil, atau sidang.",
       icon: ClipboardList,
       href: "/mahasiswa/pendaftaran-ujian",
-      color: "emerald" as const,
+      color: "violet" as const,
     },
     {
       label: "Jadwal Ujian",
       description: "Lihat jadwal ujian yang akan datang.",
       icon: Calendar,
       href: "/mahasiswa/jadwal-ujian",
-      color: "amber" as const,
+      color: "slate" as const,
     },
     {
       label: "Ujian",
@@ -76,7 +99,7 @@ export default async function MahasiswaDashboardPage() {
     <div className="p-6 md:p-8 min-h-screen space-y-8 max-w-7xl mx-auto">
       {/* Header Section */}
       <DashboardHeader
-        title={`Assalamu'alaikum, ${user?.nama?.split(" ")[0]}!`}
+        title={`Assalamu'alaikum, ${getDisplayName(user?.nama)}!`}
         subtitle="Selamat datang di Dashboard Mahasiswa. Pantau progres akademikmu di sini."
       />
 

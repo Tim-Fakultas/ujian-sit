@@ -15,6 +15,7 @@ import {
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActionGrid } from "@/components/dashboard/ActionGrid";
+import { getDisplayName } from "@/lib/utils";
 
 export default async function AdminDashboardPage() {
   const { user } = await getCurrentUserAction();
@@ -69,8 +70,8 @@ export default async function AdminDashboardPage() {
     <div className="p-6 md:p-8 min-h-screen space-y-8 max-w-7xl mx-auto">
       {/* Header Section */}
       <DashboardHeader
-        title={`Selamat Datang, ${user?.nama?.split(" ")[0]}!`}
-        subtitle={`Dashboard Admin Prodi ${user?.prodi?.nama_prodi || "Sistem"}`}
+        title={`Selamat Datang, ${getDisplayName(user?.nama)}!`}
+        subtitle={`Dashboard Admin Prodi ${user?.prodi?.nama || "Sistem"}`}
       />
 
       {/* Stats Grid */}

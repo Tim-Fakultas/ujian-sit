@@ -74,14 +74,14 @@ export default function StudentDetailModal({
 
                 {loading ? (
                     <div className="flex h-40 items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
                 ) : data ? (
                     <div className="space-y-6 py-2">
 
                         {/* Header / Avatar Section */}
                         <div className="flex flex-col items-center gap-3 text-center pb-4 border-b">
-                            <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                            <div className="h-20 w-20 rounded-full bg-primary/10 dark:bg-primary/30 flex items-center justify-center text-primary dark:text-primary">
                                 <User size={40} />
                             </div>
                             <div>

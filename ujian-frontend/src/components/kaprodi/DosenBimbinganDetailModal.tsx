@@ -4,7 +4,7 @@ import { User, BookOpen, AlertCircle, Filter, X, Check, FileText, Phone, MapPin,
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Slider } from "@/components/ui/slider";
+import AngkatanFilter from "@/components/common/AngkatanFilter";
 import { cn } from "@/lib/utils";
 import {
     DropdownMenu,
@@ -29,7 +29,7 @@ interface DosenBimbinganDetail {
     dosen: {
         id: number;
         nama: string;
-        nim: string;
+        nip: string;
     };
     pembimbing1: StudentBimbingan[];
     pembimbing2: StudentBimbingan[];
@@ -43,8 +43,7 @@ interface Props {
 }
 
 export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loading }: Props) {
-    const [filterAngkatan, setFilterAngkatan] = useState<string>("all");
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [selectedAngkatan, setSelectedAngkatan] = useState<string[]>([]);
     const [filterStatus, setFilterStatus] = useState<"all" | "lulus" | "belum">("all");
 
     // Student Detail Modal State
@@ -52,35 +51,10 @@ export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loadi
     const [isStudentDetailLoading, setIsStudentDetailLoading] = useState(false);
     const [isStudentDetailOpen, setIsStudentDetailOpen] = useState(false);
 
-    // Extract unique 'angkatan' values and min/max for slider
-    const { minYear, maxYear, hasData } = useMemo(() => {
-        if (!data) return { minYear: 0, maxYear: 0, hasData: false };
-        const allStudents = [...(data.pembimbing1 || []), ...(data.pembimbing2 || [])];
-        const years = allStudents.map(s => parseInt(s.angkatan)).filter(n => !isNaN(n));
-
-        const currentYear = new Date().getFullYear();
-
-        if (years.length === 0) return { minYear: currentYear - 5, maxYear: currentYear, hasData: false };
-
-        const dataMin = Math.min(...years);
-        const dataMax = Math.max(...years);
-
-        // Ensure reasonable range so slider is movable
-        // e.g. min is at least 5 years ago, max is at least current year
-        const minYear = Math.min(dataMin, currentYear - 5);
-        const maxYear = Math.max(dataMax, currentYear);
-
-        return {
-            minYear,
-            maxYear,
-            hasData: true
-        };
-    }, [data]);
-
     // Filter logic
     const filterStudents = (students: StudentBimbingan[]) => {
         return students.filter(s => {
-            const matchesAngkatan = filterAngkatan === "all" || s.angkatan === filterAngkatan;
+            const matchesAngkatan = selectedAngkatan.length === 0 || selectedAngkatan.includes(s.angkatan);
 
             let matchesStatus = true;
             if (filterStatus === 'lulus') {
@@ -97,7 +71,7 @@ export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loadi
         if (!status) return 'bg-gray-100 text-gray-700 border-gray-200';
         const s = status.toLowerCase();
         if (s === 'lulus' || s === 'selesai' || s === 'wisuda') return 'bg-green-100 text-green-700 border-green-200';
-        if (s === 'aktif' || s === 'sedang bimbingan') return 'bg-blue-50 text-blue-700 border-blue-200';
+        if (s === 'aktif' || s === 'sedang bimbingan') return 'bg-primary/5 text-primary border-primary/20';
         if (s === 'tidak aktif' || s === 'cuti') return 'bg-gray-100 text-gray-700 border-gray-200';
         return 'bg-yellow-50 text-yellow-700 border-yellow-200';
     };
@@ -134,7 +108,7 @@ export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loadi
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground bg-gray-50/50 rounded-lg border border-dashed">
                     <BookOpen className="h-10 w-10 mb-2 opacity-20" />
                     <p className="text-sm">
-                        {filterAngkatan !== "all" || filterStatus !== "all"
+                        {selectedAngkatan.length > 0 || filterStatus !== "all"
                             ? "Tidak ada data mahasiswa dengan filter yang dipilih"
                             : "Tidak ada mahasiswa bimbingan"}
                     </p>
@@ -148,13 +122,13 @@ export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loadi
                     <div key={student.id} className="group p-4 border rounded-xl hover:shadow-md transition-all bg-white dark:bg-neutral-900 border-gray-100 dark:border-neutral-800">
                         <div className="flex justify-between items-start gap-4">
                             <div className="flex items-start gap-3">
-                                <div className="h-10 w-10 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center shrink-0">
+                                <div className="h-10 w-10 rounded-full bg-primary/5 dark:bg-primary/20 text-primary flex items-center justify-center shrink-0">
                                     <span className="font-bold text-sm">{student.nama.charAt(0)}</span>
                                 </div>
                                 <div>
                                     <button
                                         onClick={() => handleStudentClick(student.id)}
-                                        className="text-left font-semibold text-sm text-gray-900 dark:text-gray-100 group-hover:text-blue-600 transition-colors hover:underline focus:outline-none"
+                                        className="text-left font-semibold text-sm text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors hover:underline focus:outline-none"
                                     >
                                         {student.nama}
                                     </button>
@@ -193,28 +167,43 @@ export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loadi
                 >
                     <div className="p-6 pb-2 border-b">
                         <div className="flex justify-between items-start">
-                            <div>
-                                <div className="flex items-center gap-2 text-xl font-semibold">
-                                    <User className="h-5 w-5 text-blue-600" />
-                                    <h3>Detail Mahasiswa Bimbingan</h3>
+                            <div className="flex items-center gap-4">
+                                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl font-bold border border-primary/20">
+                                    {data?.dosen.nama.charAt(0)}
                                 </div>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Daftar mahasiswa yang dibimbing oleh <span className="font-medium text-foreground">{data?.dosen.nama}</span>
-                                </p>
+                                <div className="flex flex-col">
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 uppercase tracking-tight leading-tight">
+                                        {data?.dosen.nama}
+                                    </h3>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                                        <span className="font-mono bg-gray-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded tracking-wider">
+                                            NIP. {data?.dosen.nip || '-'}
+                                        </span>
+                                        <span className="text-gray-300 dark:text-neutral-700">|</span>
+                                        <span className="font-medium text-primary">Dosen Pembimbing</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-2">
                                 {/* Status Filter */}
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="outline" size="sm" className={cn("h-8 gap-2", filterStatus !== "all" && "bg-blue-50 text-blue-600 border-blue-200")}>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className={cn(
+                                                "h-9 gap-2 bg-white dark:bg-neutral-800",
+                                                filterStatus !== "all" && "bg-primary/5 text-primary border-primary/20"
+                                            )}
+                                        >
                                             <Filter size={14} />
-                                            <span>
+                                            <span className="text-xs font-medium">
                                                 {filterStatus === "all" ? "Status" : filterStatus === "lulus" ? "Lulus" : "Belum Lulus"}
                                             </span>
                                             {filterStatus !== "all" && (
                                                 <div
-                                                    className="ml-1 rounded-full p-0.5 hover:bg-blue-100 cursor-pointer"
+                                                    className="ml-1 rounded-full p-0.5 hover:bg-primary/10 cursor-pointer"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         setFilterStatus("all");
@@ -241,69 +230,16 @@ export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loadi
                                     </DropdownMenuContent>
                                 </DropdownMenu>
 
-                                {/* Angkatan Filter (Popover Slider) */}
-                                {!loading && hasData && (
-                                    <div className="">
-                                        <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                                            <PopoverTrigger asChild>
-                                                <Button variant="outline" size="sm" className={cn("h-8 gap-2", filterAngkatan !== "all" && "bg-blue-50 text-blue-600 border-blue-200")}>
-                                                    <Filter size={14} />
-                                                    <span>
-                                                        {filterAngkatan === "all" ? "Angkatan" : `Angkatan: ${filterAngkatan}`}
-                                                    </span>
-                                                    {filterAngkatan !== "all" && (
-                                                        <div
-                                                            className="ml-1 rounded-full p-0.5 hover:bg-blue-100 cursor-pointer"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setFilterAngkatan("all");
-                                                            }}
-                                                        >
-                                                            <X size={12} />
-                                                        </div>
-                                                    )}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-80 p-4" align="end">
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center justify-between">
-                                                        <h4 className="font-medium text-sm">Filter Tahun Angkatan</h4>
-                                                        {filterAngkatan !== "all" && (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="h-auto p-0 text-xs text-blue-600"
-                                                                onClick={() => setFilterAngkatan("all")}
-                                                            >
-                                                                Reset
-                                                            </Button>
-                                                        )}
-                                                    </div>
-                                                    <div className="pt-2 px-2">
-                                                        <Slider
-                                                            min={minYear}
-                                                            max={maxYear}
-                                                            step={1}
-                                                            value={[filterAngkatan === "all" ? maxYear : parseInt(filterAngkatan)]}
-                                                            onValueChange={(vals) => setFilterAngkatan(vals[0].toString())}
-                                                            className="cursor-pointer"
-                                                        />
-                                                    </div>
-                                                    <div className="flex justify-between text-xs text-muted-foreground px-1">
-                                                        <span>{minYear}</span>
-                                                        <span className="font-bold text-foreground">{filterAngkatan === "all" ? "Semua" : filterAngkatan}</span>
-                                                        <span>{maxYear}</span>
-                                                    </div>
-                                                </div>
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-                                )}
+                                {/* Angkatan Filter */}
+                                <AngkatanFilter
+                                    selectedYears={selectedAngkatan}
+                                    onYearChange={setSelectedAngkatan}
+                                />
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     onClick={onClose}
-                                    className="h-8 w-8 rounded-full"
+                                    className="h-9 w-9 rounded-full"
                                 >
                                     <X size={18} />
                                 </Button>
@@ -313,7 +249,7 @@ export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loadi
 
                     {loading ? (
                         <div className="flex-1 flex items-center justify-center">
-                            <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+                            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
                         </div>
                     ) : (
                         <div className="flex-1 overflow-hidden bg-gray-50/50 dark:bg-neutral-950">
@@ -322,7 +258,7 @@ export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loadi
                                     <TabsList className="grid w-full grid-cols-2 mb-4">
                                         <TabsTrigger value="p1" className="relative">
                                             Pembimbing 1
-                                            <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700 hover:bg-blue-100 px-1.5 h-5 min-w-5 flex justify-center">{data?.pembimbing1.length || 0}</Badge>
+                                            <Badge variant="secondary" className="ml-2 bg-primary/10 text-primary hover:bg-primary/10 px-1.5 h-5 min-w-5 flex justify-center">{data?.pembimbing1.length || 0}</Badge>
                                         </TabsTrigger>
                                         <TabsTrigger value="p2">
                                             Pembimbing 2
@@ -358,7 +294,7 @@ export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loadi
                     >
                         <div className="flex justify-between items-center p-4 border-b">
                             <h3 className="font-semibold text-lg flex items-center gap-2">
-                                <FileText className="h-5 w-5 text-blue-600" />
+                                <FileText className="h-5 w-5 text-primary" />
                                 Detail Mahasiswa
                             </h3>
                             <Button variant="ghost" size="icon" onClick={closeStudentDetail} className="h-8 w-8 rounded-full">
@@ -369,12 +305,12 @@ export default function DosenBimbinganDetailModal({ isOpen, onClose, data, loadi
                         <div className="p-0 overflow-y-auto max-h-[80vh]">
                             {isStudentDetailLoading ? (
                                 <div className="p-10 flex justify-center">
-                                    <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+                                    <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
                                 </div>
                             ) : selectedStudent ? (
                                 <div>
-                                    <div className="bg-blue-50/50 dark:bg-blue-900/10 p-6 flex flex-col items-center justify-center gap-3 border-b">
-                                        <div className="h-20 w-20 rounded-full bg-white dark:bg-neutral-800 shadow-sm flex items-center justify-center text-2xl font-bold text-blue-600 border-2 border-blue-100">
+                                    <div className="bg-primary/5 dark:bg-primary/10 p-6 flex flex-col items-center justify-center gap-3 border-b">
+                                        <div className="h-20 w-20 rounded-full bg-white dark:bg-neutral-800 shadow-sm flex items-center justify-center text-2xl font-bold text-primary border-2 border-primary/20">
                                             {selectedStudent.nama?.charAt(0)}
                                         </div>
                                         <div className="text-center">

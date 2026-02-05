@@ -1,90 +1,24 @@
-"use client";
-
-import { useEffect, useTransition, useState } from "react";
 import {
   IconDotsVertical,
-  IconLock,
-  IconLogout,
-  IconNotification,
-  IconUserCircle,
 } from "@tabler/icons-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
-import { Button } from "./ui/button";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useRouter } from "next/navigation";
-import { showToast } from "@/components/ui/custom-toast";
-import { logoutAction } from "@/actions/auth";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-
-import { ChangePasswordDialog } from "@/components/auth/ChangePasswordDialog";
-
-
-export type UserRole = {
-  id: number;
-  name: string;
-};
-
-export type User = {
-  id: number;
-  nama: string;
-  email: string;
-  nim?: string;
-  nidn?: string;
-  nip_nim?: string;
-  roles?: UserRole[];
-};
+import { UserProfileMenu } from "./user-profile-menu";
+import { User } from "@/types/Auth";
+import { getDisplayName } from "@/lib/utils";
 
 export function NavUser({ user: serverUser }: { user?: User }) {
-  const { isMobile, open } = useSidebar();
-  const { user, setUser, initializeFromCookies } = useAuthStore();
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [confirmOpen, setConfirmOpen] = useState(false);
-
-  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
-
-
-  // 🚀 Pastikan store langsung punya data user dari server
-  useEffect(() => {
-    if (serverUser) {
-      setUser(serverUser);
-    } else {
-      initializeFromCookies();
-    }
-  }, [serverUser, setUser, initializeFromCookies]);
+  const { open } = useSidebar();
+  const { user } = useAuthStore();
 
   const currentUser = user || serverUser;
   if (!currentUser) return null;
-
-  const userRole =
-    currentUser.roles && currentUser.roles.length > 0
-      ? currentUser.roles[0].name === "admin prodi"
-        ? "admin"
-        : currentUser.roles[0].name
-      : "user";
 
   const initials =
     currentUser.nama
@@ -94,25 +28,19 @@ export function NavUser({ user: serverUser }: { user?: User }) {
       .toUpperCase()
       .slice(0, 2) || "U";
 
-  const handleLogout = () => {
-    startTransition(async () => {
-      await logoutAction();
-      showToast.success("Berhasil logout");
-      router.replace("/login");
-    });
-  };
-
   return (
     <SidebarMenu className={`${open ? "px-2" : "px-1"}`}>
       <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+        <UserProfileMenu
+          user={serverUser}
+          side={open ? "top" : "right"}
+          trigger={
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-slate-50 dark:hover:bg-sidebar-accent h-12 group-data-[collapsible=icon]:justify-center"
             >
               <Avatar className="h-7 w-7 rounded-full flex-shrink-0">
-                <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-[10px] font-medium">
+                <AvatarFallback className="rounded-lg bg-gradient-to-br from-primary to-primary/80 text-white text-[10px] font-medium">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -122,135 +50,14 @@ export function NavUser({ user: serverUser }: { user?: User }) {
                   {currentUser.nama}
                 </span>
                 <span className="text-slate-500 dark:text-slate-400 truncate text-xs">
-                  {currentUser.nim || currentUser.nidn || currentUser.nip_nim}
+                  {currentUser.nim || currentUser.nip_nim || currentUser.email}
                 </span>
               </div>
 
               <IconDotsVertical className="ml-auto size-4 text-slate-500 dark:text-slate-400 flex-shrink-0 group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent
-            className="min-w-56 rounded-xl shadow-lg border-border/50"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-3 px-3 py-3 text-left text-sm bg-muted/30">
-                <Avatar className="h-9 w-9 rounded-full flex-shrink-0">
-                  <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-medium">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="grid flex-1 text-left text-xs leading-tight">
-                  <span className="truncate font-semibold text-foreground">
-                    {currentUser.nama}
-                  </span>
-                  <span className="text-muted-foreground truncate text-xs">
-                    {currentUser.email}
-                  </span>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 capitalize">
-                      {userRole}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </DropdownMenuLabel>
-
-            <DropdownMenuSeparator />
-
-
-
-            <DropdownMenuGroup className="p-1">
-              <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-                <Link
-                  href={`/${userRole
-                    .replace(/\s+/g, "-")
-                    .toLowerCase()}/profile`}
-                >
-                  <IconUserCircle className="mr-2 h-4 w-4 text-muted-foreground" />
-                  Profile
-                </Link>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                className="rounded-lg cursor-pointer"
-                onClick={() => setChangePasswordOpen(true)}
-              >
-                <IconLock className="mr-2 h-4 w-4 text-muted-foreground" />
-                Ganti Password
-              </DropdownMenuItem>
-
-              <DropdownMenuItem className="rounded-lg cursor-pointer">
-                <IconNotification className="mr-2 h-4 w-4 text-muted-foreground" />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-
-
-
-            <DropdownMenuSeparator />
-
-            <div className="p-1">
-              <DropdownMenuItem
-                onClick={() => setConfirmOpen(true)}
-                className="w-full flex items-center text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg cursor-pointer focus:bg-red-50 focus:text-red-700 dark:focus:bg-red-900/20 dark:focus:text-red-400"
-              >
-                <IconLogout className="mr-2 h-4 w-4" />
-                Log out
-              </DropdownMenuItem>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <ChangePasswordDialog
-          open={changePasswordOpen}
-          onOpenChange={setChangePasswordOpen}
+          }
         />
-
-        {/* Dialog konfirmasi logout - Premium & Mobile Friendly */}
-        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-          <DialogContent className="w-[90vw] max-w-[400px] rounded-2xl p-0 overflow-hidden border-none shadow-2xl gap-0 font-sans">
-            <div className="flex flex-col items-center justify-center pt-8 pb-6 px-6 bg-white dark:bg-neutral-900">
-              <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center mb-6 ring-8 ring-red-50 dark:ring-red-900/10">
-                <IconLogout size={32} stroke={2} />
-              </div>
-
-              <DialogHeader className="text-center sm:text-center space-y-2">
-                <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-                  Keluar dari Akun?
-                </DialogTitle>
-                <DialogDescription className="text-gray-500 dark:text-gray-400 text-base max-w-[280px] mx-auto leading-relaxed">
-                  Apakah Anda yakin ingin mengakhiri sesi ini? Anda harus login kembali untuk mengakses akun.
-                </DialogDescription>
-              </DialogHeader>
-            </div>
-
-            <DialogFooter className="grid grid-cols-2 gap-3 p-6 bg-gray-50/50 dark:bg-neutral-800/50 border-t border-gray-100 dark:border-neutral-800">
-              <Button
-                variant="outline"
-                onClick={() => setConfirmOpen(false)}
-                className="w-full h-11 rounded-xl border-gray-200 dark:border-neutral-700 hover:bg-white dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-gray-100 font-medium transition-colors"
-              >
-                Batal
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  setConfirmOpen(false);
-                  handleLogout();
-                }}
-                disabled={isPending}
-                className="w-full h-11 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-200 dark:shadow-none font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                {isPending ? "Keluar..." : "Ya, Keluar"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </SidebarMenuItem>
     </SidebarMenu>
   );

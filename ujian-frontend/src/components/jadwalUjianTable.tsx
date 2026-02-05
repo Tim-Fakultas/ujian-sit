@@ -1,28 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useState, useMemo, useEffect } from "react";
+import { DataTableFilter } from "@/components/data-table/DataTableFilter";
 import TableGlobal from "@/components/tableGlobal";
 import { Penguji, Ujian } from "@/types/Ujian";
 import { Button } from "@/components/ui/button";
 import { showToast } from "@/components/ui/custom-toast";
 import {
   Eye,
-  Search,
   MoreHorizontal,
-  Check,
-  LayoutGrid,
-  List,
-  Settings2,
-  CalendarClock,
-  X,
   Users,
   FileDown,
+  X,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 import { daftarKehadiran } from "@/types/DaftarKehadiran";
-import { Input } from "@/components/ui/input";
 
 import {
   Popover,
@@ -45,9 +39,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DataCard } from "@/components/common/DataCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useUrlFilter } from "@/hooks/use-url-filter";
+import { useDebounce } from "@/hooks/use-debounce";
 
 /** 🔹 Modal Wrapper (Custom implementation) */
 const Modal = ({
@@ -110,6 +105,7 @@ export default function JadwalUjianTable({
   daftarHadir: daftarKehadiran[] | null;
   userRole?: string;
 }) {
+  const { user } = useAuthStore();
   /* State for detail dialog (modern) */
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState<Ujian | null>(null);
@@ -120,7 +116,8 @@ export default function JadwalUjianTable({
   );
 
   const [filterNama, setFilterNama] = useState("");
-  const [filterJenis, setFilterJenis] = useState("all");
+  const debouncedNama = useDebounce(filterNama, 300);
+  const [filterJenis, setFilterJenis] = useUrlFilter("jenis", "all");
   const [openFilter, setOpenFilter] = useState(false);
   const [date, setDate] = useState<DateRange | undefined>(undefined);
 
@@ -135,6 +132,8 @@ export default function JadwalUjianTable({
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
 
+  // View mode for students: 'all' or 'mine'
+  const [scheduleView, setScheduleView] = useState<"all" | "mine">("all");
 
   // Ubah state statusTab ke "all" | "dijadwalkan" | "selesai"
   const [statusTab, setStatusTab] = useState<"all" | "dijadwalkan" | "selesai">(
@@ -143,6 +142,15 @@ export default function JadwalUjianTable({
 
   const filteredData = useMemo(() => {
     let data = jadwalUjian.filter((ujian) => {
+      // 1. Filter by view mode (for students)
+      if (userRole === "mahasiswa" && scheduleView === "mine" && user) {
+        // Checking against multiple possible identifiers
+        const userNIM = user.nim || user.nip_nim;
+        if (userNIM && ujian.mahasiswa.nim !== userNIM) {
+          return false;
+        }
+      }
+
       // Filter status ujian sesuai tab
       if (statusTab === "dijadwalkan") {
         if (
@@ -163,10 +171,10 @@ export default function JadwalUjianTable({
       const matchNama =
         ujian.mahasiswa.nama
           .toLowerCase()
-          .includes(filterNama.toLowerCase()) ||
+          .includes(debouncedNama.toLowerCase()) ||
         ujian.mahasiswa.nim
           .toLowerCase()
-          .includes(filterNama.toLowerCase());
+          .includes(debouncedNama.toLowerCase());
 
       const matchJenis =
         filterJenis === "all"
@@ -227,13 +235,15 @@ export default function JadwalUjianTable({
     return data;
   }, [
     jadwalUjian,
-    filterNama,
+    debouncedNama,
     filterJenis,
     date,
     sortField,
     sortOrder,
     statusTab,
     completedIds,
+    scheduleView,
+    user,
   ]);
 
   // ===========================================
@@ -247,7 +257,7 @@ export default function JadwalUjianTable({
 
   useEffect(() => {
     setPage(1);
-  }, [filterNama, filterJenis]);
+  }, [debouncedNama, filterJenis]);
 
   useEffect(() => {
     if (page > totalPage) {
@@ -353,27 +363,73 @@ export default function JadwalUjianTable({
     },
     {
       id: "penguji",
-      header: "Penguji",
+      header: "Tim Penguji",
       cell: ({ row }: any) => {
         const penguji: Penguji[] = row.original.penguji || [];
-        if (penguji.length === 0) return <span className="text-gray-400 text-xs">-</span>;
+        if (penguji.length === 0) return <span className="text-gray-400 text-xs italic">Belum ditentukan</span>;
+
+        const displayLimit = 3;
+        const remainingCount = Math.max(0, penguji.length - displayLimit);
+        const displayPenguji = penguji.slice(0, displayLimit);
 
         return (
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="secondary" size="sm" className="h-7 text-xs gap-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-neutral-700">
-                <Users size={12} />
-                Lihat Penguji
-              </Button>
+              <button className="group flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <div className="flex -space-x-2.5">
+                  {displayPenguji.map((p, i) => {
+                    const initials = p.nama
+                      ? p.nama
+                        .split(" ")
+                        .map((n) => n[0])
+                        .slice(0, 2)
+                        .join("")
+                        .toUpperCase()
+                      : "?";
+                    // Generate pseudo-random color based on name length
+                    const colors = [
+                      "bg-blue-100 text-blue-700 border-blue-200",
+                      "bg-indigo-100 text-indigo-700 border-indigo-200",
+                      "bg-emerald-100 text-emerald-700 border-emerald-200",
+                      "bg-amber-100 text-amber-700 border-amber-200",
+                      "bg-rose-100 text-rose-700 border-rose-200",
+                    ];
+                    const colorClass = colors[(p.nama?.length || 0) % colors.length];
+
+                    return (
+                      <div
+                        key={i}
+                        className={`relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 ${colorClass} shadow-sm text-[10px] font-bold ring-0 transition-transform group-hover:scale-105 group-hover:z-10`}
+                        title={p.nama}
+                      >
+                        {initials}
+                      </div>
+                    );
+                  })}
+                  {remainingCount > 0 && (
+                    <div className="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 bg-gray-100 text-gray-600 font-bold text-[10px] shadow-sm">
+                      +{remainingCount}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center text-xs text-muted-foreground font-medium bg-muted/50 px-2 py-1 rounded-md group-hover:bg-muted transition-colors">
+                  <span>Lihat</span>
+                </div>
+              </button>
             </PopoverTrigger>
-            <PopoverContent className="w-72 p-0" align="end">
-              <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 border-b border-gray-100 dark:border-neutral-800">
-                <h4 className="font-semibold text-xs text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-                  <Users size={14} className="text-blue-500" />
+            <PopoverContent className="w-80 p-0 shadow-xl border-border/50" align="end" sideOffset={8}>
+              <div className="bg-muted/40 p-4 border-b">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  <span className="p-1.5 bg-primary/10 rounded-md text-primary">
+                    <Users size={14} />
+                  </span>
                   Tim Penguji
                 </h4>
+                <p className="text-[10px] text-muted-foreground mt-1 ml-9">
+                  Daftar dosen penguji untuk ujian ini.
+                </p>
               </div>
-              <div className="p-4 space-y-0">
+              <div className="p-2">
                 {penguji.map((p, idx) => {
                   const roleMap: Record<string, string> = {
                     ketua_penguji: "Ketua Penguji",
@@ -393,34 +449,30 @@ export default function JadwalUjianTable({
                   return (
                     <div
                       key={idx}
-                      className="relative pl-6 pb-4 border-l-2 border-gray-100 dark:border-neutral-800 last:border-0 last:pb-0"
+                      className="group flex flex-col gap-1 p-2.5 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50"
                     >
-                      {/* Dot Indicator */}
-                      <div
-                        className={`absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full ring-4 ring-white dark:ring-neutral-900
-                            ${hadir ? "bg-emerald-500" : "bg-gray-300 dark:bg-neutral-600"}
-                        `}
-                      ></div>
-
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-1">
-                          {p.nama ?? "-"}
-                        </p>
-                        <div className="flex items-center justify-between mt-1 gap-2">
-                          <span className="text-xs text-gray-500 capitalize">
-                            {label}
-                          </span>
-                          <span
-                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border
-                              ${hadir
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
-                                : "bg-gray-50 text-gray-500 border-gray-100 dark:bg-neutral-800 dark:text-gray-400 dark:border-neutral-700"
-                              }
-                            `}
-                          >
-                            {hadir ? "Hadir" : "Belum"}
-                          </span>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold border shrink-0
+                                ${hadir ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-500 border-gray-200'}
+                            `}>
+                            {p.nama ? p.nama.substring(0, 2).toUpperCase() : "??"}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium leading-none truncate w-full" title={p.nama}>
+                              {p.nama ?? "-"}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-1 font-medium bg-muted inline-block px-1.5 py-0.5 rounded">
+                              {label}
+                            </p>
+                          </div>
                         </div>
+
+                        {hadir && (
+                          <span className="shrink-0 text-xs font-medium px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800">
+                            Hadir
+                          </span>
+                        )}
                       </div>
                     </div>
                   );
@@ -430,7 +482,7 @@ export default function JadwalUjianTable({
           </Popover>
         );
       },
-      size: 130,
+      size: 180,
     },
   ];
 
@@ -677,152 +729,74 @@ export default function JadwalUjianTable({
     doc.save("jadwal-ujian-skripsi.pdf");
   };
 
+  // Toggle UI Component
+  const scheduleToggle = (
+    <div className="h-9 bg-muted/50 p-1 rounded-lg flex items-center relative border border-border/50 w-[220px]">
+      <div
+        className={`absolute inset-y-1 rounded-md bg-white dark:bg-neutral-800 shadow-sm transition-all duration-300 ease-out
+            ${scheduleView === 'all' ? 'left-1 w-[calc(50%-4px)]' : 'left-[calc(50%+2px)] w-[calc(50%-6px)]'}
+          `}
+      />
+      <button
+        onClick={() => setScheduleView("all")}
+        className={`flex-1 relative z-10 h-full text-xs font-medium transition-colors duration-200 rounded-md flex items-center justify-center ${scheduleView === "all" ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground/80"
+          }`}
+      >
+        Semua Jadwal
+      </button>
+      <button
+        onClick={() => setScheduleView("mine")}
+        className={`flex-1 relative z-10 h-full text-xs font-medium transition-colors duration-200 rounded-md flex items-center justify-center ${scheduleView === "mine" ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground/80"
+          }`}
+      >
+        Jadwal Saya
+      </button>
+    </div>
+  );
+
   return (
     <DataCard>
 
-      {/* Header bar: Search, Filter, View Mode */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mb-4 w-full">
-        <div className="relative flex-1 w-full">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            <Search size={16} />
-          </span>
-          <Input
-            placeholder="Cari berdasarkan Nama atau NIM"
-            value={filterNama}
-            onChange={(e) => setFilterNama(e.target.value)}
-            className="pl-10 w-full bg-white dark:bg-neutral-800 h-10 lg:h-9"
-          />
+
+      <DataTableFilter
+        searchPlaceholder="Cari berdasarkan Nama atau NIM"
+        searchValue={filterNama}
+        onSearchChange={setFilterNama}
+        filters={[
+          {
+            key: "jenis",
+            title: "Jenis Ujian",
+            value: filterJenis,
+            onChange: setFilterJenis,
+            options: [
+              { value: "all", label: "Semua" },
+              { value: "Ujian Proposal", label: "Seminar Proposal" },
+              { value: "Ujian Hasil", label: "Ujian Hasil" },
+              { value: "Ujian Skripsi", label: "Ujian Skripsi" },
+            ],
+          },
+
+        ]}
+        date={(userRole === "kaprodi" || userRole === "sekprodi") ? date : undefined}
+        onDateChange={(userRole === "kaprodi" || userRole === "sekprodi") ? setDate : undefined}
+        onExport={(userRole === "kaprodi" || userRole === "sekprodi") ? handleExportPDF : undefined}
+        actions={
+          userRole === "mahasiswa" ? (
+            <div className="hidden lg:block ml-2">
+              {scheduleToggle}
+            </div>
+          ) : undefined
+        }
+      />
+
+      {userRole === "mahasiswa" && (
+        <div className="lg:hidden mb-4 flex justify-end">
+          {scheduleToggle}
         </div>
-
-        <div className="flex items-center gap-2 self-end sm:self-auto">
-
-          {/* Date Range Picker & Export PDF - Only for Kaprodi/Sekprodi */}
-          {(userRole === "kaprodi" || userRole === "sekprodi") && (
-            <>
-              <div className={cn("grid gap-2")}>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="date"
-                      variant={"outline"}
-                      size="sm"
-                      className={cn(
-                        "w-[240px] justify-start text-left font-normal h-10 lg:h-9",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date?.from ? (
-                        date.to ? (
-                          <>
-                            {format(date.from, "dd LLL y", { locale: id })} -{" "}
-                            {format(date.to, "dd LLL y", { locale: id })}
-                          </>
-                        ) : (
-                          format(date.from, "dd LLL y", { locale: id })
-                        )
-                      ) : (
-                        <span>Pilih tanggal</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      defaultMonth={date?.from}
-                      selected={date}
-                      onSelect={setDate}
-                      numberOfMonths={2}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <Button
-                size="sm"
-                className="h-10 lg:h-9 gap-1.5 text-xs font-medium bg-blue-600 hover:bg-blue-700"
-                onClick={handleExportPDF}
-              >
-                <FileDown size={14} />
-                <span className="hidden sm:inline">Export PDF</span>
-              </Button>
-            </>
-          )}
-
-
-
-          {/* Tombol filter Jenis, Bulan, Tahun */}
-          <Popover open={openFilter} onOpenChange={setOpenFilter}>
-            {/* ... Popover implementation remains SAME ... */}
-            <PopoverTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-10 w-10 lg:h-9 lg:w-9 flex items-center justify-center rounded-md"
-              >
-                <Settings2 size={16} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0 rounded-lg" align="end">
-              <ScrollArea className="max-h-[300px] p-1">
-                <div className="p-1">
-                  <div className="font-semibold text-xs mb-2 text-muted-foreground px-2 pt-1">
-                    Jenis Ujian
-                  </div>
-                  <div className="flex flex-col gap-1 mb-3">
-                    {["all", "Ujian Proposal", "Ujian Hasil", "Ujian Skripsi"].map(
-                      (item) => (
-                        <Button
-                          key={item}
-                          variant={filterJenis === item ? "secondary" : "ghost"}
-                          size="sm"
-                          className={`w-full justify-between rounded-md text-left ${filterJenis === item ? "font-semibold bg-accent text-accent-foreground" : ""
-                            }`}
-                          onClick={() => {
-                            setFilterJenis(item);
-                            setOpenFilter(false);
-                          }}
-                        >
-                          <span className="text-sm">
-                            {item === "all" ? "Semua" : item === "Ujian Proposal" ? "Seminar Proposal" : item}
-                          </span>
-                          {filterJenis === item && (
-                            <Check size={14} className="ml-2" />
-                          )}
-                        </Button>
-                      )
-                    )}
-                  </div>
-                </div>
-              </ScrollArea>
-            </PopoverContent>
-          </Popover>
-        </div>
+      )}
+      <div className="mt-4">
+        <TableGlobal table={table} cols={cols} />
       </div>
-
-      {/* Tabs for status filtering */}
-      <Tabs value={statusTab} onValueChange={(v) => setStatusTab(v as any)} className="w-full">
-        <div className="flex items-center justify-between mb-4">
-          <TabsList className="bg-muted p-1 rounded-lg">
-            <TabsTrigger value="all" className="rounded-md px-3 text-sm">Semua</TabsTrigger>
-            <TabsTrigger value="dijadwalkan" className="rounded-md px-3 text-sm">Dijadwalkan</TabsTrigger>
-            <TabsTrigger value="selesai" className="rounded-md px-3 text-sm">Selesai</TabsTrigger>
-          </TabsList>
-        </div>
-
-        {/* Content - Just TableGlobal */}
-        <TabsContent value="all" className="mt-0">
-          <TableGlobal table={table} cols={cols} />
-        </TabsContent>
-        <TabsContent value="dijadwalkan" className="mt-0">
-          <TableGlobal table={table} cols={cols} />
-        </TabsContent>
-        <TabsContent value="selesai" className="mt-0">
-          <TableGlobal table={table} cols={cols} />
-        </TabsContent>
-      </Tabs>
-
     </DataCard>
-  )
+  );
 }

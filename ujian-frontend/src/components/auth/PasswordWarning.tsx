@@ -12,10 +12,28 @@ export function PasswordWarning() {
     const [openDialog, setOpenDialog] = useState(false);
 
     useEffect(() => {
-        if (user?.is_default_password) {
+        if (!user) return;
+
+        const key = `password_warning_dismissed_${user.id}`;
+        const isDismissed =
+            typeof window !== "undefined" && sessionStorage.getItem(key) === "true";
+
+        if (isDismissed) {
+            setShow(false);
+            return;
+        }
+
+        if (user.is_default_password) {
             setShow(true);
         }
     }, [user]);
+
+    const handleDismiss = () => {
+        setShow(false);
+        if (user?.id) {
+            sessionStorage.setItem(`password_warning_dismissed_${user.id}`, "true");
+        }
+    };
 
     if (!show) return null;
 
@@ -45,7 +63,7 @@ export function PasswordWarning() {
                                 variant="ghost"
                                 size="icon"
                                 className="text-yellow-500 hover:bg-yellow-100 dark:hover:bg-yellow-900/40"
-                                onClick={() => setShow(false)}
+                                onClick={handleDismiss}
                             >
                                 <span className="sr-only">Dismiss</span>
                                 <X className="h-5 w-5" aria-hidden="true" />

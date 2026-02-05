@@ -8,8 +8,7 @@ import {
   Search,
   MoreHorizontal,
   Check,
-  LayoutGrid,
-  List,
+
   Settings2,
   Calendar,
 } from "lucide-react";
@@ -22,7 +21,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SearchInput from "@/components/common/Search";
+import { useUrlFilter } from "@/hooks/use-url-filter";
+import { useDebounce } from "@/hooks/use-debounce";
+
 import TableGlobal from "@/components/tableGlobal";
 import { getPenilaianByUjianId } from "@/actions/penilaian";
 import {
@@ -53,29 +55,33 @@ export default function RekapitulasiNilaiTable({
     }
   }, [openDialog, selected?.id]);
 
-  // Tambah state untuk search
-  const [search, setSearch] = useState("");
-  // Tambah state untuk filter jenis ujian
-  const [jenisFilter, setJenisFilter] = useState<
-    "all" | "proposal" | "hasil" | "skripsi"
-  >("all");
+  // Search state managed locally with debounce
+  const [q, setQ] = useState("");
+  const debouncedQ = useDebounce(q, 300);
 
-  const [hasilFilter, setHasilFilter] = useState<
-    "all" | "lulus" | "tidak lulus"
-  >("all");
+  // Filter states managed by URL
+  // Note: we cast the return string to the specific union type
+  const [jenisFilter, setJenisFilter] = useUrlFilter("jenis", "all") as [
+    "all" | "proposal" | "hasil" | "skripsi",
+    (val: string) => void,
+    boolean
+  ];
 
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+  const [hasilFilter, setHasilFilter] = useUrlFilter("hasil", "all") as [
+    "all" | "lulus" | "tidak lulus",
+    (val: string) => void,
+    boolean
+  ];
 
-  // Tambah state untuk filter bulan dan tahun
-  const [filterBulan, setFilterBulan] = useState<string>("all");
-  const [filterTahun, setFilterTahun] = useState<string>("all");
+  const [filterBulan, setFilterBulan] = useUrlFilter("bulan", "all");
+  const [filterTahun, setFilterTahun] = useUrlFilter("tahun", "all");
 
   // Filter data berdasarkan search, jenis ujian, hasil, bulan, tahun
   const filteredData = ujian.filter((item) => {
     const nama = item.mahasiswa?.nama?.toLowerCase() ?? "";
     const judul = item.judulPenelitian?.toLowerCase() ?? "";
-    const q = search.toLowerCase();
-    const matchSearch = nama.includes(q) || judul.includes(q);
+    const searchLower = (debouncedQ || "").toLowerCase();
+    const matchSearch = nama.includes(searchLower) || judul.includes(searchLower);
 
     let matchJenis = true;
     if (jenisFilter !== "all") {
@@ -121,7 +127,7 @@ export default function RekapitulasiNilaiTable({
   // Reset page ke 1 saat search atau filter berubah
   useEffect(() => {
     setPage(1);
-  }, [search, jenisFilter, hasilFilter, filterBulan, filterTahun]);
+  }, [debouncedQ, jenisFilter, hasilFilter, filterBulan, filterTahun]);
 
   const handleDetail = (ujian: BeritaUjian) => {
     setSelected(ujian);
@@ -176,7 +182,7 @@ export default function RekapitulasiNilaiTable({
       cell: ({ row }: any) => {
         const jenis = row.getValue("jenis")?.toLowerCase() ?? "";
         const badgeClass = jenis.includes("proposal")
-          ? "bg-blue-100 text-blue-700"
+          ? "bg-primary/10 text-primary"
           : jenis.includes("hasil")
             ? "bg-yellow-100 text-yellow-700"
             : jenis.includes("skripsi")
@@ -348,7 +354,7 @@ export default function RekapitulasiNilaiTable({
             </div>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs text-gray-500">Total Nilai:</span>
-              <span className="font-extrabold text-lg text-blue-600 dark:text-blue-400 tracking-wide">
+              <span className="font-extrabold text-lg text-primary dark:text-primary tracking-wide">
                 {penguji.total.toFixed(2)}
               </span>
             </div>
@@ -411,7 +417,7 @@ export default function RekapitulasiNilaiTable({
                         ${selected.jenisUjian?.namaJenis
                           ?.toLowerCase()
                           .includes("proposal")
-                          ? "bg-blue-100 text-blue-700"
+                          ? "bg-primary/10 text-primary"
                           : selected.jenisUjian?.namaJenis
                             ?.toLowerCase()
                             .includes("hasil")
@@ -431,7 +437,7 @@ export default function RekapitulasiNilaiTable({
                     <div className="text-xs text-gray-500 mb-1">
                       Nilai Akhir
                     </div>
-                    <span className="font-extrabold text-blue-600 text-lg">
+                    <span className="font-extrabold text-primary text-lg">
                       {selected.nilaiAkhir ?? "-"}
                     </span>
                   </div>
@@ -561,17 +567,14 @@ export default function RekapitulasiNilaiTable({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end sm:gap-4 gap-2 mb-4">
         {/* Search and Filter */}
 
-        <div className="flex w-full  items-center gap-2 sm:gap-2">
-          <div className="relative w-full ">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              <Search size={16} />
-            </span>
-            <Input
-              type="text"
+        <div className="flex w-full md:w-auto items-center gap-2 sm:gap-2">
+          <div className="relative flex-1 md:w-[300px] md:flex-none">
+            <SearchInput
               placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="border rounded-lg pl-10 pr-3 py-2 w-full bg-white dark:bg-neutral-800 text-sm"
+              className="w-full"
+              value={q}
+              onChange={setQ}
+              disableUrlParams={true}
             />
           </div>
 
@@ -665,140 +668,14 @@ export default function RekapitulasiNilaiTable({
             </DropdownMenu>
           </div>
 
-          <div className="">
-            <Tabs
-              value={viewMode}
-              onValueChange={(v) => setViewMode(v as any)}
-              className="sm:mb-0 h-9"
-            >
-              <TabsList>
-                <TabsTrigger value="table">
-                  <LayoutGrid size={16} />
-                </TabsTrigger>
-                <TabsTrigger value="card">
-                  <List />
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+
         </div>
         {/* Tabs for view mode */}
       </div>
 
       {/* Table Mode */}
-      {viewMode === "table" && <TableGlobal table={table} cols={cols} />}
+      <TableGlobal table={table} cols={cols} />
 
-      {/* Card Mode */}
-      {viewMode === "card" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {paginatedData.length > 0 ? (
-            paginatedData.map((ujian) => {
-
-
-              const hasilColor = ujian.hasil?.toLowerCase() === 'lulus'
-                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200"
-                : ujian.hasil?.toLowerCase() === 'tidak lulus'
-                  ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200"
-                  : "bg-gray-100 text-gray-700 dark:bg-neutral-800 dark:text-gray-400 border-gray-200";
-
-              return (
-                <div
-                  key={ujian.id}
-                  className={`group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col`}
-                >
-                  <div className="p-5 flex flex-col gap-4 flex-1">
-
-                    {/* Header: Date & Result */}
-                    <div className="flex justify-between items-start">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                          <Calendar size={13} />
-                          <span>
-                            {ujian.jadwalUjian
-                              ? new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric"
-                              })
-                              : "Tgl -"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {ujian.hasil ? (
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${hasilColor}`}>
-                          {ujian.hasil}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Belum Dinilai</span>
-                      )}
-                    </div>
-
-                    {/* Content: Title & Name */}
-                    <div className="space-y-2">
-                      <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={ujian.judulPenelitian}>
-                        {ujian.judulPenelitian || "Judul tidak tersedia"}
-                      </h3>
-
-                      <div className="flex items-center gap-2 pt-1">
-                        <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">
-                          {ujian.mahasiswa?.nama?.charAt(0) ?? "?"}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[180px]">
-                            {ujian.mahasiswa?.nama ?? "-"}
-                          </span>
-                          <span className="text-[11px] text-gray-400">
-                            {ujian.mahasiswa?.nim ?? "-"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Footer Info: Type & Grade */}
-                    <div className="flex items-center justify-between pt-2 mt-auto border-t border-gray-100 dark:border-neutral-800">
-                      <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold 
-                             ${ujian.jenisUjian?.namaJenis?.toLowerCase().includes("proposal") ? "bg-blue-100 text-blue-700" :
-                          ujian.jenisUjian?.namaJenis?.toLowerCase().includes("hasil") ? "bg-yellow-100 text-yellow-700" :
-                            ujian.jenisUjian?.namaJenis?.toLowerCase().includes("skripsi") ? "bg-green-100 text-green-700" : "bg-gray-100"
-                        }
-                        `}>
-                        {ujian.jenisUjian?.namaJenis ?? "-"}
-                      </span>
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400">Nilai:</span>
-                        <span className="text-sm font-bold text-gray-900 dark:text-white">
-                          {ujian.nilaiAkhir ?? "-"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions Footer */}
-                  <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 flex items-center justify-end border-t border-gray-100 dark:border-neutral-800">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDetail(ujian)}
-                      className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
-                    >
-                      <MoreHorizontal size={14} className="mr-1.5" /> Detail
-                    </Button>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="col-span-full flex flex-col items-center justify-center py-12 gap-3">
-              <div className="p-4 rounded-full bg-gray-50 dark:bg-neutral-800">
-                <List size={24} className="opacity-50" />
-              </div>
-              <p className="text-muted-foreground">Tidak ada data rekapitulasi nilai.</p>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

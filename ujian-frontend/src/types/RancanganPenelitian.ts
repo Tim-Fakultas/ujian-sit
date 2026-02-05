@@ -7,6 +7,7 @@ export interface RancanganPenelitian {
   hasilYangDiharapkan: string;
   kebutuhanData: string;
   jurnalReferensi: string;
+  catatanKaprodi?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;
 }

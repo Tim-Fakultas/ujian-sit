@@ -1,14 +1,15 @@
 "use server";
 
-export async function getAllPeminatan() {
+export async function getAllPeminatan(prodi_id?: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
-    const response = await fetch(`${apiUrl}/peminatan`, {
+    const url = prodi_id ? `${apiUrl}/peminatan?prodi_id=${prodi_id}` : `${apiUrl}/peminatan`;
+    const response = await fetch(url, {
       cache: "no-store",
     });
     if (!response.ok) throw new Error("Gagal mengambil data peminatan");
     const data = await response.json();
-    return data.data; 
+    return data.data;
   } catch (error) {
     console.error("Error fetching peminatan:", error);
     return [];

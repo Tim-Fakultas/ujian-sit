@@ -78,3 +78,43 @@ export async function getRanpelByMahasiswaId(mahasiswaId: number) {
     throw error;
   }
 }
+
+export async function getAcceptedRanpels() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const res = await fetch(`${apiUrl}/ranpel?status=diterima`, {
+      next: { revalidate: 60 }
+    });
+
+    if (!res.ok) {
+      if (res.status === 404) return [];
+      throw new Error("Failed to fetch accepted ranpels");
+    }
+
+    const json = await res.json();
+    return json.data;
+  } catch (error) {
+    console.error("Error fetching accepted ranpels:", error);
+    return [];
+  }
+}
+
+export async function getRejectedRanpels() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const res = await fetch(`${apiUrl}/ranpel?status=ditolak`, {
+      next: { revalidate: 60 }
+    });
+
+    if (!res.ok) {
+      if (res.status === 404) return [];
+      throw new Error("Failed to fetch rejected ranpels");
+    }
+
+    const json = await res.json();
+    return json.data;
+  } catch (error) {
+    console.error("Error fetching rejected ranpels:", error);
+    return [];
+  }
+}

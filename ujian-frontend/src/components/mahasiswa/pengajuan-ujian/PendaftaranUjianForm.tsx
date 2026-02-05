@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { getStorageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,12 +60,14 @@ export default function PendaftaranUjianForm({
 
   useEffect(() => {
     const loadSyarat = async () => {
+      console.log('[PendaftaranUjianForm] Loading syarat...');
       setIsLoadingSyarat(true);
       try {
         const data = await getAllSyarat();
+        console.log('[PendaftaranUjianForm] Syarat loaded:', data.length, 'items', data);
         setAllSyarat(data);
       } catch (err) {
-        console.error("Failed to load syarat", err);
+        console.error("[PendaftaranUjianForm] Failed to load syarat", err);
         showToast.error("Gagal memuat daftar persyaratan.");
       } finally {
         setIsLoadingSyarat(false);
@@ -99,12 +102,59 @@ export default function PendaftaranUjianForm({
     }
   };
 
+  // Helper function to check if a requirement is already fulfilled by existing documents
+  const getExistingDocument = (syaratNama: string): string | null => {
+    const lowerName = syaratNama.toLowerCase();
+
+    // Map requirement names to user document fields
+    if (lowerName.includes('ktm') && user?.url_ktm) {
+      return user.url_ktm;
+    }
+    if ((lowerName.includes('transkrip') || lowerName.includes('nilai sementara') || lowerName.includes('sks') || lowerName.includes('ipk')) && user?.url_transkrip_nilai) {
+      return user.url_transkrip_nilai;
+    }
+    if ((lowerName.includes('metodologi penelitian') || lowerName.includes('metopen')) && user?.url_bukti_lulus_metopen) {
+      return user.url_bukti_lulus_metopen;
+    }
+
+    return null;
+  };
+
+  const canRegisterSelectedExam = () => {
+    if (!selectedJenisUjian) return false;
+    const selectedJenis = jenisUjianList.find(j => j.id === selectedJenisUjian);
+    if (!selectedJenis) return false;
+
+    const nama = selectedJenis.namaJenis.toLowerCase();
+    const isProp = nama.includes("proposal");
+    const isHas = nama.includes("hasil");
+    const isSkrip = nama.includes("skripsi");
+
+    if (isProp && !canDaftarProposal()) return false;
+    if (isHas) {
+      if (!canDaftarProposal()) return false;
+      if (!lulusProposal) return false;
+    }
+    if (isSkrip) {
+      if (!canDaftarProposal()) return false;
+      if (!lulusProposal) return false;
+      if (!lulusHasil) return false;
+    }
+
+    return true;
+  };
+
   const selectedJenis = jenisUjianList.find(j => j.id === selectedJenisUjian);
 
   // Filter requirements based on selected exam type
   const activeSyarat = selectedJenisUjian
-    ? allSyarat.filter(s => s.jenisUjianId === selectedJenisUjian)
+    ? allSyarat.filter(s => Number(s.jenisUjianId) === Number(selectedJenisUjian))
     : [];
+
+  // Log filtered syarat for debugging
+  console.log('[PendaftaranUjianForm] Selected Jenis Ujian:', selectedJenisUjian, selectedJenis?.namaJenis);
+  console.log('[PendaftaranUjianForm] All Syarat:', allSyarat.length, allSyarat);
+  console.log('[PendaftaranUjianForm] Active Syarat (filtered):', activeSyarat.length, activeSyarat);
 
   const handleFileChange = (syaratNama: string, file: File | null) => {
     setUploadedFiles(prev => ({
@@ -114,7 +164,10 @@ export default function PendaftaranUjianForm({
   };
 
   const isSyaratWajibTerisi = () => {
-    return activeSyarat.filter(s => s.wajib).every(s => !!uploadedFiles[s.namaSyarat]);
+    return activeSyarat.filter(s => s.wajib).every(s => {
+      // Check if there's an uploaded file OR an existing document in profile
+      return !!uploadedFiles[s.namaSyarat] || !!getExistingDocument(s.namaSyarat);
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,9 +204,19 @@ export default function PendaftaranUjianForm({
       const filesToSend = activeSyarat
         .map(s => {
           const f = uploadedFiles[s.namaSyarat];
-          return f ? { file: f, nama: s.namaSyarat } : null;
+          const existingDoc = getExistingDocument(s.namaSyarat);
+
+          // If there's a new file, use it
+          if (f) {
+            return { file: f, nama: s.namaSyarat };
+          }
+          // If there's an existing document, include its URL
+          if (existingDoc) {
+            return { url: existingDoc, nama: s.namaSyarat };
+          }
+          return null;
         })
-        .filter((item): item is { file: File; nama: string } => item !== null);
+        .filter((item): item is ({ file: File; nama: string } | { url: string; nama: string }) => item !== null);
 
       await createPendaftaranUjian({
         mahasiswaId: user.id,
@@ -189,7 +252,7 @@ export default function PendaftaranUjianForm({
       {/* Sticky Header */}
       <div className="sticky top-0 z-40 bg-white/95 dark:bg-neutral-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b dark:border-neutral-800 px-6 py-4 flex items-center justify-between gap-4 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl text-white shadow-lg shadow-blue-500/20">
+          <div className="p-2.5 bg-gradient-to-br from-primary to-primary/80 rounded-2xl text-white shadow-lg shadow-primary/20">
             <GraduationCap className="h-5 w-5" />
           </div>
           <div>
@@ -220,25 +283,25 @@ export default function PendaftaranUjianForm({
         {/* Status Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white dark:bg-neutral-900 border dark:border-neutral-800 p-5 rounded-2xl shadow-sm flex items-center gap-4">
-            <div className="p-3 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-xl">
+            <div className="p-3 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary rounded-2xl">
               <Info size={20} />
             </div>
             <div>
               <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status Akademik</div>
               <div className="flex gap-4 mt-1">
-                <div><span className="text-sm text-gray-500">IPK:</span> <span className={`font-bold ${ipk >= 2 ? 'text-blue-600' : 'text-red-500'}`}>{ipk}</span></div>
-                <div><span className="text-sm text-gray-500">Semester:</span> <span className={`font-bold ${semester >= 6 ? 'text-blue-600' : 'text-red-500'}`}>{semester}</span></div>
+                <div><span className="text-sm text-gray-500">IPK:</span> <span className={`font-bold ${ipk >= 2 ? 'text-primary' : 'text-red-500'}`}>{ipk}</span></div>
+                <div><span className="text-sm text-gray-500">Semester:</span> <span className={`font-bold ${semester >= 6 ? 'text-primary' : 'text-red-500'}`}>{semester}</span></div>
               </div>
             </div>
           </div>
 
-          <div className={`border p-5 rounded-2xl shadow-sm flex items-center gap-4 ${canDaftarProposal() ? 'bg-blue-50/50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/30' : 'bg-red-50/50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30'}`}>
-            <div className={`p-3 rounded-xl ${canDaftarProposal() ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30' : 'bg-red-100 text-red-600 dark:bg-red-900/30'}`}>
+          <div className={`border p-5 rounded-2xl shadow-sm flex items-center gap-4 ${canDaftarProposal() ? 'bg-primary/5 border-primary/10 dark:bg-primary/10 dark:border-primary/20' : 'bg-red-50/50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30'}`}>
+            <div className={`p-3 rounded-2xl ${canDaftarProposal() ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'bg-red-100 text-red-600 dark:bg-red-900/30'}`}>
               {canDaftarProposal() ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
             </div>
             <div>
               <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Kelayakan</div>
-              <div className={`font-bold ${canDaftarProposal() ? 'text-blue-700 dark:text-blue-400' : 'text-red-700 dark:text-red-400'}`}>
+              <div className={`font-bold ${canDaftarProposal() ? 'text-primary dark:text-primary' : 'text-red-700 dark:text-red-400'}`}>
                 {canDaftarProposal() ? "Memenuhi Syarat" : "Belum Memenuhi Syarat"}
               </div>
             </div>
@@ -251,49 +314,77 @@ export default function PendaftaranUjianForm({
             <div className="space-y-3 w-full">
               <Label className="font-semibold">Jenis Ujian</Label>
               <Select value={selectedJenisUjian ? String(selectedJenisUjian) : ""} onValueChange={(v) => handleJenisUjianSelect(Number(v))}>
-                <SelectTrigger className="h-12 rounded-xl w-full">
+                <SelectTrigger className="h-12 rounded-2xl w-full">
                   <SelectValue placeholder="Pilih Jenis Ujian" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     {jenisUjianList.map(j => {
-                      const nama = j.namaJenis.toLowerCase();
-                      const isProp = nama.includes("proposal");
-                      const isHas = nama.includes("hasil");
-                      const isSkrip = nama.includes("skripsi");
-                      let disabled = false;
-                      let reason = "";
-
-                      if (isProp && !canDaftarProposal()) { disabled = true; reason = "(Syarat IPK/Sem tidak cukup)"; }
-                      if (isHas) {
-                        if (!canDaftarProposal()) { disabled = true; reason = "(Syarat dasar tidak cukup)"; }
-                        else if (!lulusProposal) { disabled = true; reason = "(Belum lulus proposal)"; }
-                      }
-                      if (isSkrip) {
-                        if (!canDaftarProposal()) { disabled = true; reason = "(Syarat dasar tidak cukup)"; }
-                        else if (!lulusProposal) { disabled = true; reason = "(Belum lulus proposal)"; }
-                        else if (!lulusHasil) { disabled = true; reason = "(Belum lulus ujian hasil)"; }
-                      }
-
                       // Render Label with Terminology Check
                       const label = j.namaJenis === "Ujian Proposal" ? "Seminar Proposal" : j.namaJenis;
 
                       return (
-                        <SelectItem key={j.id} value={String(j.id)} disabled={disabled}>
-                          {label} {reason && <span className="text-xs text-muted-foreground ml-1">{reason}</span>}
+                        <SelectItem key={j.id} value={String(j.id)}>
+                          {label}
                         </SelectItem>
                       )
                     })}
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
+              {selectedJenisUjian && !canRegisterSelectedExam() && (
+                <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-2xl flex items-start gap-3 animate-in slide-in-from-top-2">
+                  <div className="p-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-lg shrink-0 mt-0.5">
+                    <AlertCircle size={16} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium">
+                      Anda belum memenuhi syarat untuk ujian ini
+                    </p>
+                    <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                      {(() => {
+                        const selectedJenis = jenisUjianList.find(j => j.id === selectedJenisUjian);
+                        if (!selectedJenis) return "";
+                        const nama = selectedJenis.namaJenis.toLowerCase();
+                        const isProp = nama.includes("proposal");
+                        const isHas = nama.includes("hasil");
+                        const isSkrip = nama.includes("skripsi");
+
+                        if (isProp && !canDaftarProposal()) {
+                          return "Anda memerlukan IPK minimal 2.00 dan telah menempuh minimal 100 SKS.";
+                        }
+                        if (isHas) {
+                          if (!canDaftarProposal()) return "Anda memerlukan IPK minimal 2.00 dan telah menempuh minimal 100 SKS.";
+                          if (!lulusProposal) return "Anda harus lulus Seminar Proposal terlebih dahulu.";
+                        }
+                        if (isSkrip) {
+                          if (!canDaftarProposal()) return "Anda memerlukan IPK minimal 2.00 dan telah menempuh minimal 100 SKS.";
+                          if (!lulusProposal) return "Anda harus lulus Seminar Proposal terlebih dahulu.";
+                          if (!lulusHasil) return "Anda harus lulus Ujian Hasil terlebih dahulu.";
+                        }
+                        return "";
+                      })()}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3 w-full">
-              <Label className="font-semibold">Judul Penelitian</Label>
+              <div className="flex justify-between items-center">
+                <Label className="font-semibold">Judul Penelitian</Label>
+                {(!pengajuanRanpel || pengajuanRanpel.length === 0) && (
+                  <span className="text-red-500 text-xs font-medium animate-pulse flex items-center gap-1">
+                    <AlertCircle size={12} />
+                    Belum ada judul
+                  </span>
+                )}
+              </div>
+
               {pengajuanRanpel && pengajuanRanpel.length > 1 ? (
                 <Select value={selectedRanpelId ? String(selectedRanpelId) : ""} onValueChange={(v) => setSelectedRanpelId(Number(v))}>
-                  <SelectTrigger className="h-12 rounded-xl w-full">
+                  <SelectTrigger className="h-12 rounded-2xl w-full">
                     <SelectValue placeholder="Pilih Judul" />
                   </SelectTrigger>
                   <SelectContent>
@@ -306,8 +397,11 @@ export default function PendaftaranUjianForm({
                 <Input
                   value={pengajuanRanpel?.[0]?.ranpel?.judulPenelitian ?? ""}
                   readOnly
-                  className="h-12 rounded-xl bg-gray-50 dark:bg-neutral-800 text-muted-foreground w-full"
-                  placeholder="Tidak ada judul aktif"
+                  className={`h-12 rounded-2xl w-full transition-colors ${(!pengajuanRanpel || pengajuanRanpel.length === 0)
+                    ? "bg-red-50 border-red-200 text-red-600 placeholder:text-red-400 dark:bg-red-900/10 dark:border-red-900/30 dark:text-red-400"
+                    : "bg-gray-50 dark:bg-neutral-800 text-muted-foreground"
+                    }`}
+                  placeholder={(!pengajuanRanpel || pengajuanRanpel.length === 0) ? "Anda belum memiliki rancangan penelitian" : "Judul penelitian aktif"}
                 />
               )}
             </div>
@@ -332,9 +426,12 @@ export default function PendaftaranUjianForm({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {activeSyarat.map((item, idx) => {
                   const currentFile = uploadedFiles[item.namaSyarat];
+                  const existingDoc = getExistingDocument(item.namaSyarat);
+                  const hasDocument = currentFile || existingDoc;
+
                   return (
-                    <div key={item.id} className={`relative group border rounded-xl p-4 transition-all duration-200 ${currentFile
-                      ? 'bg-blue-50/50 border-blue-200 dark:bg-blue-900/10 dark:border-blue-900/30'
+                    <div key={item.id} className={`relative group border rounded-2xl p-4 transition-all duration-200 ${hasDocument
+                      ? 'bg-primary/5 border-primary/20 dark:bg-primary/10 dark:border-primary/20'
                       : 'bg-white hover:bg-gray-50 dark:bg-neutral-900 dark:border-neutral-800 dark:hover:bg-neutral-800'
                       }`}>
                       <div className="flex justify-between items-start mb-3">
@@ -369,25 +466,52 @@ export default function PendaftaranUjianForm({
                           onChange={(e) => handleFileChange(item.namaSyarat, e.target.files?.[0] ?? null)}
                         />
 
-                        {!currentFile ? (
+                        {existingDoc && !currentFile ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-3 w-full p-2 rounded-lg bg-green-50 border border-green-200 dark:bg-green-900/10 dark:border-green-900/30">
+                              <div className="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center dark:bg-green-900/30 dark:text-green-400">
+                                <CheckCircle2 size={16} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs font-medium text-green-700 dark:text-green-400">Sudah tersedia di profil</div>
+                                <a
+                                  href={getStorageUrl(existingDoc)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[10px] text-green-600 dark:text-green-500 hover:underline flex items-center gap-1"
+                                >
+                                  <FileText size={10} />
+                                  Lihat dokumen
+                                </a>
+                              </div>
+                            </div>
+                            <label
+                              htmlFor={`file-${item.id}`}
+                              className="flex items-center justify-center gap-2 w-full p-2 rounded-lg border border-dashed border-gray-300 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all text-xs text-gray-500 hover:text-primary"
+                            >
+                              <UploadCloud size={14} />
+                              Upload ulang (opsional)
+                            </label>
+                          </div>
+                        ) : !currentFile ? (
                           <label
                             htmlFor={`file-${item.id}`}
-                            className="flex items-center gap-3 w-full p-2 rounded-lg border border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer transition-all group-hover:shadow-sm"
+                            className="flex items-center gap-3 w-full p-2 rounded-lg border border-dashed border-gray-300 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all group-hover:shadow-sm"
                           >
-                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-500 transition-colors">
+                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                               <UploadCloud size={16} />
                             </div>
-                            <div className="text-xs text-muted-foreground group-hover:text-blue-600 transition-colors">
+                            <div className="text-xs text-muted-foreground group-hover:text-primary transition-colors">
                               Klik untuk upload (PDF)
                             </div>
                           </label>
                         ) : (
-                          <div className="flex items-center gap-3 w-full p-2 rounded-lg bg-white border border-blue-100 shadow-sm dark:bg-neutral-950 dark:border-blue-900/30">
-                            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                          <div className="flex items-center gap-3 w-full p-2 rounded-lg bg-white border border-primary/20 shadow-sm dark:bg-neutral-950 dark:border-primary/20">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                               <FileCheck size={16} />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-xs font-medium truncate text-blue-700 dark:text-blue-300">{currentFile.name}</div>
+                              <div className="text-xs font-medium truncate text-primary dark:text-primary">{currentFile.name}</div>
                               <div className="text-[10px] text-gray-400">{(currentFile.size / 1024 / 1024).toFixed(2)} MB</div>
                             </div>
                           </div>
@@ -402,7 +526,7 @@ export default function PendaftaranUjianForm({
         )}
 
         {errorMsg && (
-          <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 flex items-center gap-3 animate-in slide-in-from-top-2">
+          <div className="bg-red-50 border border-red-200 text-red-600 rounded-2xl p-4 flex items-center gap-3 animate-in slide-in-from-top-2">
             <AlertCircle size={20} className="shrink-0" />
             <p className="text-sm font-medium">{errorMsg}</p>
           </div>
@@ -413,12 +537,12 @@ export default function PendaftaranUjianForm({
       <div className="sticky bottom-0 z-40 bg-white/95 dark:bg-neutral-900/95 backdrop-blur border-t dark:border-neutral-800 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <div className="max-w-full flex justify-end gap-3">
           {onCloseModal && (
-            <Button type="button" variant="ghost" onClick={onCloseModal} className="h-11 rounded-xl px-6">Batal</Button>
+            <Button type="button" variant="ghost" onClick={onCloseModal} className="h-11 rounded-2xl px-6">Batal</Button>
           )}
           <Button
             type="submit"
-            disabled={isSubmitting || !selectedJenisUjian}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white h-11 rounded-xl px-8 shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5"
+            disabled={isSubmitting || !selectedJenisUjian || !canRegisterSelectedExam() || !isSyaratWajibTerisi() || !selectedRanpelId}
+            className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white h-11 rounded-2xl px-8 shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <>

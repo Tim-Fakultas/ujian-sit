@@ -141,7 +141,7 @@ export default function KeputusanSheet({
                       className={cn(
                         "relative flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50",
                         isSelected
-                          ? "border-blue-600 bg-blue-50/50 dark:bg-blue-500/10 dark:border-blue-500"
+                          ? "border-primary bg-primary/5 dark:bg-primary/10 dark:border-primary"
                           : "border-border bg-white dark:bg-transparent"
                       )}
                     >
@@ -155,12 +155,12 @@ export default function KeputusanSheet({
                       />
                       <div className={cn(
                         "mt-0.5 h-4 w-4 shrink-0 rounded-full border border-primary ring-offset-background flex items-center justify-center",
-                        isSelected ? "border-blue-600 bg-blue-600 text-white" : "border-slate-300 dark:border-slate-600"
+                        isSelected ? "border-primary bg-primary text-white" : "border-slate-300 dark:border-slate-600"
                       )}>
                         {isSelected && <div className="h-2 w-2 rounded-full bg-white" />}
                       </div>
                       <div className="space-y-1">
-                        <div className={cn("text-sm font-medium leading-none", isSelected ? "text-blue-700 dark:text-blue-300" : "text-foreground")}>
+                        <div className={cn("text-sm font-medium leading-none", isSelected ? "text-primary dark:text-primary" : "text-foreground")}>
                           {opt.label}
                         </div>
                       </div>
