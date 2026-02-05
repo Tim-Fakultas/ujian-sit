@@ -129,6 +129,26 @@ function DialogDescription({
   )
 }
 
+function ScrollableDialogContent({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>) {
+  return (
+    <DialogPrimitive.Portal>
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 overflow-y-auto">
+        <DialogPrimitive.Content
+          className={cn(
+            "relative mx-auto my-10 w-full max-w-2xl rounded-lg bg-background",
+            className
+          )}
+          {...props}
+        />
+      </DialogPrimitive.Overlay>
+    </DialogPrimitive.Portal>
+  )
+}
+
+
 export {
   Dialog,
   DialogClose,
@@ -140,4 +160,5 @@ export {
   DialogPortal,
   DialogTitle,
   DialogTrigger,
+  ScrollableDialogContent,
 }

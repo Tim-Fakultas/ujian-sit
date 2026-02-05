@@ -13,6 +13,7 @@ export interface Dosen {
   nidn: string;
   nip: string | null;
   nama: string;
+  email: string | null;
   noHp: string | null;
   alamat: string | null;
   tempatTanggalLahir: string | null;

@@ -2,16 +2,14 @@ import { refreshUserAction } from "@/actions/auth";
 import { getPendaftaranUjianByMahasiswaId } from "@/actions/pendaftaranUjian";
 import { getPengajuanRanpelByMahasiswaId } from "@/actions/pengajuanRanpel";
 import { getPerbaikanJudulByMahasiswa } from "@/actions/perbaikanJudul";
-import { getAcceptedRanpels, getRejectedRanpels } from "@/actions/rancanganPenelitian";
 import {
   BookOpen,
   Calendar,
   CheckCircle,
   ClipboardList,
+  Edit,
   FileText,
   LayoutDashboard,
-  XCircle,
-  Edit,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -23,12 +21,10 @@ export default async function MahasiswaDashboardPage() {
   const mahasiswaId = Number(user?.id);
 
   // Fetch data
-  const [ranpelList, pendaftaranList, perbaikanList, globalAccepted, globalRejected] = await Promise.all([
+  const [ranpelList, pendaftaranList, perbaikanList] = await Promise.all([
     getPengajuanRanpelByMahasiswaId(mahasiswaId),
     getPendaftaranUjianByMahasiswaId(mahasiswaId),
     getPerbaikanJudulByMahasiswa(mahasiswaId),
-    getAcceptedRanpels(),
-    getRejectedRanpels(),
   ]);
 
   // Process data for stats
@@ -39,8 +35,7 @@ export default async function MahasiswaDashboardPage() {
 
   const perbaikanStatus = perbaikanList && perbaikanList.length > 0 ? perbaikanList[0].status : "Tidak Ada";
 
-  const acceptedCount = globalAccepted?.length || 0;
-  const rejectedCount = globalRejected?.length || 0;
+
 
   // Data for Action Grid - matching sidebar menu order
   const quickActions = [
@@ -51,20 +46,7 @@ export default async function MahasiswaDashboardPage() {
       href: "/mahasiswa/pengajuan-ranpel",
       color: "blue" as const,
     },
-    {
-      label: "Judul Diterima",
-      description: `${acceptedCount} judul telah diterima.`,
-      icon: CheckCircle,
-      href: "/mahasiswa/judul-diterima",
-      color: "emerald" as const,
-    },
-    {
-      label: "Judul Ditolak",
-      description: `${rejectedCount} judul ditolak, perlu perbaikan.`,
-      icon: XCircle,
-      href: "/mahasiswa/judul-ditolak",
-      color: "rose" as const,
-    },
+
     {
       label: "Perbaikan Judul",
       description: "Lihat riwayat dan status perbaikan judul.",

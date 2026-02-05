@@ -141,8 +141,6 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       icon: IconListDetails,
       items: [
         { title: "Pengajuan Rancangan Penelitian", url: "/mahasiswa/pengajuan-ranpel" },
-        { title: "Judul diterima", url: "/mahasiswa/judul-diterima" },
-        { title: "Judul ditolak", url: "/mahasiswa/judul-ditolak" },
         { title: "Perbaikan judul", url: "/mahasiswa/perbaikan-judul" },
         { title: "Pendaftaran Ujian", url: "/mahasiswa/pendaftaran-ujian" },
         { title: "Jadwal Ujian", url: "/mahasiswa/jadwal-ujian" },
