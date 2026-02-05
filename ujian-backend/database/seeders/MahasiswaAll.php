@@ -16,7 +16,7 @@ class MahasiswaAll extends Seeder
      */
     public function run(): void
     {
-         $file = database_path('data/Mahasiswa_Per_Angkatan_2019-2025.json');
+        $file = database_path('data/Mahasiswa_Per_Angkatan_2019-2025.json');
 
         if (!file_exists($file)) {
             throw new \Exception("File JSON tidak ditemukan di: {$file}");
@@ -24,6 +24,39 @@ class MahasiswaAll extends Seeder
 
         $raw = file_get_contents($file);
         $json = json_decode($raw, true);
+
+        $csvFile = database_path('data/dosen_pa_initial.csv');
+        if(!file_exists($csvFile)) {
+            throw new \Exception("File CSV dosen PA tidak ditemukan di: {$csvFile}");
+        }
+
+        $csv = array_map('str_getcsv', file($csvFile));
+        $rawHeader = array_shift($csv);
+        $header = array_map('trim', $rawHeader);
+        $headerCount = count($header);
+
+        $dosenPAData = [];
+        foreach ($csv as $i => $row) {
+            if(count(array_filter($row)) === 0) {
+                continue; // skip empty rows
+            }
+
+            $row = array_slice($row, 0, $headerCount);
+            $row = array_pad($row, $headerCount, null);
+
+            $data = array_combine($header, $row);
+
+
+            if(!isset($data['NIM']) || !isset($data['Penasehat Akademik'])) {
+                throw new \Exception("Format CSV dosen PA tidak sesuai di: " . ($i + 2) . " pada file: {$csvFile}");
+            }
+
+            $nim = trim($data['NIM']);
+            $dosenPa = trim($data['Penasehat Akademik']);
+            $dosenPAData[$nim] = (int) $dosenPa;
+        }
+
+
 
         $now = now();
         $currentYear = $now->year;
@@ -33,7 +66,7 @@ class MahasiswaAll extends Seeder
 
         foreach ($json as $angkatan => $mahasiswas) {
             foreach ($mahasiswas as $mhs) {
-                $start = Carbon::createFromDate((int)$angkatan, 9, 1);
+                $start = Carbon::createFromDate((int)$angkatan, 7, 1);
                 $months = $start->diffInMonths($now);
                 $semester = intdiv($months, 6) + 1;
                 $semester = max(1, min($semester, 14));
@@ -60,7 +93,7 @@ class MahasiswaAll extends Seeder
                     'peminatan_id' => null,
                     'semester' => $semester,
                     'ipk' => round(fake()->randomFloat(2, 2.00, 4.00), 2),
-                    'dosen_pa' => rand(1, 20),
+                    'dosen_pa' => $dosenPAData[$mhs['nim']] ?? null,
                     'pembimbing_1' => null,
                     'pembimbing_2' => null,
                     'status' => 'aktif',
