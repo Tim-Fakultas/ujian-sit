@@ -60,11 +60,9 @@ export default function PendaftaranUjianForm({
 
   useEffect(() => {
     const loadSyarat = async () => {
-      console.log('[PendaftaranUjianForm] Loading syarat...');
       setIsLoadingSyarat(true);
       try {
         const data = await getAllSyarat();
-        console.log('[PendaftaranUjianForm] Syarat loaded:', data.length, 'items', data);
         setAllSyarat(data);
       } catch (err) {
         console.error("[PendaftaranUjianForm] Failed to load syarat", err);
@@ -150,11 +148,6 @@ export default function PendaftaranUjianForm({
   const activeSyarat = selectedJenisUjian
     ? allSyarat.filter(s => Number(s.jenisUjianId) === Number(selectedJenisUjian))
     : [];
-
-  // Log filtered syarat for debugging
-  console.log('[PendaftaranUjianForm] Selected Jenis Ujian:', selectedJenisUjian, selectedJenis?.namaJenis);
-  console.log('[PendaftaranUjianForm] All Syarat:', allSyarat.length, allSyarat);
-  console.log('[PendaftaranUjianForm] Active Syarat (filtered):', activeSyarat.length, activeSyarat);
 
   const handleFileChange = (syaratNama: string, file: File | null) => {
     setUploadedFiles(prev => ({

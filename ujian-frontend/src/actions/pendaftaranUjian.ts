@@ -188,7 +188,6 @@ export async function updateStatusPendaftaranUjian(
       body.keterangan = keterangan;
     }
 
-    console.log('Updating pendaftaran ujian:', { id, body });
 
     const response = await fetch(`${API_URL}/pendaftaran-ujian/${id}`, {
       method: "PATCH",
@@ -207,7 +206,6 @@ export async function updateStatusPendaftaranUjian(
     }
 
     const result = await response.json();
-    console.log('Update successful:', result);
     return result;
   } catch (error) {
     console.error("Error update status pendaftaran ujian:", error);

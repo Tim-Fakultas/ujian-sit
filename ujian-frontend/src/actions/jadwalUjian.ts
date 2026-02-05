@@ -90,7 +90,6 @@ export async function getPenjadwalanUjianByProdi(prodiId: number) {
         const dateB = new Date(b.jadwalUjian ?? 0).getTime();
         return dateB - dateA;
       });
-    console.log(filteredData)
     return filteredData;
   } catch (error) {
     console.error("Error fetching ujian by prodi:", error);

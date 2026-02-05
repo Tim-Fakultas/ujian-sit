@@ -9,7 +9,6 @@ export async function getAllSyarat() {
             cache: "no-store",
         });
 
-        console.log('[getAllSyarat] Response status:', response.status, response.statusText);
 
         if (!response.ok) {
             // Log the error response body
@@ -19,11 +18,9 @@ export async function getAllSyarat() {
         }
 
         const data = await response.json();
-        console.log('[getAllSyarat] Raw response data:', data);
 
         // Assuming Laravel Resource collection returns { data: [...] }
         const syaratList = data.data as Syarat[];
-        console.log('[getAllSyarat] Parsed syarat list:', syaratList.length, 'items');
 
         return syaratList;
     } catch (error) {

@@ -250,7 +250,6 @@ export async function refreshUserAction() {
     }
 
     // Log the refreshed user data for debugging
-    console.log("REFRESH USER DATA:", newUser);
 
     // Refresh the cookie (only works in Server Actions / Route Handlers)
     try {

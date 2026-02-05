@@ -196,8 +196,6 @@ export default function PenjadwalkanUjianTable({
             if (ketua) setKetuaPenguji(Number(ketua.id));
             if (sekre) setSekretarisPenguji(Number(sekre.id));
 
-
-            console.log(`Berhasil memuat penguji proposal untuk mahasiswa ID: ${mahasiswaId}`);
           }
         }
       } catch (err) {

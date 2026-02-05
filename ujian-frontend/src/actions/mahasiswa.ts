@@ -133,7 +133,6 @@ export async function updateMahasiswaProfileAction(data: {
             throw new Error(`Update failed: ${response.status} - ${JSON.stringify(responseData)}`);
         }
 
-        console.log("UPDATE PROFILE SUCCESS:", responseData);
         revalidatePath("/mahasiswa/profile");
         return { success: true };
     } catch (error) {
