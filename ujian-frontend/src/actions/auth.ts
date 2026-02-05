@@ -252,16 +252,19 @@ export async function refreshUserAction() {
     // Log the refreshed user data for debugging
 
     // Refresh the cookie (only works in Server Actions / Route Handlers)
+    // When called from a Server Component during render, cookies().set() throws or warns.
     try {
-      cookieStore.set("user", JSON.stringify(newUser), {
-        httpOnly: false,
-        path: "/",
-        maxAge: 60 * 60 * 6,
-      });
-    } catch (e) {
-      // Ignore error if called during render (Server Component)
-      // New data is still returned to the caller
-      console.warn("Could not update user cookie during render:", e);
+      const canSetCookies = !!cookieStore.set;
+      if (canSetCookies) {
+        cookieStore.set("user", JSON.stringify(newUser), {
+          httpOnly: false,
+          path: "/",
+          maxAge: 60 * 60 * 6,
+        });
+      }
+    } catch (e: any) {
+      // Ssssh! We expect this might fail in some Next.js render contexts.
+      // The updated newUser is still returned and used by the caller.
     }
 
     return newUser;

@@ -88,13 +88,17 @@ export async function getAcceptedRanpels() {
 
     if (!res.ok) {
       if (res.status === 404) return [];
-      throw new Error("Failed to fetch accepted ranpels");
+      throw new Error(`Failed to fetch accepted ranpels: ${res.status}`);
     }
 
     const json = await res.json();
     return json.data;
-  } catch (error) {
-    console.error("Error fetching accepted ranpels:", error);
+  } catch (error: any) {
+    if (error.code === 'ECONNREFUSED') {
+      console.warn("[Build/Runtime] Backend unreachable for getAcceptedRanpels. Returning empty list.");
+    } else {
+      console.error("Error fetching accepted ranpels:", error);
+    }
     return [];
   }
 }
@@ -108,13 +112,17 @@ export async function getRejectedRanpels() {
 
     if (!res.ok) {
       if (res.status === 404) return [];
-      throw new Error("Failed to fetch rejected ranpels");
+      throw new Error(`Failed to fetch rejected ranpels: ${res.status}`);
     }
 
     const json = await res.json();
     return json.data;
-  } catch (error) {
-    console.error("Error fetching rejected ranpels:", error);
+  } catch (error: any) {
+    if (error.code === 'ECONNREFUSED') {
+      console.warn("[Build/Runtime] Backend unreachable for getRejectedRanpels. Returning empty list.");
+    } else {
+      console.error("Error fetching rejected ranpels:", error);
+    }
     return [];
   }
 }

@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getStorageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createPendaftaranUjian } from "@/actions/pendaftaranUjian";
-import { getAllSyarat } from "@/actions/syarat";
+import { getSyaratByJenisUjian } from "@/actions/syarat";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { User } from "@/types/Auth";
 import { Ujian } from "@/types/Ujian";
@@ -58,23 +58,6 @@ export default function PendaftaranUjianForm({
   const [allSyarat, setAllSyarat] = useState<Syarat[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<Record<string, File | null>>({});
 
-  useEffect(() => {
-    const loadSyarat = async () => {
-      setIsLoadingSyarat(true);
-      try {
-        const data = await getAllSyarat();
-        setAllSyarat(data);
-      } catch (err) {
-        console.error("[PendaftaranUjianForm] Failed to load syarat", err);
-        showToast.error("Gagal memuat daftar persyaratan.");
-      } finally {
-        setIsLoadingSyarat(false);
-      }
-    };
-    loadSyarat();
-  }, []);
-
-
   // User stats
   const ipk = user?.ipk ?? 0;
   const semester = user?.semester ?? 0;
@@ -90,13 +73,25 @@ export default function PendaftaranUjianForm({
 
   const canDaftarProposal = () => ipk >= 2 && semester >= 6; // Adjusted logic from original
 
-  const handleJenisUjianSelect = (id: number) => {
+  const handleJenisUjianSelect = async (id: number) => {
     setSelectedJenisUjian(id);
     setUploadedFiles({}); // Reset files when changing exam type
     if (pengajuanRanpel.length === 1) {
       setSelectedRanpelId(pengajuanRanpel[0].ranpel.id ?? null);
     } else {
       setSelectedRanpelId(null);
+    }
+
+    // Fetch requirements for the selected exam type
+    setIsLoadingSyarat(true);
+    try {
+      const data = await getSyaratByJenisUjian(id);
+      setAllSyarat(data);
+    } catch (err) {
+      console.error("[PendaftaranUjianForm] Failed to load syarat", err);
+      showToast.error("Gagal memuat daftar persyaratan.");
+    } finally {
+      setIsLoadingSyarat(false);
     }
   };
 
@@ -118,36 +113,46 @@ export default function PendaftaranUjianForm({
     return null;
   };
 
-  const canRegisterSelectedExam = () => {
-    if (!selectedJenisUjian) return false;
-    const selectedJenis = jenisUjianList.find(j => j.id === selectedJenisUjian);
-    if (!selectedJenis) return false;
+  const getEligibilityMessage = () => {
+    if (!selectedJenisUjian) {
+      if (!canDaftarProposal()) return "IPK >= 2.00 dan Semester >= 6";
+      return "Anda bisa mendaftar Seminar Proposal";
+    }
 
+    const selectedJenis = jenisUjianList.find(j => j.id === selectedJenisUjian);
+    if (!selectedJenis) return "";
     const nama = selectedJenis.namaJenis.toLowerCase();
     const isProp = nama.includes("proposal");
     const isHas = nama.includes("hasil");
     const isSkrip = nama.includes("skripsi");
 
-    if (isProp && !canDaftarProposal()) return false;
-    if (isHas) {
-      if (!canDaftarProposal()) return false;
-      if (!lulusProposal) return false;
-    }
-    if (isSkrip) {
-      if (!canDaftarProposal()) return false;
-      if (!lulusProposal) return false;
-      if (!lulusHasil) return false;
+    if (isProp) {
+      if (!canDaftarProposal()) return "IPK minimal 2.00 dan Semester minimal 6.";
+      return "Anda bisa mendaftar Seminar Proposal";
     }
 
-    return true;
+    if (isHas) {
+      if (!canDaftarProposal()) return "IPK min 2.00 & Semester min 6.";
+      if (!lulusProposal) return "Anda harus lulus Seminar Proposal terlebih dahulu.";
+    }
+    if (isSkrip) {
+      if (!canDaftarProposal()) return "IPK min 2.00 & Semester min 6.";
+      if (!lulusProposal) return "Anda harus lulus Seminar Proposal terlebih dahulu.";
+      if (!lulusHasil) return "Anda harus lulus Ujian Hasil terlebih dahulu.";
+    }
+
+    return "Anda memenuhi syarat";
+  };
+
+  const canRegisterSelectedExam = () => {
+    const msg = getEligibilityMessage();
+    return msg === "Anda memenuhi syarat" || msg === "Anda bisa mendaftar Seminar Proposal";
   };
 
   const selectedJenis = jenisUjianList.find(j => j.id === selectedJenisUjian);
 
-  // Filter requirements based on selected exam type
-  const activeSyarat = selectedJenisUjian
-    ? allSyarat.filter(s => Number(s.jenisUjianId) === Number(selectedJenisUjian))
-    : [];
+  // Filter requirements based on selected exam type (SAFEGUARD)
+  const activeSyarat = allSyarat.filter(s => Number(s.jenisUjianId) === Number(selectedJenisUjian));
 
   const handleFileChange = (syaratNama: string, file: File | null) => {
     setUploadedFiles(prev => ({
@@ -288,14 +293,14 @@ export default function PendaftaranUjianForm({
             </div>
           </div>
 
-          <div className={`border p-5 rounded-2xl shadow-sm flex items-center gap-4 ${canDaftarProposal() ? 'bg-primary/5 border-primary/10 dark:bg-primary/10 dark:border-primary/20' : 'bg-red-50/50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30'}`}>
-            <div className={`p-3 rounded-2xl ${canDaftarProposal() ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'bg-red-100 text-red-600 dark:bg-red-900/30'}`}>
-              {canDaftarProposal() ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+          <div className={`border p-5 rounded-2xl shadow-sm flex items-center gap-4 ${(!selectedJenisUjian ? canDaftarProposal() : canRegisterSelectedExam()) ? 'bg-primary/5 border-primary/10 dark:bg-primary/10 dark:border-primary/20' : 'bg-red-50/50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30'}`}>
+            <div className={`p-3 rounded-2xl ${(!selectedJenisUjian ? canDaftarProposal() : canRegisterSelectedExam()) ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'bg-red-100 text-red-600 dark:bg-red-900/30'}`}>
+              {(!selectedJenisUjian ? canDaftarProposal() : canRegisterSelectedExam()) ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Kelayakan</div>
-              <div className={`font-bold ${canDaftarProposal() ? 'text-primary dark:text-primary' : 'text-red-700 dark:text-red-400'}`}>
-                {canDaftarProposal() ? "Memenuhi Syarat" : "Belum Memenuhi Syarat"}
+              <div className={`font-bold truncate ${(!selectedJenisUjian ? canDaftarProposal() : canRegisterSelectedExam()) ? 'text-primary dark:text-primary' : 'text-red-700 dark:text-red-400'}`}>
+                {getEligibilityMessage()}
               </div>
             </div>
           </div>
@@ -333,31 +338,10 @@ export default function PendaftaranUjianForm({
                   </div>
                   <div>
                     <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium">
-                      Anda belum memenuhi syarat untuk ujian ini
+                      Pendaftaran Belum Diizinkan
                     </p>
                     <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
-                      {(() => {
-                        const selectedJenis = jenisUjianList.find(j => j.id === selectedJenisUjian);
-                        if (!selectedJenis) return "";
-                        const nama = selectedJenis.namaJenis.toLowerCase();
-                        const isProp = nama.includes("proposal");
-                        const isHas = nama.includes("hasil");
-                        const isSkrip = nama.includes("skripsi");
-
-                        if (isProp && !canDaftarProposal()) {
-                          return "Anda memerlukan IPK minimal 2.00 dan telah menempuh minimal 100 SKS.";
-                        }
-                        if (isHas) {
-                          if (!canDaftarProposal()) return "Anda memerlukan IPK minimal 2.00 dan telah menempuh minimal 100 SKS.";
-                          if (!lulusProposal) return "Anda harus lulus Seminar Proposal terlebih dahulu.";
-                        }
-                        if (isSkrip) {
-                          if (!canDaftarProposal()) return "Anda memerlukan IPK minimal 2.00 dan telah menempuh minimal 100 SKS.";
-                          if (!lulusProposal) return "Anda harus lulus Seminar Proposal terlebih dahulu.";
-                          if (!lulusHasil) return "Anda harus lulus Ujian Hasil terlebih dahulu.";
-                        }
-                        return "";
-                      })()}
+                      {getEligibilityMessage()}
                     </p>
                   </div>
                 </div>

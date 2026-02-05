@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreSyaratRequest;
 use App\Http\Requests\UpdateSyaratRequest;
 use App\Http\Resources\SyaratResource;
@@ -12,9 +13,15 @@ class SyaratController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $syarat = Syarat::with(['jenisUjian', 'pemenuhanSyarat'])->get();
+        $query = Syarat::with(['jenisUjian', 'pemenuhanSyarat']);
+
+        if ($request->has('jenis_ujian_id')) {
+            $query->where('jenis_ujian_id', $request->jenis_ujian_id);
+        }
+
+        $syarat = $query->get();
 
         return SyaratResource::collection($syarat);
     }

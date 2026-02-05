@@ -22,8 +22,8 @@ export default async function DaftarUjianPage() {
   const jenisUjianList: JenisUjian[] = Array.isArray(_jenisUjianResult)
     ? _jenisUjianResult
     : _jenisUjianResult && "data" in _jenisUjianResult
-    ? (_jenisUjianResult as { data: JenisUjian[] }).data
-    : [];
+      ? (_jenisUjianResult as { data: JenisUjian[] }).data
+      : [];
 
   const pengajuanRanpel: PengajuanRanpel[] =
     await getPengajuanRanpelByMahasiswaIdByStatus(user?.id);
