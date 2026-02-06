@@ -7,6 +7,7 @@ use App\Http\Controllers\CommentController;
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FaqController;
 // use App\Http\Controllers\BimbinganController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\FakultasController;
@@ -58,6 +59,7 @@ Route::apiResource('pejabat', PejabatController::class);
 Route::apiResource('prodi', ProdiController::class);
 
 Route::apiResource('peminatan', PeminatanController::class);
+Route::apiResource('faqs', FaqController::class);
 
 Route::apiResource('skripsi', SkripsiController::class);
 

@@ -19,6 +19,7 @@ class DosenResource extends JsonResource
             'nidn' => $this->nidn,
             'nip' => $this->nip,
             'nama' => $this->nama,
+            'email' => $this->email,
             'noHp' => $this->no_hp,
             'alamat' => $this->alamat,
             'tempatTanggalLahir' => $this->tempat_tanggal_lahir,

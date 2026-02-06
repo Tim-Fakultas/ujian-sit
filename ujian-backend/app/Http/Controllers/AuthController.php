@@ -42,7 +42,7 @@ class AuthController extends Controller
             ], 200);
         }
 
-        return response()->json(['message' => 'Invalid login details'], 401);
+        return response()->json(['message' => 'User tidak ditemukan'], 401);
     }
 
     public function changePassword(Request $request)

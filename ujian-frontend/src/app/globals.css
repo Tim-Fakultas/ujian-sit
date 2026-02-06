@@ -120,6 +120,11 @@
   /* Blue */
 }
 
+/* globals.css */
+.overflow-anchor-none {
+  overflow-anchor: none;
+}
+
 .dark {
   /* Base Colors - Deep Dark Theme (Vercel-like) */
   --background: #0a0a0a;

@@ -20,3 +20,4 @@ Route::get('/fakultas', [FakultasController::class, 'index']);
 Route::get('/pejabat', [PejabatController::class, 'index']);
 Route::get('/prodi', [ProdiController::class, 'index']);
 Route::get('/skripsi', [SkripsiController::class, 'index']);
+

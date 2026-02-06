@@ -16,6 +16,7 @@ class Dosen extends Model
         'nama',
         'nidn',
         'nip',
+        'email',
         'no_hp',
         'alamat',
         'tempat_tanggal_lahir',
