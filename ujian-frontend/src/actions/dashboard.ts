@@ -73,6 +73,22 @@ export async function getTotalPengajuanRanpelMenunggu(prodiId?: number) {
   return filtered?.length ?? 0;
 }
 
+export async function getTotalPengajuanRanpelDiterima(prodiId?: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const res = await fetch(`${apiUrl}/pengajuan-ranpel`, {
+    cache: "no-store",
+  });
+  if (!res.ok) return 0;
+  const data = await res.json();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const filtered = data?.data?.filter(
+    (item: any) =>
+      item.status === "diterima" &&
+      (!prodiId || item.mahasiswa?.prodi?.id === prodiId)
+  );
+  return filtered?.length ?? 0;
+}
+
 export async function getTotalPeminatan() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${apiUrl}/peminatan`, {

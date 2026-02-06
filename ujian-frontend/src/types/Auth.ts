@@ -77,6 +77,8 @@
 export interface Prodi {
   id: number;
   nama: string;
+  nama_prodi?: string;
+  namaProdi?: string;
   fakultas_id?: number;
   created_at?: string;
   updated_at?: string;

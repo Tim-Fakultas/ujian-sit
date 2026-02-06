@@ -2,7 +2,7 @@ import { getCurrentUserAction } from "@/actions/auth";
 import {
   getTotalDosen,
   getTotalMahasiswa,
-  getTotalPengajuanRanpelMenunggu,
+  getTotalPengajuanRanpelDiterima,
 } from "@/actions/dashboard";
 import {
   BookOpen,
@@ -24,8 +24,8 @@ export default async function KaprodiDashboardPage() {
   const prodiId = user?.prodi?.id;
 
   // Fetch Data Parallel
-  const [totalRanpelMenunggu, totalMahasiswa, totalDosen] = await Promise.all([
-    getTotalPengajuanRanpelMenunggu(prodiId),
+  const [totalRanpelDiterima, totalMahasiswa, totalDosen] = await Promise.all([
+    getTotalPengajuanRanpelDiterima(prodiId),
     getTotalMahasiswa(prodiId),
     getTotalDosen(prodiId),
   ]);
@@ -67,7 +67,7 @@ export default async function KaprodiDashboardPage() {
       {/* Header Section */}
       <DashboardHeader
         title={`Selamat Datang, ${getDisplayName(user?.nama)}`}
-        subtitle={`Dashboard Ketua Prodi ${user?.prodi?.nama || "Informatika"}`}
+        subtitle={`Dashboard Ketua Prodi ${user?.prodi?.nama}`}
       />
 
       {/* Stats Grid */}
@@ -78,8 +78,8 @@ export default async function KaprodiDashboardPage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatCard
-            title="Ranpel Menunggu"
-            value={totalRanpelMenunggu}
+            title="Ranpel Diterima"
+            value={totalRanpelDiterima}
             icon={CheckCircle2}
             color="amber"
             className=""

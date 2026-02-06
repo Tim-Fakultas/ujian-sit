@@ -204,9 +204,61 @@ export async function refreshUserAction() {
           // map pembimbing if needed
         };
       }
-    } else if (role === "dosen") {
-      // Logic for Dosen
-      const res = await fetchWithToken(`/dosen/${staleUser.id}`);
+    } else if (["dosen", "kaprodi", "sekprodi", "admin prodi", "admin"].includes(role)) {
+      // Logic for Dosen & Staff roles
+      // 1. Try to fetch as Dosen first if they have a Dosen ID (staleUser.id for dosen role is dosen.id)
+      // For Kaprodi/Admin, staleUser.id is user.id, so we might need a different way to find dosen_id
+      // but if the login returned the dosen_id as 'id', it works.
+      // Let's assume if it's 'dosen' role, 'id' is dosen_id.
+      // If it's other roles, 'id' is user_id.
+
+      let res;
+      if (role === "dosen") {
+        res = await fetchWithToken(`/dosen/${staleUser.id}`);
+      } else {
+        // Find if this user has a dosen profile
+        // Backend DosenController usually has an index or we can try to find by user_id
+        // Actually, let's just fetch /user first to get user details
+        const userRes = await fetchWithToken(`/user`);
+        if (userRes) {
+          newUser = { ...newUser, ...userRes };
+          // If the backend AuthController.getUserDataByRole returned prodi, it's already there
+          if (userRes.prodi_id && !newUser.prodi) {
+            const prodiRes = await fetchWithToken(`/prodi/${userRes.prodi_id}`);
+            if (prodiRes?.data) {
+              newUser.prodi = {
+                ...prodiRes.data,
+                nama: prodiRes.data.nama || prodiRes.data.namaProdi || prodiRes.data.nama_prodi,
+              };
+            }
+          }
+        }
+
+        // Try to fetch Dosen data if user_id is known
+        const dosenListRes = await fetchWithToken(`/dosen?user_id=${staleUser.user_id || staleUser.id}`);
+        if (dosenListRes && dosenListRes.data && dosenListRes.data.length > 0) {
+          const d = dosenListRes.data[0];
+          newUser = {
+            ...newUser,
+            id: d.id,
+            nama: d.nama,
+            nidn: d.nidn,
+            nip: d.nip,
+            no_hp: d.noHp,
+            alamat: d.alamat,
+            tempat_tanggal_lahir: d.tempatTanggalLahir,
+            pangkat: d.pangkat,
+            golongan: d.golongan,
+            jabatan: d.jabatan,
+            tmt_fst: d.tmtFst,
+            foto: d.foto,
+            prodi: d.prodi || newUser.prodi,
+            user_id: d.userId,
+          };
+        }
+        return newUser;
+      }
+
       if (res && res.data) {
         const d = res.data;
         newUser = {
@@ -228,24 +280,10 @@ export async function refreshUserAction() {
         };
       }
     } else {
-      // Logic for Admin/Others (fetch /user)
+      // Logic for others
       const userRes = await fetchWithToken(`/user`);
       if (userRes) {
-        newUser = {
-          ...newUser,
-          ...userRes, // update basic info like name/email
-          // prodi_id might be here, fetch prodi if needed
-        };
-
-        // If prodi_id exists, fetch prodi detail
-        if (userRes.prodi_id) {
-          const prodiRes = await fetchWithToken(`/prodi/${userRes.prodi_id}`);
-          if (prodiRes && prodiRes.data) {
-            // The ProdiResource returns {id, nama_prodi, ...}
-            // We assign it to prodi
-            newUser.prodi = prodiRes.data;
-          }
-        }
+        newUser = { ...newUser, ...userRes };
       }
     }
 
