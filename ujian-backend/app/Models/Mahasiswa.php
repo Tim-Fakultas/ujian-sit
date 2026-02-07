@@ -96,4 +96,9 @@ class Mahasiswa extends Model
     {
         return $this->hasMany(PerbaikanJudul::class, 'mahasiswa_id');
     }
+
+    public function paMahasiswa()
+    {
+        return $this->belongsTo(Dosen::class, 'dosen_pa');
+    }
 }

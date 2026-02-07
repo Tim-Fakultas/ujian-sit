@@ -22,7 +22,7 @@ return new class extends Migration
             $table->time('waktu_selesai')->nullable();
             $table->foreignId('ruangan_id')->nullable()->constrained('ruangan')->nullOnDelete();
             $table->enum('hasil', ['lulus', 'tidak lulus'])->nullable();
-            $table->unsignedBigInteger('nilai_akhir')->nullable();
+            $table->decimal('nilai_akhir')->nullable();
             $table->foreignId('keputusan_id')->nullable()->constrained('keputusan')->nullOnDelete();
             $table->text('catatan')->nullable();
             $table->timestamps();

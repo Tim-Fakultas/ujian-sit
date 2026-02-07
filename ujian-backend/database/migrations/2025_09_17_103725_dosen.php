@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('nama', 191);
             $table->string('no_hp', 30)->nullable();
             $table->string('alamat')->nullable();
+            $table->string('email', 191)->unique()->nullable();
             $table->string('tempat_tanggal_lahir')->nullable();
             $table->string('pangkat')->nullable();
             $table->string('golongan')->nullable();

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('ujian_id')->constrained('ujian')->onDelete('cascade');
             $table->foreignId('dosen_id')->constrained('dosen')->onDelete('cascade');
             $table->foreignId('komponen_penilaian_id')->constrained('komponen_penilaian')->onDelete('cascade');
-            $table->integer('nilai');
+            $table->decimal('nilai', 8, 2);
             $table->string('komentar')->nullable();
             $table->timestamps();
         });

@@ -57,4 +57,9 @@ class PengajuanRanpel extends Model
     {
         return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'proposal_id');
+    }
 }

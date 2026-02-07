@@ -26,6 +26,7 @@ class UpdatePengajuanRanpelRequest extends FormRequest
             'ranpel_id' => 'sometimes|exists:ranpel,id',
             'tanggal_pengajuan' => 'sometimes|date',
             'tanggal_diterima' => 'nullable|date',
+            'tanggal_diverifikasi' => 'nullable|date',
             'tanggal_ditolak' => 'nullable|date',
             'status' => 'nullable|string',  // Temporarily remove strict validation to debug
             'keterangan' => 'nullable|string',

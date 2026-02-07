@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('nama', 100)->nullable(false);
             $table->string('no_hp', 30)->nullable();
             $table->string('alamat')->nullable();
+            $table->string('url_ktm')->nullable();
             $table->foreignId('prodi_id')->default(1)->constrained('prodi')->onDelete('cascade');
             $table->foreignId('peminatan_id')->nullable()->constrained('peminatan')->onDelete('set null');
             $table->unsignedTinyInteger('semester')->default(1)->check('semester >= 1 AND semester <= 14');

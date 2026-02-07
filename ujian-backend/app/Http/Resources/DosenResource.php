@@ -25,7 +25,7 @@ class DosenResource extends JsonResource
             'tempatTanggalLahir' => $this->tempat_tanggal_lahir,
             'pangkat' => $this->pangkat,
             'golongan' => $this->golongan,
-            'tmtFst' => $this->tmt_fst,
+            'tmtFst' => $this->tmt_fst?->format('Y-m-d'),
             'jabatan' => $this->jabatan,
             'foto' => $this->foto,
             'userId' => $this->user_id,
@@ -37,7 +37,7 @@ class DosenResource extends JsonResource
                 'id' => $this->user->id,
                 'name' => $this->user->name,
             ] : null,
-            'createdAt' => $this->created_at,
+            'createdAt' => $this->created_at ?->format('Y-m-d H:i:s'),
             'updatedAt' => $this->updated_at,
         ];
     }

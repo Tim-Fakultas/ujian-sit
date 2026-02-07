@@ -16,9 +16,12 @@ return new class extends Migration
             $table->foreignId('ranpel_id')->constrained('ranpel')->onDelete('cascade');
             $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
             $table->dateTime('tanggal_pengajuan')->nullable();
+            $table->dateTime('tanggal_diverifikasi')->nullable();
             $table->dateTime('tanggal_diterima')->nullable();
+            $table->dateTime('tanggal_ditolak')->nullable();
             $table->enum('status', ['menunggu', 'diverifikasi', 'diterima', 'ditolak'])->default('menunggu');
             $table->string('keterangan')->nullable();
+            $table->text('catatan_kaprodi')->nullable();
             $table->timestamps();
         });
     }

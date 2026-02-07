@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('metode_penelitian')->nullable();
             $table->text('hasil_yang_diharapkan')->nullable();
             $table->text('kebutuhan_data')->nullable();
+            $table->text('jurnal_referensi')->nullable();
             $table->timestamps();
         });
     }

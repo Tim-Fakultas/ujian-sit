@@ -24,7 +24,7 @@ class UjianController extends Controller
             'dosenPenguji',
             'keputusan',
         ])
-            ->get();
+        ->get();
 
         return UjianResource::collection($ujian);
     }
@@ -65,7 +65,7 @@ class UjianController extends Controller
             'ruangan',
             'dosenPenguji'
         ])
-            ->findOrFail($id);
+        ->findOrFail($id);
 
         return new UjianResource($ujian);
     }
@@ -131,7 +131,10 @@ class UjianController extends Controller
 
     public function getByMahasiswa($id)
     {
-        $ujian = Ujian::with([
+        $namaJenis = request()->input('nama_jenis');
+
+        $ujian = Ujian::query()
+            ->with([
             'pendaftaranUjian.ranpel',
             'jenisUjian',
             'mahasiswa',
@@ -139,11 +142,11 @@ class UjianController extends Controller
             'ruangan',
             'dosenPenguji',
             'keputusan',
-        ])
+            ])
             ->where('mahasiswa_id', $id)
-            ->when(request('nama_jenis'), function ($q) {
-                $q->whereHas('jenisUjian', function ($query) {
-                    $query->where('nama_jenis', 'like', '%' . request('nama_jenis') . '%');
+            ->when($namaJenis, function ($q) use ($namaJenis) {
+                $q->whereHas('jenisUjian', function ($query) use ($namaJenis) {
+                    $query->where('nama_jenis', 'like', '%' . $namaJenis . '%');
                 });
             })
             ->orderBy('id', 'desc')

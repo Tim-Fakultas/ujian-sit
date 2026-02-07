@@ -14,9 +14,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('proposal_id')->constrained('pengajuan_ranpel')->onDelete('cascade');
             $table->string('section_id');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->text('message');
             $table->boolean('is_resolved')->default(false);
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
