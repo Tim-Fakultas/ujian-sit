@@ -94,13 +94,6 @@ class UjianController extends Controller
         // Update hanya field yang dikirim
         $ujian->update($data);
 
-        // Auto-set hasil kalau nilai_akhir dikirim tanpa hasil
-        if (isset($data['nilai_akhir']) && !isset($data['hasil'])) {
-            $ujian->update([
-                'hasil' => $data['nilai_akhir'] >= 70 ? 'lulus' : 'tidak lulus',
-            ]);
-        }
-
         if ($request->has('penguji')) {
             $pengujiRequest = $request->penguji;
             // Sync penguji
@@ -110,7 +103,7 @@ class UjianController extends Controller
             }
             $ujian->dosenPenguji()->sync($syncData);
 
-
+            $ujian->hitungNilaiAkhir();
         }
 
         return new UjianResource(

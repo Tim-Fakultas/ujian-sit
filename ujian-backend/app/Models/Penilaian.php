@@ -43,7 +43,7 @@ class Penilaian extends Model
         }
     });
 
-    static::deleted(function ($penilaian) {
+    static::deleted(callback: function ($penilaian) {
         if ($penilaian->ujian) {
             $penilaian->ujian->hitungNilaiAkhir();
         }

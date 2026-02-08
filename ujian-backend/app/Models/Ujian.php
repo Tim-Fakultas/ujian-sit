@@ -127,7 +127,7 @@ class Ujian extends Model
             return null; // tidak ada data
         }
 
-        $nilaiAkhir = (float) $rataRata;
+        $nilaiAkhir = round((float) $rataRata, 2);
         $isLulus = $nilaiAkhir >= 70;
 
         // Aturan Tambahan: Jika ada salah satu kriteria nilai <= 60, maka TIDAK LULUS
