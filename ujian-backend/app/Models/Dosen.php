@@ -26,7 +26,8 @@ class Dosen extends Model
         'jabatan',
         'prodi_id',
         'foto',
-        'user_id'
+        'user_id',
+        'url_ttd'
     ];
 
     protected $casts = [

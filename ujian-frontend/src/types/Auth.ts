@@ -140,4 +140,5 @@ export interface User {
   url_transkrip_nilai?: string;
   url_bukti_lulus_metopen?: string;
   url_sertifikat_bta?: string;
+  url_ttd?: string;
 }

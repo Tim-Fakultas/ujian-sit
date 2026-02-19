@@ -22,6 +22,9 @@ export interface Dosen {
   tmtFst: string | null;
   jabatan: string | null;
   foto: string | null;
+  ttd: string | null;
+  urlTtd: string | null;
+  url_ttd: string | null;
   userId: number;
   prodi: Prodi;
   user: User;

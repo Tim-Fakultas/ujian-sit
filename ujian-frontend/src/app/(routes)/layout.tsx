@@ -22,9 +22,9 @@ export default async function MainLayout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar user={user} />
+      <AppSidebar user={user ?? undefined} />
       <SidebarInset>
-        <SiteHeader user={user} />
+        <SiteHeader user={user ?? undefined} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2 bg-[#fafafa] dark:bg-neutral-950 ">
             <PasswordWarning />

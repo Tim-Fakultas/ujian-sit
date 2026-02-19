@@ -12,15 +12,6 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import {
-  Pencil,
-  Trash2,
-  Info,
-  LayoutGrid,
-  List,
-  X,
-  MoreHorizontal,
-} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,19 +33,27 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dosen } from "@/types/Dosen";
 import { User } from "@/types/Auth";
 import {
+  createDosen,
   deleteDosenById,
   getDosen,
   updateDosen,
 } from "@/actions/data-master/dosen";
+import { Plus, Pencil, Trash2, Info, X, MoreHorizontal } from "lucide-react";
 import { showToast } from "@/components/ui/custom-toast";
-import { useUrlSearch } from "@/hooks/use-url-search";
+import { useDebounce } from "@/hooks/use-debounce";
 
 import TableGlobal from "@/components/tableGlobal";
 import Image from "next/image";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DosenTableProps {
   dosen: Dosen[];
@@ -72,24 +71,44 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
 
   const data = React.useMemo(() => dosenData ?? [], [dosenData]);
 
-  const { search, setSearch } = useUrlSearch();
+  const [search, setSearch] = React.useState("");
+  const debouncedSearch = useDebounce(search, 300);
+
+  // State for Pangkat Filter (Replacing Jabatan Filter)
+  const [pangkatFilter, setPangkatFilter] = React.useState<string>("all");
+
+  const uniquePangkat = React.useMemo(() => {
+    const pangkatSet = new Set<string>();
+    dosenData.forEach((d) => {
+      if (d.pangkat) pangkatSet.add(d.pangkat);
+    });
+    return Array.from(pangkatSet).sort();
+  }, [dosenData]);
 
   const filteredData = React.useMemo(() => {
-    if (!search) return data;
-    const lowerSearch = search.toLowerCase();
-    return data.filter((item) =>
-      item.nama?.toLowerCase().includes(lowerSearch) ||
-      item.nidn?.toLowerCase().includes(lowerSearch) ||
-      item.nip?.toLowerCase().includes(lowerSearch)
-    );
-  }, [data, search]);
+    let result = data;
 
-  // State untuk mode tampilan
-  const [viewMode, setViewMode] = React.useState<"table" | "card">("table");
+    // Filter by Pangkat
+    if (pangkatFilter !== "all") {
+      result = result.filter((item) => item.pangkat === pangkatFilter);
+    }
+
+    // Filter by Search
+    if (debouncedSearch) {
+      const lowerSearch = debouncedSearch.toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.nama?.toLowerCase().includes(lowerSearch) ||
+          item.nidn?.toLowerCase().includes(lowerSearch) ||
+          item.nip?.toLowerCase().includes(lowerSearch),
+      );
+    }
+    return result;
+  }, [data, debouncedSearch, pangkatFilter]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -149,6 +168,35 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
       ...prev,
       foto: "",
     }));
+  }
+
+  // State for Add Dosen
+  const [isAddOpen, setIsAddOpen] = React.useState(false);
+  const [addForm, setAddForm] = React.useState({
+    nidn: "",
+    nama: "",
+    noHp: "",
+  });
+
+  async function handleAddSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user?.prodi?.id) {
+      showToast.error("Prodi ID tidak ditemukan");
+      return;
+    }
+
+    try {
+      await createDosen({
+        ...addForm,
+        prodiId: user.prodi.id,
+      });
+      showToast.success("Dosen berhasil ditambahkan");
+      setIsAddOpen(false);
+      setAddForm({ nidn: "", nama: "", noHp: "" });
+      refreshDosen();
+    } catch (error) {
+      showToast.error("Gagal menambahkan dosen");
+    }
   }
 
   async function handleEditSubmit(e: React.FormEvent) {
@@ -250,7 +298,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
         enableHiding: false,
       },
     ],
-    []
+    [],
   );
 
   const table = useReactTable({
@@ -285,7 +333,7 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
       tmtFst?: string;
       jabatan?: string;
       foto?: string | null;
-    }
+    },
   ) {
     try {
       const result = await updateDosen(id, payload);
@@ -316,117 +364,107 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
           <SearchInput
             placeholder="Search"
             className="max-w-full"
+            disableUrlParams={true}
+            value={search}
+            onChange={setSearch}
           />
+          <Select value={pangkatFilter} onValueChange={setPangkatFilter}>
+            <SelectTrigger className="w-[130px] sm:w-[180px]">
+              <SelectValue placeholder="Pangkat" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Pangkat</SelectItem>
+              {uniquePangkat.map((p) => (
+                <SelectItem key={p} value={p}>
+                  {p}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button onClick={() => setIsAddOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Tambah Dosen
+          </Button>
         </div>
-        <Tabs
-          value={viewMode}
-          onValueChange={(v) => setViewMode(v as "table" | "card")}
-        >
-          <TabsList>
-            <TabsTrigger value="table">
-              <LayoutGrid />
-            </TabsTrigger>
-            <TabsTrigger value="card">
-              <List />
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
       </div>
 
-      <Tabs value={viewMode}>
-        <TabsContent value="table">
-          <TableGlobal cols={cols} table={table} />
-        </TabsContent>
-        <TabsContent value="card">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredData.length === 0 && (
-              <div className="col-span-full text-center text-muted-foreground py-8">
-                Tidak ada data dosen.
+      <TableGlobal cols={cols} table={table} />
+
+      <TableGlobal cols={cols} table={table} />
+
+      {/* Modal Add Dosen */}
+      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <DialogContent className="w-full max-w-lg p-0 border-none shadow-2xl bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden">
+          <DialogHeader className="px-6 py-5 border-b border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+            <DialogTitle className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+              Tambah Dosen Baru
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleAddSubmit}>
+            <div className="p-6 space-y-5">
+              <div className="grid grid-cols-1 gap-5">
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    NIDN
+                  </Label>
+                  <Input
+                    required
+                    value={addForm.nidn}
+                    onChange={(e) =>
+                      setAddForm({ ...addForm, nidn: e.target.value })
+                    }
+                    placeholder="Nomor Induk Dosen Nasional"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Nama Lengkap
+                  </Label>
+                  <Input
+                    required
+                    value={addForm.nama}
+                    onChange={(e) =>
+                      setAddForm({ ...addForm, nama: e.target.value })
+                    }
+                    placeholder="Nama Lengkap Dosen"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    No HP
+                  </Label>
+                  <Input
+                    value={addForm.noHp}
+                    onChange={(e) =>
+                      setAddForm({ ...addForm, noHp: e.target.value })
+                    }
+                    placeholder="Nomor Handphone"
+                    className="h-10 rounded-lg border-gray-300 dark:border-neutral-700 focus:ring-primary focus:border-primary transition-all"
+                  />
+                </div>
               </div>
-            )}
-            {filteredData.map((dosen) => (
-              <div
-                key={dosen.id}
-                className="group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+            </div>
+            <DialogFooter className="p-6 bg-gray-50 dark:bg-neutral-800/50 border-t border-gray-100 dark:border-neutral-800 flex gap-2 justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsAddOpen(false)}
+                className="px-6 rounded-lg"
               >
-                <div className="p-5 flex flex-col gap-4 flex-1">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-14 w-14 border-2 border-gray-100 dark:border-neutral-800 shadow-sm">
-                      <AvatarImage
-                        src={dosen.foto || undefined}
-                        alt={dosen.nama}
-                        className="object-cover"
-                      />
-                      <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
-                        {dosen.nama
-                          ?.split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()
-                          .slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-tight">
-                        {dosen.nama}
-                      </h3>
-                      <span className="text-xs text-muted-foreground mt-1 bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full w-fit">
-                        {dosen.jabatan || "-"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-y-2 mt-2">
-                    <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">NIDN</span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">{dosen.nidn || "-"}</span>
-                    </div>
-                    <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">NIP</span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">{dosen.nip || "-"}</span>
-                    </div>
-                    <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Prodi</span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300 line-clamp-1">{dosen.prodi?.nama || "-"}</span>
-                    </div>
-                    <div className="flex flex-col text-sm">
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">No HP</span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">{dosen.noHp || "-"}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 grid grid-cols-3 gap-2 border-t border-gray-100 dark:border-neutral-800">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full text-xs h-8"
-                    onClick={() => setDetailDosen(dosen)}
-                  >
-                    <Info size={14} className="mr-1.5" /> Detail
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full text-xs h-8"
-                    onClick={() => setEditDosen(dosen)}
-                  >
-                    <Pencil size={14} className="mr-1.5" /> Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="w-full text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                    onClick={() => setDeleteDosen(dosen)}
-                  >
-                    <Trash2 size={14} className="mr-1.5" /> Hapus
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                variant="default"
+                className="px-6 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+              >
+                Simpan
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Modal Detail Dosen */}
       <Dialog
@@ -470,7 +508,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
 
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-200">
-                      {detailDosen.nidn ? `NIDN. ${detailDosen.nidn}` : 'NIDN -'}
+                      {detailDosen.nidn
+                        ? `NIDN. ${detailDosen.nidn}`
+                        : "NIDN -"}
                     </span>
                     {detailDosen.prodi?.nama && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
@@ -485,46 +525,64 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
               <div className="px-6 pb-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">NIP</label>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                      NIP
+                    </label>
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-200 break-words">
                       {detailDosen.nip || "-"}
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Pangkat / Golongan</label>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                      Pangkat / Golongan
+                    </label>
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                      {detailDosen.pangkat || "-"} {detailDosen.golongan ? `(${detailDosen.golongan})` : ""}
+                      {detailDosen.pangkat || "-"}{" "}
+                      {detailDosen.golongan ? `(${detailDosen.golongan})` : ""}
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Tempat, Tgl Lahir</label>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                      Tempat, Tgl Lahir
+                    </label>
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
                       {detailDosen.tempatTanggalLahir || "-"}
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">TMT FST</label>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                      TMT FST
+                    </label>
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
                       {detailDosen.tmtFst
-                        ? new Date(detailDosen.tmtFst).toLocaleDateString("id-ID", {
-                          day: "numeric", month: "long", year: "numeric"
-                        })
+                        ? new Date(detailDosen.tmtFst).toLocaleDateString(
+                            "id-ID",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            },
+                          )
                         : "-"}
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">No HP</label>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                      No HP
+                    </label>
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
                       {detailDosen.noHp || "-"}
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Alamat</label>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                      Alamat
+                    </label>
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
                       {detailDosen.alamat || "-"}
                     </div>
@@ -536,7 +594,11 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
 
           <DialogFooter className="p-6 bg-gray-50 dark:bg-neutral-800/50 border-t border-gray-100 dark:border-neutral-800">
             <DialogClose asChild>
-              <Button type="button" variant="outline" className="w-full sm:w-auto">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full sm:w-auto"
+              >
                 Tutup
               </Button>
             </DialogClose>
@@ -560,7 +622,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
             <div className="p-6 space-y-5 max-h-[60vh] overflow-y-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Nama Lengkap</Label>
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Nama Lengkap
+                  </Label>
                   <Input
                     name="nama"
                     value={editForm.nama ?? ""}
@@ -572,7 +636,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">No HP</Label>
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    No HP
+                  </Label>
                   <Input
                     name="noHp"
                     value={editForm.noHp ?? ""}
@@ -583,7 +649,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                 </div>
 
                 <div className="space-y-2 col-span-1 sm:col-span-2">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Alamat</Label>
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Alamat
+                  </Label>
                   <Input
                     name="alamat"
                     value={editForm.alamat ?? ""}
@@ -594,7 +662,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tempat, Tanggal Lahir</Label>
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Tempat, Tanggal Lahir
+                  </Label>
                   <Input
                     name="tempatTanggalLahir"
                     value={editForm.tempatTanggalLahir ?? ""}
@@ -605,7 +675,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Jabatan</Label>
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Jabatan
+                  </Label>
                   <Input
                     name="jabatan"
                     value={editForm.jabatan ?? ""}
@@ -616,7 +688,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Pangkat</Label>
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Pangkat
+                  </Label>
                   <Input
                     name="pangkat"
                     value={editForm.pangkat ?? ""}
@@ -627,7 +701,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Golongan</Label>
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Golongan
+                  </Label>
                   <Input
                     name="golongan"
                     value={editForm.golongan ?? ""}
@@ -638,7 +714,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">TMT FST</Label>
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    TMT FST
+                  </Label>
                   <Input
                     name="tmtFst"
                     type="date"
@@ -649,7 +727,9 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
                 </div>
 
                 <div className="space-y-2 col-span-1 sm:col-span-2">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 block">Foto Profil</Label>
+                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 block">
+                    Foto Profil
+                  </Label>
 
                   <div className="flex items-center gap-4 bg-gray-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-neutral-700">
                     {editForm.foto && typeof editForm.foto === "string" ? (
@@ -695,11 +775,19 @@ export function DosenTable({ dosen, user }: DosenTableProps) {
 
             <DialogFooter className="p-6 bg-gray-50 dark:bg-neutral-800/50 border-t border-gray-100 dark:border-neutral-800 flex gap-2 justify-end">
               <DialogClose asChild>
-                <Button type="button" variant="outline" className="px-6 rounded-lg">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="px-6 rounded-lg"
+                >
                   Batal
                 </Button>
               </DialogClose>
-              <Button type="submit" variant="default" className="px-6 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200">
+              <Button
+                type="submit"
+                variant="default"
+                className="px-6 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+              >
                 Simpan Perubahan
               </Button>
             </DialogFooter>

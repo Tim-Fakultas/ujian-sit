@@ -14,8 +14,14 @@ class MahasiswaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
+        if ($request->has('user_id')) {
+            $userId = $request->query('user_id');
+            $mahasiswa = Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik', 'pembimbing1', 'pembimbing2'])->where('user_id', $userId)->get();
+            return MahasiswaResource::collection($mahasiswa);
+        }
+
         $mahasiswa = Cache::remember('mahasiswa_all', 600, function () {
             return Mahasiswa::with(['prodi', 'peminatan', 'dosenPembimbingAkademik', 'pembimbing1', 'pembimbing2'])->get();
         });

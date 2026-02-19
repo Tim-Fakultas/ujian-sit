@@ -1,4 +1,4 @@
-import { getPengajuanRanpelByProdi } from "@/actions/pengajuanRanpel";
+import { getKaprodiPengajuanRanpel } from "@/actions/kaprodi";
 
 import PengajuanTableClient from "./PengajuanRanpelClient";
 
@@ -7,7 +7,7 @@ export default async function PengajuanTable({
 }: {
   prodiId: number | undefined;
 }) {
-  const pengajuanRanpel = await getPengajuanRanpelByProdi(prodiId);
+  const pengajuanRanpel = await getKaprodiPengajuanRanpel();
 
   return <PengajuanTableClient pengajuanRanpel={pengajuanRanpel} />;
 }

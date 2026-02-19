@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use DB;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,6 +28,14 @@ class Ujian extends Model
         'nilai_akhir',
         'catatan',
     ];
+
+    protected function hariUjian(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value ? ucfirst($value) : $value,
+            set: fn (?string $value) => $value ? ucfirst($value) : $value,
+        );
+    }
 
     public function pendaftaranUjian()
     {

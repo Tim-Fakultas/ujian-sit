@@ -18,7 +18,7 @@ export interface PendaftaranUjian {
   };
   tanggalPengajuan: string;
   tanggalDisetujui?: string | null;
-  status: "menunggu" | "diverifikasi" | "diterima" | "ditolak" | string;
+  status: "menunggu" | "diverifikasi" | "diterima" | "revisi" | string;
   berkas: {
     id?: number;
     namaBerkas?: string;

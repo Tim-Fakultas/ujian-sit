@@ -37,6 +37,7 @@ class DosenResource extends JsonResource
                 'id' => $this->user->id,
                 'name' => $this->user->name,
             ] : null,
+            'urlTtd' => $this->url_ttd,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];

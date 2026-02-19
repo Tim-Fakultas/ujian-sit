@@ -22,6 +22,7 @@ class KomponenPenilaianResource extends JsonResource
                 'namaJenis' => $this->jenisUjian->nama_jenis,
             ] : null,
             'namaKomponen' => $this->nama_komponen,
+            'deskripsi' => $this->deskripsi,
             'bobot' => $this->bobot,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,

@@ -1,9 +1,10 @@
 import { getHadirUjian } from "@/actions/daftarHadirUjian";
-import { getJadwalUjianByMahasiswaId, getJadwalUjianByProdi } from "@/actions/jadwalUjian";
+import {
+  getJadwalUjianByMahasiswaId,
+} from "@/actions/jadwalUjian";
 import { getCurrentUserAction } from "@/actions/auth";
 import PageHeader from "@/components/common/PageHeader";
-import { FileText } from "lucide-react";
-import JadwalUjianTable from "@/components/jadwalUjianTable";
+import JadwalUjianTable from "@/components/JadwalUjianTable";
 
 export default async function JadwalUjianPage() {
   const { user } = await getCurrentUserAction();

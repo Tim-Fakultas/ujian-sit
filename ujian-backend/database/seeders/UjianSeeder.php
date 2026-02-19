@@ -34,13 +34,13 @@ class UjianSeeder extends Seeder
 
             $hariUjian = strtolower($tanggalUjian->format('l'));
             $hariUjianIndonesia = [
-                'monday' => 'senin',
-                'tuesday' => 'selasa',
-                'wednesday' => 'rabu',
-                'thursday' => 'kamis',
-                'friday' => 'jumat',
-                'saturday' => 'sabtu',
-                'sunday' => 'minggu'
+                'monday' => 'Senin',
+                'tuesday' => 'Selasa',
+                'wednesday' => 'Rabu',
+                'thursday' => 'Kamis',
+                'friday' => 'Jumat',
+                'saturday' => 'Sabtu',
+                'sunday' => 'Minggu'
             ][$hariUjian];
 
             Ujian::create([

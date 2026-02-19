@@ -2,25 +2,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import { BeritaUjian } from "@/types/BeritaUjian";
 import { Button } from "../../ui/button";
-import {
-  X,
-  Search,
-  MoreHorizontal,
-  Check,
-  Settings2,
-  Calendar,
-  Eye,
-  ChevronDown,
-} from "lucide-react";
-import { truncateTitle } from "@/lib/utils";
+import { X, Search, Check, Settings2, Eye, ChevronDown } from "lucide-react";
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible";
 
 import {
   DropdownMenu,
@@ -37,6 +26,8 @@ import { updateStatusPendaftaranUjian } from "@/actions/pendaftaranUjian";
 import { toast } from "sonner";
 import { User } from "@/types/Auth";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Ujian } from "@/types/Ujian";
+
 // Custom Modal Component for wider layout
 const Modal = ({
   open,
@@ -69,9 +60,7 @@ const Modal = ({
             <X size={20} />
           </Button>
         </div>
-        <div className="flex-1 overflow-y-auto p-6">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto p-6">{children}</div>
       </div>
     </div>
   );
@@ -81,11 +70,11 @@ export default function RekapitulasiNilaiTable({
   ujian,
   user,
 }: {
-  ujian: BeritaUjian[];
+  ujian: Ujian[];
   user?: User;
 }) {
   const [openDialog, setOpenDialog] = useState(false);
-  const [selected, setSelected] = useState<BeritaUjian | null>(null);
+  const [selected, setSelected] = useState<Ujian | null>(null);
   const [penilaian, setPenilaian] = useState<any[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -102,7 +91,7 @@ export default function RekapitulasiNilaiTable({
       await updateStatusPendaftaranUjian(pendaftaranId, "selesai");
       toast.success("Nilai berhasil diverifikasi dan status ujian selesai.");
       setOpenDialog(false);
-      // Optional: You might want to refresh data here using a server action or router.refresh() 
+      // Optional: You might want to refresh data here using a server action or router.refresh()
       // if the parent page doesn't automatically revalidate.
       window.location.reload();
     } catch (error) {
@@ -123,8 +112,6 @@ export default function RekapitulasiNilaiTable({
   const [hasilFilter, setHasilFilter] = useState<
     "all" | "lulus" | "tidak lulus"
   >("all");
-
-
 
   // Tambah state untuk filter bulan dan tahun
   const [filterBulan, setFilterBulan] = useState<string>("all");
@@ -175,7 +162,7 @@ export default function RekapitulasiNilaiTable({
   const totalPage = Math.ceil(filteredData.length / pageSize);
   const paginatedData = filteredData.slice(
     (page - 1) * pageSize,
-    page * pageSize
+    page * pageSize,
   );
 
   // Reset page ke 1 saat search atau filter berubah
@@ -183,7 +170,7 @@ export default function RekapitulasiNilaiTable({
     setPage(1);
   }, [search, jenisFilter, hasilFilter, filterBulan, filterTahun]);
 
-  const handleDetail = (ujian: BeritaUjian) => {
+  const handleDetail = (ujian: Ujian) => {
     setSelected(ujian);
     setOpenDialog(true);
   };
@@ -196,7 +183,7 @@ export default function RekapitulasiNilaiTable({
       cell: ({ row, table }: any) => {
         const index =
           (table.getState().pagination?.pageIndex ?? 0) *
-          (table.getState().pagination?.pageSize ?? 10) +
+            (table.getState().pagination?.pageSize ?? 10) +
           row.index +
           1;
         return <div>{index}</div>;
@@ -204,7 +191,7 @@ export default function RekapitulasiNilaiTable({
       size: 36,
     },
     {
-      accessorFn: (row: BeritaUjian) => row.mahasiswa?.nama ?? "-",
+      accessorFn: (row: Ujian) => row.mahasiswa?.nama ?? "-",
       id: "mahasiswa",
       header: "Mahasiswa",
       cell: ({ row }: any) => (
@@ -219,7 +206,7 @@ export default function RekapitulasiNilaiTable({
       size: 120,
     },
     {
-      accessorFn: (row: BeritaUjian) => row.judulPenelitian ?? "-",
+      accessorFn: (row: Ujian) => row.judulPenelitian ?? "-",
       id: "judul",
       header: "Judul",
       cell: ({ row }: any) => (
@@ -230,7 +217,7 @@ export default function RekapitulasiNilaiTable({
       size: 180,
     },
     {
-      accessorFn: (row: BeritaUjian) => row.jenisUjian?.namaJenis ?? "-",
+      accessorFn: (row: Ujian) => row.jenisUjian?.namaJenis ?? "-",
       id: "jenis",
       header: "Jenis",
       cell: ({ row }: any) => {
@@ -251,7 +238,7 @@ export default function RekapitulasiNilaiTable({
       size: 90,
     },
     {
-      accessorFn: (row: BeritaUjian) => row.nilaiAkhir ?? "-",
+      accessorFn: (row: Ujian) => row.nilaiAkhir ?? "-",
       id: "nilaiAkhir",
       header: "Nilai Rata-rata",
       cell: ({ row }: any) => (
@@ -288,37 +275,6 @@ export default function RekapitulasiNilaiTable({
       },
       size: 80,
     },
-    // {
-    //   accessorFn: (row: BeritaUjian) => row.nilaiAkhir ?? "-",
-    //   id: "nilaiAkhir",
-    //   header: "Nilai Akhir",
-    //   cell: ({ row }: any) => (
-    //     <div className="text-center">{row.getValue("nilaiAkhir")}</div>
-    //   ),
-    //   size: 70,
-    // },
-    // {
-    //   accessorFn: (row: BeritaUjian) => row.hasil ?? "-",
-    //   id: "hasil",
-    //   header: "Hasil",
-    //   cell: ({ row }: any) => {
-    //     const hasil = row.getValue("hasil")?.toLowerCase();
-    //     const badgeClass =
-    //       hasil === "lulus"
-    //         ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
-    //         : hasil === "tidak lulus"
-    //         ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
-    //         : "bg-gray-100 dark:bg-gray-800 dark:text-gray-200";
-    //     return hasil && hasil !== "-" ? (
-    //       <span className={`px-2 py-1 rounded font-semibold ${badgeClass}`}>
-    //         {row.getValue("hasil")}
-    //       </span>
-    //     ) : (
-    //       "-"
-    //     );
-    //   },
-    //   size: 70,
-    // },
 
     {
       id: "actions",
@@ -483,7 +439,7 @@ export default function RekapitulasiNilaiTable({
       pengujiMap[p.dosenId].kriteria.push({
         nama: cleanNama,
         nilai: nilai,
-        bobot: bobot
+        bobot: bobot,
       });
     });
 
@@ -501,9 +457,13 @@ export default function RekapitulasiNilaiTable({
                   {penguji.nama.charAt(0)}
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100">{penguji.nama}</h4>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                    {penguji.nama}
+                  </h4>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-muted-foreground">NIDN: {penguji.nidn}</span>
+                    <span className="text-xs text-muted-foreground">
+                      NIDN: {penguji.nidn}
+                    </span>
                     <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary dark:bg-blue-900/30 dark:text-blue-300 font-medium border border-primary/20 dark:border-blue-800">
                       Penguji {idx + 1}
                     </span>
@@ -513,14 +473,20 @@ export default function RekapitulasiNilaiTable({
 
               <div className="flex items-center gap-6">
                 <div className="text-right hidden sm:block">
-                  <div className="text-[10px] uppercase text-gray-400 font-bold tracking-wider">Total Nilai</div>
+                  <div className="text-[10px] uppercase text-gray-400 font-bold tracking-wider">
+                    Total Nilai
+                  </div>
                   <div className="text-xl font-bold text-primary dark:text-blue-400">
                     {penguji.total.toFixed(2)}
                   </div>
                 </div>
 
                 <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-gray-200 dark:hover:bg-neutral-700 data-[state=open]:rotate-180 transition-transform duration-200">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 rounded-full hover:bg-gray-200 dark:hover:bg-neutral-700 data-[state=open]:rotate-180 transition-transform duration-200"
+                  >
                     <ChevronDown size={18} className="text-gray-500" />
                   </Button>
                 </CollapsibleTrigger>
@@ -533,14 +499,23 @@ export default function RekapitulasiNilaiTable({
                 <table className="w-full text-sm text-left">
                   <thead className="bg-gray-50/30 dark:bg-neutral-800/30 text-gray-500">
                     <tr>
-                      <th className="px-6 py-3 font-medium text-xs uppercase w-full">Kriteria Penilaian</th>
-                      <th className="px-6 py-3 font-medium text-xs uppercase text-center w-24">Bobot</th>
-                      <th className="px-6 py-3 font-medium text-xs uppercase text-right w-24">Nilai</th>
+                      <th className="px-6 py-3 font-medium text-xs uppercase w-full">
+                        Kriteria Penilaian
+                      </th>
+                      <th className="px-6 py-3 font-medium text-xs uppercase text-center w-24">
+                        Bobot
+                      </th>
+                      <th className="px-6 py-3 font-medium text-xs uppercase text-right w-24">
+                        Nilai
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50 dark:divide-neutral-800/50">
                     {penguji.kriteria.map((k, kIdx) => (
-                      <tr key={kIdx} className="hover:bg-gray-50/50 dark:hover:bg-neutral-800/50 transition-colors">
+                      <tr
+                        key={kIdx}
+                        className="hover:bg-gray-50/50 dark:hover:bg-neutral-800/50 transition-colors"
+                      >
                         <td className="px-6 py-3 text-gray-700 dark:text-gray-300">
                           {k.nama}
                         </td>
@@ -555,8 +530,12 @@ export default function RekapitulasiNilaiTable({
                   </tbody>
                 </table>
                 <div className="p-3 bg-gray-50/50 dark:bg-neutral-800/50 text-center sm:hidden border-t border-gray-100 dark:border-neutral-800">
-                  <span className="text-xs text-gray-500 mr-2">Total Nilai:</span>
-                  <span className="font-bold text-blue-600 dark:text-blue-400">{penguji.total.toFixed(2)}</span>
+                  <span className="text-xs text-gray-500 mr-2">
+                    Total Nilai:
+                  </span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400">
+                    {penguji.total.toFixed(2)}
+                  </span>
                 </div>
               </div>
             </CollapsibleContent>
@@ -605,7 +584,9 @@ export default function RekapitulasiNilaiTable({
 
                 <div className="space-y-4">
                   <div className="p-3 bg-white dark:bg-neutral-900 rounded-xl border border-gray-100 dark:border-neutral-800">
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Judul Penelitian</span>
+                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+                      Judul Penelitian
+                    </span>
                     <p className="text-sm text-gray-700 dark:text-gray-300 leading-snug">
                       {selected.judulPenelitian ?? "-"}
                     </p>
@@ -613,17 +594,29 @@ export default function RekapitulasiNilaiTable({
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-3 bg-white dark:bg-neutral-900 rounded-xl border border-gray-100 dark:border-neutral-800">
-                      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Jenis Ujian</span>
+                      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+                        Jenis Ujian
+                      </span>
                       <span className="text-sm font-semibold text-gray-900 dark:text-white">
                         {selected.jenisUjian?.namaJenis ?? "-"}
                       </span>
                     </div>
                     <div className="p-3 bg-white dark:bg-neutral-900 rounded-xl border border-gray-100 dark:border-neutral-800">
-                      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Status</span>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold capitalize
-                                ${selected.hasil?.toLowerCase() === "lulus" ? "bg-success/10 text-success" :
-                          selected.hasil?.toLowerCase() === "tidak lulus" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}
-                             `}>
+                      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+                        Status
+                      </span>
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold capitalize
+                                ${
+                                  selected.hasil?.toLowerCase() === "lulus"
+                                    ? "bg-success/10 text-success"
+                                    : selected.hasil?.toLowerCase() ===
+                                        "tidak lulus"
+                                      ? "bg-destructive/10 text-destructive"
+                                      : "bg-muted text-muted-foreground"
+                                }
+                             `}
+                      >
                         {selected.hasil ?? "Belum"}
                       </span>
                     </div>
@@ -633,17 +626,18 @@ export default function RekapitulasiNilaiTable({
 
               {/* Final Score Card */}
               <div className="rounded-2xl border border-primary/20 dark:border-blue-900/30 p-6 bg-primary/5 dark:bg-blue-900/10 space-y-4">
-
                 {(() => {
                   const pengujiMap: Record<number, { total: number }> = {};
                   penilaian.forEach((p) => {
-                    if (!pengujiMap[p.dosenId]) pengujiMap[p.dosenId] = { total: 0 };
+                    if (!pengujiMap[p.dosenId])
+                      pengujiMap[p.dosenId] = { total: 0 };
                     const bobot = p.komponenPenilaian?.bobot ?? 0;
-                    pengujiMap[p.dosenId].total += ((p.nilai ?? 0) * bobot) / 100;
+                    pengujiMap[p.dosenId].total +=
+                      ((p.nilai ?? 0) * bobot) / 100;
                   });
                   const totalNilai = Object.values(pengujiMap).reduce(
                     (acc, cur) => acc + cur.total,
-                    0
+                    0,
                   );
                   const jumlahPenguji = Object.keys(pengujiMap).length || 1;
                   const rataRata = totalNilai / jumlahPenguji;
@@ -652,35 +646,51 @@ export default function RekapitulasiNilaiTable({
                   return (
                     <>
                       <div className="text-center">
-                        <span className="text-sm font-semibold text-primary dark:text-blue-400 uppercase tracking-widest">Nilai Akhir</span>
+                        <span className="text-sm font-semibold text-primary dark:text-blue-400 uppercase tracking-widest">
+                          Nilai Akhir
+                        </span>
                         <div className="text-5xl font-black text-gray-900 dark:text-white mt-1 mb-2 tracking-tight">
                           {selected.nilaiAkhir ?? rataRata.toFixed(2)}
                         </div>
-                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm
-                                          ${nilaiHuruf === 'A' ? 'bg-success text-white' :
-                            nilaiHuruf === 'B' ? 'bg-primary text-white' :
-                              nilaiHuruf === 'C' ? 'bg-warning text-white' : 'bg-destructive text-white'}
-                                    `}>
+                        <div
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm
+                                          ${
+                                            nilaiHuruf === "A"
+                                              ? "bg-success text-white"
+                                              : nilaiHuruf === "B"
+                                                ? "bg-primary text-white"
+                                                : nilaiHuruf === "C"
+                                                  ? "bg-warning text-white"
+                                                  : "bg-destructive text-white"
+                                          }
+                                    `}
+                        >
                           Predikat: {nilaiHuruf}
                         </div>
                       </div>
 
                       <div className="pt-4 border-t border-blue-100 dark:border-blue-800/30 grid grid-cols-2 gap-4 text-center">
                         <div>
-                          <div className="text-xs text-gray-500 mb-0.5">Total Angka</div>
-                          <div className="font-mono font-bold text-gray-700 dark:text-gray-300">{totalNilai.toFixed(2)}</div>
+                          <div className="text-xs text-gray-500 mb-0.5">
+                            Total Angka
+                          </div>
+                          <div className="font-mono font-bold text-gray-700 dark:text-gray-300">
+                            {totalNilai.toFixed(2)}
+                          </div>
                         </div>
                         <div>
-                          <div className="text-xs text-gray-500 mb-0.5">Rata-rata</div>
-                          <div className="font-mono font-bold text-gray-700 dark:text-gray-300">{rataRata.toFixed(2)}</div>
+                          <div className="text-xs text-gray-500 mb-0.5">
+                            Rata-rata
+                          </div>
+                          <div className="font-mono font-bold text-gray-700 dark:text-gray-300">
+                            {rataRata.toFixed(2)}
+                          </div>
                         </div>
                       </div>
                     </>
                   );
                 })()}
               </div>
-
-
             </div>
 
             {/* RIGHT COLUMN: Detailed Assessment (9 columns) */}
@@ -695,14 +705,11 @@ export default function RekapitulasiNilaiTable({
                 </div>
               </div>
 
-              <div className="space-y-6">
-                {renderRekapPenilaian()}
-              </div>
+              <div className="space-y-6">{renderRekapPenilaian()}</div>
             </div>
           </div>
         )}
       </Modal>
-
 
       {/* Search, Filter, and Tabs in one row (tabs below on mobile) */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end sm:gap-4 gap-2 mb-4">
@@ -746,8 +753,11 @@ export default function RekapitulasiNilaiTable({
                       <DropdownMenuItem
                         key={opt}
                         onClick={() => setJenisFilter(opt as any)}
-                        className={`flex items-center justify-between gap-2 px-2 py-1.5 text-sm cursor-pointer ${isActive ? "bg-accent text-accent-foreground font-medium" : ""
-                          }`}
+                        className={`flex items-center justify-between gap-2 px-2 py-1.5 text-sm cursor-pointer ${
+                          isActive
+                            ? "bg-accent text-accent-foreground font-medium"
+                            : ""
+                        }`}
                       >
                         <span className="capitalize">{opt}</span>
                         {isActive && (
@@ -765,8 +775,11 @@ export default function RekapitulasiNilaiTable({
                       <DropdownMenuItem
                         key={opt}
                         onClick={() => setHasilFilter(opt as any)}
-                        className={`flex items-center justify-between gap-2 px-2 py-1.5 text-sm cursor-pointer ${isActive ? "bg-accent text-accent-foreground font-medium" : ""
-                          }`}
+                        className={`flex items-center justify-between gap-2 px-2 py-1.5 text-sm cursor-pointer ${
+                          isActive
+                            ? "bg-accent text-accent-foreground font-medium"
+                            : ""
+                        }`}
                       >
                         <span className="capitalize">
                           {opt === "all" ? "Semua" : opt}
@@ -817,8 +830,6 @@ export default function RekapitulasiNilaiTable({
           </div>
         </div>
       </div>
-
-
 
       {/* Table Mode */}
       <TableGlobal table={table} cols={cols} />

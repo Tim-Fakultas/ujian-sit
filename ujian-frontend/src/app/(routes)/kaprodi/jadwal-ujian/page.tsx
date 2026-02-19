@@ -1,4 +1,4 @@
-import { getJadwalUjianByProdi } from "@/actions/jadwalUjian";
+import { getKaprodiJadwalUjian } from "@/actions/kaprodi";
 import { Ujian } from "@/types/Ujian";
 import { Suspense } from "react";
 import { getCurrentUserAction } from "@/actions/auth";
@@ -6,15 +6,11 @@ import { getHadirUjian } from "@/actions/daftarHadirUjian";
 import Loading from "./loading";
 import PageHeader from "@/components/common/PageHeader";
 import { FileText } from "lucide-react";
-import JadwalUjianTable from "@/components/jadwalUjianTable";
+import JadwalUjianTable from "@/components/JadwalUjianTable";
 
 export default async function JadwalUjianPage() {
-
   const { user } = await getCurrentUserAction();
-  const jadwalUjian: Ujian[] =
-    user?.prodi?.id !== undefined
-      ? await getJadwalUjianByProdi(user.prodi.id)
-      : [];
+  const jadwalUjian: Ujian[] = await getKaprodiJadwalUjian();
   const daftarHadir = await getHadirUjian();
 
   return (
@@ -35,5 +31,4 @@ export default async function JadwalUjianPage() {
       </Suspense>
     </div>
   );
-
 }

@@ -1,12 +1,16 @@
 import { getCurrentUserAction } from "@/actions/auth";
-import PengajuanTable from "@/app/(routes)/dosen/pengajuan-ranpel/PengajuanTable";
+import { getPengajuanRanpelByDosenPA } from "@/actions/pengajuanRanpel";
+import { PengajuanRanpel } from "@/types/RancanganPenelitian";
+import PengajuanRanpelTable from "@/components/dosen/pengajuan-ranpel/PengajuanRanpelTable";
 import { Suspense } from "react";
 import Loading from "./loading";
 import PageHeader from "@/components/common/PageHeader";
-import { FileText } from "lucide-react";
 
 export default async function Page() {
   const { user } = await getCurrentUserAction();
+  const pengajuanRanpel: PengajuanRanpel[] = await getPengajuanRanpelByDosenPA(
+    user?.id,
+  );
 
   return (
     <div className="p-6">
@@ -18,7 +22,7 @@ export default async function Page() {
         className="mb-6"
       />
       <Suspense fallback={<Loading />}>
-        <PengajuanTable userId={user?.id} />
+        <PengajuanRanpelTable data={pengajuanRanpel} />
       </Suspense>
     </div>
   );

@@ -1,91 +1,60 @@
 "use client";
 
 import { create } from "zustand";
-import Cookies from "js-cookie";
+import { persist, createJSONStorage } from "zustand/middleware";
+import type { User } from "@/types/Auth";
 
-interface User {
-  id: number;
-  nip_nim?: string;
-  nim?: string;
-  nidn?: string;
-  nama: string;
-  email: string;
-  role?: string;
-  roles?: { id?: number; name: string }[];
-  prodi?: {
-    id: number;
-    nama: string;
-  };
-  is_default_password?: boolean;
-}
+// Re-export User agar komponen lain bisa import dari sini jika perlu
+export type { User };
 
 interface AuthState {
   user: User | null;
-  token: string | null;
-  isInitialized: boolean;
+  _hasHydrated: boolean;
   setUser: (user: User | null) => void;
-  setToken: (token: string | null) => void;
   clearUser: () => void;
-  initializeFromCookies: () => void;
   refreshUser: () => Promise<void>;
+  setHasHydrated: (state: boolean) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  token: null,
-  isInitialized: false,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      _hasHydrated: false,
 
-  setUser: (user) => {
-    set({ user });
-    if (user) Cookies.set("user", JSON.stringify(user), { expires: 7 });
-    else Cookies.remove("user");
-  },
+      setHasHydrated: (state) => {
+        set({ _hasHydrated: state });
+      },
 
-  setToken: (token) => {
-    set({ token });
-    if (token) Cookies.set("token", token, { expires: 7 });
-    else Cookies.remove("token");
-  },
+      setUser: (user) => {
+        set({ user });
+      },
 
-  clearUser: () => {
-    set({ user: null, token: null });
-    Cookies.remove("user");
-    Cookies.remove("token");
-  },
+      clearUser: () => {
+        set({ user: null });
+      },
 
-  initializeFromCookies: () => {
-    try {
-      const userCookie = Cookies.get("user");
-      const tokenCookie = Cookies.get("token");
-
-      if (userCookie) {
-        const user = JSON.parse(userCookie);
-        set({ user, token: tokenCookie || null, isInitialized: true });
-      } else {
-        set({ user: null, token: null, isInitialized: true });
-      }
-    } catch (err) {
-      console.error("Failed to rehydrate auth:", err);
-      set({ user: null, token: null, isInitialized: true });
-    }
-  },
-
-  refreshUser: async () => {
-    try {
-      // Dynamically import to avoid server-client issues if any, 
-      // but server actions can be imported in client files.
-      const { refreshUserAction } = await import("@/actions/auth");
-      const refreshedUser = await refreshUserAction();
-      if (refreshedUser) {
-        set({ user: refreshedUser });
-        // Coordinate with cookie is handled in server action, but 
-        // we update local state immediately.
-        // Also update client cookie to match
-        Cookies.set("user", JSON.stringify(refreshedUser), { expires: 7 });
-      }
-    } catch (err) {
-      console.error("Failed to refresh user:", err);
-    }
-  }
-
-}));
+      refreshUser: async () => {
+        try {
+          const { refreshUserAction } = await import("@/actions/auth");
+          const refreshedUser = await refreshUserAction();
+          if (refreshedUser) {
+            set({ user: refreshedUser as User });
+          }
+        } catch (err) {
+          console.error("Failed to refresh user:", err);
+        }
+      },
+    }),
+    {
+      name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
+      // Hanya simpan 'user' ke localStorage
+      partialize: (state) => ({ user: state.user }),
+      onRehydrateStorage: () => (state) => {
+        // Tandai bahwa rehydrate dari localStorage sudah selesai
+        state?.setHasHydrated(true);
+      },
+    },
+  ),
+);

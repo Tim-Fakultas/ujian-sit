@@ -1,18 +1,30 @@
-  import { cookies } from "next/headers";
+import { cookies } from "next/headers";
+import type { User } from "@/types/Auth";
 
-export async function getAuthFromCookies() {
+/**
+ * Mengambil auth state dari server cookie:
+ * - Token dari httpOnly cookie (aman dari XSS)
+ * - User data dari cookie biasa (non-httpOnly, di-set saat login)
+ *
+ * Digunakan di Server Components / Layouts.
+ */
+export async function getAuthFromCookies(): Promise<{
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+}> {
   const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
   const userCookie = cookieStore.get("user")?.value;
-  const tokenCookie = cookieStore.get("token")?.value;
 
-  if (!userCookie || !tokenCookie) {
-    return { user: null, token: null };
+  if (!token) {
+    return { user: null, token: null, isAuthenticated: false };
   }
 
   try {
-    const user = JSON.parse(userCookie);
-    return { user, token: tokenCookie };
+    const user: User | null = userCookie ? JSON.parse(userCookie) : null;
+    return { user, token, isAuthenticated: true };
   } catch {
-    return { user: null, token: null };
+    return { user: null, token: null, isAuthenticated: false };
   }
 }

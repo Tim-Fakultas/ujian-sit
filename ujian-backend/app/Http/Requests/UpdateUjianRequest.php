@@ -21,7 +21,7 @@ class UpdateUjianRequest extends FormRequest
             'jenisUjianId' => 'prohibited',
 
             // Boleh diubah sebagian
-            'hariUjian' => 'sometimes|in:senin,selasa,rabu,kamis,jumat,sabtu,minggu',
+            'hariUjian' => 'sometimes|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
             'jadwalUjian' => 'sometimes|date',
             'waktuMulai' => 'sometimes|date_format:H:i',
             'waktuSelesai' => [
@@ -94,13 +94,13 @@ class UpdateUjianRequest extends FormRequest
         if ($this->has('jadwalUjian')) {
             $hariJadwal = strtolower(date('l', strtotime($this->input('jadwalUjian'))));
             $hariIndonesia = [
-                'monday' => 'senin',
-                'tuesday' => 'selasa',
-                'wednesday' => 'rabu',
-                'thursday' => 'kamis',
-                'friday' => 'jumat',
-                'saturday' => 'sabtu',
-                'sunday' => 'minggu',
+                'monday' => 'Senin',
+                'tuesday' => 'Selasa',
+                'wednesday' => 'Rabu',
+                'thursday' => 'Kamis',
+                'friday' => 'Jumat',
+                'saturday' => 'Sabtu',
+                'sunday' => 'Minggu',
             ];
 
             $this->merge([

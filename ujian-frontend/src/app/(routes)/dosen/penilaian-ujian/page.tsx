@@ -5,7 +5,7 @@ import { getCurrentUserAction } from "@/actions/auth";
 import Loading from "./loading";
 import PageHeader from "@/components/common/PageHeader";
 import { FileText } from "lucide-react";
-import PenilaianUjianTable from "@/app/(routes)/dosen/penilaian-ujian/PenilaianUjianTable";
+import PenilaianUjianTable from "@/components/dosen/penilaian-ujian/PenilaianUjianTable";
 
 export default async function PenilaianUjianPage() {
   const { user } = await getCurrentUserAction();
@@ -16,8 +16,8 @@ export default async function PenilaianUjianPage() {
 
   return (
     <div className="p-6">
-      <PageHeader 
-        title="Penilaian Ujian" 
+      <PageHeader
+        title="Penilaian Ujian"
         description="Disini anda dapat melakukan penilaian ujian mahasiswa."
         iconName="FileText"
         variant="emerald"
@@ -25,7 +25,10 @@ export default async function PenilaianUjianPage() {
         showDate={true}
       />
       <Suspense fallback={<Loading />}>
-        <PenilaianUjianTable jadwalUjian={jadwalUjian} currentDosenId={user?.id} />
+        <PenilaianUjianTable
+          jadwalUjian={jadwalUjian}
+          currentDosenId={user?.id}
+        />
       </Suspense>
     </div>
   );

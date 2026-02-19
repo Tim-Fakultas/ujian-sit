@@ -60,6 +60,7 @@ export interface Ujian {
     id: number;
     nama: string;
   } | null;
+
 }
 
 export interface UjianResponse {

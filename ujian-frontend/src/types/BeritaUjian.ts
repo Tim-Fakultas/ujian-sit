@@ -32,7 +32,7 @@ export interface PendaftaranUjian {
   id: number;
   tanggalPengajuan: string;
   tanggalDisetujui: string | null;
-  status: "menunggu" | "diterima" | "dijadwalkan" | "selesai";
+  status: "menunggu" | "diterima" | "dijadwalkan" | "selesai" | "revisi";
 }
 
 export interface BeritaUjian {

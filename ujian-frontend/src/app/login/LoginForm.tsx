@@ -1,20 +1,25 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginAction } from "@/actions/auth";
+import { useAuthStore } from "@/stores/useAuthStore";
+import type { User as AuthUser } from "@/types/Auth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { User, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { showToast } from "@/components/ui/custom-toast";
-import { loginSchema, type LoginInput } from "@/lib/validations/auth";
+import { loginClientSchema, type LoginInput } from "@/lib/validations/auth";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { setUser } = useAuthStore();
 
   const {
     register,
@@ -22,7 +27,7 @@ export default function LoginForm() {
     control,
     formState: { errors },
   } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginClientSchema),
     defaultValues: {
       nip_nim: "",
       password: "",
@@ -32,7 +37,6 @@ export default function LoginForm() {
 
   const onSubmit = (data: LoginInput) => {
     startTransition(async () => {
-      // Create FormData to satisfy loginAction's current signature
       const formData = new FormData();
       formData.append("nip_nim", data.nip_nim);
       formData.append("password", data.password);
@@ -41,8 +45,20 @@ export default function LoginForm() {
       }
 
       const result = await loginAction(formData);
-      if (result && !result.success) {
-        showToast.error(result.message || "Login gagal. Silakan coba lagi.");
+
+      if (!result || !result.success) {
+        showToast.error(result?.message || "Login gagal. Silakan coba lagi.");
+        return;
+      }
+
+      // Simpan user ke Zustand store (otomatis persist ke localStorage)
+      if (result.user) {
+        setUser(result.user as AuthUser);
+      }
+
+      // Redirect ke dashboard sesuai role
+      if (result.redirectTo) {
+        router.push(result.redirectTo);
       }
     });
   };
@@ -51,7 +67,10 @@ export default function LoginForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="nip_nim" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <Label
+            htmlFor="nip_nim"
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Username
           </Label>
           {errors.nip_nim && (
@@ -67,8 +86,11 @@ export default function LoginForm() {
             {...register("nip_nim")}
             placeholder="Masukkan username anda"
             autoComplete="username"
-            className={`pl-10 h-11 bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all rounded-xl ${errors.nip_nim ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
-              }`}
+            className={`pl-10 h-11 bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all rounded-xl ${
+              errors.nip_nim
+                ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                : ""
+            }`}
             disabled={isPending}
           />
         </div>
@@ -76,7 +98,10 @@ export default function LoginForm() {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <Label
+            htmlFor="password"
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Password
           </Label>
           {errors.password && (
@@ -93,8 +118,11 @@ export default function LoginForm() {
             type={showPassword ? "text" : "password"}
             placeholder="Masukkan password anda"
             autoComplete="current-password"
-            className={`pl-10 pr-10 h-11 bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all rounded-xl ${errors.password ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
-              }`}
+            className={`pl-10 pr-10 h-11 bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all rounded-xl ${
+              errors.password
+                ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                : ""
+            }`}
             disabled={isPending}
           />
           <button
@@ -121,7 +149,10 @@ export default function LoginForm() {
             />
           )}
         />
-        <Label htmlFor="remember" className="text-sm text-gray-500 font-normal cursor-pointer">
+        <Label
+          htmlFor="remember"
+          className="text-sm text-gray-500 font-normal cursor-pointer"
+        >
           Ingat saya di perangkat ini
         </Label>
       </div>
@@ -146,5 +177,3 @@ export default function LoginForm() {
     </form>
   );
 }
-
-

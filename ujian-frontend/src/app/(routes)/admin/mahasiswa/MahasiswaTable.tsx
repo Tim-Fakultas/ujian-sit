@@ -12,16 +12,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import {
-  Pencil,
-  Trash2,
-  Info,
-  LayoutGrid,
-  List,
-  Plus,
-  MoreHorizontal,
-  X,
-} from "lucide-react";
+import { Pencil, Trash2, Info, Plus, MoreHorizontal, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +34,6 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Mahasiswa } from "@/types/Mahasiswa";
 import { Dosen } from "@/types/Dosen";
 import { User } from "@/types/Auth";
@@ -63,7 +53,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUrlSearch } from "@/hooks/use-url-search";
+import { useDebounce } from "@/hooks/use-debounce";
 
 interface MahasiswaTableProps {
   mahasiswa: Mahasiswa[];
@@ -71,9 +61,13 @@ interface MahasiswaTableProps {
   user?: User | null;
 }
 
-export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTableProps) {
+export function MahasiswaTable({
+  mahasiswa,
+  dosenList,
+  user,
+}: MahasiswaTableProps) {
   const [mahasiswaData, setMahasiswaData] = React.useState<Mahasiswa[]>(
-    mahasiswa ?? []
+    mahasiswa ?? [],
   );
 
   const refreshMahasiswa = React.useCallback(async () => {
@@ -82,7 +76,9 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
     // If the API doesn't filter by prodi, we might want to do it here
     // But typically the API should handle it or we show all to admin
     if (user?.prodi?.id) {
-      setMahasiswaData(newData.filter((m: Mahasiswa) => m.prodi?.id === user.prodi?.id));
+      setMahasiswaData(
+        newData.filter((m: Mahasiswa) => m.prodi?.id === user.prodi?.id),
+      );
     } else {
       setMahasiswaData(newData);
     }
@@ -97,23 +93,51 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
     }
   }, [mahasiswa, user]);
 
-  const data = React.useMemo(() => mahasiswaData ?? [], [mahasiswaData]);
+  // State for Angkatan Filter
+  const [angkatanFilter, setAngkatanFilter] = React.useState<string>("all");
 
-  const { search, setSearch } = useUrlSearch();
-  const [viewMode, setViewMode] = React.useState<"table" | "card">("table");
+  const uniqueAngkatan = React.useMemo(() => {
+    const angkatanSet = new Set<string>();
+    mahasiswaData.forEach((m) => {
+      if (m.nim && m.nim.length >= 2) {
+        const year = m.nim.substring(0, 2);
+        if (!isNaN(parseInt(year))) {
+          angkatanSet.add(year);
+        }
+      }
+    });
+    return Array.from(angkatanSet).sort().reverse();
+  }, [mahasiswaData]);
+
+  const filteredData = React.useMemo(() => {
+    let result = mahasiswaData ?? [];
+    if (angkatanFilter !== "all") {
+      result = result.filter((m) => m.nim.startsWith(angkatanFilter));
+    }
+    return result;
+  }, [mahasiswaData, angkatanFilter]);
+
+  const data = React.useMemo(() => filteredData ?? [], [filteredData]);
+
+  const [search, setSearch] = React.useState("");
+  const debouncedSearch = useDebounce(search, 300);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   const [createOpen, setCreateOpen] = React.useState(false);
-  const [editMahasiswa, setEditMahasiswa] = React.useState<Mahasiswa | null>(null);
-  const [deleteMahasiswaState, setDeleteMahasiswaState] = React.useState<Mahasiswa | null>(null);
-  const [detailMahasiswa, setDetailMahasiswa] = React.useState<Mahasiswa | null>(null);
+  const [editMahasiswa, setEditMahasiswa] = React.useState<Mahasiswa | null>(
+    null,
+  );
+  const [deleteMahasiswaState, setDeleteMahasiswaState] =
+    React.useState<Mahasiswa | null>(null);
+  const [detailMahasiswa, setDetailMahasiswa] =
+    React.useState<Mahasiswa | null>(null);
 
   const [formData, setFormData] = React.useState<{
     nama: string;
@@ -139,7 +163,9 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
         noHp: editMahasiswa.noHp ?? "",
         alamat: editMahasiswa.alamat ?? "",
         semester: editMahasiswa.semester ? String(editMahasiswa.semester) : "",
-        dosenPaId: editMahasiswa.dosenPaId ? String(editMahasiswa.dosenPaId) : "",
+        dosenPaId: editMahasiswa.dosenPaId
+          ? String(editMahasiswa.dosenPaId)
+          : "",
       });
     } else {
       setFormData({
@@ -293,7 +319,7 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
         },
       },
     ],
-    []
+    [],
   );
 
   const table = useReactTable({
@@ -304,7 +330,7 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
       columnFilters,
       columnVisibility,
       rowSelection,
-      globalFilter: search,
+      globalFilter: debouncedSearch,
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -324,105 +350,31 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
           <SearchInput
             placeholder="Search..."
             className="max-w-full"
+            disableUrlParams={true}
+            value={search}
+            onChange={setSearch}
           />
-          <Button onClick={() => setCreateOpen(true)} className="whitespace-nowrap">
+          <Button
+            onClick={() => setCreateOpen(true)}
+            className="whitespace-nowrap"
+          >
             <Plus className="mr-2 h-4 w-4" /> Tambah
           </Button>
+          <Select value={angkatanFilter} onValueChange={setAngkatanFilter}>
+            <SelectTrigger className="w-[130px] sm:w-[160px]">
+              <SelectValue placeholder="Angkatan" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Angkatan</SelectItem>
+              {uniqueAngkatan.map((year) => (
+                <SelectItem key={year} value={year}>{`20${year}`}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <Tabs
-          value={viewMode}
-          onValueChange={(v) => setViewMode(v as "table" | "card")}
-        >
-          <TabsList>
-            <TabsTrigger value="table">
-              <LayoutGrid size={16} />
-            </TabsTrigger>
-            <TabsTrigger value="card">
-              <List size={16} />
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
       </div>
 
-      <Tabs value={viewMode}>
-        <TabsContent value="table">
-          <TableGlobal cols={cols} table={table} />
-        </TabsContent>
-        <TabsContent value="card">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.length === 0 && (
-              <div className="col-span-full text-center text-muted-foreground py-8">
-                Tidak ada data mahasiswa.
-              </div>
-            )}
-            {data.map((m) => (
-              <div
-                key={m.id}
-                className="group relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
-              >
-                <div className="p-5 flex flex-col gap-4 flex-1">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-14 w-14 border-2 border-gray-100 dark:border-neutral-800 shadow-sm">
-                      <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
-                        {m.nama
-                          ?.split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()
-                          .slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-tight">
-                        {m.nama}
-                      </h3>
-                      <span className="text-xs text-muted-foreground mt-1 bg-gray-100 dark:bg-neutral-800 px-2 py-0.5 rounded-full w-fit">
-                        {m.nim}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 gap-y-2 mt-2">
-                    <div className="flex flex-col text-sm border-b border-gray-50 dark:border-neutral-800 pb-2">
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Semester</span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">{m.semester || "-"}</span>
-                    </div>
-                    <div className="flex flex-col text-sm">
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Dosen PA</span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">{m.dosenPa?.nama || "-"}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-gray-50/50 dark:bg-neutral-800/50 p-3 grid grid-cols-3 gap-2 border-t border-gray-100 dark:border-neutral-800">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full text-xs h-8"
-                    onClick={() => setDetailMahasiswa(m)}
-                  >
-                    <Info size={14} className="mr-1.5" /> Detail
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full text-xs h-8"
-                    onClick={() => setEditMahasiswa(m)}
-                  >
-                    <Pencil size={14} className="mr-1.5" /> Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="w-full text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                    onClick={() => setDeleteMahasiswaState(m)}
-                  >
-                    <Trash2 size={14} className="mr-1.5" /> Hapus
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+      <TableGlobal cols={cols} table={table} />
 
       {/* Modal Detail */}
       <Dialog
@@ -445,30 +397,46 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
                   <div className="font-medium">{detailMahasiswa.nim}</div>
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Semester</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    Semester
+                  </Label>
                   <div className="font-medium">{detailMahasiswa.semester}</div>
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">No HP</Label>
-                  <div className="font-medium">{detailMahasiswa.noHp || "-"}</div>
+                  <div className="font-medium">
+                    {detailMahasiswa.noHp || "-"}
+                  </div>
                 </div>
                 <div className="col-span-2">
-                  <Label className="text-xs text-muted-foreground">Alamat</Label>
-                  <div className="font-medium">{detailMahasiswa.alamat || "-"}</div>
+                  <Label className="text-xs text-muted-foreground">
+                    Alamat
+                  </Label>
+                  <div className="font-medium">
+                    {detailMahasiswa.alamat || "-"}
+                  </div>
                 </div>
                 <div className="col-span-2">
-                  <Label className="text-xs text-muted-foreground">Dosen PA</Label>
-                  <div className="font-medium">{detailMahasiswa.dosenPa?.nama || "-"}</div>
+                  <Label className="text-xs text-muted-foreground">
+                    Dosen PA
+                  </Label>
+                  <div className="font-medium">
+                    {detailMahasiswa.dosenPa?.nama || "-"}
+                  </div>
                 </div>
                 <div className="col-span-2">
                   <Label className="text-xs text-muted-foreground">Prodi</Label>
-                  <div className="font-medium">{detailMahasiswa.prodi?.nama || "-"}</div>
+                  <div className="font-medium">
+                    {detailMahasiswa.prodi?.nama || "-"}
+                  </div>
                 </div>
               </div>
             </div>
           )}
           <DialogFooter>
-            <DialogClose asChild><Button variant="outline">Tutup</Button></DialogClose>
+            <DialogClose asChild>
+              <Button variant="outline">Tutup</Button>
+            </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -483,40 +451,75 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Nama</Label>
-                <Input name="nama" value={formData.nama} onChange={handleFormChange} required />
+                <Input
+                  name="nama"
+                  value={formData.nama}
+                  onChange={handleFormChange}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label>NIM</Label>
-                <Input name="nim" value={formData.nim} onChange={handleFormChange} required />
+                <Input
+                  name="nim"
+                  value={formData.nim}
+                  onChange={handleFormChange}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label>No HP</Label>
-                <Input name="noHp" value={formData.noHp} onChange={handleFormChange} />
+                <Input
+                  name="noHp"
+                  value={formData.noHp}
+                  onChange={handleFormChange}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Semester</Label>
-                <Input name="semester" type="number" value={formData.semester} onChange={handleFormChange} required />
+                <Input
+                  name="semester"
+                  type="number"
+                  value={formData.semester}
+                  onChange={handleFormChange}
+                  required
+                />
               </div>
               <div className="col-span-2 space-y-2">
                 <Label>Alamat</Label>
-                <Input name="alamat" value={formData.alamat} onChange={handleFormChange} />
+                <Input
+                  name="alamat"
+                  value={formData.alamat}
+                  onChange={handleFormChange}
+                />
               </div>
               <div className="col-span-2 space-y-2">
                 <Label>Dosen PA</Label>
-                <Select value={formData.dosenPaId} onValueChange={(val) => handleSelectChange('dosenPaId', val)}>
+                <Select
+                  value={formData.dosenPaId}
+                  onValueChange={(val) => handleSelectChange("dosenPaId", val)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih Dosen PA" />
                   </SelectTrigger>
                   <SelectContent>
-                    {dosenList.map(d => (
-                      <SelectItem key={d.id} value={String(d.id)}>{d.nama}</SelectItem>
+                    {dosenList.map((d) => (
+                      <SelectItem key={d.id} value={String(d.id)}>
+                        {d.nama}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>Batal</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCreateOpen(false)}
+              >
+                Batal
+              </Button>
               <Button type="submit">Simpan</Button>
             </DialogFooter>
           </form>
@@ -524,7 +527,10 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
       </Dialog>
 
       {/* Modal Edit */}
-      <Dialog open={!!editMahasiswa} onOpenChange={(val) => !val && setEditMahasiswa(null)}>
+      <Dialog
+        open={!!editMahasiswa}
+        onOpenChange={(val) => !val && setEditMahasiswa(null)}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Edit Mahasiswa</DialogTitle>
@@ -533,40 +539,75 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Nama</Label>
-                <Input name="nama" value={formData.nama} onChange={handleFormChange} required />
+                <Input
+                  name="nama"
+                  value={formData.nama}
+                  onChange={handleFormChange}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label>NIM</Label>
-                <Input name="nim" value={formData.nim} onChange={handleFormChange} required />
+                <Input
+                  name="nim"
+                  value={formData.nim}
+                  onChange={handleFormChange}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label>No HP</Label>
-                <Input name="noHp" value={formData.noHp} onChange={handleFormChange} />
+                <Input
+                  name="noHp"
+                  value={formData.noHp}
+                  onChange={handleFormChange}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Semester</Label>
-                <Input name="semester" type="number" value={formData.semester} onChange={handleFormChange} required />
+                <Input
+                  name="semester"
+                  type="number"
+                  value={formData.semester}
+                  onChange={handleFormChange}
+                  required
+                />
               </div>
               <div className="col-span-2 space-y-2">
                 <Label>Alamat</Label>
-                <Input name="alamat" value={formData.alamat} onChange={handleFormChange} />
+                <Input
+                  name="alamat"
+                  value={formData.alamat}
+                  onChange={handleFormChange}
+                />
               </div>
               <div className="col-span-2 space-y-2">
                 <Label>Dosen PA</Label>
-                <Select value={formData.dosenPaId} onValueChange={(val) => handleSelectChange('dosenPaId', val)}>
+                <Select
+                  value={formData.dosenPaId}
+                  onValueChange={(val) => handleSelectChange("dosenPaId", val)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih Dosen PA" />
                   </SelectTrigger>
                   <SelectContent>
-                    {dosenList.map(d => (
-                      <SelectItem key={d.id} value={String(d.id)}>{d.nama}</SelectItem>
+                    {dosenList.map((d) => (
+                      <SelectItem key={d.id} value={String(d.id)}>
+                        {d.nama}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setEditMahasiswa(null)}>Batal</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditMahasiswa(null)}
+              >
+                Batal
+              </Button>
               <Button type="submit">Simpan</Button>
             </DialogFooter>
           </form>
@@ -574,15 +615,28 @@ export function MahasiswaTable({ mahasiswa, dosenList, user }: MahasiswaTablePro
       </Dialog>
 
       {/* Modal Delete */}
-      <Dialog open={!!deleteMahasiswaState} onOpenChange={(val) => !val && setDeleteMahasiswaState(null)}>
+      <Dialog
+        open={!!deleteMahasiswaState}
+        onOpenChange={(val) => !val && setDeleteMahasiswaState(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Hapus Mahasiswa</DialogTitle>
           </DialogHeader>
-          <p>Apakah Anda yakin ingin menghapus mahasiswa <strong>{deleteMahasiswaState?.nama}</strong>?</p>
+          <p>
+            Apakah Anda yakin ingin menghapus mahasiswa{" "}
+            <strong>{deleteMahasiswaState?.nama}</strong>?
+          </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteMahasiswaState(null)}>Batal</Button>
-            <Button variant="destructive" onClick={handleDeleteSubmit}>Hapus</Button>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteMahasiswaState(null)}
+            >
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteSubmit}>
+              Hapus
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

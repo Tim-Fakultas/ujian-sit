@@ -34,7 +34,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    return $request->user()->load('roles', 'permissions');
 });
 
 Route::post('/login', [AuthController::class, 'login'])
@@ -120,6 +120,15 @@ Route::prefix('mahasiswa/{id}')->group(function () {
 
     //ujian
     Route::get('/ujian', [UjianController::class, 'getByMahasiswa']);
+});
+
+Route::prefix('kaprodi')->middleware(['auth:sanctum', 'role:kaprodi'])->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Kaprodi\DashboardController::class, 'index']);
+    Route::get('/pengajuan-ranpel', [\App\Http\Controllers\Kaprodi\PengajuanRanpelController::class, 'index']);
+    Route::post('/pengajuan-ranpel/{id}/approve', [\App\Http\Controllers\Kaprodi\PengajuanRanpelController::class, 'approve']);
+    Route::post('/pengajuan-ranpel/{id}/reject', [\App\Http\Controllers\Kaprodi\PengajuanRanpelController::class, 'reject']);
+    Route::post('/pengajuan-ranpel/{id}/catatan', [\App\Http\Controllers\Kaprodi\PengajuanRanpelController::class, 'updateCatatan']);
+    Route::get('/jadwal-ujian', [\App\Http\Controllers\Kaprodi\JadwalUjianController::class, 'index']);
 });
 
 Route::get('/comments', [CommentController::class, 'index']);

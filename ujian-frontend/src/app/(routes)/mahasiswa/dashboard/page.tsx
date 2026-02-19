@@ -1,43 +1,62 @@
-import { refreshUserAction } from "@/actions/auth";
+import { getCurrentUserAction } from "@/actions/auth";
 import { getPendaftaranUjianByMahasiswaId } from "@/actions/pendaftaranUjian";
 import { getPengajuanRanpelByMahasiswaId } from "@/actions/pengajuanRanpel";
 import { getPerbaikanJudulByMahasiswa } from "@/actions/perbaikanJudul";
 import {
   BookOpen,
   Calendar,
-  CheckCircle,
   ClipboardList,
   Edit,
   FileText,
   LayoutDashboard,
 } from "lucide-react";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { DashboardWelcome } from "@/components/dashboard/DashboardWelcome";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActionGrid } from "@/components/dashboard/ActionGrid";
-import { getDisplayName } from "@/lib/utils";
 
 export default async function MahasiswaDashboardPage() {
-  const user = await refreshUserAction();
+  // Ambil user dari cookie (di-set saat login, berisi data lengkap)
+  const { user } = await getCurrentUserAction();
   const mahasiswaId = Number(user?.id);
 
-  // Fetch data
-  const [ranpelList, pendaftaranList, perbaikanList] = await Promise.all([
-    getPengajuanRanpelByMahasiswaId(mahasiswaId),
-    getPendaftaranUjianByMahasiswaId(mahasiswaId),
-    getPerbaikanJudulByMahasiswa(mahasiswaId),
-  ]);
+  // Fetch data dengan error handling
+  const [ranpelList, pendaftaranList, perbaikanList, jadwalList] =
+    await Promise.all([
+      mahasiswaId
+        ? getPengajuanRanpelByMahasiswaId(mahasiswaId).catch(() => [])
+        : Promise.resolve([]),
+      mahasiswaId
+        ? getPendaftaranUjianByMahasiswaId(mahasiswaId).catch(() => [])
+        : Promise.resolve([]),
+      mahasiswaId
+        ? getPerbaikanJudulByMahasiswa(mahasiswaId).catch(() => [])
+        : Promise.resolve([]),
+      mahasiswaId
+        ? import("@/actions/ujian")
+            .then((mod) => mod.getJadwalUjianByMahasiswaIdByHasil(mahasiswaId))
+            .catch(() => [])
+        : Promise.resolve([]),
+    ]);
 
   // Process data for stats
-  const ranpelStatus = ranpelList && ranpelList.length > 0 ? ranpelList[0].status : "Belum Mengajukan";
+  const ranpelStatus =
+    ranpelList && ranpelList.length > 0
+      ? ranpelList[0].status
+      : "Belum Mengajukan";
   const ranpelCount = ranpelList ? ranpelList.length : 0;
 
-  const pendaftaranStatus = pendaftaranList && pendaftaranList.length > 0 ? pendaftaranList[0].status : "Belum Mendaftar";
+  const pendaftaranStatus =
+    pendaftaranList && pendaftaranList.length > 0
+      ? pendaftaranList[0].status
+      : "Belum Mendaftar";
+  const jadwalCount = jadwalList ? jadwalList.length : 0;
 
-  const perbaikanStatus = perbaikanList && perbaikanList.length > 0 ? perbaikanList[0].status : "Tidak Ada";
+  const perbaikanStatus =
+    perbaikanList && perbaikanList.length > 0
+      ? perbaikanList[0].status
+      : "Tidak Ada";
 
-
-
-  // Data for Action Grid - matching sidebar menu order
+  // Data for Action Grid
   const quickActions = [
     {
       label: "Pengajuan Rancangan Penelitian",
@@ -46,7 +65,6 @@ export default async function MahasiswaDashboardPage() {
       href: "/mahasiswa/pengajuan-ranpel",
       color: "blue" as const,
     },
-
     {
       label: "Perbaikan Judul",
       description: "Lihat riwayat dan status perbaikan judul.",
@@ -79,9 +97,9 @@ export default async function MahasiswaDashboardPage() {
 
   return (
     <div className="p-6 md:p-8 min-h-screen space-y-8 max-w-7xl mx-auto">
-      {/* Header Section */}
-      <DashboardHeader
-        title={`Assalamu'alaikum, ${getDisplayName(user?.nama)}!`}
+      {/* Header — baca nama dari localStorage via client component */}
+      <DashboardWelcome
+        greeting="Assalamu'alaikum"
         subtitle="Selamat datang di Dashboard Mahasiswa. Pantau progres akademikmu di sini."
       />
 
@@ -108,10 +126,11 @@ export default async function MahasiswaDashboardPage() {
             className=""
           />
           <StatCard
-            title="Status Pendaftaran Ujian"
-            value={pendaftaranStatus}
-            icon={ClipboardList}
+            title="Ujian Akan Datang"
+            value={jadwalCount > 0 ? `${jadwalCount} Jadwal` : "Tidak Ada"}
+            icon={Calendar}
             color="emerald"
+            label={pendaftaranStatus}
             className=""
           />
         </div>

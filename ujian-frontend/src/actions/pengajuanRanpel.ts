@@ -14,7 +14,7 @@ export async function getPengajuanRanpelByMahasiswaId(userId?: number) {
       `${apiUrl}/mahasiswa/${userId}/pengajuan-ranpel`,
       {
         cache: "no-store",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -49,11 +49,11 @@ export async function getPengajuanRanpelByMahasiswaIdByStatus(userId?: number) {
     if (userId) {
       filteredData = filteredData.filter(
         (pengajuan) =>
-          pengajuan.mahasiswa?.id === userId && pengajuan.status === "diterima"
+          pengajuan.mahasiswa?.id === userId && pengajuan.status === "diterima",
       );
     } else {
       filteredData = filteredData.filter(
-        (pengajuan) => pengajuan.status === "diterima"
+        (pengajuan) => pengajuan.status === "diterima",
       );
     }
 
@@ -83,7 +83,7 @@ export async function getPengajuanRanpelByDosenPA(dosenId?: number) {
 
     if (dosenId) {
       filteredData = filteredData.filter(
-        (pengajuan) => pengajuan.mahasiswa?.dosenPa?.id === dosenId
+        (pengajuan) => pengajuan.mahasiswa?.dosenPa?.id === dosenId,
       );
     }
 
@@ -118,12 +118,12 @@ export async function getPengajuanRanpelByProdi(prodiId?: number) {
 
     // Filter by diverifikasi status first
     let filteredData = data.data.filter(
-      (pengajuan) => pengajuan.status !== "menunggu"
+      (pengajuan) => pengajuan.status !== "menunggu",
     );
 
     if (prodiId) {
       filteredData = filteredData.filter(
-        (pengajuan) => pengajuan.mahasiswa?.prodi?.id === prodiId
+        (pengajuan) => pengajuan.mahasiswa?.prodi?.id === prodiId,
       );
     }
 
@@ -145,7 +145,12 @@ export async function getPengajuanRanpelByProdi(prodiId?: number) {
 export async function updateStatusPengajuanRanpel(
   mahasiswaId: number,
   pengajuanId: number,
-  data: { status: Status["status"]; keterangan?: string; catatanKaprodi?: string; skipDateUpdate?: boolean }
+  data: {
+    status: Status["status"];
+    keterangan?: string;
+    catatanKaprodi?: string;
+    skipDateUpdate?: boolean;
+  },
 ) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -159,20 +164,37 @@ export async function updateStatusPengajuanRanpel(
         },
         body: JSON.stringify({
           status: data.status,
-          ...(data.status === "ditolak" && !data.skipDateUpdate ? {
-            tanggal_ditolak: new Date().toLocaleDateString('sv-SE') + " " + new Date().toLocaleTimeString('sv-SE')
-          } : {}),
-          ...(data.status === "diterima" && !data.skipDateUpdate ? {
-            tanggal_diterima: new Date().toLocaleDateString('sv-SE') + " " + new Date().toLocaleTimeString('sv-SE')
-          } : {}),
-          ...(data.status === "diverifikasi" && !data.skipDateUpdate ? {
-            tanggal_diverifikasi: new Date().toLocaleDateString('sv-SE') + " " + new Date().toLocaleTimeString('sv-SE')
-          } : {}),
+          ...(data.status === "ditolak" && !data.skipDateUpdate
+            ? {
+                tanggal_ditolak:
+                  new Date().toLocaleDateString("sv-SE") +
+                  " " +
+                  new Date().toLocaleTimeString("sv-SE"),
+              }
+            : {}),
+          ...(data.status === "diterima" && !data.skipDateUpdate
+            ? {
+                tanggal_diterima:
+                  new Date().toLocaleDateString("sv-SE") +
+                  " " +
+                  new Date().toLocaleTimeString("sv-SE"),
+              }
+            : {}),
+          ...(data.status === "diverifikasi" && !data.skipDateUpdate
+            ? {
+                tanggal_diverifikasi:
+                  new Date().toLocaleDateString("sv-SE") +
+                  " " +
+                  new Date().toLocaleTimeString("sv-SE"),
+              }
+            : {}),
           ...(data.keterangan ? { keterangan: data.keterangan } : {}),
-          ...(data.catatanKaprodi ? { catatan_kaprodi: data.catatanKaprodi } : {}),
+          ...(data.catatanKaprodi
+            ? { catatan_kaprodi: data.catatanKaprodi }
+            : {}),
         }),
         cache: "no-store",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -198,7 +220,7 @@ export async function updateStatusPengajuanRanpel(
 // DELETE FUNCTION
 export async function deletePengajuanRanpel(
   mahasiswaId: number,
-  pengajuanId: number
+  pengajuanId: number,
 ) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -208,7 +230,7 @@ export async function deletePengajuanRanpel(
       {
         method: "DELETE",
         cache: "no-store",
-      }
+      },
     );
 
     if (!response.ok) {

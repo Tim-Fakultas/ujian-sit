@@ -1,2 +1,2 @@
-import JadwalUjianTable from "@/components/jadwalUjianTable";
+import JadwalUjianTable from "@/components/JadwalUjianTable";
 export default JadwalUjianTable;

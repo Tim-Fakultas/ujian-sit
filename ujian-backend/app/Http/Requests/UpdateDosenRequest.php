@@ -35,6 +35,7 @@ class UpdateDosenRequest extends FormRequest
             'prodi_id' => 'sometimes|required|exists:prodi,id',
             'foto' => 'sometimes|nullable|string',
             'user_id' => 'sometimes|nullable|exists:users,id',
+            'ttd' => 'sometimes|nullable|file|mimes:jpeg,png,jpg|max:2048',
         ];
     }
 }

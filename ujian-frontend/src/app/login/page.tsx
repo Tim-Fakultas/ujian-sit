@@ -2,11 +2,11 @@ import Image from "next/image";
 import LoginForm from "./LoginForm";
 import { GraduationCap } from "lucide-react";
 import { FaqModal } from "@/components/common/FaqModal";
+import { CookieWarning } from "@/components/auth/CookieWarning";
 
 export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-zinc-950 relative overflow-hidden selection:bg-blue-500/30">
-
       {/* Background Effects */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
@@ -16,7 +16,6 @@ export default function LoginPage() {
 
       {/* Main Card */}
       <div className="w-full max-w-[1000px] h-auto lg:h-[500px] m-4 lg:m-0 grid lg:grid-cols-2 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-zinc-900/60 backdrop-blur-xl relative z-10 transition-all duration-300 hover:shadow-blue-900/10">
-
         {/* Left Side - Visual */}
         <div className="relative h-full hidden lg:flex flex-col justify-between p-10 overflow-hidden bg-gradient-to-br from-blue-600/10 to-transparent">
           <div className="absolute inset-0 bg-blue-600/5 mix-blend-overlay" />
@@ -30,7 +29,9 @@ export default function LoginPage() {
             <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20 backdrop-blur-md shadow-inner">
               <GraduationCap className="w-5 h-5 text-blue-400" />
             </div>
-            <span className="text-lg font-semibold text-white tracking-wide">E-Skripsi</span>
+            <span className="text-lg font-semibold text-white tracking-wide">
+              E-Skripsi
+            </span>
           </div>
 
           {/* Center Content */}
@@ -52,7 +53,8 @@ export default function LoginPage() {
                 </span>
               </h1>
               <p className="text-base text-zinc-400 leading-relaxed max-w-sm font-light">
-                Sistem Informasi Pengelolaan Skripsi, Tugas Akhir, dan Penilaian Ujian Mahasiswa UIN Raden Fatah Palembang.
+                Sistem Informasi Pengelolaan Skripsi, Tugas Akhir, dan Penilaian
+                Ujian Mahasiswa UIN Raden Fatah Palembang.
               </p>
             </div>
           </div>
@@ -60,7 +62,9 @@ export default function LoginPage() {
           {/* Footer */}
           <div className="relative z-10">
             <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-500/5 border border-blue-500/10 backdrop-blur-md w-fit">
-              <span className="text-xs font-medium text-blue-200 tracking-wide">V.1.0.0</span>
+              <span className="text-xs font-medium text-blue-200 tracking-wide">
+                V.1.0.0
+              </span>
             </div>
           </div>
         </div>
@@ -78,14 +82,21 @@ export default function LoginPage() {
                   className="object-contain"
                 />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Selamat Datang</h2>
-              <p className="text-sm text-gray-500 dark:text-zinc-400">Masuk untuk mengakses dashboard Anda</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                Selamat Datang
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-zinc-400">
+                Masuk untuk mengakses dashboard Anda
+              </p>
             </div>
 
             <LoginForm />
 
-            <div className="text-center gap-1 flex flex-col items-center -mt-2">
-              <FaqModal />
+            <div className="text-center gap-2 flex flex-col items-center -mt-2">
+              <div className="flex gap-2">
+                <FaqModal />
+                <CookieWarning />
+              </div>
               <p className="text-xs text-zinc-400">
                 &copy; {new Date().getFullYear()} UIN Raden Fatah Palembang
               </p>
@@ -101,4 +112,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

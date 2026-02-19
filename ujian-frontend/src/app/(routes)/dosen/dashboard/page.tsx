@@ -1,52 +1,72 @@
 import { getCurrentUserAction } from "@/actions/auth";
 import { getJadwalUjianDosen } from "@/actions/jadwalUjian";
 import { getPengajuanRanpelByDosenPA } from "@/actions/pengajuanRanpel";
-import { getDosenBimbinganDetails } from "@/actions/data-master/dosen";
+import {
+  getDosenBimbinganDetails,
+  getDosenByUserId,
+} from "@/actions/data-master/dosen";
 import {
   Calendar,
-  CheckCircle2,
   ClipboardCheck,
   FileText,
   GraduationCap,
   LayoutDashboard,
   Users,
 } from "lucide-react";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { DashboardWelcome } from "@/components/dashboard/DashboardWelcome";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActionGrid } from "@/components/dashboard/ActionGrid";
-import { getDisplayName } from "@/lib/utils";
 
 export default async function DashboardDosenPage() {
   const { user } = await getCurrentUserAction();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dosenId = (user as any)?.dosen?.id;
 
-  // Fetch Data
-  const ranpelList = await getPengajuanRanpelByDosenPA(user?.id);
-  const ranpelMenunggu = ranpelList.filter(
-    (r) => r.status === "menunggu"
-  ).length;
+  // user.id dari refreshUserAction sudah di-set ke dosen.id (bukan user_id)
+  // user.user_id adalah ID di tabel users
+  const dosenId = user?.id || 0;
+  const userId = (user as any)?.user_id || user?.id || 0;
 
-  const bimbinganDetails = await getDosenBimbinganDetails(user?.id || 0);
+  // Fetch semua data paralel, dengan error handling per-item
+  const [ranpelList, bimbinganDetails, jadwalList] = await Promise.all([
+    // Ranpel PA menggunakan user_id (dosen sebagai PA)
+    userId
+      ? getPengajuanRanpelByDosenPA(userId).catch(() => [])
+      : Promise.resolve([]),
+
+    // Bimbingan menggunakan dosen.id
+    dosenId
+      ? getDosenBimbinganDetails(dosenId).catch(() => null)
+      : Promise.resolve(null),
+
+    // Jadwal menguji menggunakan dosen.id
+    dosenId
+      ? getJadwalUjianDosen(dosenId).catch(() => [])
+      : Promise.resolve([]),
+  ]);
+
+  const ranpelMenunggu = Array.isArray(ranpelList)
+    ? ranpelList.filter((r) => r.status === "menunggu").length
+    : 0;
+
   const mhsBimbinganIds = new Set<number>();
   if (bimbinganDetails) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    bimbinganDetails.pembimbing1?.forEach((m: any) => mhsBimbinganIds.add(m.id));
+    bimbinganDetails.pembimbing1?.forEach((m: any) =>
+      mhsBimbinganIds.add(m.id),
+    );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    bimbinganDetails.pembimbing2?.forEach((m: any) => mhsBimbinganIds.add(m.id));
+    bimbinganDetails.pembimbing2?.forEach((m: any) =>
+      mhsBimbinganIds.add(m.id),
+    );
   }
   const totalBimbingan = mhsBimbinganIds.size;
+  const jadwalMenguji = Array.isArray(jadwalList) ? jadwalList.length : 0;
 
-  const jadwalList = await getJadwalUjianDosen(user?.id || 0);
-  const jadwalMenguji = jadwalList.length;
-
-  // Data for Action Grid
   const quickActions = [
     {
       label: "Mahasiswa Bimbingan",
       description: "Lihat daftar mahasiswa bimbingan skripsi.",
       icon: Users,
-      href: "/dosen/mahasiswa-bimbingan",
+      href: "/dosen/mahasiswa-bimbingan-skripsi",
       color: "emerald" as const,
     },
     {
@@ -88,11 +108,8 @@ export default async function DashboardDosenPage() {
 
   return (
     <div className="p-6 md:p-8 min-h-screen space-y-8 max-w-7xl mx-auto">
-      {/* Header Section */}
-      <DashboardHeader
-        title={`Selamat Datang, ${getDisplayName(user?.nama)}`}
-        subtitle={`Dashboard Dosen - ${user?.email || ""}`}
-      />
+      {/* Header — baca nama dari localStorage via client component */}
+      <DashboardWelcome roleLabel="Dosen" />
 
       {/* Stats Grid */}
       <section className="space-y-4">

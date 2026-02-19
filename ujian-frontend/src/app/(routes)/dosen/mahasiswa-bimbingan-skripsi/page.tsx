@@ -1,7 +1,7 @@
 import { getCurrentUserAction } from "@/actions/auth";
 import { getDosenBimbinganDetails } from "@/actions/data-master/dosen";
 import PageHeader from "@/components/common/PageHeader";
-import MahasiswaBimbinganTable, { MahasiswaBimbingan } from "@/components/dosen/mahasiswa-bimbingan/MahasiswaBimbinganTable";
+import MahasiswaBimbinganTable, { MahasiswaBimbingan } from "@/components/dosen/mahasiswa-bimbingan-skripsi/MahasiswaBimbinganTable";
 
 export const metadata = {
     title: "Mahasiswa Bimbingan",
@@ -53,8 +53,8 @@ export default async function MahasiswaBimbinganPage() {
     return (
         <div className="p-6 md:p-8 flex flex-col gap-6">
             <PageHeader
-                title="Mahasiswa Bimbingan"
-                description="Daftar mahasiswa yang Anda bimbing (Akademik & Skripsi)."
+                title="Mahasiswa Bimbingan Skripsi"
+                description="Daftar mahasiswa yang bimbingan skripsi dengan anda."
                 iconName="Users"
                 variant="blue"
             />

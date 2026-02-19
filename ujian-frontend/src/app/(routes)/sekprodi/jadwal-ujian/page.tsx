@@ -6,10 +6,9 @@ import { getHadirUjian } from "@/actions/daftarHadirUjian";
 import Loading from "./loading";
 import PageHeader from "@/components/common/PageHeader";
 import { FileText } from "lucide-react";
-import JadwalUjianTable from "@/components/jadwalUjianTable";
+import JadwalUjianTable from "@/components/JadwalUjianTable";
 
 export default async function JadwalUjianPage() {
-
   const { user } = await getCurrentUserAction();
   const jadwalUjian: Ujian[] =
     user?.prodi?.id !== undefined
@@ -36,5 +35,4 @@ export default async function JadwalUjianPage() {
       </Suspense>
     </div>
   );
-
 }

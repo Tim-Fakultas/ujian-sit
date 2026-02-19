@@ -26,7 +26,7 @@ class StoreUjianRequest extends FormRequest
             'pendaftaranUjianId' => 'required|exists:pendaftaran_ujian,id',
             'mahasiswaId' => 'required|exists:mahasiswa,id',
             'jenisUjianId' => 'required|exists:jenis_ujian,id',
-            'hariUjian' => 'required|in:senin,selasa,rabu,kamis,jumat,sabtu,minggu',
+            'hariUjian' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
             'jadwalUjian' => 'required|date',
             'waktuMulai' => 'required|date_format:H:i',
             'waktuSelesai' => [
@@ -104,13 +104,13 @@ class StoreUjianRequest extends FormRequest
         if($this->filled('jadwalUjian')) {
             $hariJadwal = strtolower(date('l', strtotime($this->input('jadwalUjian'))));
             $hariIndonesia = [
-                'monday' => 'senin',
-                'tuesday' => 'selasa',
-                'wednesday' => 'rabu',
-                'thursday' => 'kamis',
-                'friday' => 'jumat',
-                'saturday' => 'sabtu',
-                'sunday' => 'minggu'
+                'monday' => 'Senin',
+                'tuesday' => 'Selasa',
+                'wednesday' => 'Rabu',
+                'thursday' => 'Kamis',
+                'friday' => 'Jumat',
+                'saturday' => 'Sabtu',
+                'sunday' => 'Minggu'
             ];
             $this->merge([
                 'hariUjian' => $hariIndonesia[$hariJadwal],

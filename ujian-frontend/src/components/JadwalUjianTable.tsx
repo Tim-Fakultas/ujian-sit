@@ -6,13 +6,7 @@ import TableGlobal from "@/components/tableGlobal";
 import { Penguji, Ujian } from "@/types/Ujian";
 import { Button } from "@/components/ui/button";
 import { showToast } from "@/components/ui/custom-toast";
-import {
-  Eye,
-  MoreHorizontal,
-  Users,
-  FileDown,
-  X,
-} from "lucide-react";
+import { Eye, MoreHorizontal, Users, FileDown, X } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -112,7 +106,7 @@ export default function JadwalUjianTable({
 
   const [openDaftarHadir, setOpenDaftarHadir] = useState(false);
   const [selectedDaftarHadir, setSelectedDaftarHadir] = useState<Ujian | null>(
-    null
+    null,
   );
 
   const [filterNama, setFilterNama] = useState("");
@@ -127,27 +121,32 @@ export default function JadwalUjianTable({
   const [completedIds, setCompletedIds] = useState<number[]>([]);
 
   const [sortField, setSortField] = useState<"nama" | "judul" | "waktu" | null>(
-    null
+    null,
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-
 
   // View mode for students: 'all' or 'mine'
   const [scheduleView, setScheduleView] = useState<"all" | "mine">("all");
 
   // Ubah state statusTab ke "all" | "dijadwalkan" | "selesai"
   const [statusTab, setStatusTab] = useState<"all" | "dijadwalkan" | "selesai">(
-    "all"
+    "all",
   );
 
   const filteredData = useMemo(() => {
     let data = jadwalUjian.filter((ujian) => {
-      // 1. Filter by view mode (for students)
-      if (userRole === "mahasiswa" && scheduleView === "mine" && user) {
-        // Checking against multiple possible identifiers
-        const userNIM = user.nim || user.nip_nim;
-        if (userNIM && ujian.mahasiswa.nim !== userNIM) {
-          return false;
+      // 1. Filter by view mode (for students or dosen)
+      if (scheduleView === "mine" && user) {
+        if (userRole === "mahasiswa") {
+          // Checking against multiple possible identifiers
+          const userNIM = user.nim || user.nip_nim;
+          if (userNIM && ujian.mahasiswa.nim !== userNIM) {
+            return false;
+          }
+        } else if (userRole === "dosen") {
+          // Check if user is in the penguji list
+          const isPenguji = ujian.penguji?.some((p) => p.id === user.id);
+          if (!isPenguji) return false;
         }
       }
 
@@ -172,18 +171,15 @@ export default function JadwalUjianTable({
         ujian.mahasiswa.nama
           .toLowerCase()
           .includes(debouncedNama.toLowerCase()) ||
-        ujian.mahasiswa.nim
-          .toLowerCase()
-          .includes(debouncedNama.toLowerCase());
+        ujian.mahasiswa.nim.toLowerCase().includes(debouncedNama.toLowerCase());
 
       const matchJenis =
         filterJenis === "all"
           ? true
           : ujian.jenisUjian.namaJenis === filterJenis;
 
-      const matchDate =
-        date?.from
-          ? (() => {
+      const matchDate = date?.from
+        ? (() => {
             if (!ujian.jadwalUjian) return false;
             const uDate = new Date(ujian.jadwalUjian);
             uDate.setHours(0, 0, 0, 0);
@@ -197,7 +193,7 @@ export default function JadwalUjianTable({
             }
             return uDate.getTime() === from.getTime();
           })()
-          : true;
+        : true;
 
       return matchNama && matchJenis && matchDate;
     });
@@ -252,7 +248,7 @@ export default function JadwalUjianTable({
   const totalPage = Math.ceil(filteredData.length / pageSize);
   const paginatedData = filteredData.slice(
     (page - 1) * pageSize,
-    page * pageSize
+    page * pageSize,
   );
 
   useEffect(() => {
@@ -282,8 +278,6 @@ export default function JadwalUjianTable({
     }
   }
 
-
-
   // Table columns for TableGlobal
   const cols = [
     {
@@ -292,7 +286,7 @@ export default function JadwalUjianTable({
       cell: ({ row, table }: any) => {
         const index =
           (table.getState().pagination?.pageIndex ?? 0) *
-          (table.getState().pagination?.pageSize ?? 10) +
+            (table.getState().pagination?.pageSize ?? 10) +
           row.index +
           1;
         return <div className="text-center">{index}</div>;
@@ -329,7 +323,7 @@ export default function JadwalUjianTable({
               {new Date(jadwal).toLocaleDateString("id-ID", {
                 day: "numeric",
                 month: "short",
-                year: "numeric"
+                year: "numeric",
               })}
             </div>
             <div className="text-muted-foreground">
@@ -366,7 +360,12 @@ export default function JadwalUjianTable({
       header: "Tim Penguji",
       cell: ({ row }: any) => {
         const penguji: Penguji[] = row.original.penguji || [];
-        if (penguji.length === 0) return <span className="text-gray-400 text-xs italic">Belum ditentukan</span>;
+        if (penguji.length === 0)
+          return (
+            <span className="text-gray-400 text-xs italic">
+              Belum ditentukan
+            </span>
+          );
 
         const displayLimit = 3;
         const remainingCount = Math.max(0, penguji.length - displayLimit);
@@ -380,11 +379,11 @@ export default function JadwalUjianTable({
                   {displayPenguji.map((p, i) => {
                     const initials = p.nama
                       ? p.nama
-                        .split(" ")
-                        .map((n) => n[0])
-                        .slice(0, 2)
-                        .join("")
-                        .toUpperCase()
+                          .split(" ")
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join("")
+                          .toUpperCase()
                       : "?";
                     // Generate pseudo-random color based on name length
                     const colors = [
@@ -394,7 +393,8 @@ export default function JadwalUjianTable({
                       "bg-amber-100 text-amber-700 border-amber-200",
                       "bg-rose-100 text-rose-700 border-rose-200",
                     ];
-                    const colorClass = colors[(p.nama?.length || 0) % colors.length];
+                    const colorClass =
+                      colors[(p.nama?.length || 0) % colors.length];
 
                     return (
                       <div
@@ -417,7 +417,11 @@ export default function JadwalUjianTable({
                 </div>
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 p-0 shadow-xl border-border/50" align="end" sideOffset={8}>
+            <PopoverContent
+              className="w-80 p-0 shadow-xl border-border/50"
+              align="end"
+              sideOffset={8}
+            >
               <div className="bg-muted/40 p-4 border-b">
                 <h4 className="font-semibold text-sm flex items-center gap-2">
                   <span className="p-1.5 bg-primary/10 rounded-md text-primary">
@@ -443,7 +447,7 @@ export default function JadwalUjianTable({
                     (d) =>
                       d.dosenId === p.id &&
                       d.statusKehadiran === "hadir" &&
-                      d.ujianId === row.original.id
+                      d.ujianId === row.original.id,
                   );
 
                   return (
@@ -453,13 +457,20 @@ export default function JadwalUjianTable({
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className={`h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold border shrink-0
-                                ${hadir ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-500 border-gray-200'}
-                            `}>
-                            {p.nama ? p.nama.substring(0, 2).toUpperCase() : "??"}
+                          <div
+                            className={`h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold border shrink-0
+                                ${hadir ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-gray-100 text-gray-500 border-gray-200"}
+                            `}
+                          >
+                            {p.nama
+                              ? p.nama.substring(0, 2).toUpperCase()
+                              : "??"}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-medium leading-none truncate w-full" title={p.nama}>
+                            <p
+                              className="text-sm font-medium leading-none truncate w-full"
+                              title={p.nama}
+                            >
                               {p.nama ?? "-"}
                             </p>
                             <p className="text-[10px] text-muted-foreground mt-1 font-medium bg-muted inline-block px-1.5 py-0.5 rounded">
@@ -604,7 +615,9 @@ export default function JadwalUjianTable({
 
     categories.forEach((cat) => {
       // Filter data for this category
-      const catData = filteredData.filter(u => u.jenisUjian.namaJenis === cat.key);
+      const catData = filteredData.filter(
+        (u) => u.jenisUjian.namaJenis === cat.key,
+      );
 
       if (catData.length === 0) return;
 
@@ -648,11 +661,11 @@ export default function JadwalUjianTable({
           ujian.mahasiswa.nama || "-",
           ujian.jadwalUjian
             ? `${new Date(ujian.jadwalUjian).toLocaleDateString("id-ID", {
-              weekday: "long",
-              day: "numeric",
-              month: "numeric",
-              year: "numeric",
-            })}\n${ujian.waktuMulai?.slice(0, 5)} s.d ${ujian.waktuSelesai?.slice(0, 5)}`
+                weekday: "long",
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+              })}\n${ujian.waktuMulai?.slice(0, 5)} s.d ${ujian.waktuSelesai?.slice(0, 5)}`
             : "Belum dijadwalkan",
           `${ujian.ruangan?.namaRuangan || "-"}\n(Ruang Ujian)`,
           ujian.judulPenelitian || "-",
@@ -734,20 +747,26 @@ export default function JadwalUjianTable({
     <div className="h-9 bg-muted/50 p-1 rounded-lg flex items-center relative border border-border/50 w-[220px]">
       <div
         className={`absolute inset-y-1 rounded-md bg-white dark:bg-neutral-800 shadow-sm transition-all duration-300 ease-out
-            ${scheduleView === 'all' ? 'left-1 w-[calc(50%-4px)]' : 'left-[calc(50%+2px)] w-[calc(50%-6px)]'}
+            ${scheduleView === "all" ? "left-1 w-[calc(50%-4px)]" : "left-[calc(50%+2px)] w-[calc(50%-6px)]"}
           `}
       />
       <button
         onClick={() => setScheduleView("all")}
-        className={`flex-1 relative z-10 h-full text-xs font-medium transition-colors duration-200 rounded-md flex items-center justify-center ${scheduleView === "all" ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground/80"
-          }`}
+        className={`flex-1 relative z-10 h-full text-xs font-medium transition-colors duration-200 rounded-md flex items-center justify-center ${
+          scheduleView === "all"
+            ? "text-foreground font-semibold"
+            : "text-muted-foreground hover:text-foreground/80"
+        }`}
       >
         Semua Jadwal
       </button>
       <button
         onClick={() => setScheduleView("mine")}
-        className={`flex-1 relative z-10 h-full text-xs font-medium transition-colors duration-200 rounded-md flex items-center justify-center ${scheduleView === "mine" ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground/80"
-          }`}
+        className={`flex-1 relative z-10 h-full text-xs font-medium transition-colors duration-200 rounded-md flex items-center justify-center ${
+          scheduleView === "mine"
+            ? "text-foreground font-semibold"
+            : "text-muted-foreground hover:text-foreground/80"
+        }`}
       >
         Jadwal Saya
       </button>
@@ -756,8 +775,6 @@ export default function JadwalUjianTable({
 
   return (
     <DataCard>
-
-
       <DataTableFilter
         searchPlaceholder="Cari berdasarkan Nama atau NIM"
         searchValue={filterNama}
@@ -775,24 +792,37 @@ export default function JadwalUjianTable({
               { value: "Ujian Skripsi", label: "Ujian Skripsi" },
             ],
           },
-
         ]}
-        date={(userRole === "kaprodi" || userRole === "sekprodi") ? date : undefined}
-        onDateChange={(userRole === "kaprodi" || userRole === "sekprodi") ? setDate : undefined}
-        onExport={(userRole === "kaprodi" || userRole === "sekprodi") ? handleExportPDF : undefined}
+        date={
+          userRole === "kaprodi" ||
+          userRole === "sekprodi" ||
+          userRole?.includes("admin")
+            ? date
+            : undefined
+        }
+        onDateChange={
+          userRole === "kaprodi" ||
+          userRole === "sekprodi" ||
+          userRole?.includes("admin")
+            ? setDate
+            : undefined
+        }
+        onExport={
+          userRole === "kaprodi" ||
+          userRole === "sekprodi" ||
+          userRole?.includes("admin")
+            ? handleExportPDF
+            : undefined
+        }
         actions={
-          userRole === "mahasiswa" ? (
-            <div className="hidden lg:block ml-2">
-              {scheduleToggle}
-            </div>
+          userRole === "mahasiswa" || userRole === "dosen" ? (
+            <div className="hidden lg:block ml-2">{scheduleToggle}</div>
           ) : undefined
         }
       />
 
-      {userRole === "mahasiswa" && (
-        <div className="lg:hidden mb-4 flex justify-end">
-          {scheduleToggle}
-        </div>
+      {(userRole === "mahasiswa" || userRole === "dosen") && (
+        <div className="lg:hidden mb-4 flex justify-end">{scheduleToggle}</div>
       )}
       <div className="mt-4">
         <TableGlobal table={table} cols={cols} />

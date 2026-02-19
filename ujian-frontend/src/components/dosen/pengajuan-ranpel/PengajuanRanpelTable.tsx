@@ -1,43 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
 import * as React from "react";
-import { useState, useMemo, useEffect } from "react";
 import {
   ColumnDef,
-  ColumnFiltersState,
-  SortingState,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  VisibilityState,
 } from "@tanstack/react-table";
-import TableGlobal from "@/components/tableGlobal";
-import SearchInput from "@/components/common/Search";
-import { useUrlFilter } from "@/hooks/use-url-filter";
-import { useDebounce } from "@/hooks/use-debounce";
+import { Eye, Check, Settings2, MessageSquareText } from "lucide-react";
 
-import { PengajuanRanpel } from "@/types/RancanganPenelitian";
-import PDFPreviewModal from "../penilaian-ujian/PDFPreviewModal";
 import { Button } from "@/components/ui/button";
-import {
-  Eye,
-  MoreHorizontal,
-
-  Check,
-  Settings2,
-  Calendar,
-  MessageSquareText,
-} from "lucide-react";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
 import {
   Popover,
   PopoverTrigger,
@@ -50,89 +24,34 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DataCard } from "@/components/common/DataCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { truncateTitle } from "@/lib/utils";
+import TableGlobal from "@/components/tableGlobal";
+import SearchInput from "@/components/common/Search";
+import { DataCard } from "@/components/common/DataCard";
 import StudentDetailModal from "@/components/common/StudentDetailModal";
+import PDFPreviewModal from "@/app/(routes)/dosen/penilaian-ujian/PDFPreviewModal"; // Keep original path for now or move it later
 
-export default function PengajuanRanpelClient({
-  pengajuanRanpel,
-}: {
-  pengajuanRanpel: PengajuanRanpel[];
-}) {
-  // modal state for PDF preview
-  const [selectedPengajuan, setSelectedPengajuan] =
-    useState<PengajuanRanpel | null>(null);
-  const [isPdfOpen, setIsPdfOpen] = useState(false);
+import { PengajuanRanpel } from "@/types/RancanganPenelitian";
+import { usePengajuanRanpelTable } from "@/hooks/dosen/usePengajuanRanpelTable";
 
-  // modal state for student detail
-  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-  const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+const statusOptions = [
+  { value: "all", label: "Semua" },
+  { value: "menunggu", label: "Menunggu" },
+  { value: "diterima", label: "Diterima" },
+  { value: "ditolak", label: "Ditolak" },
+  { value: "diverifikasi", label: "Diverifikasi" },
+];
 
-  const handleStudentClick = (mahasiswaId: number) => {
-    setSelectedStudentId(mahasiswaId);
-    setIsStudentModalOpen(true);
-  };
+interface PengajuanRanpelTableProps {
+  data: PengajuanRanpel[];
+}
 
-  // Controls
-  const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 300);
-  const [filterStatus, setFilterStatus] = useUrlFilter("status", "all");
-  const [openFilter, setOpenFilter] = useState(false);
+export default function PengajuanRanpelTable({
+  data,
+}: PengajuanRanpelTableProps) {
+  const hook = usePengajuanRanpelTable(data);
 
-
-  const statusOptions = [
-    { value: "all", label: "Semua" },
-    { value: "menunggu", label: "Menunggu" },
-    { value: "diterima", label: "Diterima" },
-    { value: "ditolak", label: "Ditolak" },
-    { value: "diverifikasi", label: "Diverifikasi" },
-  ];
-
-  // filtered data (global search across nama, judul, status, tanggal)
-  const filteredData = useMemo(() => {
-    const q = (debouncedSearch || "").trim().toLowerCase();
-    return (pengajuanRanpel || []).filter((p) => {
-      const nama = (p.mahasiswa?.nama ?? "").toLowerCase();
-      const judul = (p.ranpel?.judulPenelitian ?? "").toLowerCase();
-      const status = (p.status ?? "").toLowerCase();
-      const tanggal = (p.tanggalPengajuan ?? "").toString().toLowerCase();
-      const tanggalDitolak = (p.tanggalDitolak ?? "").toString().toLowerCase();
-      const statusMatch =
-        filterStatus === "all" ? true : status === filterStatus;
-      const nim = (p.mahasiswa?.nim ?? "").toLowerCase();
-      const matchSearch =
-        q === "" ||
-        nama.includes(q) ||
-        nim.includes(q) ||
-        judul.includes(q) ||
-        status.includes(q) ||
-        tanggal.includes(q) ||
-        tanggalDitolak.includes(q);
-      return matchSearch && statusMatch;
-    });
-  }, [pengajuanRanpel, debouncedSearch, filterStatus]);
-
-  // table state
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-
-  // handlers
-  const handleLihatClick = React.useCallback((pengajuan: PengajuanRanpel) => {
-    setSelectedPengajuan(pengajuan);
-    setIsPdfOpen(true);
-  }, []);
-  const handleClosePdf = () => {
-    setIsPdfOpen(false);
-    setSelectedPengajuan(null);
-  };
-
-  // columns (mirip mahasiswa)
+  // Define Columns
   const cols: ColumnDef<PengajuanRanpel>[] = React.useMemo(
     () => [
       {
@@ -141,7 +60,7 @@ export default function PengajuanRanpelClient({
         cell: ({ row, table }) => {
           const index =
             (table.getState().pagination?.pageIndex ?? 0) *
-            (table.getState().pagination?.pageSize ?? 10) +
+              (table.getState().pagination?.pageSize ?? 10) +
             row.index +
             1;
           return <div className="text-center">{index}</div>;
@@ -157,11 +76,14 @@ export default function PengajuanRanpelClient({
             className="flex flex-col cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors group"
             onClick={() => {
               if (row.original.mahasiswa?.id) {
-                handleStudentClick(row.original.mahasiswa.id);
+                hook.handleStudentClick(row.original.mahasiswa.id);
               }
             }}
           >
-            <span className="font-medium text-primary group-hover:text-primary/80 transition-colors" title={row.getValue("nama")}>
+            <span
+              className="font-medium text-primary group-hover:text-primary/80 transition-colors"
+              title={row.getValue("nama")}
+            >
               {row.getValue("nama")}
             </span>
             <span className="text-xs text-muted-foreground group-hover:text-gray-600">
@@ -188,13 +110,19 @@ export default function PengajuanRanpelClient({
       {
         accessorFn: (row) => row.tanggalPengajuan ?? "",
         id: "tanggal",
-        header: () => <div className="text-center">Tgl Pengajuan</div>,
+        header: () => (
+          <div className="text-center whitespace-nowrap">Tgl Pengajuan</div>
+        ),
         cell: ({ row }) => {
           const val = row.getValue("tanggal") as string;
           try {
             return (
-              <div className="text-center">
-                {new Date(val).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })}
+              <div className="text-center whitespace-nowrap">
+                {new Date(val).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
               </div>
             );
           } catch {
@@ -205,7 +133,9 @@ export default function PengajuanRanpelClient({
       },
       {
         id: "tanggalKeputusan",
-        header: () => <div className="text-center">Tgl Keputusan</div>,
+        header: () => (
+          <div className="text-center whitespace-nowrap">Tgl Keputusan</div>
+        ),
         cell: ({ row }) => {
           const status = row.original.status;
           let dateVal = null;
@@ -213,12 +143,21 @@ export default function PengajuanRanpelClient({
           if (status === "diterima") dateVal = row.original.tanggalDiterima;
           else if (status === "ditolak") dateVal = row.original.tanggalDitolak;
 
-          if (!dateVal) return <div className="text-center">-</div>;
+          if (!dateVal)
+            return <div className="text-center whitespace-nowrap">-</div>;
 
           try {
-            return <div className="text-center">{new Date(dateVal).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })}</div>;
+            return (
+              <div className="text-center whitespace-nowrap">
+                {new Date(dateVal).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </div>
+            );
           } catch {
-            return <div className="text-center">-</div>;
+            return <div className="text-center whitespace-nowrap">-</div>;
           }
         },
         size: 150,
@@ -239,7 +178,11 @@ export default function PengajuanRanpelClient({
                   : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800";
           return (
             <div className="text-center">
-              <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize border ${cls}`}>{s}</span>
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-medium capitalize border ${cls}`}
+              >
+                {s}
+              </span>
             </div>
           );
         },
@@ -252,16 +195,27 @@ export default function PengajuanRanpelClient({
           const catDosen = row.original.keterangan;
           const catKaprodi = row.original.catatanKaprodi;
 
-          const hasDosen = catDosen && catDosen !== "-" && catDosen.trim() !== "";
-          const hasKaprodi = catKaprodi && catKaprodi !== "-" && catKaprodi.trim() !== "";
+          const hasDosen =
+            catDosen && catDosen !== "-" && catDosen.trim() !== "";
+          const hasKaprodi =
+            catKaprodi && catKaprodi !== "-" && catKaprodi.trim() !== "";
 
-          if (!hasDosen && !hasKaprodi) return <div className="text-center"><span className="text-muted-foreground">-</span></div>;
+          if (!hasDosen && !hasKaprodi)
+            return (
+              <div className="text-center">
+                <span className="text-muted-foreground">-</span>
+              </div>
+            );
 
           return (
             <div className="flex justify-center">
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-primary bg-primary/5 hover:bg-primary/10 hover:text-primary rounded-full">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-primary bg-primary/5 hover:bg-primary/10 hover:text-primary rounded-full"
+                  >
                     <MessageSquareText size={15} />
                   </Button>
                 </DialogTrigger>
@@ -295,7 +249,7 @@ export default function PengajuanRanpelClient({
                   </div>
                 </DialogContent>
               </Dialog>
-            </div >
+            </div>
           );
         },
         size: 80,
@@ -312,7 +266,7 @@ export default function PengajuanRanpelClient({
                 variant="outline"
                 size="sm"
                 className="h-8 w-8 p-0 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary dark:border-primary/30"
-                onClick={() => handleLihatClick(item)}
+                onClick={() => hook.handleLihatClick(item)}
                 title="Lihat Detail"
               >
                 <Eye size={16} />
@@ -323,34 +277,34 @@ export default function PengajuanRanpelClient({
         size: 80,
       },
     ],
-    [handleLihatClick]
+    [hook],
   );
 
   const table = useReactTable({
-    data: filteredData,
+    data: hook.filteredData,
     columns: cols,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: hook.setSorting,
+    onColumnFiltersChange: hook.setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    onColumnVisibilityChange: hook.setColumnVisibility,
+    onRowSelectionChange: hook.setRowSelection,
     state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
+      sorting: hook.sorting,
+      columnFilters: hook.columnFilters,
+      columnVisibility: hook.columnVisibility,
+      rowSelection: hook.rowSelection,
     },
   });
 
   // reset page when filters change
-  useEffect(() => {
+  React.useEffect(() => {
     try {
       table.setPageIndex?.(0);
-    } catch { }
-  }, [debouncedSearch, filterStatus, table]);
+    } catch {}
+  }, [hook.search, hook.filterStatus, table]);
 
   return (
     <>
@@ -361,14 +315,14 @@ export default function PengajuanRanpelClient({
           <SearchInput
             placeholder="Cari Nama, NIM, atau Judul..."
             className="flex-1 w-full md:flex-none md:w-[300px]"
-            value={search}
-            onChange={setSearch}
+            value={hook.search}
+            onChange={hook.setSearch}
             disableUrlParams={true}
           />
 
           <div className="flex items-center gap-2 shrink-0">
             {/* Filter popover */}
-            <Popover open={openFilter} onOpenChange={setOpenFilter}>
+            <Popover open={hook.openFilter} onOpenChange={hook.setOpenFilter}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -388,14 +342,15 @@ export default function PengajuanRanpelClient({
                       key={opt.value}
                       variant="ghost"
                       size="sm"
-                      className={`w-full justify-between h-8 px-2 font-normal ${filterStatus === opt.value
-                        ? "bg-accent text-accent-foreground font-medium"
-                        : ""
-                        }`}
-                      onClick={() => setFilterStatus(opt.value)}
+                      className={`w-full justify-between h-8 px-2 font-normal ${
+                        hook.filterStatus === opt.value
+                          ? "bg-accent text-accent-foreground font-medium"
+                          : ""
+                      }`}
+                      onClick={() => hook.setFilterStatus(opt.value)}
                     >
                       <span className="text-sm">{opt.label}</span>
-                      {filterStatus === opt.value && (
+                      {hook.filterStatus === opt.value && (
                         <Check size={14} className="ml-auto" />
                       )}
                     </Button>
@@ -403,7 +358,6 @@ export default function PengajuanRanpelClient({
                 </ScrollArea>
               </PopoverContent>
             </Popover>
-
           </div>
         </div>
 
@@ -413,23 +367,20 @@ export default function PengajuanRanpelClient({
         </div>
       </DataCard>
 
-
       {/* PDF Preview Modal */}
-      {
-        selectedPengajuan && (
-          <PDFPreviewModal
-            isOpen={isPdfOpen}
-            onClose={handleClosePdf}
-            pengajuan={selectedPengajuan}
-          />
-        )
-      }
+      {hook.selectedPengajuan && (
+        <PDFPreviewModal
+          isOpen={hook.isPdfOpen}
+          onClose={hook.handleClosePdf}
+          pengajuan={hook.selectedPengajuan}
+        />
+      )}
 
       {/* Student Detail Modal */}
       <StudentDetailModal
-        isOpen={isStudentModalOpen}
-        onClose={() => setIsStudentModalOpen(false)}
-        mahasiswaId={selectedStudentId}
+        isOpen={hook.isStudentModalOpen}
+        onClose={hook.handleCloseStudentModal}
+        mahasiswaId={hook.selectedStudentId}
       />
     </>
   );

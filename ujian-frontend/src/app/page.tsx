@@ -8,8 +8,18 @@ export default async function Home() {
 
   // Jika user sudah login (ada token di cookies)
   if (token && user) {
-    // Redirect sesuai role
-    redirect(`/${user.role || "mahasiswa"}/dashboard`);
+    const routes: Record<string, string> = {
+      "super admin": "/super-admin/dashboard",
+      admin: "/admin/dashboard",
+      "admin prodi": "/admin/dashboard",
+      kaprodi: "/kaprodi/dashboard",
+      sekprodi: "/sekprodi/dashboard",
+      dosen: "/dosen/dashboard",
+      mahasiswa: "/mahasiswa/dashboard",
+    };
+
+    const role = user.role || "mahasiswa";
+    redirect(routes[role] || "/login");
   }
 
   // Jika belum login, tetap render halaman login

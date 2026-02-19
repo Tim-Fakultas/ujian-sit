@@ -53,7 +53,7 @@ class SyaratSeeder extends Seeder
                     'Surat Keterangan Lulus Ujian Seminar Proposal',
                     'Bukti lulus ujian BTA (sertifikat BTA)',
                     'Bukti lulus TOEFL >= 400',
-                    'Bukti hafalan 10 surat Juz \'Amma',
+                'Bukti hafalan 10 surat Juz \'Amma',
                     'Ijazah SMA/MA',
                     'Sertifikat KKN',
                     'Bukti hadir dalam seminar proposal',

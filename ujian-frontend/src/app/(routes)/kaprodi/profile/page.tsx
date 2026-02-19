@@ -1,23 +1,25 @@
-import { refreshUserAction } from "@/actions/auth";
+import { getCurrentUserAction } from "@/actions/auth";
 import DosenProfileCard from "../../dosen/profile/DosenProfileCard";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { getDosenBimbinganDetails } from "@/actions/data-master/dosen";
 
 export default async function KaprodiProfilePage() {
-  const user = await refreshUserAction();
+  const { user } = await getCurrentUserAction();
   let bimbinganCount = 0;
 
-  if (user && user.id) {
-    // Kaprodi is also a Dosen, so we can get their bimbingan details
-    // Note: user.id here is dosen.id if refreshed correctly in auth.ts
+  if (user?.id) {
     const bimbinganDetails = await getDosenBimbinganDetails(user.id);
     const mhsBimbinganIds = new Set<number>();
     if (bimbinganDetails) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      bimbinganDetails.pembimbing1?.forEach((m: any) => mhsBimbinganIds.add(m.id));
+      bimbinganDetails.pembimbing1?.forEach((m: any) =>
+        mhsBimbinganIds.add(m.id),
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      bimbinganDetails.pembimbing2?.forEach((m: any) => mhsBimbinganIds.add(m.id));
+      bimbinganDetails.pembimbing2?.forEach((m: any) =>
+        mhsBimbinganIds.add(m.id),
+      );
     }
     bimbinganCount = mhsBimbinganIds.size;
   }

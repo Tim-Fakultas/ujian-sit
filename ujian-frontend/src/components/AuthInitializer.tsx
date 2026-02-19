@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function AuthInitializer() {
-  const { initializeFromCookies, refreshUser } = useAuthStore();
-  
+  const { refreshUser } = useAuthStore();
+  const hasRefreshed = useRef(false);
+
   useEffect(() => {
-    initializeFromCookies();
-    refreshUser(); 
-  }, [initializeFromCookies, refreshUser]);
+    // Hanya refresh sekali saat pertama mount untuk sinkronisasi dengan server
+    if (!hasRefreshed.current) {
+      hasRefreshed.current = true;
+      refreshUser();
+    }
+  }, [refreshUser]);
 
   return null;
 }

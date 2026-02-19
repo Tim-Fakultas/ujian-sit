@@ -8,7 +8,14 @@ import { updateDosen } from "@/actions/data-master/dosen";
 import { User } from "@/types/Auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 const schema = z.object({
   nama: z.string().min(1, "Nama wajib diisi"),
   email: z.string().email("Email tidak valid"),
@@ -23,7 +30,13 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export default function DosenProfileEditForm({ user, onSuccess }: { user: User, onSuccess: (u: User) => void }) {
+export default function DosenProfileEditForm({
+  user,
+  onSuccess,
+}: {
+  user: User;
+  onSuccess: (u: User) => void;
+}) {
   const [loading, setLoading] = useState(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -57,12 +70,22 @@ export default function DosenProfileEditForm({ user, onSuccess }: { user: User, 
     const result = await updateDosen(user.id, payload);
     setLoading(false);
     if (result) {
+      // Sync cookie & store
+      try {
+        const { refreshUserAction } = await import("@/actions/auth");
+        await refreshUserAction();
+
+        const { useAuthStore } = await import("@/stores/useAuthStore");
+        await useAuthStore.getState().refreshUser();
+      } catch (e) {
+        console.error("Failed to sync after profile update:", e);
+      }
+
       onSuccess({ ...user, ...payload });
     } else {
       alert("Gagal update profile dosen.");
     }
   }
-
 
   return (
     <Form {...form}>
@@ -72,81 +95,135 @@ export default function DosenProfileEditForm({ user, onSuccess }: { user: User, 
       >
         {/* Konten Form - Bisa Scroll */}
         <div className="flex-1 overflow-y-auto py-6 px-6 space-y-4">
-          <FormField name="nama" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Lengkap</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
+          <FormField
+            name="nama"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nama Lengkap</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <FormField name="email" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Institusi</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
+          <FormField
+            name="email"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email Institusi</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <FormField name="no_hp" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nomor WhatsApp</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
+          <FormField
+            name="no_hp"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nomor WhatsApp</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <FormField name="tempat_tanggal_lahir" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tempat, Tanggal Lahir</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
+          <FormField
+            name="tempat_tanggal_lahir"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tempat, Tanggal Lahir</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <div className="grid grid-cols-2 gap-4">
-            <FormField name="pangkat" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Pangkat</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              name="pangkat"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Pangkat</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <FormField name="golongan" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Golongan</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              name="golongan"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Golongan</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <FormField name="tmt_fst" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>TMT FST</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              name="tmt_fst"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>TMT FST</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <FormField name="jabatan" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Jabatan Fungsional</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              name="jabatan"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Jabatan Fungsional</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          <FormField name="alamat" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Alamat Domisili</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
+          <FormField
+            name="alamat"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Alamat Domisili</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         {/* Footer - Sticky/Fixed di Bawah */}
@@ -154,7 +231,7 @@ export default function DosenProfileEditForm({ user, onSuccess }: { user: User, 
           <Button
             type="submit"
             size="lg"
-            className="bg-emerald-600 hover:bg-emerald-700 text-white w-full md:w-auto px-10 shadow-lg"
+            className="bg-primary hover:bg-primary/90 text-white w-full md:w-auto px-10 shadow-lg"
             disabled={loading}
           >
             {loading ? "Menyimpan..." : "Simpan Perubahan"}
@@ -162,6 +239,5 @@ export default function DosenProfileEditForm({ user, onSuccess }: { user: User, 
         </div>
       </form>
     </Form>
-
   );
 }

@@ -6,8 +6,7 @@ import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { X, Pencil } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 
-
-import { getAllDosen } from "@/actions/data-master/dosen";
+// getAllDosen import removed
 import SuratPengajuanJudulPDF from "./SuratPengajuanJudulPDF";
 import RancanganPenelitianPDF from "./RancanganPenelitianPDF";
 import Form from "./Form";
@@ -16,72 +15,78 @@ interface PDFPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   pengajuan: PengajuanRanpel;
+  dosenList?: any[];
+  kaprodi?: { nama: string; nip: string };
 }
 
 export default function PDFPreviewModal({
   isOpen,
   onClose,
   pengajuan,
+  dosenList,
+  kaprodi,
 }: PDFPreviewModalProps) {
   const [showDetails, setShowDetails] = React.useState(true);
   const [isEditing, setIsEditing] = React.useState(false);
 
   const [isGeneratingRanpel, setIsGeneratingRanpel] = React.useState(false);
   const [isGeneratingSurat, setIsGeneratingSurat] = React.useState(false);
-  const [kaprodi, setKaprodi] = React.useState<{ nama: string; nip: string } | undefined>(undefined);
-  const [pembimbingDetails, setPembimbingDetails] = React.useState<{
-    p1?: { nip?: string; nidn?: string };
-    p2?: { nip?: string; nidn?: string };
-  }>({});
 
-  React.useEffect(() => {
-    if (isOpen) {
-      const fetchDosenData = async () => {
-        try {
-          const dosenList = await getAllDosen();
-
-          // 1. Get Kaprodi
-          const targetNipClean = "197508012009122001";
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const kaprodiObj = dosenList?.find((d: any) => d.nip && d.nip.replace(/\s/g, "") === targetNipClean);
-
-          if (kaprodiObj) {
-            setKaprodi({ nama: kaprodiObj.nama || "", nip: kaprodiObj.nip || "" });
-          }
-
-          // 2. Get Pembimbing Details
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const p1 = dosenList?.find((d: any) => d.id === pengajuan.mahasiswa.pembimbing1?.id || d.nama === pengajuan.mahasiswa.pembimbing1?.nama);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const p2 = dosenList?.find((d: any) => d.id === pengajuan.mahasiswa.pembimbing2?.id || d.nama === pengajuan.mahasiswa.pembimbing2?.nama);
-
-          setPembimbingDetails({
-            p1: p1 ? { nip: p1.nip || undefined, nidn: p1.nidn || undefined } : undefined,
-            p2: p2 ? { nip: p2.nip || undefined, nidn: p2.nidn || undefined } : undefined,
-          });
-
-        } catch (error) {
-          console.error("Failed to fetch dosen data:", error);
-        }
-      };
-
-      fetchDosenData();
+  const derivedKaprodi = React.useMemo(() => {
+    if (kaprodi) return kaprodi;
+    if (dosenList) {
+      const targetNipClean = "197508012009122001";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const kObj = dosenList.find(
+        (d: any) => d.nip && d.nip.replace(/\s/g, "") === targetNipClean,
+      );
+      if (kObj) return { nama: kObj.nama || "", nip: kObj.nip || "" };
     }
-  }, [isOpen, pengajuan]);
+    return undefined;
+  }, [kaprodi, dosenList]);
+
+  const pembimbingDetails = React.useMemo(() => {
+    if (!dosenList) return {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const p1 = dosenList.find(
+      (d: any) =>
+        d.id === pengajuan.mahasiswa.pembimbing1?.id ||
+        d.nama === pengajuan.mahasiswa.pembimbing1?.nama,
+    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const p2 = dosenList.find(
+      (d: any) =>
+        d.id === pengajuan.mahasiswa.pembimbing2?.id ||
+        d.nama === pengajuan.mahasiswa.pembimbing2?.nama,
+    );
+
+    return {
+      p1: p1
+        ? { nip: p1.nip || undefined, nidn: p1.nidn || undefined }
+        : undefined,
+      p2: p2
+        ? { nip: p2.nip || undefined, nidn: p2.nidn || undefined }
+        : undefined,
+    };
+  }, [dosenList, pengajuan]);
 
   // Fungsi untuk download PDF menggunakan react-pdf/renderer
-
 
   // Fungsi untuk download Rancangan Penelitian PDF
   const handleDownloadRanpel = async () => {
     setIsGeneratingRanpel(true);
     try {
-      const blob = await pdf(<RancanganPenelitianPDF pengajuan={pengajuan} />).toBlob();
+      const blob = await pdf(
+        <RancanganPenelitianPDF pengajuan={pengajuan} />,
+      ).toBlob();
       const pdfBlob = new Blob([blob], { type: "application/pdf" });
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement("a");
       link.href = url;
-      const cleanName = (pengajuan.mahasiswa.nama || "Mahasiswa").replace(/[^a-zA-Z0-9]/g, "_");
+      const cleanName = (pengajuan.mahasiswa.nama || "Mahasiswa").replace(
+        /[^a-zA-Z0-9]/g,
+        "_",
+      );
       link.download = `Rancangan_Penelitian_${cleanName}.pdf`;
       document.body.appendChild(link);
       link.click();
@@ -89,7 +94,7 @@ export default function PDFPreviewModal({
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Gagal mengunduh PDF:", error);
-      alert('Gagal membuat PDF. Silakan coba lagi.');
+      alert("Gagal membuat PDF. Silakan coba lagi.");
     } finally {
       setIsGeneratingRanpel(false);
     }
@@ -99,12 +104,21 @@ export default function PDFPreviewModal({
   const handleDownloadSurat = async () => {
     setIsGeneratingSurat(true);
     try {
-      const blob = await pdf(<SuratPengajuanJudulPDF pengajuan={pengajuan} kaprodi={kaprodi} pembimbingDetails={pembimbingDetails} />).toBlob();
+      const blob = await pdf(
+        <SuratPengajuanJudulPDF
+          pengajuan={pengajuan}
+          kaprodi={derivedKaprodi}
+          pembimbingDetails={pembimbingDetails}
+        />,
+      ).toBlob();
       const pdfBlob = new Blob([blob], { type: "application/pdf" });
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement("a");
       link.href = url;
-      const cleanName = (pengajuan.mahasiswa.nama || "Mahasiswa").replace(/[^a-zA-Z0-9]/g, "_");
+      const cleanName = (pengajuan.mahasiswa.nama || "Mahasiswa").replace(
+        /[^a-zA-Z0-9]/g,
+        "_",
+      );
       link.download = `Surat_Pengajuan_Judul_${cleanName}.pdf`;
       document.body.appendChild(link);
       link.click();
@@ -112,7 +126,7 @@ export default function PDFPreviewModal({
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Gagal mengunduh PDF:", error);
-      alert('Gagal membuat PDF. Silakan coba lagi.');
+      alert("Gagal membuat PDF. Silakan coba lagi.");
     } finally {
       setIsGeneratingSurat(false);
     }
@@ -123,7 +137,10 @@ export default function PDFPreviewModal({
   if (isEditing) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setIsEditing(false)} />
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+          onClick={() => setIsEditing(false)}
+        />
         <div className="relative bg-white dark:bg-[#1f1f1f] rounded-2xl shadow-2xl max-w-4xl w-full h-[90vh] flex flex-col overflow-hidden border dark:border-neutral-800">
           <div className="flex-1 overflow-auto">
             <Form
@@ -139,7 +156,7 @@ export default function PDFPreviewModal({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -149,7 +166,7 @@ export default function PDFPreviewModal({
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
-      <div className="relative bg-white dark:bg-[#1f1f1f] rounded-xl shadow-2xl max-w-full sm:max-w-4xl w-full h-[90vh] flex flex-col overflow-hidden border dark:border-neutral-800">
+      <div className="relative bg-white dark:bg-[#1f1f1f] rounded-xl shadow-2xl max-w-full sm:max-w-6xl w-full h-[90vh] flex flex-col overflow-hidden border dark:border-neutral-800">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b dark:border-neutral-800 bg-white dark:bg-[#1f1f1f] z-10">
           <div className="flex items-center gap-3">
@@ -185,13 +202,19 @@ export default function PDFPreviewModal({
                   title="Edit Rancangan"
                 >
                   <Pencil size={18} />
-                  <span className="text-sm font-medium hidden md:inline-block">Edit Ranpel</span>
+                  <span className="text-sm font-medium hidden md:inline-block">
+                    Edit Ranpel
+                  </span>
                 </button>
                 <button
                   disabled={isGeneratingRanpel}
                   onClick={handleDownloadRanpel}
                   className="flex items-center gap-2 px-3 py-2 bg-primary hover:bg-primary/80 text-white rounded-xl transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-                  title={isGeneratingRanpel ? "Sedang membuat PDF..." : "Download Rancangan Penelitian"}
+                  title={
+                    isGeneratingRanpel
+                      ? "Sedang membuat PDF..."
+                      : "Download Rancangan Penelitian"
+                  }
                 >
                   <svg
                     width="18"
@@ -207,16 +230,19 @@ export default function PDFPreviewModal({
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
-                  <span className="text-sm font-medium hidden md:inline-block">{isGeneratingRanpel ? "Membuat PDF..." : "Download Ranpel"}</span>
+                  <span className="text-sm font-medium hidden md:inline-block">
+                    {isGeneratingRanpel ? "Membuat PDF..." : "Download Ranpel"}
+                  </span>
                 </button>
               </>
             )}
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className={`p-2 rounded-full transition-colors hidden md:block ${showDetails
-                ? "bg-primary/10 text-primary dark:bg-primary/20"
-                : "hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
-                }`}
+              className={`p-2 rounded-full transition-colors hidden md:block ${
+                showDetails
+                  ? "bg-primary/10 text-primary dark:bg-primary/20"
+                  : "hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-500"
+              }`}
               title={
                 showDetails
                   ? "Sembunyikan Panel Kanan"
@@ -288,8 +314,9 @@ export default function PDFPreviewModal({
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={`transition-transform duration-300 ${showDetails ? "rotate-180" : ""
-                    }`}
+                  className={`transition-transform duration-300 ${
+                    showDetails ? "rotate-180" : ""
+                  }`}
                 >
                   <polyline points="18 15 12 9 6 15"></polyline>
                 </svg>
@@ -312,14 +339,15 @@ export default function PDFPreviewModal({
                     </span>
                     <span
                       className={`inline-flex px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wide
-                            ${pengajuan.status === "diterima"
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                          : pengajuan.status === "ditolak"
-                            ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                            : pengajuan.status === "diverifikasi"
-                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                        }
+                            ${
+                              pengajuan.status === "diterima"
+                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                : pengajuan.status === "ditolak"
+                                  ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                  : pengajuan.status === "diverifikasi"
+                                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                                    : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                            }
                          `}
                     >
                       {pengajuan.status}
@@ -335,37 +363,37 @@ export default function PDFPreviewModal({
                           Tanggal Pengajuan
                         </span>
                         <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">
-                          {new Date(pengajuan.tanggalPengajuan).toLocaleDateString(
-                            "id-ID",
-                            {
-                              weekday: "long",
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                            }
-                          )}
+                          {new Date(
+                            pengajuan.tanggalPengajuan,
+                          ).toLocaleDateString("id-ID", {
+                            weekday: "long",
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
                         </span>
                       </div>
                     </div>
 
                     {/* Item 2: Verifikasi Dosen PA */}
                     <div className="relative">
-                      <div className={`absolute -left-[21px] mt-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-neutral-900 ring-2 ${pengajuan.tanggalDiverifikasi ? "bg-blue-500 ring-blue-500/20" : "bg-gray-300 dark:bg-neutral-700 ring-gray-200 dark:ring-neutral-800"}`}></div>
+                      <div
+                        className={`absolute -left-[21px] mt-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-neutral-900 ring-2 ${pengajuan.tanggalDiverifikasi ? "bg-blue-500 ring-blue-500/20" : "bg-gray-300 dark:bg-neutral-700 ring-gray-200 dark:ring-neutral-800"}`}
+                      ></div>
                       <div>
                         <span className="text-xs font-medium text-gray-500 block">
                           Verifikasi Dosen PA
                         </span>
                         {pengajuan.tanggalDiverifikasi ? (
                           <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">
-                            {new Date(pengajuan.tanggalDiverifikasi).toLocaleDateString(
-                              "id-ID",
-                              {
-                                weekday: "long",
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              }
-                            )}
+                            {new Date(
+                              pengajuan.tanggalDiverifikasi,
+                            ).toLocaleDateString("id-ID", {
+                              weekday: "long",
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
                           </span>
                         ) : (
                           <span className="text-sm text-gray-400 italic">
@@ -377,26 +405,29 @@ export default function PDFPreviewModal({
 
                     {/* Item 3: Persetujuan Kaprodi */}
                     <div className="relative">
-                      <div className={`absolute -left-[21px] mt-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-neutral-900 ring-2 ${pengajuan.tanggalDiterima ? "bg-green-500 ring-green-500/20" : "bg-gray-300 dark:bg-neutral-700 ring-gray-200 dark:ring-neutral-800"}`}></div>
+                      <div
+                        className={`absolute -left-[21px] mt-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-neutral-900 ring-2 ${pengajuan.tanggalDiterima ? "bg-green-500 ring-green-500/20" : "bg-gray-300 dark:bg-neutral-700 ring-gray-200 dark:ring-neutral-800"}`}
+                      ></div>
                       <div>
                         <span className="text-xs font-medium text-gray-500 block">
                           Persetujuan Kaprodi
                         </span>
                         {pengajuan.tanggalDiterima ? (
                           <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">
-                            {new Date(pengajuan.tanggalDiterima).toLocaleDateString(
-                              "id-ID",
-                              {
-                                weekday: "long",
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              }
-                            )}
+                            {new Date(
+                              pengajuan.tanggalDiterima,
+                            ).toLocaleDateString("id-ID", {
+                              weekday: "long",
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
                           </span>
                         ) : (
                           <span className="text-sm text-gray-400 italic">
-                            {pengajuan.status === "ditolak" ? "Ditolak" : "Menunggu keputusan"}
+                            {pengajuan.status === "ditolak"
+                              ? "Ditolak"
+                              : "Menunggu keputusan"}
                           </span>
                         )}
                       </div>
@@ -503,8 +534,16 @@ export default function PDFPreviewModal({
                 {/* Print Buttons */}
                 <div className="pt-4 space-y-3">
                   <Button
-                    disabled={isGeneratingSurat || !pengajuan.mahasiswa?.pembimbing1}
-                    title={!pengajuan.mahasiswa?.pembimbing1 ? "Pembimbing belum ditentukan" : (isGeneratingSurat ? "Sedang membuat PDF..." : "Download Surat Pengajuan")}
+                    disabled={
+                      isGeneratingSurat || !pengajuan.mahasiswa?.pembimbing1
+                    }
+                    title={
+                      !pengajuan.mahasiswa?.pembimbing1
+                        ? "Pembimbing belum ditentukan"
+                        : isGeneratingSurat
+                          ? "Sedang membuat PDF..."
+                          : "Download Surat Pengajuan"
+                    }
                     onClick={handleDownloadSurat}
                     className="w-full bg-primary hover:bg-primary/80 text-white border border-transparent dark:bg-primary dark:hover:bg-primary/80 h-10 md:h-12 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                   >
@@ -522,15 +561,16 @@ export default function PDFPreviewModal({
                       <polyline points="7 10 12 15 17 10" />
                       <line x1="12" y1="15" x2="12" y2="3" />
                     </svg>
-                    {isGeneratingSurat ? "Membuat PDF..." : "Download Surat Pengajuan Judul"}
+                    {isGeneratingSurat
+                      ? "Membuat PDF..."
+                      : "Download Surat Pengajuan Judul"}
                   </Button>
-
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }

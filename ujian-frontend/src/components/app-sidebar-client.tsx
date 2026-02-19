@@ -55,6 +55,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       icon: IconBuilding,
       items: [
         { title: "Dosen", url: "/super-admin/dosen" },
+        { title: "User", url: "/super-admin/user" },
         { title: "Mahasiswa", url: "/super-admin/mahasiswa" },
         { title: "Peminatan", url: "/super-admin/peminatan" },
         { title: "Prodi", url: "/super-admin/prodi" },
@@ -67,7 +68,6 @@ export const AppSidebarClient = memo(function AppSidebarClient({
 
   const navAdmin: NavItem[] = [
     { title: "Dashboard", url: "/admin/dashboard", icon: IconHome },
-
     {
       title: "Data Master",
       icon: IconUsers,
@@ -82,8 +82,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       icon: IconClipboardList,
       items: [
         { title: "Jadwal Ujian", url: "/admin/jadwal-ujian" },
-        { title: "Rekapitulasi Nilai", url: "/admin/rekapitulasi-nilai" },
-        { title: "Berita Acara Ujian", url: "/admin/berita-ujian" },
+        { title: "Ujian", url: "/admin/ujian" },
       ],
     },
   ];
@@ -98,8 +97,7 @@ export const AppSidebarClient = memo(function AppSidebarClient({
         { title: "Perbaikan Judul", url: "/sekprodi/perbaikan-judul" },
         { title: "Penjadwalan Ujian", url: "/sekprodi/penjadwalan-ujian" },
         { title: "Jadwal Ujian", url: "/sekprodi/jadwal-ujian" },
-        { title: "Berita Acara Ujian", url: "/sekprodi/berita-ujian" },
-        { title: "Rekapitulasi Nilai", url: "/sekprodi/rekapitulasi-nilai" },
+        { title: "Ujian", url: "/sekprodi/ujian" },
       ],
     },
   ];
@@ -110,9 +108,15 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       title: "Skripsi",
       icon: IconBook,
       items: [
-        { title: "Rancangan Penelitian", url: "/kaprodi/pengajuan-ranpel" },
+        {
+          title: "Pengajuan Rancangan Penelitian",
+          url: "/kaprodi/pengajuan-ranpel",
+        },
         { title: "Jadwal Ujian", url: "/kaprodi/jadwal-ujian" },
-        { title: "Mahasiswa Bimbingan", url: "/kaprodi/mahasiswa-bimbingan" },
+        {
+          title: "Mahasiswa Bimbingan Skripsi",
+          url: "/kaprodi/mahasiswa-bimbingan-skripsi",
+        },
         { title: "Riwayat Perubahan Judul", url: "/kaprodi/riwayat-judul" },
       ],
     },
@@ -124,8 +128,14 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       title: "Skripsi",
       icon: IconBook,
       items: [
-        { title: "Rancangan Penelitian", url: "/dosen/pengajuan-ranpel" },
-        { title: "Mahasiswa Bimbingan", url: "/dosen/mahasiswa-bimbingan" },
+        {
+          title: "Pengajuan Rancangan Penelitian",
+          url: "/dosen/pengajuan-ranpel",
+        },
+        {
+          title: "Mahasiswa Bimbingan Skripsi",
+          url: "/dosen/mahasiswa-bimbingan-skripsi",
+        },
         { title: "Perbaikan Judul", url: "/dosen/riwayat-judul" },
         { title: "Jadwal Ujian", url: "/dosen/jadwal-ujian" },
         { title: "Penilaian Ujian", url: "/dosen/penilaian-ujian" },
@@ -140,7 +150,10 @@ export const AppSidebarClient = memo(function AppSidebarClient({
       title: "Skripsi",
       icon: IconListDetails,
       items: [
-        { title: "Pengajuan Rancangan Penelitian", url: "/mahasiswa/pengajuan-ranpel" },
+        {
+          title: "Pengajuan Rancangan Penelitian",
+          url: "/mahasiswa/pengajuan-ranpel",
+        },
         { title: "Perbaikan judul", url: "/mahasiswa/perbaikan-judul" },
         { title: "Pendaftaran Ujian", url: "/mahasiswa/pendaftaran-ujian" },
         { title: "Jadwal Ujian", url: "/mahasiswa/jadwal-ujian" },
@@ -159,12 +172,12 @@ export const AppSidebarClient = memo(function AppSidebarClient({
   };
 
   const routeKey = Object.keys(routeMap).find((key) =>
-    pathname.startsWith(key)
+    pathname.startsWith(key),
   );
   const navItems = routeKey ? routeMap[routeKey] : navMahasiswa;
 
   return (
-    <Sidebar collapsible="icon" >
+    <Sidebar collapsible="icon">
       {/* Header */}
       {/* Header */}
       <SidebarHeader className="p-4">
@@ -222,7 +235,9 @@ export const AppSidebarClient = memo(function AppSidebarClient({
         <div className="flex flex-col gap-2">
           {isMobile && (
             <div className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-accent/50 transition-colors">
-              <span className="text-xs font-medium text-muted-foreground">Tampilan</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                Tampilan
+              </span>
               <ModeToggle />
             </div>
           )}

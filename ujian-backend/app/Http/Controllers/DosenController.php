@@ -14,8 +14,14 @@ class DosenController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
+        if ($request->has('user_id')) {
+            $userId = $request->query('user_id');
+            $dosen = Dosen::with('prodi')->where('user_id', $userId)->get();
+            return DosenResource::collection($dosen);
+        }
+
         $dosen = Cache::remember('dosen_all', 600, function () {
             return Dosen::with('prodi')->get();
         });
@@ -53,10 +59,24 @@ class DosenController extends Controller
      */
     public function update(UpdateDosenRequest $request, Dosen $dosen)
     {
-        $request->validated();
-        $dosen->update($request->all());
+        $validatedData = $request->validated();
+
+        if ($request->hasFile('ttd')) {
+            // Delete old signature if exists
+            if ($dosen->url_ttd && \Illuminate\Support\Facades\Storage::disk('public')->exists($dosen->url_ttd)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($dosen->url_ttd);
+            }
+
+            $path = $request->file('ttd')->store('signatures', 'public');
+            $validatedData['url_ttd'] = $path;
+        }
+
+        unset($validatedData['ttd']);
+
+        $dosen->update($validatedData);
 
         Cache::forget('dosen_all');
+        Cache::forget("dosen_{$dosen->id}");
 
         return new DosenResource($dosen);
     }
@@ -141,6 +161,7 @@ class DosenController extends Controller
         $mapMahasiswa = function ($m) {
             $latestPengajuan = $m->pengajuanRanpel->sortByDesc('created_at')->first();
             $judul = $latestPengajuan?->ranpel?->judul_penelitian ?? 'Belum ada judul';
+            $ranpelStatus = $latestPengajuan?->status ?? 'Belum mengajukan';
 
             $lulusSkripsi = $m->ujian->contains(function ($u) {
                 $jenis = strtolower($u->jenisUjian->nama_jenis ?? '');
@@ -160,6 +181,8 @@ class DosenController extends Controller
                 'prodi' => $m->prodi->nama ?? '-',
                 'angkatan' => $m->angkatan,
                 'judul' => $judul,
+                'sudah_ranpel' => $latestPengajuan ? true : false,
+                'ranpel_status' => $ranpelStatus,
             ];
         };
 

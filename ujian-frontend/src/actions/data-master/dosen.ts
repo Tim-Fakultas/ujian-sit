@@ -41,7 +41,7 @@ export async function getDosenBimbinganDetails(id: number) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     const response = await fetch(`${apiUrl}/dosen/${id}/bimbingan`, {
-      cache: 'no-store'
+      cache: "no-store",
     });
     if (!response.ok) throw new Error("Failed to fetch details");
     const data = await response.json();
@@ -89,7 +89,7 @@ export async function getDosen(prodiId: number | undefined) {
 
     const data: DosenResponse = await response.json();
     const filteredData: Dosen[] = data.data.filter(
-      (dosen) => dosen.prodi.id === prodiId
+      (dosen) => dosen.prodi.id === prodiId,
     );
     return filteredData;
   } catch (error) {
@@ -110,7 +110,7 @@ export async function updateDosen(
     tmt_fst?: string;
     jabatan?: string;
     foto?: string | null;
-  }
+  },
 ) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
@@ -153,5 +153,32 @@ export async function deleteDosenById(id: number) {
     return await res.json();
   } catch (error) {
     console.error("Error deleting dosen:", error);
+  }
+}
+
+export async function getDosenByUserId(userId: number) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const response = await fetch(`${apiUrl}/dosen?user_id=${userId}`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error("Failed to fetch dosen by user id");
+    }
+
+    const data: DosenResponse = await response.json();
+    // API returns a collection (array) wrapped in data resource, or maybe just array
+    // DosenController index returns DosenResource::collection($dosen)
+    // If wrapping is 'data', then data.data is the array.
+    // Let's assume standard resource structure { data: [...] }
+    if (Array.isArray(data.data) && data.data.length > 0) {
+      return data.data[0];
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching dosen by user id:", error);
+    return null;
   }
 }

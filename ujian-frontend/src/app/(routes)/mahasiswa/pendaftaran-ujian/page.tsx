@@ -1,7 +1,7 @@
 import { getJenisUjian } from "@/actions/data-master/jenisUjian";
 import { getPendaftaranUjianByMahasiswaId } from "@/actions/pendaftaranUjian";
 import { getPengajuanRanpelByMahasiswaIdByStatus } from "@/actions/pengajuanRanpel";
-import PendaftaranTable from "@/components/mahasiswa/pengajuan-ujian/PendaftaranTable";
+import PendaftaranTable from "@/components/mahasiswa/pendaftaran-ujian/PendaftaranTable";
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { Suspense } from "react";
 import Loading from "./loading";
@@ -29,7 +29,7 @@ export default async function DaftarUjianPage() {
     await getPengajuanRanpelByMahasiswaIdByStatus(user?.id);
 
   const ujian: Ujian[] = await getJadwalUjianByMahasiswaIdByHasil(
-    user?.id || 0
+    user?.id || 0,
   );
 
   return (

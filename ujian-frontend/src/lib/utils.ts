@@ -52,17 +52,21 @@ export const getStatusColor = (status: string) => {
   }
 };
 
-
 export function getStorageUrl(path: string | undefined | null) {
   if (!path) return "";
   if (path.startsWith("http")) return path;
 
-  const baseUrl = process.env.NEXT_PUBLIC_STORAGE_URL || "http://localhost:8000";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_STORAGE_URL || "http://localhost:8000";
   // Ensure protocol if missing
   const fullBase = baseUrl.startsWith("http") ? baseUrl : `http://${baseUrl}`;
 
   // Clean slash - path should not start with / if base ends with it, but here base usually doesn't end with slash.
-  const cleanPath = path.startsWith("/") ? path.substring(1) : path;
+  let cleanPath = path.startsWith("/") ? path.substring(1) : path;
+
+  if (cleanPath.startsWith("uploads/") || cleanPath.startsWith("signatures/")) {
+    cleanPath = `storage/${cleanPath}`;
+  }
 
   return `${fullBase}/${cleanPath}`;
 }
@@ -82,7 +86,10 @@ export function getDisplayName(fullName: string | undefined | null): string {
     // Check if first part looks like an initial (ends with dot or is single letter)
     // Common initials: "M.", "A.", "Dr.", "Ir." etc usually end with dot.
     // User specifically asked for M. or A.
-    if (firstPart.endsWith(".") || (firstPart.length === 1 && /^[A-Z]$/.test(firstPart))) {
+    if (
+      firstPart.endsWith(".") ||
+      (firstPart.length === 1 && /^[A-Z]$/.test(firstPart))
+    ) {
       return parts[1];
     }
   }

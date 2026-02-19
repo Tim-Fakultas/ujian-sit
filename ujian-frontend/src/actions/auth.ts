@@ -20,7 +20,7 @@ export async function loginAction(formData: FormData) {
     };
   }
 
-  const { nip_nim, password } = validatedFields.data;
+  const { nip_nim, password, remember } = validatedFields.data;
 
   let data: any = null;
   let res;
@@ -28,8 +28,11 @@ export async function loginAction(formData: FormData) {
   try {
     res = await fetch(`${apiUrl}/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nip_nim, password }),
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ nip_nim, password, remember }),
     });
   } catch (error) {
     console.error("Login fetch error:", error);
@@ -84,17 +87,37 @@ export async function loginAction(formData: FormData) {
   };
 
   const cookieStore = await cookies();
-  cookieStore.set("user", JSON.stringify(normalizedUser), {
-    httpOnly: false,
-    path: "/",
-    maxAge: 60 * 60 * 6,
-  });
+  const maxAge = remember ? 60 * 60 * 24 * 30 : 60 * 60 * 6; // 30 days or 6 hours
 
+  // Token disimpan di httpOnly cookie — aman dari XSS
   cookieStore.set("token", data.access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 6,
+    maxAge: maxAge,
+  });
+
+  // Enrichment: Ambil data lengkap dari tabel relasi (dosen/mahasiswa)
+  let enrichedUser = normalizedUser;
+  try {
+    // Kirim token secara eksplisit karena cookies().get("token") mungkin belum terbaca
+    // tepat setelah cookies().set() dalam satu request yang sama di Server Actions.
+    const freshUser = await refreshUserAction(data.access_token);
+    if (freshUser) {
+      enrichedUser = freshUser;
+    }
+  } catch (e) {
+    console.error("Enrichment during login failed:", e);
+  }
+
+  // User data disimpan di cookie biasa (non-httpOnly) agar bisa dibaca server components
+  cookieStore.set("user", JSON.stringify(enrichedUser), {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: maxAge,
   });
 
   const routes: Record<string, string> = {
@@ -107,21 +130,43 @@ export async function loginAction(formData: FormData) {
     mahasiswa: "/mahasiswa/dashboard",
   };
 
-  return redirect(routes[role] || "/login");
+  // Kembalikan enriched user data ke client agar disimpan di localStorage via Zustand store
+  return {
+    success: true,
+    user: enrichedUser,
+    redirectTo: routes[role] || "/login",
+  };
 }
 
 export async function getCurrentUserAction() {
   const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
   const userCookie = cookieStore.get("user")?.value;
-  const tokenCookie = cookieStore.get("token")?.value;
 
-  if (!userCookie || !tokenCookie) {
+  if (!token) {
     return { user: null, token: null, isAuthenticated: false };
   }
 
+  // Jika cookie user sudah ada, gunakan langsung (cepat)
+  if (userCookie) {
+    try {
+      const user: User = JSON.parse(userCookie);
+      if (user && user.nama) {
+        return { user, token, isAuthenticated: true };
+      }
+    } catch {
+      // Cookie rusak, lanjut ke fallback
+    }
+  }
+
+  // Fallback: fetch data lengkap dari API dan update cookie user
+  // Terjadi saat: session lama (sebelum cookie user di-set), atau cookie user corrupt
   try {
-    const user: User = JSON.parse(userCookie);
-    return { user, token: tokenCookie, isAuthenticated: true };
+    const freshUser = await refreshUserAction();
+    if (freshUser) {
+      return { user: freshUser as User, token, isAuthenticated: true };
+    }
+    return { user: null, token: null, isAuthenticated: false };
   } catch {
     return { user: null, token: null, isAuthenticated: false };
   }
@@ -129,114 +174,179 @@ export async function getCurrentUserAction() {
 
 export async function logoutAction() {
   const cookieStore = await cookies();
-  cookieStore.delete("user");
   cookieStore.delete("token");
+  cookieStore.delete("user");
 
   redirect("/login");
 }
 
-export async function refreshUserAction() {
+export async function refreshUserAction(providedToken?: string) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  const userCookie = cookieStore.get("user")?.value;
+  const token = providedToken || cookieStore.get("token")?.value;
 
-  if (!token || !userCookie) {
+  if (!token) {
     return null;
   }
 
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  // Helper fetcher
+  const fetchWithToken = async (path: string) => {
+    try {
+      const res = await fetch(`${apiUrl}${path}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      });
+      if (!res.ok) return null;
+
+      const text = await res.text();
+      return text ? JSON.parse(text) : null;
+    } catch (e) {
+      console.error("Fetch error:", path, e);
+      return null;
+    }
+  };
+
   try {
-    const staleUser = JSON.parse(userCookie); // User structure from login
-    // Get role safely
+    // Fetch user data dari backend untuk mendapatkan data terbaru
+    const userRes = await fetchWithToken(`/user`);
+    if (!userRes) return null;
+
     const role =
-      staleUser.role ||
-      (staleUser.roles && staleUser.roles.length > 0
-        ? staleUser.roles[0].name
-        : "");
+      typeof userRes.role === "string"
+        ? userRes.role.toLowerCase()
+        : Array.isArray(userRes.roles) && userRes.roles.length > 0
+          ? typeof userRes.roles[0] === "string"
+            ? userRes.roles[0].toLowerCase()
+            : (
+                userRes.roles[0]?.name ||
+                userRes.roles[0]?.nama ||
+                ""
+              ).toLowerCase()
+          : "";
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const normalizedRoles = Array.isArray(userRes.roles)
+      ? userRes.roles.map((r: any, i: number) =>
+          typeof r === "string"
+            ? { id: i + 1, name: r.toLowerCase() }
+            : {
+                id: r.id || i + 1,
+                name: (r.name || r.nama || "").toLowerCase(),
+              },
+        )
+      : [];
 
-    // Helper fetcher
-    const fetchWithToken = async (path: string) => {
-      try {
-        const res = await fetch(`${apiUrl}${path}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-          cache: "no-store",
-        });
-        if (!res.ok) return null;
-
-        const text = await res.text();
-        return text ? JSON.parse(text) : null;
-      } catch (e) {
-        console.error("Fetch error:", path, e);
-        return null;
-      }
+    let newUser: any = {
+      ...userRes,
+      role,
+      roles: normalizedRoles,
+      is_default_password:
+        userRes.is_default_password ?? userRes.isDefaultPassword,
     };
 
-    let newUser: any = { ...staleUser };
-
     if (role === "mahasiswa") {
-      // Logic for Mahasiswa: fetch /mahasiswa/{id} (Note: staleUser.id is the mahasiswa ID)
-      const res = await fetchWithToken(`/mahasiswa/${staleUser.id}`);
-      if (res && res.data) {
-        const m = res.data;
-        // Map Resource fields (camelCase) to Auth fields (snake_case/mixed)
+      const res = await fetchWithToken(`/mahasiswa?user_id=${userRes.id}`);
+      if (res?.data && res.data.length > 0) {
+        const m = res.data[0];
         newUser = {
           ...newUser,
           id: m.id,
           nama: m.nama,
           nim: m.nim,
           no_hp: m.noHp || m.no_hp || m.phone,
-          alamat: m.alamat || m.address,
+          alamat: m.alamat || m.address || m.alamat_domisili,
           semester: m.semester,
           ipk: m.ipk,
           status: m.status,
           angkatan: m.angkatan,
           user_id: m.userId || m.user_id,
-          prodi: m.prodi, // {id, nama} from resource
+          prodi: m.prodi,
           peminatan: m.peminatan,
+          dosen_pa:
+            m.dosenPA || m.dosen_pa || m.dosenPa || m.pembimbing_akademik,
+          pembimbing1: m.pembimbing1 || m.pembimbing_1,
+          pembimbing2: m.pembimbing2 || m.pembimbing_2,
           url_ktm: m.urlKtm || m.url_ktm,
           url_transkrip_nilai: m.urlTranskripNilai || m.url_transkrip_nilai,
-          url_bukti_lulus_metopen: m.urlBuktiLulusMetopen || m.url_bukti_lulus_metopen,
+          url_bukti_lulus_metopen:
+            m.urlBuktiLulusMetopen || m.url_bukti_lulus_metopen,
+          url_sertifikat_bta: m.urlSertifikatBta || m.url_sertifikat_bta,
           email: m.user?.email || newUser.email,
-          // map pembimbing if needed
         };
       }
-    } else if (["dosen", "kaprodi", "sekprodi", "admin prodi", "admin"].includes(role)) {
-      // Logic for Dosen & Staff roles
-      // 1. Try to fetch as Dosen first if they have a Dosen ID (staleUser.id for dosen role is dosen.id)
-      // For Kaprodi/Admin, staleUser.id is user.id, so we might need a different way to find dosen_id
-      // but if the login returned the dosen_id as 'id', it works.
-      // Let's assume if it's 'dosen' role, 'id' is dosen_id.
-      // If it's other roles, 'id' is user_id.
-
-      let res;
+    } else if (
+      ["dosen", "kaprodi", "sekprodi", "admin prodi", "admin"].includes(role)
+    ) {
       if (role === "dosen") {
-        res = await fetchWithToken(`/dosen/${staleUser.id}`);
+        const res = await fetchWithToken(`/dosen?user_id=${userRes.id}`);
+        if (res?.data && res.data.length > 0) {
+          const d = res.data[0];
+          newUser = {
+            ...newUser,
+            id: d.id,
+            nama: d.nama,
+            nidn: d.nidn,
+            nip: d.nip,
+            no_hp: d.noHp || d.no_hp || d.phone,
+            alamat: d.alamat || d.address || d.alamat_domisili,
+            tempat_tanggal_lahir:
+              d.tempatTanggalLahir || d.tempat_tanggal_lahir,
+            pangkat: d.pangkat || d.pangkat_golongan,
+            golongan: d.golongan,
+            jabatan: d.jabatan || d.jabatan_fungsional,
+            tmt_fst: d.tmtFst || d.tmt_fst,
+            foto: d.foto,
+            prodi: d.prodi
+              ? {
+                  ...d.prodi,
+                  nama: d.prodi.nama || d.prodi.nama_prodi || d.prodi.namaProdi,
+                }
+              : newUser.prodi,
+            user_id: d.userId || d.user_id,
+            url_ttd:
+              d.urlTtd ||
+              d.url_ttd ||
+              d.ttd ||
+              d.ttd_path ||
+              d.ttd_url ||
+              d.url_ttd_path ||
+              d.path_ttd,
+          };
+        }
       } else {
-        // Find if this user has a dosen profile
-        // Backend DosenController usually has an index or we can try to find by user_id
-        // Actually, let's just fetch /user first to get user details
-        const userRes = await fetchWithToken(`/user`);
-        if (userRes) {
-          newUser = { ...newUser, ...userRes };
-          // If the backend AuthController.getUserDataByRole returned prodi, it's already there
-          if (userRes.prodi_id && !newUser.prodi) {
-            const prodiRes = await fetchWithToken(`/prodi/${userRes.prodi_id}`);
-            if (prodiRes?.data) {
-              newUser.prodi = {
-                ...prodiRes.data,
-                nama: prodiRes.data.nama || prodiRes.data.namaProdi || prodiRes.data.nama_prodi,
-              };
-            }
+        // Kaprodi, Sekprodi, Admin, etc.
+        // Jika prodi ada tapi tidak punya field 'nama' standar, normalisasi dulu
+        if (newUser.prodi && !newUser.prodi.nama) {
+          newUser.prodi = {
+            ...newUser.prodi,
+            nama:
+              newUser.prodi.nama_prodi ||
+              newUser.prodi.namaProdi ||
+              newUser.prodi.nama,
+          };
+        }
+
+        // Jika prodi belum ada sama sekali, coba ambil dari endpoint prodi
+        if (userRes.prodi_id && (!newUser.prodi || !newUser.prodi.nama)) {
+          const prodiRes = await fetchWithToken(`/prodi/${userRes.prodi_id}`);
+          if (prodiRes?.data) {
+            newUser.prodi = {
+              ...prodiRes.data,
+              nama:
+                prodiRes.data.nama ||
+                prodiRes.data.namaProdi ||
+                prodiRes.data.nama_prodi,
+            };
           }
         }
 
-        // Try to fetch Dosen data if user_id is known
-        const dosenListRes = await fetchWithToken(`/dosen?user_id=${staleUser.user_id || staleUser.id}`);
-        if (dosenListRes && dosenListRes.data && dosenListRes.data.length > 0) {
+        const dosenListRes = await fetchWithToken(
+          `/dosen?user_id=${userRes.id}`,
+        );
+        if (dosenListRes?.data && dosenListRes.data.length > 0) {
           const d = dosenListRes.data[0];
           newUser = {
             ...newUser,
@@ -244,65 +354,46 @@ export async function refreshUserAction() {
             nama: d.nama,
             nidn: d.nidn,
             nip: d.nip,
-            no_hp: d.noHp,
-            alamat: d.alamat,
-            tempat_tanggal_lahir: d.tempatTanggalLahir,
-            pangkat: d.pangkat,
+            no_hp: d.noHp || d.no_hp || d.phone,
+            alamat: d.alamat || d.address || d.alamat_domisili,
+            tempat_tanggal_lahir:
+              d.tempatTanggalLahir || d.tempat_tanggal_lahir,
+            pangkat: d.pangkat || d.pangkat_golongan,
             golongan: d.golongan,
-            jabatan: d.jabatan,
-            tmt_fst: d.tmtFst,
+            jabatan: d.jabatan || d.jabatan_fungsional,
+            tmt_fst: d.tmtFst || d.tmt_fst,
             foto: d.foto,
-            prodi: d.prodi || newUser.prodi,
-            user_id: d.userId,
+            prodi: d.prodi
+              ? {
+                  ...d.prodi,
+                  nama: d.prodi.nama || d.prodi.nama_prodi || d.prodi.namaProdi,
+                }
+              : d.prodi || newUser.prodi,
+            user_id: d.userId || d.user_id,
+            url_ttd:
+              d.urlTtd ||
+              d.url_ttd ||
+              d.ttd ||
+              d.ttd_path ||
+              d.ttd_url ||
+              d.url_ttd_path ||
+              d.path_ttd,
           };
         }
-        return newUser;
-      }
-
-      if (res && res.data) {
-        const d = res.data;
-        newUser = {
-          ...newUser,
-          id: d.id,
-          nama: d.nama,
-          nidn: d.nidn,
-          nip: d.nip,
-          no_hp: d.noHp,
-          alamat: d.alamat,
-          tempat_tanggal_lahir: d.tempatTanggalLahir,
-          pangkat: d.pangkat,
-          golongan: d.golongan,
-          jabatan: d.jabatan,
-          tmt_fst: d.tmtFst,
-          foto: d.foto,
-          prodi: d.prodi,
-          user_id: d.userId,
-        };
-      }
-    } else {
-      // Logic for others
-      const userRes = await fetchWithToken(`/user`);
-      if (userRes) {
-        newUser = { ...newUser, ...userRes };
       }
     }
 
-    // Log the refreshed user data for debugging
-
-    // Refresh the cookie (only works in Server Actions / Route Handlers)
-    // When called from a Server Component during render, cookies().set() throws or warns.
+    // Update cookie user dengan data terbaru
     try {
-      const canSetCookies = !!cookieStore.set;
-      if (canSetCookies) {
-        cookieStore.set("user", JSON.stringify(newUser), {
-          httpOnly: false,
-          path: "/",
-          maxAge: 60 * 60 * 6,
-        });
-      }
-    } catch (e: any) {
-      // Ssssh! We expect this might fail in some Next.js render contexts.
-      // The updated newUser is still returned and used by the caller.
+      cookieStore.set("user", JSON.stringify(newUser), {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 6, // 6 jam
+      });
+    } catch {
+      // Mungkin gagal di beberapa konteks render Next.js, tidak apa-apa
     }
 
     return newUser;
@@ -322,19 +413,22 @@ export async function changePasswordAction(data: any) {
   }
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/change-password`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/change-password`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          current_password: data.current_password,
+          new_password: data.new_password,
+          new_password_confirmation: data.confirm_password,
+        }),
       },
-      body: JSON.stringify({
-        current_password: data.current_password,
-        new_password: data.new_password,
-        new_password_confirmation: data.confirm_password,
-      }),
-    });
+    );
 
     const responseData = await res.json();
 
