@@ -101,9 +101,9 @@ export async function loginAction(formData: FormData) {
   // Enrichment: Ambil data lengkap dari tabel relasi (dosen/mahasiswa)
   let enrichedUser = normalizedUser;
   try {
-    // Kirim token secara eksplisit karena cookies().get("token") mungkin belum terbaca
-    // tepat setelah cookies().set() dalam satu request yang sama di Server Actions.
-    const freshUser = await refreshUserAction(data.access_token);
+    // Kirim token dan maxAge secara eksplisit agar cookie user durasinya
+    // sama dengan cookie token (mempertimbangkan opsi remember).
+    const freshUser = await refreshUserAction(data.access_token, maxAge);
     if (freshUser) {
       enrichedUser = freshUser;
     }
@@ -180,7 +180,10 @@ export async function logoutAction() {
   redirect("/login");
 }
 
-export async function refreshUserAction(providedToken?: string) {
+export async function refreshUserAction(
+  providedToken?: string,
+  maxAge?: number,
+) {
   const cookieStore = await cookies();
   const token = providedToken || cookieStore.get("token")?.value;
 
@@ -384,13 +387,15 @@ export async function refreshUserAction(providedToken?: string) {
     }
 
     // Update cookie user dengan data terbaru
+    // maxAge disamakan dengan cookie token agar tidak expired duluan
+    const cookieMaxAge = maxAge ?? 60 * 60 * 6; // default 6 jam
     try {
       cookieStore.set("user", JSON.stringify(newUser), {
         httpOnly: false,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60 * 6, // 6 jam
+        maxAge: cookieMaxAge,
       });
     } catch {
       // Mungkin gagal di beberapa konteks render Next.js, tidak apa-apa

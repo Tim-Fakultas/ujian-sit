@@ -101,88 +101,93 @@ export default function CatatanDialog({ pengajuan }: CatatanDialogProps) {
           <MessageSquareText size={15} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="flex flex-row items-center justify-between">
-          <DialogTitle>Catatan</DialogTitle>
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden border">
+        <DialogHeader className="px-6 py-4 bg-slate-50 dark:bg-neutral-900 border-b">
+          <div className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
+            <MessageSquareText size={18} />
+            <DialogTitle className="text-lg font-bold">
+              Catatan Peninjauan
+            </DialogTitle>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-4 pt-2">
-          {/* Notes from Dosen PA (Read Only) */}
-          {hasDosen && (
-            <div>
-              <h4 className="font-semibold mb-1.5 text-xs uppercase tracking-wider text-primary flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                Dosen PA
-              </h4>
-              <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                {catDosen}
-              </div>
-            </div>
-          )}
-
-          {/* Notes from Kaprodi (Editable) */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <h4 className="font-semibold text-xs uppercase tracking-wider text-indigo-600 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
-                Kaprodi
-              </h4>
-              {!isEditing && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsEditing(true)}
-                  className="h-6 px-2 text-xs text-muted-foreground hover:text-indigo-600"
-                >
-                  <Edit size={12} className="mr-1" /> Edit
-                </Button>
-              )}
-            </div>
-
-            {isEditing ? (
+        <div className="p-6 bg-white dark:bg-neutral-950">
+          <div className="space-y-6">
+            {/* Notes from Dosen PA (Read Only) */}
+            {hasDosen && (
               <div className="space-y-2">
-                <Textarea
-                  value={catatanKaprodi}
-                  onChange={(e) => setCatatanKaprodi(e.target.value)}
-                  placeholder="Tulis catatan untuk mahasiswa..."
-                  className="min-h-[100px] text-sm bg-white dark:bg-neutral-900"
-                />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCancel}
-                    disabled={isSaving}
-                    className="h-8 text-xs"
-                  >
-                    Batal
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
-                  >
-                    {isSaving ? (
-                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                    ) : (
-                      <Save size={14} className="mr-1" />
-                    )}
-                    Simpan
-                  </Button>
+                <h4 className="font-bold text-[10px] uppercase tracking-widest text-emerald-600">
+                  CATATAN DOSEN PA
+                </h4>
+                <div className="bg-emerald-50/50 dark:bg-emerald-950/20 p-4 rounded-lg border border-emerald-100 dark:border-emerald-900/30 text-sm leading-relaxed text-slate-700 dark:text-slate-300 font-medium">
+                  {catDosen}
                 </div>
               </div>
-            ) : (
-              <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border text-sm leading-relaxed text-gray-700 dark:text-gray-300 min-h-[60px] relative group">
-                {hasKaprodi ? (
-                  pengajuan.catatanKaprodi
-                ) : (
-                  <span className="text-muted-foreground italic text-xs">
-                    Belum ada catatan.
-                  </span>
+            )}
+
+            {/* Notes from Kaprodi (Editable) */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-[10px] uppercase tracking-widest text-indigo-600">
+                  CATATAN KAPRODI
+                </h4>
+                {!isEditing && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                    className="h-7 px-2 text-xs font-bold text-indigo-600 hover:bg-indigo-50"
+                  >
+                    <Edit size={12} className="mr-1" /> Edit
+                  </Button>
                 )}
               </div>
-            )}
+
+              {isEditing ? (
+                <div className="space-y-3">
+                  <Textarea
+                    value={catatanKaprodi}
+                    onChange={(e) => setCatatanKaprodi(e.target.value)}
+                    placeholder="Tulis catatan atau revisi..."
+                    className="min-h-[120px] text-sm bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 rounded-lg p-3 font-medium focus:border-indigo-500"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancel}
+                      disabled={isSaving}
+                      className="h-8 text-xs font-bold px-3"
+                    >
+                      Batal
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleSave}
+                      disabled={isSaving}
+                      className="h-8 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-4"
+                    >
+                      {isSaving ? (
+                        <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                      ) : (
+                        <Save size={14} className="mr-2" />
+                      )}
+                      Simpan
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-slate-50 dark:bg-neutral-900/50 p-4 rounded-lg border border-slate-200 dark:border-neutral-800 text-sm leading-relaxed text-slate-700 dark:text-slate-300 min-h-[60px] font-medium">
+                  {hasKaprodi ? (
+                    pengajuan.catatanKaprodi
+                  ) : (
+                    <span className="text-slate-400 italic text-xs">
+                      Belum ada catatan.
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </DialogContent>

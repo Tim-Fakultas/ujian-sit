@@ -66,19 +66,19 @@ export default function DetailModal({
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
 
-        <div className="overflow-y-auto p-6 scrollbar-thin">
+        <div className="overflow-y-auto scrollbar-thin flex-1 p-6">
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Header Section */}
+              {/* Header Profile Section - Clean academic style */}
               {headerData && (
-                <div className="bg-primary/5 dark:bg-primary/10 p-6 rounded-xl flex flex-col items-center justify-center gap-3 border border-primary/10">
+                <div className="bg-slate-50 dark:bg-neutral-900 p-6 rounded-lg border flex flex-col items-center justify-center gap-3">
                   <div
                     className={cn(
-                      "h-20 w-20 rounded-full flex items-center justify-center text-2xl font-bold shadow-sm border-2 border-white dark:border-neutral-800",
+                      "h-20 w-20 rounded-full flex items-center justify-center text-2xl font-bold border-2 border-white dark:border-neutral-800 shadow-sm",
                       headerData.avatarColor ||
                         "bg-white dark:bg-neutral-800 text-primary",
                     )}
@@ -86,11 +86,11 @@ export default function DetailModal({
                     {headerData.initials || <User className="h-10 w-10" />}
                   </div>
                   <div className="text-center">
-                    <h2 className="font-bold text-xl text-gray-900 dark:text-gray-100">
+                    <h2 className="font-bold text-xl text-slate-900 dark:text-slate-100 uppercase tracking-tight">
                       {headerData.name}
                     </h2>
                     {headerData.subText && (
-                      <p className="text-gray-500 text-sm font-mono mt-1">
+                      <p className="text-slate-500 text-sm font-mono mt-0.5">
                         {headerData.subText}
                       </p>
                     )}
@@ -98,9 +98,9 @@ export default function DetailModal({
                   {headerData.status && (
                     <span
                       className={cn(
-                        "px-3 py-1 rounded-full text-xs font-medium capitalize border",
+                        "px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border",
                         headerData.statusColor ||
-                          "bg-gray-100 text-gray-700 border-gray-200",
+                          "bg-white text-slate-700 border-slate-200",
                       )}
                     >
                       {headerData.status}
@@ -122,7 +122,7 @@ export default function DetailModal({
                           : "col-span-1",
                       )}
                     >
-                      <div className="mt-0.5 text-muted-foreground shrink-0">
+                      <div className="mt-0.5 text-slate-400 shrink-0">
                         {item.icon ? (
                           <item.icon size={18} />
                         ) : (
@@ -130,10 +130,10 @@ export default function DetailModal({
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                           {item.label}
                         </p>
-                        <div className="text-sm font-medium text-foreground break-words">
+                        <div className="text-sm font-semibold text-slate-700 dark:text-slate-200 break-words line-clamp-2">
                           {item.value || "-"}
                         </div>
                       </div>

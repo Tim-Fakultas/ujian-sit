@@ -6,27 +6,29 @@ import PageHeader from "@/components/common/PageHeader";
 import { getPengajuanRanpelByMahasiswaId } from "@/actions/pengajuanRanpel";
 import { getAllDosen } from "@/actions/data-master/dosen";
 
+/**
+ * NIP Kaprodi digunakan untuk mengidentifikasi objek Kaprodi dari daftar dosen
+ * agar data nama dan NIP-nya bisa disertakan dalam surat pengajuan PDF.
+ * Jika Kaprodi berubah, cukup perbarui nilai konstanta ini.
+ */
+const KAPRODI_NIP = "197508012009122001";
+
 export default async function Page() {
   const { user } = await getCurrentUserAction();
-  const userId = user?.id;
 
-  // Fetch data on server
   const [pengajuanData, allDosen] = await Promise.all([
-    userId ? getPengajuanRanpelByMahasiswaId(userId).catch(() => []) : [],
+    user?.id ? getPengajuanRanpelByMahasiswaId(user.id).catch(() => []) : [],
     getAllDosen().catch(() => []),
   ]);
 
-  const data = pengajuanData || [];
-  const dosenList = allDosen || [];
+  const data = pengajuanData ?? [];
+  const dosenList = allDosen ?? [];
 
-  const targetNipClean = "197508012009122001";
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const kaprodiObj = dosenList?.find(
-    (d: any) => d.nip && d.nip.replace(/\s/g, "") === targetNipClean,
+  const kaprodiObj = dosenList.find(
+    (d) => d.nip && String(d.nip).replace(/\s/g, "") === KAPRODI_NIP,
   );
-
   const kaprodi = kaprodiObj
-    ? { nama: kaprodiObj.nama || "", nip: kaprodiObj.nip || "" }
+    ? { nama: kaprodiObj.nama ?? "", nip: kaprodiObj.nip ?? "" }
     : { nama: "", nip: "" };
 
   return (

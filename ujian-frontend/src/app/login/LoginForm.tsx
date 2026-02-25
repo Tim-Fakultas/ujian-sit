@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginAction } from "@/actions/auth";
@@ -18,7 +17,6 @@ import { loginClientSchema, type LoginInput } from "@/lib/validations/auth";
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
   const { setUser } = useAuthStore();
 
   const {
@@ -56,9 +54,11 @@ export default function LoginForm() {
         setUser(result.user as AuthUser);
       }
 
-      // Redirect ke dashboard sesuai role
+      // Gunakan full page navigation (bukan router.push) agar browser
+      // benar-benar mengirim cookie yang baru di-set server sebelum
+      // halaman berikutnya di-render — mencegah race condition.
       if (result.redirectTo) {
-        router.push(result.redirectTo);
+        window.location.href = result.redirectTo;
       }
     });
   };

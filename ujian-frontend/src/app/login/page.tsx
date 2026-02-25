@@ -2,7 +2,6 @@ import Image from "next/image";
 import LoginForm from "./LoginForm";
 import { GraduationCap } from "lucide-react";
 import { FaqModal } from "@/components/common/FaqModal";
-import { CookieWarning } from "@/components/auth/CookieWarning";
 
 export default function LoginPage() {
   return (
@@ -93,10 +92,7 @@ export default function LoginPage() {
             <LoginForm />
 
             <div className="text-center gap-2 flex flex-col items-center -mt-2">
-              <div className="flex gap-2">
-                <FaqModal />
-                <CookieWarning />
-              </div>
+              <FaqModal />
               <p className="text-xs text-zinc-400">
                 &copy; {new Date().getFullYear()} UIN Raden Fatah Palembang
               </p>

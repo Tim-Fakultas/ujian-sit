@@ -164,6 +164,11 @@ export default function PDFPreviewModal({
     user?.roles &&
     (user.roles[0].name === "dosen" || user.roles[0].name === "kaprodi");
 
+  // Kaprodi can only accept/reject if Dosen PA has already verified (status === 'diverifikasi')
+  const isKaprodi = user?.roles?.[0]?.name === "kaprodi";
+  const isStatusMenunggu = pengajuan.status?.toLowerCase() === "menunggu";
+  const isKaprodiBlocked = isKaprodi && isStatusMenunggu;
+
   // State for Dosen PA verification modal
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   // Add state for sidebar toggle
@@ -751,9 +756,9 @@ export default function PDFPreviewModal({
                   </h3>
                   <div className="flex flex-col gap-3">
                     <Button
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white w-full h-10 rounded-xl shadow-lg shadow-emerald-500/20"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white w-full h-10 rounded-xl shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={handleAccept}
-                      disabled={isUpdating}
+                      disabled={isUpdating || isKaprodiBlocked}
                     >
                       {isUpdating
                         ? "Memproses..."
@@ -764,14 +769,40 @@ export default function PDFPreviewModal({
                             ? "Simpan Perubahan"
                             : "Terima & Tentukan Pembimbing"}
                     </Button>
+
                     <Button
                       variant="destructive"
-                      className="w-full h-10 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 dark:bg-red-900/20 dark:hover:bg-red-900/30 dark:text-red-400 dark:border-red-900/50 shadow-none"
+                      className="w-full h-10 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 dark:bg-red-900/20 dark:hover:bg-red-900/30 dark:text-red-400 dark:border-red-900/50 shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={() => setShowRejectModal(true)}
-                      disabled={isUpdating}
+                      disabled={isUpdating || isKaprodiBlocked}
                     >
                       {isUpdating ? "Memproses..." : "Tolak Pengajuan"}
                     </Button>
+
+                    {isKaprodiBlocked && (
+                      <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+                        >
+                          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0-3.42 0z" />
+                          <line x1="12" y1="9" x2="12" y2="13" />
+                          <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        <p className="text-xs font-medium text-amber-700 dark:text-amber-300 leading-relaxed">
+                          Pengajuan harus diverifikasi oleh{" "}
+                          <strong>Dosen PA</strong> terlebih dahulu sebelum
+                          Kaprodi dapat mengambil tindakan (terima atau tolak).
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

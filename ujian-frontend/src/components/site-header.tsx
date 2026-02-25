@@ -23,11 +23,11 @@ export function SiteHeader({ user: serverUser }: { user?: User }) {
 
   const initials = currentUser?.nama
     ? currentUser.nama
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
     : "U";
 
   return (
@@ -73,4 +73,3 @@ export function SiteHeader({ user: serverUser }: { user?: User }) {
     </header>
   );
 }
-

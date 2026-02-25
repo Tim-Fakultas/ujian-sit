@@ -32,7 +32,7 @@ export async function getDashboardStats() {
     console.error("Error fetching dashboard stats:", error);
     return null;
   }
-}
+} 
 
 export async function getKaprodiPengajuanRanpel() {
   try {

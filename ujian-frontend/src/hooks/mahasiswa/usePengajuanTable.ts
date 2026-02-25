@@ -5,122 +5,126 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  SortingState,
-  ColumnFiltersState,
-  VisibilityState,
+  type SortingState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type VisibilityState,
 } from "@tanstack/react-table";
 import { useRouter, useSearchParams } from "next/navigation";
+
 import { PengajuanRanpel } from "@/types/RancanganPenelitian";
 import { deletePengajuanRanpel } from "@/actions/pengajuanRanpel";
 import { showToast } from "@/components/ui/custom-toast";
 
 interface UsePengajuanTableProps {
   data: PengajuanRanpel[];
-  columns: any[]; // Using any[] for columns dependency, actual type definition stays in component or separate file
+  /**
+   * Column definitions are passed in from the component so the hook
+   * remains decoupled from rendering concerns.
+   */
+  columns?: ColumnDef<PengajuanRanpel>[];
 }
 
-export function usePengajuanTable({ data, columns }: UsePengajuanTableProps) {
+/** Checks if a field value matches the search query. */
+function matchesQuery(
+  value: string | null | undefined,
+  query: string,
+): boolean {
+  return (value ?? "").toLowerCase().includes(query);
+}
+
+export function usePengajuanTable({
+  data,
+  columns = [],
+}: UsePengajuanTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialStatus = searchParams.get("status") || "all";
+  const initialStatus = searchParams.get("status") ?? "all";
 
-  // -- State --
+  // ── Search & filter state ──────────────────────────────────────────────────
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState(initialStatus);
+
+  // ── Modal state ────────────────────────────────────────────────────────────
   const [selectedPengajuan, setSelectedPengajuan] =
     useState<PengajuanRanpel | null>(null);
-
-  // Modals
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  // Delete specific
+  // ── Delete state ───────────────────────────────────────────────────────────
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [pengajuanToDelete, setPengajuanToDelete] =
     useState<PengajuanRanpel | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Table state
+  // ── Table sorting / visibility state ──────────────────────────────────────
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  // -- Filter Logic --
+  // ── Derived / filtered data ────────────────────────────────────────────────
   const filteredData = useMemo(() => {
-    const q = (search || "").trim().toLowerCase();
-    return (data || []).filter((p) => {
-      const nama = (p.mahasiswa?.nama ?? "").toLowerCase();
-      const judul = (p.ranpel?.judulPenelitian ?? "").toLowerCase();
-      const status = (p.status ?? "").toLowerCase();
-      const tanggal = (p.tanggalPengajuan ?? "").toString().toLowerCase();
-      const tanggalDiterima = (p.tanggalDiterima ?? "")
-        .toString()
-        .toLowerCase();
-      const tanggalDitolak = (p.tanggalDitolak ?? "").toString().toLowerCase();
+    const q = search.trim().toLowerCase();
 
+    return (data ?? []).filter((p) => {
       const statusMatch =
-        filterStatus === "all" ? true : status === filterStatus;
+        filterStatus === "all" ||
+        (p.status ?? "").toLowerCase() === filterStatus;
 
-      const qEmpty = q === "";
-      const matchesQ =
-        qEmpty ||
-        nama.includes(q) ||
-        judul.includes(q) ||
-        status.includes(q) ||
-        tanggal.includes(q) ||
-        tanggalDiterima.includes(q) ||
-        tanggalDitolak.includes(q);
-      return matchesQ && statusMatch;
+      if (!statusMatch) return false;
+      if (!q) return true;
+
+      return (
+        matchesQuery(p.mahasiswa?.nama, q) ||
+        matchesQuery(p.ranpel?.judulPenelitian, q) ||
+        matchesQuery(p.status, q) ||
+        matchesQuery(p.tanggalPengajuan, q) ||
+        matchesQuery(p.tanggalDiterima, q) ||
+        matchesQuery(p.tanggalDitolak, q)
+      );
     });
   }, [data, search, filterStatus]);
 
-  // -- Handlers --
+  // ── Handlers ───────────────────────────────────────────────────────────────
   const handleLihatClick = useCallback((pengajuan: PengajuanRanpel) => {
     setSelectedPengajuan(pengajuan);
     setIsPdfOpen(true);
   }, []);
 
-  const handleClosePdf = () => {
+  const handleClosePdf = useCallback(() => {
     setIsPdfOpen(false);
     setSelectedPengajuan(null);
-  };
+  }, []);
 
-  const handleOpenForm = () => setIsFormOpen(true);
-  const handleCloseForm = () => setIsFormOpen(false);
+  const handleOpenForm = useCallback(() => setIsFormOpen(true), []);
+  const handleCloseForm = useCallback(() => setIsFormOpen(false), []);
 
   const handleDeleteClick = useCallback((pengajuan: PengajuanRanpel) => {
     setPengajuanToDelete(pengajuan);
     setIsDeleteDialogOpen(true);
   }, []);
 
-  const handleConfirmDelete = async () => {
-    if (
-      !pengajuanToDelete ||
-      !pengajuanToDelete.mahasiswa?.id ||
-      !pengajuanToDelete.id
-    )
-      return;
+  const handleConfirmDelete = useCallback(async () => {
+    const target = pengajuanToDelete;
+    if (!target?.mahasiswa?.id || !target?.id) return;
 
+    setIsDeleting(true);
     try {
-      setIsDeleting(true);
-      await deletePengajuanRanpel(
-        pengajuanToDelete.mahasiswa.id,
-        pengajuanToDelete.id,
-      );
+      await deletePengajuanRanpel(target.mahasiswa.id, target.id);
       showToast.success("Pengajuan berhasil dihapus");
       router.refresh();
       setIsDeleteDialogOpen(false);
       setPengajuanToDelete(null);
     } catch (error) {
-      console.error(error);
+      console.error("[usePengajuanTable] Delete error:", error);
       showToast.error("Gagal menghapus pengajuan");
     } finally {
       setIsDeleting(false);
     }
-  };
+  }, [pengajuanToDelete, router]);
 
-  // -- React Table Instance --
+  // ── Table instance ─────────────────────────────────────────────────────────
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -141,15 +145,20 @@ export function usePengajuanTable({ data, columns }: UsePengajuanTableProps) {
   });
 
   return {
-    // State
+    // Filter state
     search,
     setSearch,
     filterStatus,
     setFilterStatus,
+
+    // Modal state
     selectedPengajuan,
     isPdfOpen,
     isFormOpen,
+
+    // Delete state
     isDeleteDialogOpen,
+    setIsDeleteDialogOpen,
     isDeleting,
 
     // Handlers
@@ -159,7 +168,6 @@ export function usePengajuanTable({ data, columns }: UsePengajuanTableProps) {
     handleCloseForm,
     handleDeleteClick,
     handleConfirmDelete,
-    setIsDeleteDialogOpen, // Exposed for onOpenChange
 
     // Table
     table,

@@ -26,14 +26,25 @@ export default function proxy(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
-  // 1. Redirect ke dashboard jika sudah login dan akses /login
+  // 1. Jika sudah login dan mencoba akses /login, redirect ke dashboard yang sesuai
   if (pathname === "/login") {
     if (token) {
-      // Token ada tapi role tidak diketahui di proxy (user ada di localStorage client)
-      // Redirect ke halaman default, client akan handle redirect ke dashboard yang tepat
-      return NextResponse.redirect(
-        new URL("/mahasiswa/dashboard", request.url),
-      );
+      // Coba baca role dari cookie user untuk redirect yang tepat
+      try {
+        const userCookieRaw = request.cookies.get("user")?.value;
+        if (userCookieRaw) {
+          const userCookie = JSON.parse(decodeURIComponent(userCookieRaw));
+          const role = (userCookie?.role || "").toLowerCase();
+          const dest = dashboardRoutes[role];
+          if (dest) {
+            return NextResponse.redirect(new URL(dest, request.url));
+          }
+        }
+      } catch {
+        // Cookie tidak bisa di-parse, fallback ke root
+      }
+      // Fallback: redirect ke root agar page.tsx yang handle redirect
+      return NextResponse.redirect(new URL("/", request.url));
     }
     return NextResponse.next();
   }
@@ -52,8 +63,6 @@ export default function proxy(request: NextRequest) {
     }
 
     // Token ada — izinkan akses
-    // Role-based guard dilakukan di client/layout level
-    // karena user data ada di localStorage (tidak bisa dibaca proxy)
     return NextResponse.next();
   }
 
