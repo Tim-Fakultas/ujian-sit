@@ -274,29 +274,33 @@ export function ProfileEditDialog({ user }: ProfileEditDialogProps) {
               <div className="space-y-4">
                 <FileUploadCard
                   title="Kartu Tanda Mahasiswa (KTM)"
-                  fileKey="file_ktm"
+                  fileKey="url_ktm"
                   currentUrl={user.url_ktm}
+                  nim={user.nim}
                 />
 
                 <FileUploadCard
                   title="Transkrip Nilai"
                   description="Transkrip nilai terbaru yang sudah divalidasi"
-                  fileKey="file_transkrip_nilai"
+                  fileKey="url_transkrip_nilai"
                   currentUrl={user.url_transkrip_nilai}
+                  nim={user.nim}
                 />
 
                 <FileUploadCard
                   title="Bukti Lulus Metopen"
                   description="Bukti lulus mata kuliah Metodologi Penelitian"
-                  fileKey="file_bukti_lulus_metopen"
+                  fileKey="url_bukti_lulus_metopen"
                   currentUrl={user.url_bukti_lulus_metopen}
+                  nim={user.nim}
                 />
 
                 <FileUploadCard
                   title="Sertifikat BTA"
                   description="Sertifikat Baca Tulis Al-Qur'an"
-                  fileKey="file_sertifikat_bta"
+                  fileKey="url_sertifikat_bta"
                   currentUrl={user.url_sertifikat_bta}
+                  nim={user.nim}
                 />
               </div>
             </div>

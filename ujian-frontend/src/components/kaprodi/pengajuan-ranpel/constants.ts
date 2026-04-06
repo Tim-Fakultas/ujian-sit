@@ -4,9 +4,8 @@ export const MIN_ANGKATAN_YEAR = 2015;
 export const MAX_ANGKATAN_YEAR = new Date().getFullYear() + 1;
 
 export const STATUS_OPTIONS = [
-  { value: "all", label: "Semua", color: "bg-muted-foreground" },
-  { value: "diterima", label: "Diterima", color: "bg-success" },
   { value: "diverifikasi", label: "Diverifikasi", color: "bg-primary" },
+  { value: "diterima", label: "Diterima", color: "bg-success" },
   { value: "ditolak", label: "Ditolak", color: "bg-destructive" },
 ] as const;
 
@@ -18,7 +17,7 @@ export const STATUS_BADGE_CLASS: Record<string, string> = {
 
 export const DEFAULT_FILTERS: FilterState = {
   search: "",
-  status: "all",
+  status: "diverifikasi",
   angkatan: "all",
   dateRange: undefined,
 };

@@ -41,7 +41,7 @@ export function FilterPanel({
   onOpenDatePicker,
 }: FilterPanelProps) {
   const activeCount =
-    (filters.status !== "all" ? 1 : 0) +
+    (filters.status !== "diverifikasi" ? 1 : 0) +
     (filters.angkatan !== "all" ? 1 : 0) +
     (filters.dateRange ? 1 : 0);
 
@@ -75,7 +75,7 @@ export function FilterPanel({
                   size="sm"
                   onClick={() =>
                     onFilterChange({
-                      status: "all",
+                      status: "diverifikasi",
                       angkatan: "all",
                       dateRange: undefined,
                     })
