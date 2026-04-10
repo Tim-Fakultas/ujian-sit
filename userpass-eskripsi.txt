@@ -66,7 +66,7 @@
     Username: kadafi19841023
     Password: muhamad19841023
 
-17. Nama: Muhamad Son Muarie, M.Kom.
+17. Nama: Muhamad Son Muarie, M.------------------------------------------Kom.
     Username: son19851229
     Password: muhamad19851229
 
@@ -101,6 +101,18 @@
 25. Nama: Gina Agiyani, M.Kom.
     Username: gina19940630
     Password: gina19940631
+
+26. Nama: Dr. Jane Doe, M.T. (Kaprodi SI Baru)
+    Username: 198701012015011001
+    Password: password
+
+27. Nama: John Smith, M.Cs. (Sekprodi SI Baru)
+    Username: 198801012015011002
+    Password: password
+
+28. Nama: Alice Johnson, M.Pd. (Dosen Baru)
+    Username: 198901012015011003
+    Password: password
 
 ------------------------------
 INFO MAHASISWA:
