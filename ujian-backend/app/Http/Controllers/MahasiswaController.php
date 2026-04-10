@@ -84,6 +84,10 @@ class MahasiswaController extends Controller
             'user_id',
             'ipk',
             'semester',
+            'url_ktm',
+            'url_transkrip_nilai',
+            'url_bukti_lulus_metopen',
+            'url_sertifikat_bta',
         ]), fn($v) => !is_null($v));
 
         Log::info('DEBUG UPDATE MAHASISWA', [

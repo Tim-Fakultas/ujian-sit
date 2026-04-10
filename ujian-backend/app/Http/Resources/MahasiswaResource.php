@@ -25,6 +25,9 @@ class MahasiswaResource extends JsonResource
             'status' => $this->status,
             'angkatan' => $this->angkatan,
             'urlKtm' => $this->url_ktm,
+            'urlTranskripNilai' => $this->url_transkrip_nilai,
+            'urlBuktiLulusMetopen' => $this->url_bukti_lulus_metopen,
+            'urlSertifikatBta' => $this->url_sertifikat_bta,
             'userId' => $this->user_id,
             'prodi' => $this->prodi ? [
                 'id' => $this->prodi->id,

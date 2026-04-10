@@ -38,6 +38,10 @@ class UpdateMahasiswaRequest extends FormRequest
             'angkatan' => 'sometimes|string|size:4',
             'userId' => 'sometimes|exists:users,id',
             'file_ktm' => 'sometimes|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'url_ktm' => 'sometimes|nullable|url',
+            'url_transkrip_nilai' => 'sometimes|nullable|url',
+            'url_bukti_lulus_metopen' => 'sometimes|nullable|url',
+            'url_sertifikat_bta' => 'sometimes|nullable|url',
         ];
     }
 

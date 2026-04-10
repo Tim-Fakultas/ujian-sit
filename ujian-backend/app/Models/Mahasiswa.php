@@ -30,7 +30,11 @@ class Mahasiswa extends Model
         'pembimbing_2',
         'status',
         'angkatan',
-        'user_id'
+        'user_id',
+        'url_ktm',
+        'url_transkrip_nilai',
+        'url_bukti_lulus_metopen',
+        'url_sertifikat_bta'
     ];
 
     protected $casts = [
