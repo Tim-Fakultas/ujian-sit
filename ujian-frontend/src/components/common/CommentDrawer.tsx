@@ -121,7 +121,7 @@ export default function CommentDrawer({
                             ) : comments.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-40 text-muted-foreground text-sm text-center">
                                     <p>Belum ada komentar untuk bagian ini.</p>
-                                    {user?.role === "dosen" && (
+                                    {user?.role !== "mahasiswa" && (
                                         <p className="text-xs pt-2">Tulis komentar baru di bawah untuk memberikan revisi.</p>
                                     )}
                                 </div>
@@ -139,11 +139,8 @@ export default function CommentDrawer({
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <span className="text-xs font-semibold dark:text-gray-200">
-                                                            {comment.userId === user?.id
-                                                                ? "Anda"
-                                                                : (comment.user.role === 'dosen' ? "Dosen Pembimbing Akademik" : comment.user.name)
-                                                            }
-                                                            {(comment.user.role === 'dosen' && comment.userId !== user?.id) && <span className="ml-1 text-[10px] bg-primary/10 text-primary px-1 py-0.5 rounded">Dosen</span>}
+                                                            {comment.user.name}
+                                                            {comment.user.role !== 'mahasiswa' && <span className="ml-1 text-[10px] bg-primary/10 text-primary px-1 py-0.5 rounded capitalize">{comment.user.role}</span>}
                                                         </span>
                                                         <span className="text-[10px] text-muted-foreground">
                                                             {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: id })}
@@ -151,7 +148,7 @@ export default function CommentDrawer({
                                                     </div>
                                                 </div>
 
-                                                {(!comment.isResolved && user?.role === 'dosen') && (
+                                                {(!comment.isResolved && user?.role !== 'mahasiswa') && (
                                                     <div className="flex items-center gap-1">
                                                         <Button
                                                             size="icon"
@@ -189,7 +186,7 @@ export default function CommentDrawer({
                     </ScrollArea>
                 </div>
 
-                {user?.role === "dosen" ? (
+                {user?.role !== "mahasiswa" ? (
                     <div className="pt-4 mt-auto border-t dark:border-neutral-800">
                         <div className="relative">
                             <Textarea

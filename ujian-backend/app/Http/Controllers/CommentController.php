@@ -37,7 +37,7 @@ class CommentController extends Controller
 
         return response()->json([
             'data' => $comments->map(function ($comment) {
-                $isDosen = $comment->user->hasRole(['dosen', 'kaprodi']) || $comment->user->dosen;
+                $isDosen = $comment->user->hasRole(['dosen', 'kaprodi', 'sekprodi', 'superadmin']) || $comment->user->dosen;
 
                 return [
                     'id'         => $comment->id,
@@ -78,13 +78,12 @@ class CommentController extends Controller
         $targetUserId = $request->userId ?? Auth::id() ?? 1;
         $user = User::findOrFail($targetUserId);
 
-        // Validasi akses: hanya mahasiswa dan dosen yang boleh berkomentar
-        $isMahasiswa = $user->hasRole('mahasiswa');
-        $isDosen = $user->hasRole('dosen') || $user->hasRole('kaprodi') || $user->dosen;
+        // Validasi akses: Hanya dosen yang boleh berkomentar (Mahasiswa hanya boleh baca)
+        $isDosen = $user->hasRole(['dosen', 'kaprodi', 'sekprodi', 'superadmin']) || $user->dosen;
 
-        if (!$isMahasiswa && !$isDosen) {
+        if (!$isDosen) {
             return response()->json([
-                'message' => 'Unauthorized. Hanya Dosen atau Mahasiswa yang dapat berkomentar.',
+                'message' => 'Unauthorized. Hanya Dosen yang dapat memberikan komentar atau revisi.',
             ], 403);
         }
 
