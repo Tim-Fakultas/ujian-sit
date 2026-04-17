@@ -6,12 +6,20 @@ use App\Http\Requests\StoreUjianRequest;
 use App\Http\Requests\UpdateUjianRequest;
 use App\Http\Resources\UjianResource;
 use App\Models\Ujian;
-use App\Models\Dosen;
 
+/**
+ * UjianController — Mengelola data ujian.
+ *
+ * Menyediakan CRUD untuk entity Ujian (Seminar Proposal, Ujian Hasil,
+ * Ujian Skripsi). Termasuk pengelolaan dosen penguji, penjadwalan,
+ * dan penentuan hasil/kelulusan.
+ */
 class UjianController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua ujian beserta relasi terkait.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
@@ -23,37 +31,42 @@ class UjianController extends Controller
             'ruangan',
             'dosenPenguji',
             'keputusan',
-        ])
-            ->get();
+        ])->get();
 
         return UjianResource::collection($ujian);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data ujian baru.
+     *
+     * Jika request mengandung array `penguji`, data dosen penguji
+     * akan disinkronkan ke pivot table `penguji_ujian`.
+     *
+     * @param  StoreUjianRequest  $request
+     * @return UjianResource
      */
     public function store(StoreUjianRequest $request)
     {
-        $request->validated();
-        $ujian = Ujian::create($request->all());
+        $ujian = Ujian::create($request->validated());
 
+        // Sync dosen penguji jika ada
         if ($request->has('penguji')) {
-            $pengujiRequest = $request->penguji;
-            $syncData = collect($pengujiRequest)
+            $syncData = collect($request->penguji)
                 ->mapWithKeys(fn($penguji) => [
-                    $penguji['dosen_id'] => ['peran' => $penguji['peran']]
+                    $penguji['dosen_id'] => ['peran' => $penguji['peran']],
                 ])->toArray();
 
             $ujian->dosenPenguji()->sync($syncData);
-
-
         }
 
         return new UjianResource($ujian);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu ujian beserta seluruh relasi.
+     *
+     * @param  int  $id
+     * @return UjianResource
      */
     public function show($id)
     {
@@ -63,64 +76,65 @@ class UjianController extends Controller
             'mahasiswa',
             'penilaian',
             'ruangan',
-            'dosenPenguji'
-        ])
-            ->findOrFail($id);
+            'dosenPenguji',
+        ])->findOrFail($id);
 
         return new UjianResource($ujian);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data ujian.
+     *
+     * Hanya field yang dikirim yang akan diperbarui (partial update).
+     * Jika `nilai_akhir` diset tanpa `hasil`, maka hasil otomatis
+     * dihitung: >= 70 = "lulus", < 70 = "tidak lulus".
+     *
+     * @param  UpdateUjianRequest  $request
+     * @param  Ujian  $ujian
+     * @return UjianResource
      */
     public function update(UpdateUjianRequest $request, Ujian $ujian)
     {
-        // Ambil hanya field yang dikirim (bukan semua yang lolos validasi)
+        // Ambil hanya field yang dikirim (bukan null)
         $data = array_filter(
             $request->only([
-                'hari_ujian',
-                'jadwal_ujian',
-                'waktu_mulai',
-                'waktu_selesai',
-                'ruangan_id',
-                'hasil',
-                'keputusan_id',
-                'nilai_akhir',
-                'catatan',
+                'hari_ujian', 'jadwal_ujian', 'waktu_mulai', 'waktu_selesai',
+                'ruangan_id', 'hasil', 'keputusan_id', 'nilai_akhir', 'catatan',
             ]),
             fn($value) => !is_null($value)
         );
 
-        // Update hanya field yang dikirim
         $ujian->update($data);
 
-        // Auto-set hasil kalau nilai_akhir dikirim tanpa hasil
+        // Auto-set hasil berdasarkan nilai_akhir jika hasil tidak dikirim
         if (isset($data['nilai_akhir']) && !isset($data['hasil'])) {
             $ujian->update([
                 'hasil' => $data['nilai_akhir'] >= 70 ? 'lulus' : 'tidak lulus',
             ]);
         }
 
+        // Sync dosen penguji jika ada
         if ($request->has('penguji')) {
-            $pengujiRequest = $request->penguji;
-            // Sync penguji
             $syncData = [];
-            foreach ($pengujiRequest as $item) {
+            foreach ($request->penguji as $item) {
                 $syncData[$item['dosen_id']] = ['peran' => $item['peran']];
             }
             $ujian->dosenPenguji()->sync($syncData);
-
-
         }
 
         return new UjianResource(
-            $ujian->load(['pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa', 'ruangan', 'penilaian', 'dosenPenguji'])
+            $ujian->load([
+                'pendaftaranUjian.ranpel', 'jenisUjian', 'mahasiswa',
+                'ruangan', 'penilaian', 'dosenPenguji',
+            ])
         );
     }
 
-
     /**
-     * Remove the specified resource from storage.
+     * Hapus data ujian.
+     *
+     * @param  Ujian  $ujian
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Ujian $ujian)
     {
@@ -129,6 +143,14 @@ class UjianController extends Controller
         return response()->json(['message' => 'Ujian berhasil dihapus.'], 200);
     }
 
+    /**
+     * Tampilkan daftar ujian milik mahasiswa tertentu.
+     *
+     * Mendukung filter berdasarkan `nama_jenis` (jenis ujian) via query parameter.
+     *
+     * @param  int  $id  ID Mahasiswa
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function getByMahasiswa($id)
     {
         $ujian = Ujian::with([

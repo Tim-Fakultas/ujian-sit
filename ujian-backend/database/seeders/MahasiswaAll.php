@@ -65,42 +65,62 @@ class MahasiswaAll extends Seeder
         $allMahasiswa = [];
 
         foreach ($json as $angkatan => $mahasiswas) {
+            // Skip angkatan 2020 and older
+            if ((int)$angkatan < 2021) {
+                continue;
+            }
+
             foreach ($mahasiswas as $mhs) {
+                // Skip NIM starting with 20 or older (prefix check)
+                $nimPrefix = substr($mhs['nim'], 0, 2);
+                if (is_numeric($nimPrefix) && (int)$nimPrefix < 21) {
+                    continue;
+                }
+
                 $start = Carbon::createFromDate((int)$angkatan, 7, 1);
                 $months = $start->diffInMonths($now);
                 $semester = intdiv($months, 6) + 1;
                 $semester = max(1, min($semester, 14));
 
-                // Buat user untuk setiap mahasiswa
-                $user = User::create([
-                    'nip_nim' => $mhs['nim'],
-                    'nama' => Str::title($mhs['nama']),
-                    'email' => $mhs['nim'] . '@radenfatah.ac.id',
-                    'password' => bcrypt($mhs['nim']),
-                    'prodi_id' => $mhs['prodi_id'] ?? 1,
-                ]);
+                // Buat atau ambil user yang sudah ada (skip jika duplikat)
+                $user = User::firstOrCreate(
+                    ['nip_nim' => $mhs['nim']],
+                    [
+                        'nama'     => Str::title($mhs['nama']),
+                        'email'    => $mhs['nim'] . '@radenfatah.ac.id',
+                        'password' => bcrypt($mhs['nim']),
+                        'prodi_id' => $mhs['prodi_id'] ?? 1,
+                    ]
+                );
 
-                // Assign role mahasiswa
-                $user->assignRole('mahasiswa');
+                // Assign role mahasiswa (idempotent — tidak duplikat)
+                if (!$user->hasRole('mahasiswa')) {
+                    $user->assignRole('mahasiswa');
+                }
+
+                // Skip jika mahasiswa sudah ada di tabel
+                if (DB::table('mahasiswa')->where('nim', $mhs['nim'])->exists()) {
+                    continue;
+                }
 
                 // Buat record mahasiswa
                 $allMahasiswa[] = [
-                    'nim' => $mhs['nim'],
-                    'nama' => Str::title($mhs['nama']),
-                    'no_hp' => null,
-                    'alamat' => null,
-                    'prodi_id' => $mhs['prodi_id'] ?? 1,
-                    'peminatan_id' => null,
-                    'semester' => $semester,
-                    'ipk' => round(fake()->randomFloat(2, 2.00, 4.00), 2),
-                    'dosen_pa' => $dosenPAData[$mhs['nim']] ?? null,
-                    'pembimbing_1' => null,
-                    'pembimbing_2' => null,
-                    'status' => 'aktif',
-                    'angkatan' => $angkatan,
-                    'user_id' => $user->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'nim'           => $mhs['nim'],
+                    'nama'          => Str::title($mhs['nama']),
+                    'no_hp'         => null,
+                    'alamat'        => null,
+                    'prodi_id'      => $mhs['prodi_id'] ?? 1,
+                    'peminatan_id'  => null,
+                    'semester'      => $semester,
+                    'ipk'           => round(fake()->randomFloat(2, 2.00, 4.00), 2),
+                    'dosen_pa'      => $dosenPAData[$mhs['nim']] ?? null,
+                    'pembimbing_1'  => null,
+                    'pembimbing_2'  => null,
+                    'status'        => 'aktif',
+                    'angkatan'      => $angkatan,
+                    'user_id'       => $user->id,
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
                 ];
             }
         }

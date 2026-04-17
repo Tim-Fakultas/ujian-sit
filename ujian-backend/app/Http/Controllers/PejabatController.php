@@ -7,52 +7,64 @@ use App\Http\Requests\UpdatePejabatRequest;
 use App\Http\Resources\PejabatResource;
 use App\Models\Pejabat;
 
+/**
+ * PejabatController — Mengelola data pejabat struktural.
+ */
 class PejabatController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua pejabat.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        $pejabat = Pejabat::all();
-
-        return PejabatResource::collection($pejabat);
+        return PejabatResource::collection(Pejabat::all());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data pejabat baru.
+     *
+     * @param  StorePejabatRequest  $request
+     * @return PejabatResource
      */
     public function store(StorePejabatRequest $request)
     {
-        $request->validated();
-        $pejabat = Pejabat::create($request->all());
+        $pejabat = Pejabat::create($request->validated());
 
         return new PejabatResource($pejabat);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu pejabat.
+     *
+     * @param  int  $id
+     * @return PejabatResource
      */
     public function show($id)
     {
-        $pejabat = Pejabat::findOrFail($id);
-
-        return new PejabatResource($pejabat);
+        return new PejabatResource(Pejabat::findOrFail($id));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data pejabat.
+     *
+     * @param  UpdatePejabatRequest  $request
+     * @param  Pejabat  $pejabat
+     * @return PejabatResource
      */
     public function update(UpdatePejabatRequest $request, Pejabat $pejabat)
     {
-        $request->validated();
-        $pejabat->update($request->all());
+        $pejabat->update($request->validated());
 
         return new PejabatResource($pejabat);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus data pejabat.
+     *
+     * @param  Pejabat  $pejabat
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Pejabat $pejabat)
     {

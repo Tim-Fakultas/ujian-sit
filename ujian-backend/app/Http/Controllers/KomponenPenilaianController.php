@@ -7,56 +7,73 @@ use App\Http\Requests\UpdateKomponenPenilaianRequest;
 use App\Http\Resources\KomponenPenilaianResource;
 use App\Models\KomponenPenilaian;
 
+/**
+ * KomponenPenilaianController — Mengelola komponen penilaian ujian.
+ *
+ * Setiap jenis ujian memiliki komponen penilaian dengan bobot tertentu
+ * (contoh: Isi Materi 30%, Presentasi 20%, dll).
+ */
 class KomponenPenilaianController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua komponen penilaian.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        $komponenPenilaian = KomponenPenilaian::with(['jenisUjian'])->get();
-
-        return KomponenPenilaianResource::collection($komponenPenilaian);
+        return KomponenPenilaianResource::collection(
+            KomponenPenilaian::with('jenisUjian')->get()
+        );
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan komponen penilaian baru.
+     *
+     * @param  StoreKomponenPenilaianRequest  $request
+     * @return KomponenPenilaianResource
      */
     public function store(StoreKomponenPenilaianRequest $request)
     {
-        $request->validated();
-        $komponenPenilaian = KomponenPenilaian::create($request->all());
+        $komponenPenilaian = KomponenPenilaian::create($request->validated());
 
         return new KomponenPenilaianResource($komponenPenilaian);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu komponen penilaian.
+     *
+     * @param  int  $id
+     * @return KomponenPenilaianResource
      */
     public function show($id)
     {
-        $komponenPenilaian = KomponenPenilaian::with(['jenisUjian'])->findOrFail($id);
-
-        return new KomponenPenilaianResource($komponenPenilaian);
+        return new KomponenPenilaianResource(
+            KomponenPenilaian::with('jenisUjian')->findOrFail($id)
+        );
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update komponen penilaian (hanya nama, deskripsi, bobot).
+     *
+     * @param  UpdateKomponenPenilaianRequest  $request
+     * @param  KomponenPenilaian  $komponenPenilaian
+     * @return KomponenPenilaianResource
      */
     public function update(UpdateKomponenPenilaianRequest $request, KomponenPenilaian $komponenPenilaian)
     {
-        $request->validated();
         $komponenPenilaian->update($request->only([
-            'nama_komponen',
-            'deskripsi',
-            'bobot',
+            'nama_komponen', 'deskripsi', 'bobot',
         ]));
 
         return new KomponenPenilaianResource($komponenPenilaian);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus komponen penilaian.
+     *
+     * @param  KomponenPenilaian  $komponenPenilaian
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(KomponenPenilaian $komponenPenilaian)
     {

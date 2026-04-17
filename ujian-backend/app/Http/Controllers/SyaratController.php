@@ -2,16 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreSyaratRequest;
 use App\Http\Requests\UpdateSyaratRequest;
 use App\Http\Resources\SyaratResource;
 use App\Models\Syarat;
+use Illuminate\Http\Request;
 
+/**
+ * SyaratController — Mengelola data syarat ujian.
+ *
+ * Setiap jenis ujian memiliki syarat yang harus dipenuhi mahasiswa.
+ * Mendukung filter berdasarkan `jenis_ujian_id`.
+ */
 class SyaratController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar syarat. Mendukung filter `jenis_ujian_id`.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index(Request $request)
     {
@@ -21,45 +30,54 @@ class SyaratController extends Controller
             $query->where('jenis_ujian_id', $request->jenis_ujian_id);
         }
 
-        $syarat = $query->get();
-
-        return SyaratResource::collection($syarat);
+        return SyaratResource::collection($query->get());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan syarat baru.
+     *
+     * @param  StoreSyaratRequest  $request
+     * @return SyaratResource
      */
     public function store(StoreSyaratRequest $request)
     {
-        $request->validated();
-        $syarat = Syarat::create($request->all());
+        $syarat = Syarat::create($request->validated());
 
         return new SyaratResource($syarat);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu syarat.
+     *
+     * @param  int  $id
+     * @return SyaratResource
      */
     public function show($id)
     {
-        $syarat = Syarat::with(['jenisUjian', 'pemenuhanSyarat'])->findOrFail($id);
-
-        return new SyaratResource($syarat);
+        return new SyaratResource(
+            Syarat::with(['jenisUjian', 'pemenuhanSyarat'])->findOrFail($id)
+        );
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data syarat.
+     *
+     * @param  UpdateSyaratRequest  $request
+     * @param  Syarat  $syarat
+     * @return SyaratResource
      */
     public function update(UpdateSyaratRequest $request, Syarat $syarat)
     {
-        $request->validated();
-        $syarat->update($request->all());
+        $syarat->update($request->validated());
 
         return new SyaratResource($syarat);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus syarat.
+     *
+     * @param  Syarat  $syarat
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Syarat $syarat)
     {

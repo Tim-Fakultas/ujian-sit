@@ -7,52 +7,71 @@ use App\Http\Requests\UpdatePemenuhanSyaratRequest;
 use App\Http\Resources\PemenuhanSyaratResource;
 use App\Models\PemenuhanSyarat;
 
+/**
+ * PemenuhanSyaratController — Mengelola verifikasi pemenuhan syarat ujian.
+ *
+ * Setiap pendaftaran ujian memiliki daftar syarat yang harus dipenuhi.
+ * Controller ini mengelola status pemenuhan tiap syarat.
+ */
 class PemenuhanSyaratController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua pemenuhan syarat.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaranUjian', 'syarat'])->get();
-
-        return PemenuhanSyaratResource::collection($pemenuhanSyarat);
+        return PemenuhanSyaratResource::collection(
+            PemenuhanSyarat::with(['pendaftaranUjian', 'syarat'])->get()
+        );
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan pemenuhan syarat baru.
+     *
+     * @param  StorePemenuhanSyaratRequest  $request
+     * @return PemenuhanSyaratResource
      */
     public function store(StorePemenuhanSyaratRequest $request)
     {
-        $request->validated();
-        $pemenuhanSyarat = PemenuhanSyarat::create($request->all());
+        $pemenuhanSyarat = PemenuhanSyarat::create($request->validated());
 
         return new PemenuhanSyaratResource($pemenuhanSyarat);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu pemenuhan syarat.
+     *
+     * @param  int  $id
+     * @return PemenuhanSyaratResource
      */
     public function show($id)
     {
-        $pemenuhanSyarat = PemenuhanSyarat::with(['pendaftaranUjian', 'syarat'])->findOrFail($id);
-
-        return new PemenuhanSyaratResource($pemenuhanSyarat);
+        return new PemenuhanSyaratResource(
+            PemenuhanSyarat::with(['pendaftaranUjian', 'syarat'])->findOrFail($id)
+        );
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update pemenuhan syarat.
+     *
+     * @param  UpdatePemenuhanSyaratRequest  $request
+     * @param  PemenuhanSyarat  $pemenuhanSyarat
+     * @return PemenuhanSyaratResource
      */
     public function update(UpdatePemenuhanSyaratRequest $request, PemenuhanSyarat $pemenuhanSyarat)
     {
-        $request->validated();
-        $pemenuhanSyarat->update($request->all());
+        $pemenuhanSyarat->update($request->validated());
 
         return new PemenuhanSyaratResource($pemenuhanSyarat);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus pemenuhan syarat.
+     *
+     * @param  PemenuhanSyarat  $pemenuhanSyarat
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(PemenuhanSyarat $pemenuhanSyarat)
     {

@@ -6,12 +6,21 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * CheckRole — Middleware untuk memeriksa role pengguna.
+ *
+ * Penggunaan di route: `->middleware('role:admin')` atau `->middleware('role:kaprodi')`
+ * Menggunakan Spatie Permission `hasRole()` untuk validasi.
+ */
 class CheckRole
 {
     /**
-     * Handle an incoming request.
+     * Periksa apakah user yang login memiliki role yang diperlukan.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Request  $request
+     * @param  Closure  $next
+     * @param  string   $role  Nama role yang diizinkan
+     * @return Response
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {

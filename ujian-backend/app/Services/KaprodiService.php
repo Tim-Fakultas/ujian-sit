@@ -4,14 +4,23 @@ namespace App\Services;
 
 use App\Models\PengajuanRanpel;
 use App\Models\Ujian;
-use Illuminate\Support\Facades\DB;
 
+/**
+ * KaprodiService — Service layer untuk operasi Ketua Program Studi.
+ *
+ * Mengenkapsulasi business logic yang terkait dengan:
+ * - Pengajuan ranpel (approve/reject/catatan)
+ * - Jadwal ujian per prodi
+ * - Statistik dashboard Kaprodi
+ */
 class KaprodiService
 {
     /**
-     * Get Pengajuan Ranpel by Prodi ID
+     * Ambil daftar pengajuan ranpel berdasarkan prodi.
      *
-     * @param int $prodiId
+     * Diurutkan: status "menunggu" di atas, lalu berdasarkan tanggal terbaru.
+     *
+     * @param  int  $prodiId
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getPengajuanByProdi(int $prodiId)
@@ -24,18 +33,16 @@ class KaprodiService
             'mahasiswa.pembimbing1',
             'mahasiswa.pembimbing2',
         ])
-        ->whereHas('mahasiswa', function ($query) use ($prodiId) {
-            $query->where('prodi_id', $prodiId);
-        })
-        ->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak')")
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->whereHas('mahasiswa', fn($q) => $q->where('prodi_id', $prodiId))
+            ->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak')")
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     /**
-     * Get Jadwal Ujian by Prodi ID
+     * Ambil jadwal ujian berdasarkan prodi.
      *
-     * @param int $prodiId
+     * @param  int  $prodiId
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getJadwalUjianByProdi(int $prodiId)
@@ -44,54 +51,52 @@ class KaprodiService
             'mahasiswa.user',
             'mahasiswa.prodi',
             'dosenPenguji',
-            'dosenPembimbing1',
-            'dosenPembimbing2',
             'ruangan',
-            'jenisUjian'
+            'jenisUjian',
         ])
-        ->whereHas('mahasiswa', function ($query) use ($prodiId) {
-            $query->where('prodi_id', $prodiId);
-        })
-        ->orderBy('waktu_mulai', 'desc')
-        ->get();
+            ->whereHas('mahasiswa', fn($q) => $q->where('prodi_id', $prodiId))
+            ->orderBy('waktu_mulai', 'desc')
+            ->get();
     }
 
     /**
-     * Get Dashboard Stats for Kaprodi
+     * Ambil statistik dashboard Kaprodi.
      *
-     * @param int $prodiId
-     * @return array
+     * @param  int  $prodiId
+     * @return array{pengajuan_menunggu: int, ujian_akan_datang: int}
      */
-    public function getDashboardStats(int $prodiId)
+    public function getDashboardStats(int $prodiId): array
     {
-        $pengajuanCount = PengajuanRanpel::whereHas('mahasiswa', function ($query) use ($prodiId) {
-            $query->where('prodi_id', $prodiId);
-        })->where('status', 'menunggu')->count();
+        $pengajuanCount = PengajuanRanpel::whereHas(
+            'mahasiswa',
+            fn($q) => $q->where('prodi_id', $prodiId)
+        )->where('status', 'menunggu')->count();
 
-        $ujianUpcomingCount = Ujian::whereHas('mahasiswa', function ($query) use ($prodiId) {
-            $query->where('prodi_id', $prodiId);
-        })->where('waktu_mulai', '>', now())->count();
+        $ujianUpcomingCount = Ujian::whereHas(
+            'mahasiswa',
+            fn($q) => $q->where('prodi_id', $prodiId)
+        )->where('waktu_mulai', '>', now())->count();
 
         return [
             'pengajuan_menunggu' => $pengajuanCount,
-            'ujian_akan_datang' => $ujianUpcomingCount,
+            'ujian_akan_datang'  => $ujianUpcomingCount,
         ];
     }
 
     /**
-     * Approve Pengajuan
+     * Setujui pengajuan ranpel.
      *
-     * @param int $id
-     * @param string|null $catatan
-     * @return bool
+     * @param  int          $id       ID Pengajuan Ranpel
+     * @param  string|null  $catatan  Catatan dari Kaprodi
+     * @return bool  false jika pengajuan tidak ditemukan
      */
-    public function approvePengajuan(int $id, ?string $catatan = null)
+    public function approvePengajuan(int $id, ?string $catatan = null): bool
     {
         $pengajuan = PengajuanRanpel::find($id);
         if (!$pengajuan) return false;
 
         $pengajuan->update([
-            'status' => 'diterima',
+            'status'          => 'diterima',
             'catatan_kaprodi' => $catatan,
             'tanggal_diterima' => now(),
         ]);
@@ -100,19 +105,19 @@ class KaprodiService
     }
 
     /**
-     * Reject Pengajuan
+     * Tolak pengajuan ranpel.
      *
-     * @param int $id
-     * @param string|null $catatan
-     * @return bool
+     * @param  int          $id       ID Pengajuan Ranpel
+     * @param  string|null  $catatan  Alasan penolakan
+     * @return bool  false jika pengajuan tidak ditemukan
      */
-    public function rejectPengajuan(int $id, ?string $catatan = null)
+    public function rejectPengajuan(int $id, ?string $catatan = null): bool
     {
         $pengajuan = PengajuanRanpel::find($id);
         if (!$pengajuan) return false;
 
         $pengajuan->update([
-            'status' => 'ditolak',
+            'status'          => 'ditolak',
             'catatan_kaprodi' => $catatan,
             'tanggal_ditolak' => now(),
         ]);
@@ -121,20 +126,18 @@ class KaprodiService
     }
 
     /**
-     * Update Catatan Kaprodi
+     * Update catatan Kaprodi pada pengajuan ranpel.
      *
-     * @param int $id
-     * @param string|null $catatan
-     * @return bool
+     * @param  int          $id       ID Pengajuan Ranpel
+     * @param  string|null  $catatan  Catatan baru
+     * @return bool  false jika pengajuan tidak ditemukan
      */
-    public function updateCatatan(int $id, ?string $catatan = null)
+    public function updateCatatan(int $id, ?string $catatan = null): bool
     {
         $pengajuan = PengajuanRanpel::find($id);
         if (!$pengajuan) return false;
 
-        $pengajuan->update([
-            'catatan_kaprodi' => $catatan,
-        ]);
+        $pengajuan->update(['catatan_kaprodi' => $catatan]);
 
         return true;
     }

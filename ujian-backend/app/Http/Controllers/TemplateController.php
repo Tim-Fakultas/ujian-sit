@@ -7,52 +7,71 @@ use App\Http\Requests\UpdateTemplateRequest;
 use App\Http\Resources\TemplateResource;
 use App\Models\Template;
 
+/**
+ * TemplateController — Mengelola data template dokumen.
+ *
+ * Template digunakan untuk generate dokumen ujian
+ * (Berita Acara, Daftar Hadir, dll) per jenis ujian.
+ */
 class TemplateController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua template beserta jenis ujian.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        $template = Template::with(['jenisUjian'])->get();
-
-        return TemplateResource::collection($template);
+        return TemplateResource::collection(
+            Template::with('jenisUjian')->get()
+        );
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan template baru.
+     *
+     * @param  StoreTemplateRequest  $request
+     * @return TemplateResource
      */
     public function store(StoreTemplateRequest $request)
     {
-        $request->validated();
-        $template = Template::create($request->all());
+        $template = Template::create($request->validated());
 
         return new TemplateResource($template);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu template.
+     *
+     * @param  int  $id
+     * @return TemplateResource
      */
     public function show($id)
     {
-        $template = Template::with(['jenisUjian'])->findOrFail($id);
-
-        return new TemplateResource($template);
+        return new TemplateResource(
+            Template::with('jenisUjian')->findOrFail($id)
+        );
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data template.
+     *
+     * @param  UpdateTemplateRequest  $request
+     * @param  Template  $template
+     * @return TemplateResource
      */
     public function update(UpdateTemplateRequest $request, Template $template)
     {
-        $request->validated();
-        $template->update($request->all());
+        $template->update($request->validated());
 
         return new TemplateResource($template);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus template.
+     *
+     * @param  Template  $template
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Template $template)
     {

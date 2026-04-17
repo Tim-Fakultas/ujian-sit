@@ -7,53 +7,64 @@ use App\Http\Requests\UpdateFakultasRequest;
 use App\Http\Resources\FakultasResource;
 use App\Models\Fakultas;
 
+/**
+ * FakultasController — Mengelola data fakultas.
+ */
 class FakultasController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua fakultas.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        $fakultas = Fakultas::all();
-
-        return FakultasResource::collection($fakultas);
+        return FakultasResource::collection(Fakultas::all());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data fakultas baru.
+     *
+     * @param  StoreFakultasRequest  $request
+     * @return FakultasResource
      */
     public function store(StoreFakultasRequest $request)
     {
-        $request->validated();
-        $fakultas = Fakultas::create($request->all());
+        $fakultas = Fakultas::create($request->validated());
 
         return new FakultasResource($fakultas);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu fakultas.
+     *
+     * @param  int  $id
+     * @return FakultasResource
      */
     public function show($id)
     {
-        $fakultas = Fakultas::findOrFail($id);
-
-        return new FakultasResource($fakultas);
+        return new FakultasResource(Fakultas::findOrFail($id));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data fakultas.
+     *
+     * @param  UpdateFakultasRequest  $request
+     * @param  Fakultas  $fakultas
+     * @return FakultasResource
      */
     public function update(UpdateFakultasRequest $request, Fakultas $fakultas)
     {
-        $verif = $request->validated();
-        $fakultas->update($verif);
-        $fakultas->refresh();
+        $fakultas->update($request->validated());
 
-        return new FakultasResource($fakultas);
+        return new FakultasResource($fakultas->refresh());
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus data fakultas.
+     *
+     * @param  Fakultas  $fakultas
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Fakultas $fakultas)
     {

@@ -3,18 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Models\Comment;
-use App\Models\PengajuanRanpel;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * CommentController — Mengelola komentar revisi pada proposal penelitian.
+ *
+ * Dosen (PA/pembimbing/kaprodi) dan mahasiswa dapat memberikan komentar
+ * pada section tertentu dari proposal pengajuan ranpel.
+ * Komentar dapat di-resolve untuk menandai bahwa revisi telah selesai.
+ */
 class CommentController extends Controller
 {
+    /**
+     * Tampilkan daftar komentar berdasarkan proposal dan section.
+     *
+     * @param  Request  $request  Harus berisi: proposal_id, section_id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         $request->validate([
             'proposal_id' => 'required|exists:pengajuan_ranpel,id',
-            'section_id' => 'required|string',
+            'section_id'  => 'required|string',
         ]);
 
         $comments = Comment::with('user', 'proposal.mahasiswa')
@@ -25,93 +37,92 @@ class CommentController extends Controller
 
         return response()->json([
             'data' => $comments->map(function ($comment) {
-                // Determine logic: 
-                // Checks if user has 'dosen' role. 
-                // OR checks if the user corresponds to the 'dosen_pa' or pembimbing of the student for additional robustness.
-    
                 $isDosen = $comment->user->hasRole(['dosen', 'kaprodi']) || $comment->user->dosen;
 
                 return [
-                    'id' => $comment->id,
+                    'id'         => $comment->id,
                     'proposalId' => $comment->proposal_id,
-                    'sectionId' => $comment->section_id,
-                    'userId' => $comment->user_id,
-                    'message' => $comment->message,
+                    'sectionId'  => $comment->section_id,
+                    'userId'     => $comment->user_id,
+                    'message'    => $comment->message,
                     'isResolved' => $comment->is_resolved,
-                    'createdAt' => $comment->created_at,
-                    'user' => [
-                        'id' => $comment->user->id,
+                    'createdAt'  => $comment->created_at,
+                    'user'       => [
+                        'id'   => $comment->user->id,
                         'name' => $comment->user->nama ?? 'Unknown',
                         'role' => $isDosen ? 'dosen' : ($comment->user->roles->first()->name ?? 'user'),
-                    ]
+                    ],
                 ];
-            })
+            }),
         ]);
     }
 
+    /**
+     * Simpan komentar baru pada section proposal.
+     *
+     * Hanya dosen (termasuk kaprodi) dan mahasiswa yang diizinkan.
+     * Jika `userId` tidak dikirim, menggunakan user yang sedang login.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         $request->validate([
             'proposalId' => 'required|exists:pengajuan_ranpel,id',
-            'sectionId' => 'required|string',
-            'message' => 'required|string',
-            'userId' => 'nullable|exists:users,id'
+            'sectionId'  => 'required|string',
+            'message'    => 'required|string',
+            'userId'     => 'nullable|exists:users,id',
         ]);
 
         $targetUserId = $request->userId ?? Auth::id() ?? 1;
         $user = User::findOrFail($targetUserId);
 
-        // Access Control Logic: Only "Dosen Pembimbing" (role: dosen) can post revisions (unless it is the student themselves?)
-        // The requirement says: "Hanya user dengan role 'Dosen Pembimbing' yang bisa mengirim data". 
-        // We assume Students also need to reply, but the restriction specifically asked for Dosen Pembimbing validation.
-        // Let's assume if the user is NOT a student, they MUST be a Dosen.
-
+        // Validasi akses: hanya mahasiswa dan dosen yang boleh berkomentar
         $isMahasiswa = $user->hasRole('mahasiswa');
-        $isDosen = $user->hasRole('dosen');
-
-        // If user is Kaprodi but NOT Dosen, they should be blocked?
-        // But if they are Kaprodi AND Dosen, they are allowed (isDosen will be true).
+        $isDosen = $user->hasRole('dosen') || $user->hasRole('kaprodi') || $user->dosen;
 
         if (!$isMahasiswa && !$isDosen) {
-            // Check if user has 'kaprodi' role, as they often act as supervisors too.
-            if ($user->hasRole('kaprodi') || $user->dosen) {
-                $isDosen = true;
-            } else {
-                return response()->json(['message' => 'Unauthorized. Only Dosen or Mahasiswa can comment.'], 403);
-            }
+            return response()->json([
+                'message' => 'Unauthorized. Hanya Dosen atau Mahasiswa yang dapat berkomentar.',
+            ], 403);
         }
 
         $comment = Comment::create([
             'proposal_id' => $request->proposalId,
-            'section_id' => $request->sectionId,
-            'user_id' => $user->id,
-            'message' => $request->message,
+            'section_id'  => $request->sectionId,
+            'user_id'     => $user->id,
+            'message'     => $request->message,
             'is_resolved' => false,
         ]);
 
         $comment->load('user');
 
-        $roleResponse = $isDosen ? 'dosen' : ($user->roles->first()->name ?? 'user');
-
         return response()->json([
             'success' => true,
-            'data' => [
-                'id' => $comment->id,
+            'data'    => [
+                'id'         => $comment->id,
                 'proposalId' => $comment->proposal_id,
-                'sectionId' => $comment->section_id,
-                'userId' => $comment->user_id,
-                'message' => $comment->message,
+                'sectionId'  => $comment->section_id,
+                'userId'     => $comment->user_id,
+                'message'    => $comment->message,
                 'isResolved' => $comment->is_resolved,
-                'createdAt' => $comment->created_at,
-                'user' => [
-                    'id' => $comment->user->id,
+                'createdAt'  => $comment->created_at,
+                'user'       => [
+                    'id'   => $comment->user->id,
                     'name' => $comment->user->nama ?? 'Unknown',
-                    'role' => $roleResponse,
-                ]
-            ]
+                    'role' => $isDosen ? 'dosen' : ($user->roles->first()->name ?? 'user'),
+                ],
+            ],
         ]);
     }
 
+    /**
+     * Tandai komentar sebagai resolved (revisi selesai).
+     *
+     * @param  int  $id  ID Komentar
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function resolve($id)
     {
         $comment = Comment::findOrFail($id);
@@ -120,6 +131,12 @@ class CommentController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Hapus komentar.
+     *
+     * @param  int  $id  ID Komentar
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy($id)
     {
         $comment = Comment::findOrFail($id);

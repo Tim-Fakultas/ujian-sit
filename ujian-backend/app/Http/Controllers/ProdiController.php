@@ -7,52 +7,64 @@ use App\Http\Requests\UpdateProdiRequest;
 use App\Http\Resources\ProdiResource;
 use App\Models\Prodi;
 
+/**
+ * ProdiController — Mengelola data program studi.
+ */
 class ProdiController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua prodi beserta fakultas.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        $prodi = Prodi::with('fakultas')->get();
-
-        return ProdiResource::collection($prodi);
+        return ProdiResource::collection(Prodi::with('fakultas')->get());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data prodi baru.
+     *
+     * @param  StoreProdiRequest  $request
+     * @return ProdiResource
      */
     public function store(StoreProdiRequest $request)
     {
-        $request->validated();
-        $prodi = Prodi::create($request->all());
+        $prodi = Prodi::create($request->validated());
 
         return new ProdiResource($prodi);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu prodi.
+     *
+     * @param  int  $id
+     * @return ProdiResource
      */
     public function show($id)
     {
-        $prodi = Prodi::findOrFail($id);
-
-        return new ProdiResource($prodi);
+        return new ProdiResource(Prodi::findOrFail($id));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data prodi.
+     *
+     * @param  UpdateProdiRequest  $request
+     * @param  Prodi  $prodi
+     * @return ProdiResource
      */
     public function update(UpdateProdiRequest $request, Prodi $prodi)
     {
-        $request->validated();
-        $prodi->update($request->all());
+        $prodi->update($request->validated());
 
         return new ProdiResource($prodi);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus data prodi.
+     *
+     * @param  Prodi  $prodi
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Prodi $prodi)
     {

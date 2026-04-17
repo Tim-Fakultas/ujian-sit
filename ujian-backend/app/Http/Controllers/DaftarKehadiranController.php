@@ -7,36 +7,45 @@ use App\Http\Requests\UpdateDaftarKehadiranRequest;
 use App\Http\Resources\DaftarKehadiranResource;
 use App\Models\DaftarKehadiran;
 
+/**
+ * DaftarKehadiranController — Mengelola daftar kehadiran ujian.
+ *
+ * Mencatat kehadiran dosen (penguji/pembimbing) pada saat ujian berlangsung.
+ */
 class DaftarKehadiranController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua kehadiran beserta ujian dan dosen.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        $daftarKehadiran = DaftarKehadiran::with(['ujian', 'dosen'])->get();
-        return DaftarKehadiranResource::collection($daftarKehadiran);
+        return DaftarKehadiranResource::collection(
+            DaftarKehadiran::with(['ujian', 'dosen'])->get()
+        );
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data kehadiran baru.
+     *
+     * @param  StoreDaftarKehadiranRequest  $request
+     * @return DaftarKehadiranResource
      */
     public function store(StoreDaftarKehadiranRequest $request)
     {
-        $request->validated();
-        $daftarKehadiran = request()->only([
-            'ujian_id',
-            'dosen_id',
-            'status_kehadiran',
-            'keterangan',
-        ]);
-        $daftarHadir = DaftarKehadiran::create($daftarKehadiran);
+        $daftarHadir = DaftarKehadiran::create($request->only([
+            'ujian_id', 'dosen_id', 'status_kehadiran', 'keterangan',
+        ]));
 
         return new DaftarKehadiranResource($daftarHadir);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu kehadiran.
+     *
+     * @param  DaftarKehadiran  $daftar_hadir
+     * @return DaftarKehadiranResource
      */
     public function show(DaftarKehadiran $daftar_hadir)
     {
@@ -44,24 +53,29 @@ class DaftarKehadiranController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data kehadiran.
+     *
+     * @param  UpdateDaftarKehadiranRequest  $request
+     * @param  DaftarKehadiran  $daftar_hadir
+     * @return DaftarKehadiranResource
      */
     public function update(UpdateDaftarKehadiranRequest $request, DaftarKehadiran $daftar_hadir)
     {
-        $data = $request->validated();
-        $daftar_hadir->update($data);
+        $daftar_hadir->update($request->validated());
 
         return new DaftarKehadiranResource($daftar_hadir);
     }
 
-
-
     /**
-     * Remove the specified resource from storage.
+     * Hapus data kehadiran.
+     *
+     * @param  DaftarKehadiran  $daftar_hadir
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(DaftarKehadiran $daftar_hadir)
     {
         $daftar_hadir->delete();
-        return response()->json(['message' => 'Daftar kehadiran deleted successfully.'], 200);
+
+        return response()->json(['message' => 'Daftar kehadiran berhasil dihapus.'], 200);
     }
 }

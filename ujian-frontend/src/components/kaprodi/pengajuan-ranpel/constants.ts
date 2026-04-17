@@ -4,6 +4,7 @@ export const MIN_ANGKATAN_YEAR = 2015;
 export const MAX_ANGKATAN_YEAR = new Date().getFullYear() + 1;
 
 export const STATUS_OPTIONS = [
+  { value: "menunggu", label: "Menunggu", color: "bg-amber-500" },
   { value: "diverifikasi", label: "Diverifikasi", color: "bg-primary" },
   { value: "diterima", label: "Diterima", color: "bg-success" },
   { value: "ditolak", label: "Ditolak", color: "bg-destructive" },

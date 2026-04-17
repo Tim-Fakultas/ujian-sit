@@ -7,77 +7,86 @@ use App\Http\Requests\UpdateRuanganRequest;
 use App\Http\Resources\RuanganResource;
 use App\Models\Ruangan;
 
+/**
+ * RuanganController — Mengelola data ruangan ujian.
+ *
+ * Menyediakan CRUD untuk entity Ruangan yang digunakan
+ * untuk penjadwalan lokasi ujian.
+ */
 class RuanganController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua ruangan beserta prodi terkait.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
         $ruangan = Ruangan::with('prodi')->get();
+
         return RuanganResource::collection($ruangan);
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    // public function create()
-    // {
-    //     //
-    // }
-
-    /**
-     * Store a newly created resource in storage.
+     * Simpan data ruangan baru.
+     *
+     * @param  StoreRuanganRequest  $request
+     * @return RuanganResource
      */
     public function store(StoreRuanganRequest $request)
     {
         $request->validated();
-        $ruangan = $request->only([
-            'prodi_id',
-            'nama_ruangan',
-        ]);
-        $ruangan = Ruangan::create($ruangan);
-        return new RuanganResource($ruangan);
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Ruangan $ruangan)
-    {
-        $ranpel = Ruangan::findOrFail($ruangan->id);
-        return new RuanganResource($ranpel);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Ruangan $ruangan)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateRuanganRequest $request, Ruangan $ruangan)
-    {
-        $validated = $request->validated();
-        $ruangan_only = array_filter($request->only([
+        $ruangan = Ruangan::create($request->only([
             'prodi_id',
             'nama_ruangan',
         ]));
-        $ruangan->update($ruangan_only);
 
         return new RuanganResource($ruangan);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Tampilkan detail satu ruangan.
+     *
+     * @param  Ruangan  $ruangan
+     * @return RuanganResource
+     */
+    public function show(Ruangan $ruangan)
+    {
+        return new RuanganResource($ruangan);
+    }
+
+    /**
+     * Update data ruangan.
+     *
+     * @param  UpdateRuanganRequest  $request
+     * @param  Ruangan  $ruangan
+     * @return RuanganResource
+     */
+    public function update(UpdateRuanganRequest $request, Ruangan $ruangan)
+    {
+        $request->validated();
+
+        $data = array_filter($request->only([
+            'prodi_id',
+            'nama_ruangan',
+        ]));
+
+        $ruangan->update($data);
+
+        return new RuanganResource($ruangan);
+    }
+
+    /**
+     * Hapus data ruangan.
+     *
+     * @param  Ruangan  $ruangan
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Ruangan $ruangan)
     {
         $ruangan->delete();
+
         return response()->json(['message' => 'Ruangan berhasil dihapus.'], 200);
     }
 }

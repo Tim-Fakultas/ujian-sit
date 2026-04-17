@@ -7,52 +7,64 @@ use App\Http\Requests\UpdateSkripsiRequest;
 use App\Http\Resources\SkripsiResource;
 use App\Models\Skripsi;
 
+/**
+ * SkripsiController — Mengelola data skripsi.
+ */
 class SkripsiController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua skripsi.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        $skripsi = Skripsi::all();
-
-        return SkripsiResource::collection($skripsi);
+        return SkripsiResource::collection(Skripsi::all());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data skripsi baru.
+     *
+     * @param  StoreSkripsiRequest  $request
+     * @return SkripsiResource
      */
     public function store(StoreSkripsiRequest $request)
     {
-        $request->validated();
-        $skripsi = Skripsi::create($request->all());
+        $skripsi = Skripsi::create($request->validated());
 
         return new SkripsiResource($skripsi);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu skripsi.
+     *
+     * @param  int  $id
+     * @return SkripsiResource
      */
     public function show($id)
     {
-        $skripsi = Skripsi::findOrFail($id);
-
-        return new SkripsiResource($skripsi);
+        return new SkripsiResource(Skripsi::findOrFail($id));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data skripsi.
+     *
+     * @param  UpdateSkripsiRequest  $request
+     * @param  Skripsi  $skripsi
+     * @return SkripsiResource
      */
     public function update(UpdateSkripsiRequest $request, Skripsi $skripsi)
     {
-        $request->validated();
-        $skripsi->update($request->all());
+        $skripsi->update($request->validated());
 
         return new SkripsiResource($skripsi);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus data skripsi.
+     *
+     * @param  Skripsi  $skripsi
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Skripsi $skripsi)
     {

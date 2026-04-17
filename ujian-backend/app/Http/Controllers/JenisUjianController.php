@@ -7,52 +7,66 @@ use App\Http\Requests\UpdateJenisUjianRequest;
 use App\Http\Resources\JenisUjianResource;
 use App\Models\JenisUjian;
 
+/**
+ * JenisUjianController — Mengelola data jenis ujian.
+ *
+ * Jenis ujian: Seminar Proposal, Ujian Hasil, Ujian Skripsi.
+ */
 class JenisUjianController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua jenis ujian.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        $jenisUjian = JenisUjian::all();
-
-        return JenisUjianResource::collection($jenisUjian);
+        return JenisUjianResource::collection(JenisUjian::all());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan jenis ujian baru.
+     *
+     * @param  StoreJenisUjianRequest  $request
+     * @return JenisUjianResource
      */
     public function store(StoreJenisUjianRequest $request)
     {
-        $request->validated();
-        $jenisUjian = JenisUjian::create($request->all());
+        $jenisUjian = JenisUjian::create($request->validated());
 
         return new JenisUjianResource($jenisUjian);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu jenis ujian.
+     *
+     * @param  int  $id
+     * @return JenisUjianResource
      */
     public function show($id)
     {
-        $jenisUjian = JenisUjian::findOrFail($id);
-
-        return new JenisUjianResource($jenisUjian);
+        return new JenisUjianResource(JenisUjian::findOrFail($id));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data jenis ujian.
+     *
+     * @param  UpdateJenisUjianRequest  $request
+     * @param  JenisUjian  $jenisUjian
+     * @return JenisUjianResource
      */
     public function update(UpdateJenisUjianRequest $request, JenisUjian $jenisUjian)
     {
-        $request->validated();
-        $jenisUjian->update($request->all());
+        $jenisUjian->update($request->validated());
 
         return new JenisUjianResource($jenisUjian);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus jenis ujian.
+     *
+     * @param  JenisUjian  $jenisUjian
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(JenisUjian $jenisUjian)
     {

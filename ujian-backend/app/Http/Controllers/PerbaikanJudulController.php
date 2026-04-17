@@ -7,58 +7,74 @@ use App\Http\Requests\UpdatePerbaikanJudulRequest;
 use App\Http\Resources\PerbaikanJudulResource;
 use App\Models\PerbaikanJudul;
 use App\Models\Ranpel;
-use DB;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
+/**
+ * PerbaikanJudulController — Mengelola perbaikan judul penelitian.
+ *
+ * Mahasiswa dapat mengajukan perubahan judul dari judul yang sudah
+ * diterima sebelumnya. Dosen PA/pembimbing dapat menyetujui atau menolak.
+ * Jika diterima, judul di tabel ranpel otomatis di-update agar sinkron.
+ */
 class PerbaikanJudulController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua perbaikan judul.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
         $perbaikan = PerbaikanJudul::with(['mahasiswa', 'ranpel'])->get();
+
         return PerbaikanJudulResource::collection($perbaikan);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan pengajuan perbaikan judul baru.
+     *
+     * Judul lama diambil otomatis dari perbaikan terakhir yang diterima,
+     * atau dari judul awal di tabel ranpel jika belum ada perbaikan.
+     * Mendukung upload berkas pendukung.
+     *
+     * @param  StorePerbaikanJudulRequest  $request
+     * @return PerbaikanJudulResource|\Illuminate\Http\JsonResponse
      */
     public function store(StorePerbaikanJudulRequest $request)
     {
         try {
             return DB::transaction(function () use ($request) {
                 $data = $request->validated();
+                $ranpel = Ranpel::findOrFail($data['ranpel_id']);
 
-                $ranpelId = $data['ranpel_id'];
-                $mahasiswaId = $data['mahasiswa_id'];
-
-                $ranpel = Ranpel::findOrFail($ranpelId);
-
+                // Cari judul lama: dari perbaikan terakhir yang diterima, atau judul asal
                 $terakhirDiterima = PerbaikanJudul::query()
-                    ->where('ranpel_id', $ranpelId)
-                    ->where('mahasiswa_id', $mahasiswaId)
+                    ->where('ranpel_id', $data['ranpel_id'])
+                    ->where('mahasiswa_id', $data['mahasiswa_id'])
                     ->where('status', 'diterima')
                     ->orderByDesc('tanggal_perbaikan')
                     ->orderByDesc('id')
                     ->first();
 
-                $judul_lama = $terakhirDiterima?->judul_baru ?? $ranpel->judul_penelitian;
+                $judulLama = $terakhirDiterima?->judul_baru ?? $ranpel->judul_penelitian;
 
+                // Upload berkas pendukung
                 $path = null;
                 if ($request->hasFile('berkas')) {
                     $path = $request->file('berkas')->store('uploads/perbaikan_judul', 'public');
                 }
 
                 $perbaikan = PerbaikanJudul::create([
-                    'ranpel_id' => $ranpel->id,
-                    'mahasiswa_id' => $mahasiswaId,
-                    'judul_lama' => $judul_lama,
-                    'judul_baru' => $data['judul_baru'],
-                    'berkas' => $path,
-                    'status' => 'menunggu',
-                    'tanggal_perbaikan' => now()
+                    'ranpel_id'         => $ranpel->id,
+                    'mahasiswa_id'      => $data['mahasiswa_id'],
+                    'judul_lama'        => $judulLama,
+                    'judul_baru'        => $data['judul_baru'],
+                    'berkas'            => $path,
+                    'status'            => 'menunggu',
+                    'tanggal_perbaikan' => now(),
                 ]);
+
                 return new PerbaikanJudulResource(
                     $perbaikan->load(['mahasiswa', 'ranpel'])
                 );
@@ -66,14 +82,16 @@ class PerbaikanJudulController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Gagal menyimpan perbaikan judul.',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
-
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu perbaikan judul.
+     *
+     * @param  PerbaikanJudul  $perbaikanJudul
+     * @return PerbaikanJudulResource
      */
     public function show(PerbaikanJudul $perbaikanJudul)
     {
@@ -81,7 +99,15 @@ class PerbaikanJudulController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update perbaikan judul.
+     *
+     * Saat status diubah ke "diterima":
+     * - Otomatis set `tanggal_diterima`
+     * - Sinkronkan judul baru ke tabel ranpel
+     *
+     * @param  UpdatePerbaikanJudulRequest  $request
+     * @param  PerbaikanJudul  $perbaikanJudul
+     * @return PerbaikanJudulResource|\Illuminate\Http\JsonResponse
      */
     public function update(UpdatePerbaikanJudulRequest $request, PerbaikanJudul $perbaikanJudul)
     {
@@ -89,73 +115,77 @@ class PerbaikanJudulController extends Controller
             return DB::transaction(function () use ($request, $perbaikanJudul) {
                 $data = $request->validated();
 
+                // Upload berkas baru jika ada
                 if ($request->hasFile('berkas')) {
-                    $path = $request->file('berkas')->store('uploads/perbaikan_judul', 'public');
-                    $data['berkas'] = $path;
+                    $data['berkas'] = $request->file('berkas')->store('uploads/perbaikan_judul', 'public');
                 }
 
+                // Proses penerimaan: set tanggal dan sinkronkan judul ke ranpel
                 if (isset($data['status']) && $data['status'] === 'diterima') {
                     if (empty($perbaikanJudul->tanggal_diterima)) {
                         $data['tanggal_diterima'] = now();
                     }
 
-                    // Update judul asli di tabel Ranpel agar sinkron
                     $judulBaru = $data['judul_baru'] ?? $perbaikanJudul->judul_baru;
                     if ($judulBaru) {
                         $perbaikanJudul->ranpel()->update([
-                            'judul_penelitian' => $judulBaru
+                            'judul_penelitian' => $judulBaru,
                         ]);
                     }
                 }
+
                 $perbaikanJudul->update($data);
 
                 return new PerbaikanJudulResource(
                     $perbaikanJudul->fresh()->load(['mahasiswa', 'ranpel'])
                 );
-
             });
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Gagal memperbarui perbaikan judul.',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus perbaikan judul.
+     *
+     * @param  PerbaikanJudul  $perbaikanJudul
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(PerbaikanJudul $perbaikanJudul)
     {
         $perbaikanJudul->delete();
 
-        return response()->json([
-            'message' => 'Perbaikan judul deleted successfully',
-        ]);
+        return response()->json(['message' => 'Perbaikan judul berhasil dihapus.']);
     }
 
+    /**
+     * Tampilkan perbaikan judul milik mahasiswa tertentu.
+     *
+     * @param  int  $mahasiswaId
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function getByMahasiswa($mahasiswaId)
     {
         $perbaikan = PerbaikanJudul::with(['mahasiswa', 'ranpel'])
             ->where('mahasiswa_id', $mahasiswaId)
             ->orderByDesc('created_at')
             ->get();
-        return PerbaikanJudulResource::collection($perbaikan);
-    }
-
-    public function getByPembimbing($dosenId)
-    {
-        $perbaikan = PerbaikanJudul::whereHas('mahasiswa', function ($query) use ($dosenId) {
-            $query->where('pembimbing_1', $dosenId)
-                ->orWhere('pembimbing_2', $dosenId);
-        })
-            ->with(['mahasiswa', 'ranpel'])
-            ->orderByDesc('created_at')
-            ->get();
 
         return PerbaikanJudulResource::collection($perbaikan);
     }
 
+    /**
+     * Tampilkan perbaikan judul oleh dosen PA/pembimbing.
+     *
+     * Menampilkan semua perbaikan judul dari mahasiswa yang
+     * dosen tersebut menjadi PA, pembimbing 1, atau pembimbing 2.
+     *
+     * @param  int  $dosenId
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function getByDosenPa($dosenId)
     {
         $perbaikan = PerbaikanJudul::whereHas('mahasiswa', function ($query) use ($dosenId) {
@@ -169,7 +199,7 @@ class PerbaikanJudulController extends Controller
                 'mahasiswa.dosenPembimbingAkademik',
                 'mahasiswa.pembimbing1',
                 'mahasiswa.pembimbing2',
-                'ranpel'
+                'ranpel',
             ])
             ->orderByDesc('created_at')
             ->get();

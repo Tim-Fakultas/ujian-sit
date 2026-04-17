@@ -7,30 +7,39 @@ use App\Http\Requests\UpdateBerkasRequest;
 use App\Http\Resources\BerkasResource;
 use App\Models\Berkas;
 
+/**
+ * BerkasController — Mengelola data berkas/dokumen pendaftaran ujian.
+ */
 class BerkasController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar semua berkas.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        $berkas = Berkas::all();
-        return BerkasResource::collection($berkas);
+        return BerkasResource::collection(Berkas::all());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan berkas baru.
+     *
+     * @param  StoreBerkasRequest  $request
+     * @return BerkasResource
      */
     public function store(StoreBerkasRequest $request)
     {
-        $request->validated();
-        $berkas = Berkas::create($request->all());
+        $berkas = Berkas::create($request->validated());
 
         return new BerkasResource($berkas);
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu berkas.
+     *
+     * @param  Berkas  $berkas
+     * @return BerkasResource
      */
     public function show(Berkas $berkas)
     {
@@ -38,21 +47,29 @@ class BerkasController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data berkas.
+     *
+     * @param  UpdateBerkasRequest  $request
+     * @param  Berkas  $berkas
+     * @return BerkasResource
      */
     public function update(UpdateBerkasRequest $request, Berkas $berkas)
     {
-        $validated = $request->validated();
-        $berkas->update($validated);
+        $berkas->update($request->validated());
+
         return new BerkasResource($berkas);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus berkas.
+     *
+     * @param  Berkas  $berkas
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Berkas $berkas)
     {
         $berkas->delete();
-        return response()->json(['message' => 'Berkas deleted successfully.'], 200);
+
+        return response()->json(['message' => 'Berkas berhasil dihapus.'], 200);
     }
 }

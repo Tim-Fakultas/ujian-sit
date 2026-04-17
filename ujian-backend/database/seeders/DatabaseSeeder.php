@@ -216,6 +216,72 @@ class DatabaseSeeder extends Seeder
 
         $this->call(RuanganSeeder::class);
 
+        // --- PLACEHOLDER / DUMMY DATA AT THE END ---
+        // Ensuring these get high IDs as requested by the USER (ID 1-3 in original dummy set)
+        
+        // 1. Jane Doe (Kaprodi Baru)
+        $kaprodiBaru = User::create([
+            'nip_nim' => '198701012015011001',
+            'nama' => 'Dr. Jane Doe, M.T.',
+            'email' => 'janedoe@example.com',
+            'password' => bcrypt('password'),
+            'prodi_id' => 1,
+            'email_verified_at' => now(),
+            'remember_token' => Str::random(10),
+        ]);
+        $kaprodiBaru->assignRole('kaprodi');
+        Dosen::create([
+            'user_id' => $kaprodiBaru->id,
+            'nidn' => '0000000001',
+            'nip' => '198701012015011001',
+            'nama' => 'Dr. Jane Doe, M.T.',
+            'prodi_id' => 1,
+            'status' => 'aktif',
+            'jabatan' => 'Ka Prodi',
+        ]);
+
+        // 2. John Smith (Sekprodi Baru)
+        $sekprodiBaru = User::create([
+            'nip_nim' => '198801012015011002',
+            'nama' => 'John Smith, M.Cs.',
+            'email' => 'johnsmith@example.com',
+            'password' => bcrypt('password'),
+            'prodi_id' => 1,
+            'email_verified_at' => now(),
+            'remember_token' => Str::random(10),
+        ]);
+        $sekprodiBaru->assignRole('sekprodi');
+        Dosen::create([
+            'user_id' => $sekprodiBaru->id,
+            'nidn' => '0000000002',
+            'nip' => '198801012015011002',
+            'nama' => 'John Smith, M.Cs.',
+            'prodi_id' => 1,
+            'status' => 'aktif',
+            'jabatan' => 'Sekprodi',
+        ]);
+
+        // 3. Alice Johnson (Dosen Baru)
+        $dosenBaru = User::create([
+            'nip_nim' => '198901012015011003',
+            'nama' => 'Alice Johnson, M.Pd.',
+            'email' => 'alice@example.com',
+            'password' => bcrypt('password'),
+            'prodi_id' => 1,
+            'email_verified_at' => now(),
+            'remember_token' => Str::random(10),
+        ]);
+        $dosenBaru->assignRole('dosen');
+        Dosen::create([
+            'user_id' => $dosenBaru->id,
+            'nidn' => '0000000003',
+            'nip' => '198901012015011003',
+            'nama' => 'Alice Johnson, M.Pd.',
+            'prodi_id' => 1,
+            'status' => 'aktif',
+            'jabatan' => 'Dosen',
+        ]);
+
         try {
             Artisan::call('import:ujian-proposal', [
             'file' => storage_path('app/public/Data_mhs_ujian_proposal.xlsx')

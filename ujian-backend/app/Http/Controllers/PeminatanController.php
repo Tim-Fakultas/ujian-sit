@@ -8,32 +8,41 @@ use App\Http\Resources\PeminatanResource;
 use App\Models\Peminatan;
 use Illuminate\Http\Request;
 
+/**
+ * PeminatanController — Mengelola data peminatan (konsentrasi) per prodi.
+ *
+ * Mendukung filter berdasarkan `prodi_id` dan pencarian nama peminatan.
+ */
 class PeminatanController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar peminatan.
+     *
+     * Mendukung filter: `prodi_id`, `search` (nama peminatan).
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index(Request $request)
     {
         $query = Peminatan::with('prodi');
 
-        // Filter by prodi_id if provided
         if ($request->has('prodi_id')) {
             $query->where('prodi_id', $request->prodi_id);
         }
 
-        // Search by nama_peminatan
         if ($request->has('search')) {
-            $query->where('nama_peminatan', 'like', '%'.$request->search.'%');
+            $query->where('nama_peminatan', 'like', '%' . $request->search . '%');
         }
 
-        $peminatan = $query->get();
-
-        return PeminatanResource::collection($peminatan);
+        return PeminatanResource::collection($query->get());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan peminatan baru.
+     *
+     * @param  StorePeminatanRequest  $request
+     * @return PeminatanResource
      */
     public function store(StorePeminatanRequest $request)
     {
@@ -44,7 +53,10 @@ class PeminatanController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail satu peminatan.
+     *
+     * @param  Peminatan  $peminatan
+     * @return PeminatanResource
      */
     public function show(Peminatan $peminatan)
     {
@@ -54,7 +66,11 @@ class PeminatanController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data peminatan.
+     *
+     * @param  UpdatePeminatanRequest  $request
+     * @param  Peminatan  $peminatan
+     * @return PeminatanResource
      */
     public function update(UpdatePeminatanRequest $request, Peminatan $peminatan)
     {
@@ -65,14 +81,15 @@ class PeminatanController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus peminatan.
+     *
+     * @param  Peminatan  $peminatan
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Peminatan $peminatan)
     {
         $peminatan->delete();
 
-        return response()->json([
-            'message' => 'Peminatan berhasil dihapus',
-        ]);
+        return response()->json(['message' => 'Peminatan berhasil dihapus.']);
     }
 }
