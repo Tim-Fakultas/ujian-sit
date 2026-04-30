@@ -4,61 +4,75 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function Loading() {
   return (
-    <div className="p-6 md:p-8 flex flex-col gap-8 min-h-screen">
+    <div className="p-6 md:p-10 flex flex-col gap-10 min-h-screen max-w-(--breakpoint-2xl) mx-auto">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-64 md:w-96" />
-          <Skeleton className="h-5 w-48" />
-        </div>
-        <Skeleton className="h-10 w-48 rounded-full" />
+      <div className="space-y-4 py-8 px-8 bg-muted/20 rounded-2xl border border-muted/50">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-10 w-64 md:w-96" />
+        <Skeleton className="h-6 w-48 md:w-80" />
       </div>
 
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="rounded-xl border shadow-sm">
-            <CardContent className="p-6 flex items-center justify-between">
-               <div className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-8 w-16" />
-               </div>
-               <Skeleton className="h-10 w-10 rounded-full" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column (2/3) */}
+        <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-4">
+             <Skeleton className="h-8 w-48" />
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               {Array.from({ length: 4 }).map((_, i) => (
+                 <Card key={i} className="border-border/50">
+                   <CardContent className="p-6 flex items-start justify-between">
+                      <div className="space-y-4 flex-1">
+                         <div className="space-y-1">
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-10 w-20" />
+                         </div>
+                         <Skeleton className="h-5 w-24 rounded-full" />
+                      </div>
+                      <Skeleton className="h-12 w-12 rounded-2xl" />
+                   </CardContent>
+                 </Card>
+               ))}
+             </div>
+          </div>
 
-      {/* Main Content Areas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         <Card className="h-[400px]">
-             <CardContent className="p-6 h-full flex flex-col gap-4">
-                 <Skeleton className="h-6 w-48" />
-                 <div className="flex-1 flex items-end gap-2 px-4">
-                    {Array.from({ length: 7 }).map((_, i) => (
-                         <Skeleton key={i} className="w-full rounded-t-lg" style={{ height: `${Math.random() * 80 + 20}%` }} />
-                    ))}
-                 </div>
-             </CardContent>
-         </Card>
-         
-         <Card className="h-[400px]">
-            <CardContent className="p-6 h-full flex flex-col gap-4">
-                 <Skeleton className="h-6 w-48" />
-                 <div className="space-y-4 pt-4">
+          {/* Chart Skeleton */}
+          <Card className="border-border/50">
+             <CardContent className="p-6 space-y-4">
+                <Skeleton className="h-8 w-64" />
+                <Skeleton className="h-4 w-80" />
+                <div className="h-[300px] w-full pt-4 space-y-3">
                     {Array.from({ length: 5 }).map((_, i) => (
-                       <div key={i} className="flex items-center gap-4">
-                          <Skeleton className="h-10 w-10 rounded-full" />
-                          <div className="space-y-2 flex-1">
-                             <Skeleton className="h-4 w-full" />
-                             <Skeleton className="h-3 w-1/2" />
-                          </div>
-                       </div>
+                        <div key={i} className="flex items-center gap-4">
+                            <Skeleton className="h-8 w-1/4" />
+                            <Skeleton className="h-8 flex-1 rounded-lg" style={{ width: `${Math.random() * 50 + 30}%` }} />
+                        </div>
                     ))}
-                 </div>
-            </CardContent>
-         </Card>
+                </div>
+             </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column (1/3) */}
+        <div className="space-y-8">
+          <div className="space-y-4">
+             <Skeleton className="h-8 w-48" />
+             <Card className="border-border/50">
+                <CardContent className="p-0 divide-y divide-border/50">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="p-4 flex items-center gap-4">
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <div className="space-y-2 flex-1">
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-3 w-1/2" />
+                            </div>
+                        </div>
+                    ))}
+                </CardContent>
+             </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+

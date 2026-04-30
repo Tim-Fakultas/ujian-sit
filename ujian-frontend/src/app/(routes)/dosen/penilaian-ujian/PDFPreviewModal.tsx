@@ -766,7 +766,7 @@ export default function PDFPreviewModal({
                           ? "Verifikasi Pengajuan"
                           : pengajuan.mahasiswa.pembimbing1?.id ||
                               pengajuan.mahasiswa.pembimbing2?.id
-                            ? "Simpan Perubahan"
+                            ? "Edit Pembimbing"
                             : "Terima & Tentukan Pembimbing"}
                     </Button>
 
@@ -911,7 +911,7 @@ export default function PDFPreviewModal({
                     // Just ensure the form handler works.
                   }}
                 >
-                  {isUpdating ? "Memproses..." : "Simpan & Terima"}
+                  {isUpdating ? "Memproses..." : pengajuan.status === "diterima" ? "Simpan" : "Simpan & Terima"}
                 </Button>
               </AlertDialogAction>
             </AlertDialogFooter>
