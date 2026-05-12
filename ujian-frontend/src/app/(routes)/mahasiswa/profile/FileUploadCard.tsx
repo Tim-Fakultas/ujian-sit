@@ -11,9 +11,13 @@ import {
   CheckCircle2,
   AlertCircle,
   Eye,
+  Trash2,
 } from "lucide-react";
 import { updateMahasiswaProfileAction } from "@/actions/mahasiswa";
-import { uploadFileKeSupabase } from "@/services/storageService";
+import {
+  uploadFileKeSupabase,
+  deleteFileDariSupabase,
+} from "@/services/storageService";
 import { showToast } from "@/components/ui/custom-toast";
 import { refreshUserAction } from "@/actions/auth";
 
@@ -94,6 +98,38 @@ export default function FileUploadCard({
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${title}?`)) return;
+
+    setIsUploading(true);
+    try {
+      // 1. Delete dari Supabase jika ada URL-nya
+      if (uploadedUrl) {
+        await deleteFileDariSupabase(uploadedUrl);
+      }
+
+      // 2. Update Database via Server Action (set ke null)
+      const updateRes = await updateMahasiswaProfileAction({
+        [fileKey]: null,
+        nim: nim,
+      });
+
+      if (!updateRes.success) {
+        throw new Error(updateRes.error || "Gagal menghapus dokumen");
+      }
+
+      // 3. Sukses
+      showToast.success(`Berhasil menghapus ${title}`);
+      setUploadedUrl(undefined);
+      await refreshUserAction();
+    } catch (error: any) {
+      showToast.error(`Gagal menghapus ${title}`);
+      console.error(error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <Card className="border-0 shadow-md bg-white dark:bg-neutral-900 rounded-2xl">
       <CardHeader className="pb-2 border-b border-gray-100 dark:border-neutral-800">
@@ -124,21 +160,32 @@ export default function FileUploadCard({
                     </div>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="h-9 border-primary/20 hover:bg-primary/10 text-primary"
-                >
-                  <a
-                    href={getStorageUrl(uploadedUrl)}
-                    target="_blank"
-                    rel="noreferrer"
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="h-9 border-primary/20 hover:bg-primary/10 text-primary"
                   >
-                    <Eye size={16} className="mr-2" />
-                    Lihat
-                  </a>
-                </Button>
+                    <a
+                      href={getStorageUrl(uploadedUrl)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <Eye size={16} className="mr-2" />
+                      Lihat
+                    </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDelete}
+                    disabled={isUploading}
+                    className="h-9 border-red-200 hover:bg-red-50 text-red-600 dark:border-red-900/30 dark:hover:bg-red-900/20"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="p-4 rounded-xl border border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800 flex items-center gap-3">
@@ -182,7 +229,7 @@ export default function FileUploadCard({
                   {isUploading
                     ? "Mengunggah..."
                     : uploadedUrl
-                      ? "Perbarui"
+                      ? "Ganti Berkas"
                       : "Unggah"}
                 </span>
               </Button>

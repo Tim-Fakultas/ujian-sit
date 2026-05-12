@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import AuthInitializer from "@/components/AuthInitializer";
 import { ThemeProvider } from "@/components/theme-provider";
+import { GoSkripsiV2Modal } from "@/components/common/GoSkripsiV2Modal";
 
 const fontSans = Inter({
   variable: "--font-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <GoSkripsiV2Modal />
         </ThemeProvider>
         <Toaster
           position="top-right"

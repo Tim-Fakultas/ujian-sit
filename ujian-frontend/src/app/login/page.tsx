@@ -2,10 +2,12 @@ import Image from "next/image";
 import LoginForm from "./LoginForm";
 import { GraduationCap } from "lucide-react";
 import { FaqModal } from "@/components/common/FaqModal";
+import { GoSkripsiV2Modal } from "@/components/common/GoSkripsiV2Modal";
 
 export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-zinc-950 relative overflow-hidden selection:bg-blue-500/30">
+      <GoSkripsiV2Modal />
       {/* Background Effects */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
@@ -81,6 +83,7 @@ export default function LoginPage() {
                   className="object-contain"
                 />
               </div>
+
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                 Selamat Datang
               </h2>
@@ -98,6 +101,7 @@ export default function LoginPage() {
               </p>
             </div>
           </div>
+
 
           {/* Version Number */}
           <div className="absolute bottom-4 left-4 text-[10px] text-zinc-900 dark:text-zinc-700 font-mono">

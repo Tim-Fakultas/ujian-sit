@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Mail, ShieldAlert, Building2, UserCircle2, CalendarDays } from "lucide-react";
+import EditProfileDialog from "@/components/profile/EditProfileDialog";
+
 
 export default function ProfileCard({ user }: { user: User | null }) {
    if (!user) return null;
@@ -44,6 +46,7 @@ export default function ProfileCard({ user }: { user: User | null }) {
 
                   {/* Status Badge */}
                   <div className="flex flex-col gap-2 items-center md:items-end">
+                     <EditProfileDialog user={user} />
                      <Badge className="px-4 py-1.5 text-sm font-semibold uppercase tracking-wide border-0 shadow-sm bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300">
                         Active
                      </Badge>
@@ -51,6 +54,7 @@ export default function ProfileCard({ user }: { user: User | null }) {
                         {user.nip_nim || "-"}
                      </p>
                   </div>
+
                </div>
             </Card>
 

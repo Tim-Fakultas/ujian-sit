@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { User } from "@/types/Auth";
-import DosenProfileEditForm from "./DosenProfileEditForm";
 import SignatureUploadCard from "./SignatureUploadCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -22,16 +21,10 @@ import {
   Mail,
   Calendar,
   Award,
-  Pencil,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import EditProfileDialog from "@/components/profile/EditProfileDialog";
+
 
 export default function DosenProfileCard({
   user: initialUser,
@@ -105,34 +98,9 @@ export default function DosenProfileCard({
                   </div>
 
                   <div className="shrink-0 flex items-start pt-1">
-                    <Dialog open={editMode} onOpenChange={setEditMode}>
-                      <DialogTrigger asChild>
-                        <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-blue-200 dark:shadow-none px-6 py-5 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
-                          <Pencil size={18} className="mr-2" />
-                          <span className="font-bold">Edit Profile</span>
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 border-0 rounded-3xl shadow-2xl">
-                        <DialogHeader className="p-8 border-b bg-gray-50/50 dark:bg-neutral-900/50">
-                          <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-                            <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-primary">
-                              <Pencil size={20} />
-                            </div>
-                            Edit Profil Dosen
-                          </DialogTitle>
-                        </DialogHeader>
-                        <div className="flex-1 flex flex-col overflow-hidden">
-                          <DosenProfileEditForm
-                            user={user}
-                            onSuccess={(u) => {
-                              setUser(u);
-                              setEditMode(false);
-                            }}
-                          />
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    <EditProfileDialog user={user} />
                   </div>
+
                 </div>
 
                 <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">

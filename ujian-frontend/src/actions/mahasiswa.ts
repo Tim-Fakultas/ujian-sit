@@ -36,35 +36,24 @@ export async function updateMahasiswaProfileAction(data: {
   const payload: any = {
     ...data,
     noHp: data.no_hp,
-    phone: data.no_hp,
-
-    // Address variations
-    address: data.alamat,
-    alamat_domisili: data.alamat,
-    domisili: data.alamat,
-    alamatLengkap: data.alamat,
-    alamatRumah: data.alamat,
-    location: data.alamat,
-
-    // Nested variation
-    user: {
-      alamat: data.alamat,
-      address: data.alamat,
-      no_hp: data.no_hp,
-      // Only send email in nested object if it changed
-      ...(shouldSendEmail ? { email: data.email } : {}),
-    },
+    peminatanId: data.peminatan_id,
+    prodiId: data.prodi_id,
+    alamat: data.alamat,
+    ipk: data.ipk,
+    semester: data.semester,
   };
 
-  // Only include email in root payload if it changed
+  // Only include email if it changed
   if (!shouldSendEmail) {
     delete payload.email;
   }
 
-  // Explicitly delete prohibited fields if they slipped in via data spread
+  // Explicitly delete prohibited or redundant fields
   delete payload.nim;
   delete payload.nama;
   delete payload.prodi_id;
+  delete payload.peminatan_id;
+  delete payload.no_hp;
   delete payload.prodiId;
 
   try {

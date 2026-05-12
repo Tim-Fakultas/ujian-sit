@@ -27,3 +27,23 @@ export const uploadFileKeSupabase = async (file: File, nim: string, jenisDokumen
 
   return publicUrl
 }
+
+export const deleteFileDariSupabase = async (url: string) => {
+  try {
+    // Ekstrak path dari URL publik Supabase
+    // Format: .../storage/v1/object/public/dokumen-mahasiswa/NIM/filename.ext
+    const parts = url.split('dokumen-mahasiswa/')
+    if (parts.length < 2) return
+
+    const filePath = parts[1]
+
+    const { error } = await supabase.storage
+      .from('dokumen-mahasiswa')
+      .remove([filePath])
+
+    if (error) throw error
+  } catch (error) {
+    console.error('Error deleting file from Supabase:', error)
+    // Jangan throw error di sini agar update database tetap berjalan meskipun delete file gagal
+  }
+}

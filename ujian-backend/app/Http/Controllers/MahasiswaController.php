@@ -103,15 +103,38 @@ class MahasiswaController extends Controller
             $mahasiswa->save();
         }
 
-        // Ambil hanya field yang dikirim (snake_case)
-        $merged = array_filter($request->only([
-            'no_hp', 'prodi_id', 'peminatan_id', 'dosen_pa',
-            'pembimbing_1', 'pembimbing_2', 'user_id', 'ipk',
-            'semester', 'url_ktm', 'url_transkrip_nilai',
-            'url_bukti_lulus_metopen', 'url_sertifikat_bta',
-        ]), fn($v) => !is_null($v));
+        // Get validated data
+        $data = $request->validated();
 
-        $mahasiswa->update($merged);
+        // Update fields explicitly to ensure they are saved
+        $fillableMap = [
+            'noHp' => 'no_hp',
+            'prodiId' => 'prodi_id',
+            'peminatanId' => 'peminatan_id',
+            'dosenPa' => 'dosen_pa',
+            'dosenId' => 'dosen_pa',
+            'pembimbing1' => 'pembimbing_1',
+            'pembimbing2' => 'pembimbing_2',
+            'userId' => 'user_id',
+        ];
+
+        foreach ($fillableMap as $camel => $snake) {
+            if (array_key_exists($camel, $data)) {
+                $data[$snake] = $data[$camel];
+            }
+        }
+
+        // We use $data directly from validated() which only contains fields present in the request.
+        // This allows setting fields to null if they are explicitly sent as null.
+        $mahasiswa->update($data);
+
+        // Update email di tabel users jika ada
+        if ($request->has('email')) {
+            $mahasiswa->user->update(['email' => $request->email]);
+        }
+
+        // Refresh and load relations
+        $mahasiswa->refresh();
         $mahasiswa->load(['prodi', 'peminatan', 'dosenPembimbingAkademik']);
 
         Cache::forget('mahasiswa_all');

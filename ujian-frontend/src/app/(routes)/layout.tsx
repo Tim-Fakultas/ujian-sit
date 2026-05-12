@@ -3,14 +3,14 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { PasswordWarning } from "@/components/auth/PasswordWarning";
 
-import { getAuthFromCookies } from "@/lib/auth";
+import { getCurrentUserAction } from "@/actions/auth";
 
 export default async function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user } = await getAuthFromCookies();
+  const { user } = await getCurrentUserAction();
 
   return (
     <SidebarProvider

@@ -4,7 +4,6 @@ import { getStorageUrl } from "@/lib/utils";
 import { User } from "@/types/Auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Briefcase,
@@ -14,10 +13,10 @@ import {
   User as UserIcon,
   ShieldCheck,
   BookOpen,
-  FileText,
-  Eye,
 } from "lucide-react";
-import { ProfileEditDialog } from "./ProfileEditDialog";
+import FileUploadCard from "./FileUploadCard";
+import EditProfileDialog from "@/components/profile/EditProfileDialog";
+
 
 export default function ProfileCard({ user }: { user: User | null }) {
   if (!user) return null;
@@ -76,10 +75,11 @@ export default function ProfileCard({ user }: { user: User | null }) {
               </div>
             </div>
 
-            {/* Status Badge & Edit Button */}
+            {/* Status Badge */}
             <div className="flex flex-col gap-3 items-center md:items-end">
-              <ProfileEditDialog user={user} />
+              <EditProfileDialog user={user} />
             </div>
+
           </div>
         </Card>
       </div>
@@ -246,56 +246,35 @@ export default function ProfileCard({ user }: { user: User | null }) {
             {/* Documents View Section */}
             <div className="md:col-span-2 space-y-4">
               <h3 className="text-lg font-bold">Dokumen Kelengkapan</h3>
-              <Card className="border-0 shadow-md bg-white dark:bg-neutral-900 rounded-2xl">
-                <CardContent className="p-6 space-y-4">
-                  {[
-                    { label: "Kartu Tanda Mahasiswa (KTM)", url: user.url_ktm },
-                    { label: "Transkrip Nilai", url: user.url_transkrip_nilai },
-                    {
-                      label: "Bukti Lulus Metopen",
-                      url: user.url_bukti_lulus_metopen,
-                    },
-                    { label: "Sertifikat BTA", url: user.url_sertifikat_bta },
-                  ].map((doc, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`p-2 rounded-lg ${doc.url ? "bg-primary/10 text-primary" : "bg-gray-200 text-gray-400"}`}
-                        >
-                          <FileText size={20} />
-                        </div>
-                        <span className="font-medium text-sm text-gray-700 dark:text-gray-300">
-                          {doc.label}
-                        </span>
-                      </div>
-                      {doc.url ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                          className="h-8 text-xs border-primary/20 hover:bg-primary/10 text-primary"
-                        >
-                          <a
-                            href={getStorageUrl(doc.url)}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <Eye size={14} className="mr-1.5" />
-                            Lihat
-                          </a>
-                        </Button>
-                      ) : (
-                        <span className="text-xs text-muted-foreground italic px-3">
-                          Belum diunggah
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+              <div className="grid grid-cols-1 gap-4">
+                <FileUploadCard
+                  title="Kartu Tanda Mahasiswa (KTM)"
+                  fileKey="url_ktm"
+                  currentUrl={user.url_ktm}
+                  nim={user.nim}
+                />
+                <FileUploadCard
+                  title="Transkrip Nilai"
+                  description="Transkrip nilai terbaru yang sudah divalidasi"
+                  fileKey="url_transkrip_nilai"
+                  currentUrl={user.url_transkrip_nilai}
+                  nim={user.nim}
+                />
+                <FileUploadCard
+                  title="Bukti Lulus Metopen"
+                  description="Bukti lulus mata kuliah Metodologi Penelitian"
+                  fileKey="url_bukti_lulus_metopen"
+                  currentUrl={user.url_bukti_lulus_metopen}
+                  nim={user.nim}
+                />
+                <FileUploadCard
+                  title="Sertifikat BTA"
+                  description="Sertifikat Baca Tulis Al-Qur'an"
+                  fileKey="url_sertifikat_bta"
+                  currentUrl={user.url_sertifikat_bta}
+                  nim={user.nim}
+                />
+              </div>
             </div>
           </div>
         </div>

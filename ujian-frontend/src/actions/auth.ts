@@ -3,6 +3,7 @@
 
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import type { User } from "@/types/Auth";
 import { loginSchema } from "@/lib/validations/auth";
 
@@ -138,6 +139,11 @@ export async function loginAction(formData: FormData) {
   };
 }
 
+// Request-level cache to avoid redundant API calls during a single render
+const getCachedUser = cache(async (token: string) => {
+  return await refreshUserAction(token);
+});
+
 export async function getCurrentUserAction() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -147,27 +153,27 @@ export async function getCurrentUserAction() {
     return { user: null, token: null, isAuthenticated: false };
   }
 
-  // Jika cookie user sudah ada, gunakan langsung (cepat)
+  // Use cookie if available for speed and reliability during render
   if (userCookie) {
     try {
       const user: User = JSON.parse(userCookie);
       if (user && user.nama) {
         return { user, token, isAuthenticated: true };
       }
-    } catch {
-      // Cookie rusak, lanjut ke fallback
+    } catch (e) {
+      console.error("DEBUG: Cookie parse error:", e);
     }
   }
 
-  // Fallback: fetch data lengkap dari API dan update cookie user
-  // Terjadi saat: session lama (sebelum cookie user di-set), atau cookie user corrupt
+  // Fallback to fresh data
   try {
-    const freshUser = await refreshUserAction();
+    const freshUser = await refreshUserAction(token);
     if (freshUser) {
       return { user: freshUser as User, token, isAuthenticated: true };
     }
     return { user: null, token: null, isAuthenticated: false };
-  } catch {
+  } catch (error) {
+    console.error("DEBUG: Failed to fetch fresh user data:", error);
     return { user: null, token: null, isAuthenticated: false };
   }
 }
